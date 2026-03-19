@@ -1,0 +1,23 @@
+<div class="rounded-md border border-border bg-surface p-4 shadow-sm">
+  <div class="text-sm font-semibold">Quick actions</div>
+  <p class="mt-1 text-sm text-muted-foreground">Jump into common tasks.</p>
+
+  <div class="mt-4 grid grid-cols-1 gap-2">
+    <p-button
+      styleClass="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+      label="Create order"
+      (onClick)="go('/dashboard/orders')"
+    />
+    <p-button
+      styleClass="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+      label="Receive stock"
+      (onClick)="go('/dashboard/inventory')"
+    />
+    <p-button
+      styleClass="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+      label="View reports"
+      (onClick)="go('/dashboard/reports')"
+    />
+  </div>
+</div>
+

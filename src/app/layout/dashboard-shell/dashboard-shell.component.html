@@ -1,0 +1,36 @@
+<div class="min-h-dvh bg-surface text-foreground">
+  <div class="grid min-h-dvh grid-cols-1 md:grid-cols-[auto_1fr]">
+    <!-- Desktop sidebar -->
+    <app-dashboard-sidebar
+      class="hidden md:block transition-all duration-300"
+      [collapsed]="isSidebarCollapsed()"
+      (toggleCollapse)="toggleSidebarCollapsed()"
+    />
+
+    <!-- Mobile sidebar overlay -->
+    @if (isMobileSidebarOpen()) {
+      <div
+        class="fixed inset-0 z-40 bg-foreground/20 md:hidden"
+        (click)="closeMobileSidebar()"
+        aria-hidden="true"
+      ></div>
+      <app-dashboard-sidebar
+        class="fixed inset-y-0 left-0 z-50 w-64 md:hidden"
+        [collapsed]="false"
+        (navigate)="closeMobileSidebar()"
+      />
+    }
+
+    <div class="min-w-0">
+      <app-dashboard-navbar
+        [collapsed]="isSidebarCollapsed()"
+        (collapseToggle)="toggleSidebarCollapsed()"
+        (menuClick)="openMobileSidebar()"
+      />
+      <main class="mx-auto w-full max-w-7xl p-4 md:p-6">
+        <router-outlet />
+      </main>
+    </div>
+  </div>
+</div>
+

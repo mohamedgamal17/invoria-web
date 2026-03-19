@@ -1,0 +1,61 @@
+/**
+ * Typography system (Invoria).
+ *
+ * PrimeNG components inherit the application's `font-family` and rem base sizes,
+ * so defining these globally makes PrimeNG typography consistent with the app.
+ */
+
+:root {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+    'Apple Color Emoji', 'Segoe UI Emoji';
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+    monospace;
+
+  /* Base / body */
+  --typography-base-font-size: 16px;
+  --typography-line-height: 1.5;
+
+  /* Scale (rem) */
+  --ty-xs: 0.75rem; /* 12px */
+  --ty-sm: 0.875rem; /* 14px */
+  --ty-md: 1rem; /* 16px */
+  --ty-lg: 1.125rem; /* 18px */
+  --ty-xl: 1.25rem; /* 20px */
+  --ty-2xl: 1.5rem; /* 24px */
+  --ty-3xl: 1.875rem; /* 30px */
+  --ty-4xl: 2.25rem; /* 36px */
+
+  /* Headings */
+  --ty-h1: var(--ty-4xl);
+  --ty-h2: var(--ty-3xl);
+  --ty-h3: var(--ty-2xl);
+}
+
+html,
+body {
+  font-family: var(--font-sans);
+  font-size: var(--typography-base-font-size);
+  line-height: var(--typography-line-height);
+  color: var(--c-foreground);
+  background: var(--c-surface);
+}
+
+/* Optional: normalize default heading sizing */
+h1 {
+  font-size: var(--ty-h1);
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: var(--ty-h2);
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+h3 {
+  font-size: var(--ty-h3);
+  line-height: 1.25;
+  font-weight: 650;
+}
+

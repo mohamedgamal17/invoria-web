@@ -1,0 +1,51 @@
+<header class="sticky top-0 z-30 border-b border-border bg-surface/90 backdrop-blur">
+  <div class="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 md:px-6">
+    <p-button
+      class="md:hidden"
+      styleClass="rounded-md border border-border bg-surface-2 p-2 text-foreground transition-all duration-200 ease-in-out hover:bg-muted hover:scale-105 active:scale-95 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus group"
+      aria-label="Open navigation menu"
+      (onClick)="menuClick.emit()"
+    >
+      <lucide-icon [name]="menuIcon" class="size-5 transition-transform duration-200 group-hover:rotate-12" />
+    </p-button>
+
+    <p-button
+      class="hidden md:inline-flex"
+      styleClass="rounded-md border border-border bg-surface-2 p-2 text-foreground transition-all duration-200 ease-in-out hover:bg-muted hover:scale-105 active:scale-95 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus group"
+      (onClick)="collapseToggle.emit()"
+      [attr.aria-pressed]="collapsed"
+      aria-label="Toggle sidebar collapse"
+    >
+      <lucide-icon 
+        [name]="collapsed ? collapseIconCollapsed : collapseIconExpanded" 
+        class="size-5 transition-transform duration-200 group-hover:scale-110" 
+      />
+    </p-button>
+
+    <div class="min-w-0">
+      <div class="text-sm font-semibold">Dashboard</div>
+      <div class="text-xs text-muted-foreground">Inventory & ordering overview</div>
+    </div>
+
+    <div class="flex-1"></div>
+
+    <div class="hidden w-full max-w-sm md:block">
+      <label class="sr-only" for="globalSearch">Search</label>
+      <input
+        id="globalSearch"
+        type="search"
+        placeholder="Search…"
+        class="w-full"
+        pInputText
+      />
+    </div>
+
+    <p-button
+      aria-label="Open user menu"
+      styleClass="rounded-md border border-border bg-surface-2 p-2 text-foreground transition-all duration-200 ease-in-out hover:bg-muted hover:scale-105 active:scale-95 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus group"
+    >
+      <lucide-icon [name]="userIcon" class="size-5 transition-transform duration-200 group-hover:scale-110" />
+    </p-button>
+  </div>
+</header>
+

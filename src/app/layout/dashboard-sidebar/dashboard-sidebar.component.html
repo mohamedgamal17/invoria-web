@@ -1,0 +1,157 @@
+<!-- Modern Sidebar Container -->
+<aside
+  class="sticky top-0 h-screen border-r border-border bg-surface-2 transition-all duration-300 ease-in-out flex flex-col z-20 shrink-0 overflow-hidden"
+  [class.w-64]="!collapsed"
+  [class.md:w-64]="!collapsed"
+  [class.w-20]="collapsed"
+  [class.md:w-20]="collapsed"
+>
+  <!-- Header / Brand Section -->
+  <div class="p-4 h-16 flex items-center shrink-0 transition-all duration-300" [class.justify-center]="collapsed" [class.gap-3]="!collapsed">
+    <div
+      class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+    >
+      <span class="text-lg font-extrabold italic">I</span>
+    </div>
+    <div
+      class="flex flex-col overflow-hidden transition-all duration-300 ease-in-out"
+      [class.opacity-0]="collapsed"
+      [class.w-0]="collapsed"
+      [class.opacity-100]="!collapsed"
+      [class.w-auto]="!collapsed"
+    >
+      <span class="text-sm font-bold tracking-tight text-foreground whitespace-nowrap">Invoria</span>
+      <span class="text-[10px] uppercase tracking-widest text-muted-foreground font-medium whitespace-nowrap"
+        >Operations Admin</span
+      >
+    </div>
+  </div>
+
+  <!-- Main Navigation Area (Scrollable) -->
+  <div class="flex-1 overflow-y-auto px-3 py-4 custom-scrollbar">
+    <!-- Primary Navigation -->
+    <div class="space-y-1">
+      @if (!collapsed) {
+        <p class="mb-2 px-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground/60">
+          Overview
+        </p>
+      }
+      <nav class="space-y-1">
+        @for (item of primary; track item.path) {
+          <a
+            [routerLink]="item.path"
+            routerLinkActive="bg-primary/10 text-primary font-semibold shadow-sm active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="flex items-center rounded-lg px-3 py-2.5 text-sm transition-all duration-200 hover:bg-muted group relative overflow-hidden"
+            [class.gap-3]="!collapsed"
+            [class.justify-center]="collapsed"
+            pRipple
+            [pTooltip]="collapsed ? item.label : ''"
+            tooltipPosition="right"
+            (click)="navigate.emit()"
+          >
+            <lucide-icon
+              [img]="item.icon"
+              [size]="18"
+              class="shrink-0 transition-transform duration-200 group-hover:scale-110"
+              aria-hidden="true"
+            ></lucide-icon>
+            <span
+              class="transition-all duration-300 whitespace-nowrap overflow-hidden"
+              [class.opacity-0]="collapsed"
+              [class.w-0]="collapsed"
+              [class.translate-x-4]="collapsed"
+            >
+              {{ item.label }}
+            </span>
+            <!-- Active indicator dot -->
+            <div
+              class="indicator-dot absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full transition-opacity opacity-0"
+            ></div>
+          </a>
+        }
+      </nav>
+    </div>
+
+    <!-- Secondary Navigation -->
+    <div class="mt-8 space-y-1">
+      @if (!collapsed) {
+        <p class="mb-2 px-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground/60">
+          Management
+        </p>
+      }
+      <nav class="space-y-1">
+        @for (item of secondary; track item.path) {
+          <a
+            [routerLink]="item.path"
+            routerLinkActive="bg-primary/10 text-primary font-semibold shadow-sm active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="flex items-center rounded-lg px-3 py-2.5 text-sm transition-all duration-200 hover:bg-muted group relative overflow-hidden"
+            [class.gap-3]="!collapsed"
+            [class.justify-center]="collapsed"
+            pRipple
+            [pTooltip]="collapsed ? item.label : ''"
+            tooltipPosition="right"
+            (click)="navigate.emit()"
+          >
+            <lucide-icon
+              [img]="item.icon"
+              [size]="18"
+              class="shrink-0 transition-transform duration-200 group-hover:scale-110"
+              aria-hidden="true"
+            ></lucide-icon>
+            <span
+              class="transition-all duration-300 whitespace-nowrap overflow-hidden"
+              [class.opacity-0]="collapsed"
+              [class.w-0]="collapsed"
+              [class.translate-x-4]="collapsed"
+            >
+              {{ item.label }}
+            </span>
+          </a>
+        }
+      </nav>
+    </div>
+  </div>
+
+  <!-- Footer / Profile Section -->
+  <div class="mt-auto border-t border-border p-4 bg-surface/30 backdrop-blur-sm">
+    <div class="flex items-center transition-all duration-300" [class.justify-center]="collapsed" [class.gap-3]="!collapsed">
+      <p-avatar
+        [label]="user.avatar"
+        shape="circle"
+        styleClass="bg-primary text-primary-foreground font-bold shadow-sm"
+        [pTooltip]="collapsed ? user.name : ''"
+        tooltipPosition="right"
+      ></p-avatar>
+      <div
+        class="flex flex-col overflow-hidden transition-all duration-300 ease-in-out flex-1"
+        [class.opacity-0]="collapsed"
+        [class.w-0]="collapsed"
+      >
+        <span class="text-xs font-semibold text-foreground truncate">{{ user.name }}</span>
+        <span class="text-[10px] text-muted-foreground truncate">{{ user.email }}</span>
+      </div>
+      @if (!collapsed) {
+        <button
+          class="p-2 rounded-lg hover:bg-danger/10 hover:text-danger text-muted-foreground transition-all shrink-0"
+          pRipple
+          pTooltip="Logout"
+          tooltipPosition="top"
+        >
+          <lucide-icon [img]="logoutIcon" [size]="16"></lucide-icon>
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Toggle Button (Optional floating or integrated) -->
+  <button
+    (click)="toggleCollapse.emit()"
+    class="absolute -right-3 top-20 hidden md:flex h-6 w-6 items-center justify-center rounded-full border border-border bg-surface text-muted-foreground hover:bg-muted hover:text-foreground shadow-sm transition-all z-10"
+    pRipple
+  >
+    <lucide-icon [img]="collapsed ? expandIcon : collapseIcon" [size]="12"></lucide-icon>
+  </button>
+</aside>
+

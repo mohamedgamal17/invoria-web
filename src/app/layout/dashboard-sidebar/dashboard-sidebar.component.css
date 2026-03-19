@@ -1,0 +1,30 @@
+:host {
+  height: 100%;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--c-border);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--c-muted-foreground);
+}
+
+/* Ensure smooth transitions for width */
+aside {
+  will-change: width;
+}
+
+/* Active Indicator refinement */
+.active .indicator-dot {
+  opacity: 1;
+}

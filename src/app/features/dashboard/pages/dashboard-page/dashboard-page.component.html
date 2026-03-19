@@ -1,0 +1,37 @@
+<section class="space-y-6">
+  <header class="flex flex-col gap-1">
+    <h1 class="text-2xl font-semibold">Dashboard</h1>
+    <p class="text-sm text-muted-foreground">Today’s operational snapshot.</p>
+  </header>
+
+  <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <app-kpi-card title="Open orders" value="18" hint="Need action" tone="warning" />
+    <app-kpi-card title="Low stock items" value="7" hint="Below reorder" tone="danger" />
+    <app-kpi-card title="Items received" value="42" hint="Last 24h" tone="success" />
+    <app-kpi-card title="On-time delivery" value="96%" hint="Last 7d" tone="primary" />
+  </section>
+
+  <section class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+    <div class="lg:col-span-1">
+      <app-quick-actions />
+    </div>
+    <div class="lg:col-span-2">
+      <app-recent-activity />
+    </div>
+  </section>
+
+  <section class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+    <div class="lg:col-span-2">
+      <app-low-stock-widget />
+    </div>
+    <div class="lg:col-span-1">
+      <div class="rounded-md border border-border bg-surface p-4 shadow-sm">
+        <div class="text-sm font-semibold">Notes</div>
+        <p class="mt-2 text-sm text-muted-foreground">
+          This panel can hold announcements, reminders, or a small chart widget.
+        </p>
+      </div>
+    </div>
+  </section>
+</section>
+

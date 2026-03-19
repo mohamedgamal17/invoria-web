@@ -2,6 +2,29 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.0.
 
+## Design tokens (Tailwind v4)
+
+Tokens live in:
+- `src/styles/tokens.css` (CSS variables for light + dark)
+- `src/styles.css` (Tailwind `@theme` mapping)
+
+### Dark mode
+
+Add/remove the `.dark` class on `html` or `body`.
+
+### Token usage in templates
+
+- **Surfaces**: `bg-surface text-foreground`
+- **Muted areas**: `bg-muted text-muted-foreground`
+- **Borders**: `border border-border`
+- **Cards**: `bg-surface-2 rounded-lg shadow-sm border border-border`
+- **Primary button**: `bg-primary text-primary-foreground hover:bg-primary/90`
+- **Status**:
+  - Success: `bg-success text-success-foreground`
+  - Warning: `bg-warning text-warning-foreground`
+  - Danger: `bg-danger text-danger-foreground`
+- **Focus ring**: `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus`
+
 ## Development server
 
 To start a local development server, run:

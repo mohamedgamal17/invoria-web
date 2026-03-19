@@ -1,3 +1,48 @@
 /* You can add global styles to this file, and also import other style files */
 
+@import './styles/tokens.css';
+@import './styles/typography.css';
+@import 'primeicons/primeicons.css';
+
+/* Tailwind v4 CSS-first theming
+   This maps semantic tokens into Tailwind theme keys so utilities like
+   `bg-surface`, `text-foreground`, `border-border`, `rounded-md`, `shadow-sm`,
+   and `duration-150` work everywhere. */
+@theme {
+  --color-surface: var(--c-surface);
+  --color-surface-2: var(--c-surface-2);
+  --color-foreground: var(--c-foreground);
+  --color-muted: var(--c-muted);
+  --color-muted-foreground: var(--c-muted-foreground);
+  --color-border: var(--c-border);
+
+  --color-primary: var(--c-primary);
+  --color-primary-foreground: var(--c-primary-foreground);
+  --color-secondary: var(--c-secondary);
+  --color-secondary-foreground: var(--c-secondary-foreground);
+
+  --color-success: var(--c-success);
+  --color-success-foreground: var(--c-success-foreground);
+  --color-warning: var(--c-warning);
+  --color-warning-foreground: var(--c-warning-foreground);
+  --color-danger: var(--c-danger);
+  --color-danger-foreground: var(--c-danger-foreground);
+
+  --color-focus: var(--c-focus);
+
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-xl: var(--r-xl);
+
+  --shadow-sm: var(--sh-sm);
+  --shadow-md: var(--sh-md);
+  --shadow-lg: var(--sh-lg);
+
+  --duration-150: var(--m-duration-150);
+  --duration-200: var(--m-duration-200);
+  --duration-300: var(--m-duration-300);
+  --ease-standard: var(--m-ease-standard);
+}
+
 @import 'tailwindcss';
