@@ -77,6 +77,18 @@
           />
       </div>
     }
+
+    <!-- Mobile Pagination -->
+    <div class="mt-8 pb-4">
+      <p-paginator
+        [first]="pageIndex() * pageSize()"
+        [rows]="pageSize()"
+        [totalRecords]="totalRecords()"
+        [rowsPerPageOptions]="pageSizeOptions"
+        (onPageChange)="onPageChange($event)"
+        styleClass="bg-transparent border-none"
+      />
+    </div>
   </div>
 
   <!-- Desktop Table View -->

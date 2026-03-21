@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, type OnInit, signal, computed } from '@angular/core';
+import { ChangeDetectorRef, Component, type OnInit, signal, computed, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { finalize, take } from 'rxjs';
 
@@ -14,7 +15,9 @@ import { TooltipModule } from 'primeng/tooltip';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ToastModule } from 'primeng/toast';
+import { PaginatorModule } from 'primeng/paginator';
 import { MessageService } from 'primeng/api';
+import { Router, ActivatedRoute } from '@angular/router';
 
 import { CustomersMockApiService } from '../../services/customers-mock-api.service';
 import type { Customer, CustomerCreateInput } from '../../models/customer';
@@ -41,7 +44,8 @@ type ModalMode = 'create' | 'edit';
     TooltipModule,
     IconFieldModule,
     InputIconModule,
-    ToastModule
+    ToastModule,
+    PaginatorModule
   ],
   providers: [MessageService],
   templateUrl: './customers-page.component.html'
@@ -70,14 +74,28 @@ export class CustomersPageComponent implements OnInit {
     Array.from({ length: this.pageSize() }, (_, i) => i)
   );
 
+  private readonly destroyRef = inject(DestroyRef);
+
   constructor(
     private readonly customersApi: CustomersMockApiService,
     private readonly cdr: ChangeDetectorRef,
-    private readonly messageService: MessageService
+    private readonly messageService: MessageService,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
-    this.loadCustomers();
+    this.route.queryParams
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        const page = params['page'] ? parseInt(params['page'], 10) : 1;
+        const newPageIndex = Math.max(0, page - 1);
+        
+        if (this.pageIndex() !== newPageIndex || this.isListLoading()) {
+          this.pageIndex.set(newPageIndex);
+          this.loadCustomers();
+        }
+      });
   }
 
   openCreateModal(): void {
@@ -125,8 +143,11 @@ export class CustomersPageComponent implements OnInit {
             detail: `Customer ${action} successfully.` 
         });
         this.modalVisible.set(false);
-        this.pageIndex.set(0);
-        this.loadCustomers();
+        void this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { page: 1 },
+          queryParamsHandling: 'merge',
+        });
       },
       error: (err: unknown) => {
         const message = err instanceof Error ? err.message : 'Unexpected error.';
@@ -156,11 +177,28 @@ export class CustomersPageComponent implements OnInit {
 
   onPageChange(event: any): void {
     const rows = event.rows ?? this.pageSize();
-    const page = event.page ?? Math.floor((event.first ?? 0) / Math.max(rows, 1));
+    const newPageIndex = event.page ?? Math.floor((event.first ?? 0) / Math.max(rows, 1));
     
-    this.pageSize.set(rows);
-    this.pageIndex.set(page);
-    this.loadCustomers();
+    if (this.pageIndex() !== newPageIndex || this.pageSize() !== rows) {
+      const isPageSizeChangeOnly = this.pageIndex() === newPageIndex && this.pageSize() !== rows;
+      this.pageSize.set(rows);
+
+      const isManualPageChange = this.pageIndex() !== newPageIndex;
+      
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { page: newPageIndex + 1 },
+        queryParamsHandling: 'merge',
+      });
+
+      if (isManualPageChange) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (isPageSizeChangeOnly) {
+        // If only page size changed, navigation above might not trigger queryParams sub
+        // because the 'page' value didn't change in the URL.
+        this.loadCustomers();
+      }
+    }
   }
 
   private loadCustomers(): void {

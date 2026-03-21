@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, type OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, type OnInit, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 
@@ -15,7 +16,9 @@ import { TooltipModule } from 'primeng/tooltip';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ToastModule } from 'primeng/toast';
+import { PaginatorModule } from 'primeng/paginator';
 import { MessageService } from 'primeng/api';
+import { Router, ActivatedRoute } from '@angular/router';
 
 import { ProductsMockApiService } from '../../services/products-mock-api.service';
 import type { Product, ProductCreateInput } from '../../models/product';
@@ -45,7 +48,8 @@ type ModalMode = 'create' | 'edit';
     TooltipModule,
     IconFieldModule,
     InputIconModule,
-    ToastModule
+    ToastModule,
+    PaginatorModule
   ],
   providers: [MessageService],
   templateUrl: './products-page.component.html'
@@ -73,14 +77,28 @@ export class ProductsPageComponent implements OnInit {
     price: 0
   };
 
+  private readonly destroyRef = inject(DestroyRef);
+
   constructor(
     private readonly productsApi: ProductsMockApiService,
     private readonly cdr: ChangeDetectorRef,
-    private readonly messageService: MessageService
+    private readonly messageService: MessageService,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
-    void this.loadProducts();
+    this.route.queryParams
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        const page = params['page'] ? parseInt(params['page'], 10) : 1;
+        const newPageIndex = Math.max(0, page - 1);
+        
+        if (this.pageIndex !== newPageIndex || this.isListLoading) {
+          this.pageIndex = newPageIndex;
+          void this.loadProducts();
+        }
+      });
   }
 
   get skeletonRows(): number[] {
@@ -131,8 +149,11 @@ export class ProductsPageComponent implements OnInit {
       }
 
       // Refresh list after create/update.
-      this.pageIndex = 0;
-      await this.loadProducts();
+      await this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { page: 1 },
+        queryParamsHandling: 'merge',
+      });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unexpected error.';
       this.messageService.add({ severity: 'error', summary: 'Error', detail: message });
@@ -161,9 +182,28 @@ export class ProductsPageComponent implements OnInit {
   async onPageChange(event: any): Promise<void> {
     const first = event.first ?? 0;
     const rows = event.rows ?? this.pageSize;
-    this.pageSize = rows;
-    this.pageIndex = Math.floor(first / Math.max(rows, 1));
-    await this.loadProducts();
+    const newPageIndex = Math.floor(first / Math.max(rows, 1));
+    
+    if (this.pageIndex !== newPageIndex || this.pageSize !== rows) {
+      const isPageSizeChangeOnly = this.pageIndex === newPageIndex && this.pageSize !== rows;
+      this.pageSize = rows;
+      
+      const isManualPageChange = this.pageIndex !== newPageIndex;
+      
+      await this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { page: newPageIndex + 1 },
+        queryParamsHandling: 'merge',
+      });
+
+      if (isManualPageChange) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (isPageSizeChangeOnly) {
+        // If only page size changed, navigation above might not trigger queryParams sub
+        // because the 'page' value didn't change in the URL.
+        await this.loadProducts();
+      }
+    }
   }
 
   private async loadProducts(): Promise<void> {
