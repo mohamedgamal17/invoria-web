@@ -47,9 +47,9 @@ export class DashboardSidebarComponent {
   @Output() readonly toggleCollapse = new EventEmitter<void>();
 
   readonly user = {
-    name: 'Mohamed Kamal',
+    name: 'Mohamed gamal',
     email: 'mohamed@invoria.com',
-    avatar: 'MK'
+    avatar: 'MG'
   };
 
   readonly primary: NavItem[] = [
