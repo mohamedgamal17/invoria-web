@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { delay, Observable, of, throwError } from 'rxjs';
-import type { Order, OrderCreateInput, OrderUpdateInput, OrderStatus } from '../models/order';
+import type { Order, OrderCreateInput, OrderUpdateInput, OrderState, OrderStateTransition } from '../models/order';
+import { canEditOrder, canTransition } from '../models/order';
 
 function createAuditSnapshot(seed: number): {
   createdAt: string;
@@ -28,7 +29,7 @@ type ListOrdersResponse = {
   total: number;
 };
 
-const STATUS_OPTIONS: OrderStatus[] = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+const STATE_OPTIONS: OrderState[] = ['PENDING', 'ACCEPTED', 'REOPENED', 'COMPLETED', 'CANCELLED', 'REFUSED'];
 
 const INITIAL_ORDERS: Order[] = Array.from({ length: 42 }, (_, i) => {
   const n = i + 1;
@@ -36,7 +37,7 @@ const INITIAL_ORDERS: Order[] = Array.from({ length: 42 }, (_, i) => {
   const customerNames = ['Ahmad Ali', 'Sara Smith', 'David Muller', 'Elena Rossi', 'John Doe'];
   const customerName = customerNames[i % customerNames.length];
   const totalAmount = Math.round((50 + n * 12.5) * 100) / 100;
-  const status = STATUS_OPTIONS[i % STATUS_OPTIONS.length];
+  const status = STATE_OPTIONS[i % STATE_OPTIONS.length];
   const audit = createAuditSnapshot(n);
 
   return {
@@ -46,6 +47,17 @@ const INITIAL_ORDERS: Order[] = Array.from({ length: 42 }, (_, i) => {
     totalAmount,
     status,
     orderDate: audit.createdAt,
+    items: [
+      { productId: 'prd_1', productName: 'Product 1', quantity: 2, price: 12.75 },
+      { productId: 'prd_2', productName: 'Product 2', quantity: 1, price: 15.50 }
+    ],
+    stateHistory: [{
+      from: 'PENDING',
+      to: status,
+      timestamp: audit.createdAt,
+      changedBy: 'system',
+      reason: 'Initial state'
+    }],
     ...audit
   };
 });
@@ -77,11 +89,20 @@ export class OrdersMockApiService {
 
   createOrder(input: OrderCreateInput): Observable<Order> {
     const nowSeed = ordersStore.length + 1;
-    const created = {
+    const audit = createAuditSnapshot(nowSeed);
+    const created: Order = {
       id: generateId(nowSeed),
       ...input,
-      ...createAuditSnapshot(nowSeed)
-    } satisfies Order;
+      status: 'PENDING',
+      stateHistory: [{
+        from: 'PENDING',
+        to: 'PENDING',
+        timestamp: audit.createdAt,
+        changedBy: 'system',
+        reason: 'Order created'
+      }],
+      ...audit
+    };
 
     ordersStore = [created, ...ordersStore];
     return of(created).pipe(delay(300));
@@ -91,12 +112,52 @@ export class OrdersMockApiService {
     const idx = ordersStore.findIndex(o => o.id === id);
     if (idx === -1) return throwError(() => new Error('Order not found.'));
 
+    const order = ordersStore[idx];
+    if (!canEditOrder(order.status)) {
+      return throwError(() => new Error(`Order cannot be modified in "${order.status}" state.`));
+    }
+
     const updated = {
-      ...ordersStore[idx],
+      ...order,
       ...input,
       lastModifiedAt: new Date().toISOString(),
       lastModifiedBy: 'system'
     } as Order;
+
+    ordersStore = [
+      ...ordersStore.slice(0, idx),
+      updated,
+      ...ordersStore.slice(idx + 1)
+    ];
+
+    return of(updated).pipe(delay(300));
+  }
+
+  transitionOrderState(id: string, targetState: OrderState, reason?: string): Observable<Order> {
+    const idx = ordersStore.findIndex(o => o.id === id);
+    if (idx === -1) return throwError(() => new Error('Order not found.'));
+
+    const order = ordersStore[idx];
+    if (!canTransition(order.status, targetState)) {
+      return throwError(() => new Error(`Invalid transition from "${order.status}" to "${targetState}".`));
+    }
+
+    const now = new Date().toISOString();
+    const transition: OrderStateTransition = {
+      from: order.status,
+      to: targetState,
+      timestamp: now,
+      changedBy: 'system',
+      reason
+    };
+
+    const updated: Order = {
+      ...order,
+      status: targetState,
+      stateHistory: [...order.stateHistory, transition],
+      lastModifiedAt: now,
+      lastModifiedBy: 'system'
+    };
 
     ordersStore = [
       ...ordersStore.slice(0, idx),

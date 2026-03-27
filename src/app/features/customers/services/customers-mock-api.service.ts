@@ -134,6 +134,21 @@ export class CustomersMockApiService {
     return of(undefined).pipe(delay(200));
   }
 
+  searchCustomers(query: string): Observable<Customer[]> {
+    const normalizedQuery = (query || '').toLowerCase().trim();
+    
+    // If query is empty, return top 20 customers to show in "Show all" dropdown
+    if (!normalizedQuery) {
+      return of(customersStore.slice(0, 20)).pipe(delay(200));
+    }
+
+    const results = customersStore.filter(c => 
+      c.name.toLowerCase().includes(normalizedQuery)
+    ).slice(0, 20);
+
+    return of(results).pipe(delay(200));
+  }
+
   private assertCreateOrUpdateInput(input: CustomerCreateInput): void {
     const name = (input.name || '').trim();
 

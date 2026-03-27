@@ -1,0 +1,273 @@
+<p-dialog
+  [header]="mode() === 'create' ? 'Add New Order' : 'Edit Order'"
+  [(visible)]="visible"
+  [modal]="true"
+  [dismissableMask]="true"
+  [draggable]="false"
+  [style]="{ width: '100%', maxWidth: '700px' }"
+  [breakpoints]="{ '960px': '85vw', '641px': '95vw' }"
+  (onHide)="onHide()"
+  styleClass="modern-dialog"
+>
+  <form (ngSubmit)="orderSubmit.emit()" class="space-y-6 pt-2">
+    <div class="space-y-5">
+
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Customer</label>
+        <div class="flex gap-2">
+          <p-autocomplete
+            [ngModel]="selectedCustomer()"
+            (ngModelChange)="selectedCustomer.set($event)"
+            [suggestions]="customers()"
+            (completeMethod)="searchCustomers.emit($event)"
+            (onSelect)="customerSelect.emit($event)"
+            field="name"
+            optionLabel="name"
+            dataKey="id"
+            [forceSelection]="true"
+            placeholder="Search and select customer..."
+            [minLength]="1"
+            [dropdown]="true"
+            name="customerAutocomplete"
+            styleClass="flex-1"
+            inputStyleClass="w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all text-sm"
+            appendTo="body"
+            [disabled]="saving()"
+          >
+            <ng-template pTemplate="dropdownicon">
+              <i class="pi pi-chevron-down text-muted-foreground" *ngIf="!isCustomerLoading()"></i>
+              <i class="pi pi-spinner pi-spin text-primary" *ngIf="isCustomerLoading()"></i>
+            </ng-template>
+            <ng-template let-customer pTemplate="item">
+              <div class="flex items-center gap-2 py-1">
+                <i class="pi pi-user text-muted-foreground text-xs"></i>
+                <span class="text-sm font-medium text-foreground">{{ customer.name }}</span>
+              </div>
+            </ng-template>
+          </p-autocomplete>
+          @if (selectedCustomer()) {
+            <p-button
+              icon="pi pi-user-minus"
+              [text]="true"
+              [rounded]="true"
+              severity="danger"
+              (onClick)="clearCustomer.emit()"
+              pTooltip="Remove customer"
+              styleClass="w-10 h-10 border border-danger/30 bg-danger/5 hover:bg-danger/10 transition-colors"
+              type="button"
+              [disabled]="saving()"
+            />
+          }
+        </div>
+      </div>
+
+      <div class="space-y-4 pt-2 border-t border-border">
+        <h3 class="text-sm font-bold text-foreground uppercase tracking-wider">Order Items</h3>
+        
+        <!-- Add Item Form -->
+        <div class="space-y-4 bg-surface-2 p-4 rounded-xl border border-border/50">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Search Product</label>
+            <div class="flex gap-2">
+              <p-autocomplete
+                [ngModel]="selectedProduct()"
+                (ngModelChange)="selectedProduct.set($event)"
+                [suggestions]="products()"
+                (completeMethod)="searchProducts.emit($event)"
+                (onSelect)="productSelect.emit($event)"
+                field="name"
+                optionLabel="name"
+                dataKey="id"
+                [forceSelection]="true"
+                placeholder="Start typing product name..."
+                [minLength]="1"
+                [dropdown]="true"
+                name="productAutocomplete"
+                styleClass="flex-1"
+                inputStyleClass="w-full rounded-lg border-border bg-surface focus:ring-2 focus:ring-focus transition-all text-sm"
+                appendTo="body"
+              >
+                <ng-template pTemplate="dropdownicon">
+                  <i class="pi pi-chevron-down text-muted-foreground" *ngIf="!isProductLoading()"></i>
+                  <i class="pi pi-spinner pi-spin text-primary" *ngIf="isProductLoading()"></i>
+                </ng-template>
+                <ng-template let-product pTemplate="item">
+                  <div class="flex items-center justify-between gap-2 py-1">
+                    <div class="flex flex-col min-w-0">
+                      <span class="text-sm font-bold text-foreground truncate">{{ product.name }}</span>
+                      <span class="text-[10px] text-muted-foreground">{{ product.code }}</span>
+                    </div>
+                    <span class="text-xs font-black text-primary">{{ product.price | currency:'EGP':'symbol-narrow' }}</span>
+                  </div>
+                </ng-template>
+              </p-autocomplete>
+              @if (selectedProduct()) {
+                <p-button
+                  icon="pi pi-times"
+                  [text]="true"
+                  [rounded]="true"
+                  severity="secondary"
+                  (onClick)="clearProduct.emit()"
+                  pTooltip="Clear selection"
+                  styleClass="w-10 h-10 border border-border/50 bg-surface/50"
+                  type="button"
+                />
+              }
+            </div>
+          </div>
+          
+          @if (selectedProduct()) {
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end p-4 bg-surface rounded-lg border border-border animate-in fade-in slide-in-from-top-2 duration-300">
+              <div class="md:col-span-4 flex flex-col gap-2">
+                <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Quantity</label>
+                <p-inputNumber
+                  [ngModel]="itemQuantity()"
+                  (ngModelChange)="itemQuantity.set($event)"
+                  [min]="1"
+                  [showButtons]="true"
+                  buttonLayout="horizontal"
+                  spinnerMode="horizontal"
+                  incrementButtonIcon="pi pi-plus"
+                  decrementButtonIcon="pi pi-minus"
+                  styleClass="w-full h-[42px]"
+                  name="itemQty"
+                  inputStyleClass="w-full text-center py-2 text-sm border-border bg-surface-2 tabular-nums font-black"
+                  incrementButtonClass="bg-surface-2 border-border text-primary hover:bg-primary/10 transition-colors"
+                  decrementButtonClass="bg-surface-2 border-border text-primary hover:bg-primary/10 transition-colors"
+                />
+              </div>
+
+              <div class="md:col-span-4 flex flex-col gap-2">
+                <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Unit Price</label>
+                <p-inputNumber
+                  [ngModel]="itemPrice()"
+                  (ngModelChange)="itemPrice.set($event); itemPriceChange.emit($event)"
+                  [min]="0"
+                  styleClass="w-full h-[42px]"
+                  name="itemPrice"
+                  inputStyleClass="w-full text-right py-2 text-sm border-border bg-surface-2 tabular-nums font-black"
+                />
+              </div>
+
+              <div class="md:col-span-4 flex flex-col gap-1.5">
+                 <p-button
+                  label="Add Item"
+                  icon="pi pi-plus"
+                  styleClass="w-full h-[42px] bg-primary text-primary-foreground rounded-lg shadow-md hover:bg-primary/90 transition-all font-bold whitespace-nowrap"
+                  (onClick)="addItem.emit()"
+                  type="button"
+                />
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Items Table (Replaced with p-table) -->
+        <div class="rounded-xl border border-border overflow-hidden">
+          <p-table 
+            [value]="draftItems()" 
+            styleClass="p-datatable-sm" 
+            [scrollable]="true" 
+            scrollHeight="450px"
+            class="modern-table"
+          >
+            <ng-template pTemplate="header">
+              <tr class="bg-muted/50 border-b border-border">
+                <th class="px-4 py-3 font-bold text-[10px] uppercase tracking-wider text-muted-foreground">Product</th>
+                <th class="px-4 py-3 font-bold text-[10px] uppercase tracking-wider text-muted-foreground text-center w-32">Qty</th>
+                <th class="px-4 py-3 font-bold text-[10px] uppercase tracking-wider text-muted-foreground text-right w-32">Unit Price</th>
+                <th class="px-4 py-3 font-bold text-[10px] uppercase tracking-wider text-muted-foreground text-right w-32">Total</th>
+                <th class="px-4 py-3 font-bold text-[10px] uppercase tracking-wider text-muted-foreground text-right w-20">Action</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-item let-index="rowIndex">
+              <tr class="hover:bg-muted/30 transition-colors border-b border-border/50">
+                <td class="px-4 py-3">
+                  <span class="font-bold text-sm text-foreground">{{ item.productName }}</span>
+                </td>
+                <td class="px-4 py-3 text-center">
+                  <p-inputNumber
+                    [(ngModel)]="item.quantity"
+                    (onInput)="calculateTotal.emit()"
+                    [min]="1"
+                    [name]="'qty_' + index"
+                    styleClass="w-full"
+                    inputStyleClass="w-full text-center py-1.5 text-xs border-border bg-surface tabular-nums focus:ring-1 focus:ring-primary"
+                  />
+                </td>
+                <td class="px-4 py-3 text-right">
+                  <p-inputNumber
+                    [(ngModel)]="item.price"
+                    (onInput)="calculateTotal.emit()"
+                    [min]="0"
+                    [name]="'price_' + index"
+                    styleClass="w-full"
+                    inputStyleClass="w-full text-right py-1.5 text-xs border-border bg-surface tabular-nums focus:ring-1 focus:ring-primary"
+                  />
+                </td>
+                <td class="px-4 py-3 text-right">
+                  <span class="font-bold text-sm text-primary tabular-nums">
+                    {{ item.price * item.quantity | currency:'EGP':'symbol-narrow' }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-right">
+                  <p-button
+                    icon="pi pi-trash"
+                    [text]="true"
+                    [rounded]="true"
+                    severity="danger"
+                    styleClass="w-8 h-8 p-0 hover:bg-danger/10 text-danger transition-colors"
+                    (onClick)="removeItem.emit(index)"
+                    type="button"
+                  />
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="5" class="px-4 py-12 text-center text-muted-foreground">
+                  <div class="flex flex-col items-center gap-3">
+                    <i class="pi pi-shopping-cart text-3xl opacity-10"></i>
+                    <p class="text-xs font-medium italic opacity-60">No items added to this order yet.</p>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="footer">
+              <tr class="bg-muted/30 font-bold border-t border-border">
+                <td colspan="3" class="px-4 py-4 text-right text-muted-foreground uppercase tracking-widest text-[10px]">
+                  Total Order Amount
+                  <span class="block text-[9px] font-medium text-muted-foreground/60 italic lowercase mt-0.5">{{totalItemsCount}} items in total</span>
+                </td>
+                <td colspan="2" class="px-4 py-4 text-right text-lg text-primary tabular-nums">
+                  {{ draft().totalAmount | currency:'EGP':'symbol-narrow' }}
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+
+      <!-- Order Date Removed -->
+    </div>
+
+    <div class="flex items-center justify-end gap-3 pt-4 border-t border-border mt-6">
+      <p-button
+        label="Cancel"
+        type="button"
+        [text]="true"
+        styleClass="px-4 py-2 text-sm font-semibold text-muted-foreground hover:bg-muted rounded-lg transition-colors"
+        [disabled]="saving()"
+        (onClick)="cancel.emit()"
+      />
+
+      <p-button
+        [label]="mode() === 'create' ? 'Create Order' : 'Save Changes'"
+        type="submit"
+        [disabled]="saving()"
+        [loading]="saving()"
+        styleClass="px-6 py-2.5 bg-primary text-primary-foreground text-sm font-bold rounded-lg shadow-sm hover:opacity-90 transition-all focus:ring-2 focus:ring-focus"
+      />
+    </div>
+  </form>
+</p-dialog>
