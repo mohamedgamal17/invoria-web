@@ -1,0 +1,109 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
+
+import { ProductListComponent } from './product-list.component';
+import type { Product } from '../../models/product';
+
+describe('ProductListComponent', () => {
+  let component: ProductListComponent;
+  let fixture: ComponentFixture<ProductListComponent>;
+
+  const mockProduct: Product = {
+    id: 'prd_1',
+    name: 'Product A',
+    code: 'PRD-A',
+    price: 100,
+    actualQuantity: 15,
+    reservedQuantity: 4,
+    createdAt: new Date().toISOString(),
+    createdBy: 'system',
+    lastModifiedAt: new Date().toISOString(),
+    lastModifiedBy: 'system'
+  };
+
+  const setRequiredInputs = (): void => {
+    fixture.componentRef.setInput('products', [mockProduct]);
+    fixture.componentRef.setInput('totalRecords', 1);
+    fixture.componentRef.setInput('first', 0);
+    fixture.componentRef.setInput('pageSize', 10);
+    fixture.componentRef.setInput('isListLoading', false);
+  };
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [ProductListComponent, NoopAnimationsModule]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(ProductListComponent);
+    component = fixture.componentInstance;
+    setRequiredInputs();
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should emit edit, delete, and viewBatches from row action buttons', () => {
+    const editSpy = vi.spyOn(component.edit, 'emit');
+    const deleteSpy = vi.spyOn(component.delete, 'emit');
+    const viewBatchesSpy = vi.spyOn(component.viewBatches, 'emit');
+
+    const buttons = fixture.debugElement.queryAll(By.css('p-button'));
+    const batchesButton = buttons.find(btn => btn.nativeElement.innerHTML.includes('pi-box'));
+    const editButton = buttons.find(btn => btn.nativeElement.innerHTML.includes('pi-pencil'));
+    const deleteButton = buttons.find(btn => btn.nativeElement.innerHTML.includes('pi-trash'));
+
+    expect(batchesButton).toBeTruthy();
+    expect(editButton).toBeTruthy();
+    expect(deleteButton).toBeTruthy();
+
+    batchesButton?.triggerEventHandler('onClick', {});
+    editButton?.triggerEventHandler('onClick', {});
+    deleteButton?.triggerEventHandler('onClick', {});
+
+    expect(viewBatchesSpy).toHaveBeenCalledWith(mockProduct);
+    expect(editSpy).toHaveBeenCalledWith(mockProduct);
+    expect(deleteSpy).toHaveBeenCalledWith(mockProduct);
+  });
+
+  it('should emit pageChange from desktop table and mobile paginator', () => {
+    const pageChangeSpy = vi.spyOn(component.pageChange, 'emit');
+    const desktopEvent = { first: 10, rows: 10 };
+    const mobileEvent = { first: 5, rows: 5 };
+
+    const table = fixture.debugElement.query(By.css('p-table'));
+    const paginator = fixture.debugElement.query(By.css('p-paginator'));
+
+    table.triggerEventHandler('onPage', desktopEvent);
+    paginator.triggerEventHandler('onPageChange', mobileEvent);
+
+    expect(pageChangeSpy).toHaveBeenCalledWith(desktopEvent);
+    expect(pageChangeSpy).toHaveBeenCalledWith(mobileEvent);
+  });
+
+  it('should show skeleton while loading and empty state when not loading with no products', () => {
+    fixture.componentRef.setInput('isListLoading', true);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('p-skeleton').length).toBeGreaterThan(0);
+
+    fixture.componentRef.setInput('isListLoading', false);
+    fixture.componentRef.setInput('products', []);
+    fixture.componentRef.setInput('totalRecords', 0);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('No products found');
+  });
+
+  it('should compute skeletonRows based on pageSize input', () => {
+    fixture.componentRef.setInput('pageSize', 5);
+    fixture.detectChanges();
+    expect(component.skeletonRows.length).toBe(5);
+
+    fixture.componentRef.setInput('pageSize', 20);
+    fixture.detectChanges();
+    expect(component.skeletonRows.length).toBe(20);
+  });
+});
