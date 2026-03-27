@@ -9,6 +9,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
+import type { PaginatorState } from 'primeng/paginator';
+import type { TablePageEvent } from 'primeng/table';
 
 import type { Product } from '../../models/product';
 
@@ -27,26 +29,7 @@ import type { Product } from '../../models/product';
     InputIconModule,
     InputTextModule
   ],
-  templateUrl: './product-list.component.html',
-  styles: [`
-    :host ::ng-deep .p-paginator {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 0.5rem;
-      padding: 1rem 0.5rem;
-    }
-    :host ::ng-deep .p-paginator .p-dropdown {
-      margin-left: auto;
-      margin-right: auto;
-      min-width: 4rem;
-    }
-    @media screen and (max-width: 641px) {
-      :host ::ng-deep .p-paginator .p-paginator-pages {
-        display: none;
-      }
-    }
-  `]
+  templateUrl: './product-list.component.html'
 })
 export class ProductListComponent {
   products = input.required<Product[]>();
@@ -59,7 +42,7 @@ export class ProductListComponent {
   edit = output<Product>();
   delete = output<Product>();
   viewBatches = output<Product>();
-  pageChange = output<any>();
+  pageChange = output<PaginatorState | TablePageEvent>();
 
   get skeletonRows(): number[] {
     return Array.from({ length: this.pageSize() }, (_, i) => i);

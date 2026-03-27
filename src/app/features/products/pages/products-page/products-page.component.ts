@@ -1,13 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, type OnInit, DestroyRef, inject, signal } from '@angular/core';
+import { Component, type OnInit, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
-import { switchMap, tap, catchError, EMPTY } from 'rxjs';
+import { switchMap, catchError, EMPTY } from 'rxjs';
 
 import { Router, ActivatedRoute } from '@angular/router';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
-import { DialogService } from 'primeng/dynamicdialog';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import type { PaginatorState } from 'primeng/paginator';
+import type { TablePageEvent } from 'primeng/table';
 
 import { ProductHeaderComponent } from '../../components/product-header/product-header.component';
 import { ProductListComponent } from '../../components/product-list/product-list.component';
@@ -16,7 +17,6 @@ import { ProductBatchesModalComponent } from '../../inventory/components/product
 
 import { ProductsMockApiService } from '../../services/products-mock-api.service';
 import type { Product, ProductCreateInput } from '../../models/product';
-import { DialogModule } from 'primeng/dialog';
 
 @Component({
   selector: 'app-products-page',
@@ -24,13 +24,13 @@ import { DialogModule } from 'primeng/dialog';
   imports: [
     CommonModule,
     ToastModule,
+    ConfirmDialogModule,
     ProductHeaderComponent,
     ProductListComponent,
     ProductDialogComponent,
-    ProductBatchesModalComponent,
-    DialogModule
+    ProductBatchesModalComponent
   ],
-  providers: [MessageService, DialogService],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './products-page.component.html'
 })
 export class ProductsPageComponent implements OnInit {
@@ -45,10 +45,10 @@ export class ProductsPageComponent implements OnInit {
   // Start in loading state so the first render shows skeleton immediately.
   isListLoading = signal(true);
 
-  modalVisible = false;
-  modalMode: ModalMode = 'create';
-  modalSaving = false;
-  selectedProduct: Product | null = null;
+  modalVisible = signal(false);
+  modalMode = signal<ModalMode>('create');
+  modalSaving = signal(false);
+  selectedProduct = signal<Product | null>(null);
 
   batchesVisible = signal(false);
   selectedProductForInventory = signal<Product | null>(null);
@@ -57,9 +57,8 @@ export class ProductsPageComponent implements OnInit {
 
   constructor(
     private readonly productsApi: ProductsMockApiService,
-    private readonly cdr: ChangeDetectorRef,
     private readonly messageService: MessageService,
-    private readonly dialogService: DialogService,
+    private readonly confirmationService: ConfirmationService,
     private readonly router: Router,
     private readonly route: ActivatedRoute
   ) { }
@@ -84,6 +83,7 @@ export class ProductsPageComponent implements OnInit {
               this.messageService.add({ severity: 'error', summary: 'Error', detail: message });
               this.products.set([]);
               this.totalRecords.set(0);
+              this.isListLoading.set(false);
               return EMPTY;
             })
           );
@@ -94,33 +94,28 @@ export class ProductsPageComponent implements OnInit {
         this.products.set(result.items);
         this.totalRecords.set(result.total);
         this.isListLoading.set(false);
-        this.cdr.detectChanges();
       });
   }
 
-  get skeletonRows(): number[] {
-    return Array.from({ length: this.pageSize() }, (_, i) => i);
-  }
-
   openCreateModal(): void {
-    this.modalMode = 'create';
-    this.selectedProduct = null;
-    this.modalVisible = true;
+    this.modalMode.set('create');
+    this.selectedProduct.set(null);
+    this.modalVisible.set(true);
   }
 
   openEditModal(product: Product): void {
-    this.modalMode = 'edit';
-    this.selectedProduct = product;
-    this.modalVisible = true;
+    this.modalMode.set('edit');
+    this.selectedProduct.set(product);
+    this.modalVisible.set(true);
   }
 
   onModalHide(): void {
-    this.modalSaving = false;
-    this.selectedProduct = null;
+    this.modalSaving.set(false);
+    this.selectedProduct.set(null);
   }
 
   submitModal(draft: ProductDraft): void {
-    this.modalSaving = true;
+    this.modalSaving.set(true);
 
     const input: ProductCreateInput = {
       name: draft.name,
@@ -128,9 +123,11 @@ export class ProductsPageComponent implements OnInit {
       price: draft.price
     };
 
-    const request$ = this.modalMode === 'create'
+    const currentMode = this.modalMode();
+    const currentProduct = this.selectedProduct();
+    const request$ = currentMode === 'create'
       ? this.productsApi.createProduct(input)
-      : this.productsApi.updateProduct(this.selectedProduct!.id, input);
+      : this.productsApi.updateProduct(currentProduct!.id, input);
 
     request$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -139,11 +136,11 @@ export class ProductsPageComponent implements OnInit {
           this.messageService.add({
             severity: 'success',
             summary: 'Success',
-            detail: `Product ${this.modalMode === 'create' ? 'created' : 'updated'} successfully.`
+            detail: `Product ${currentMode === 'create' ? 'created' : 'updated'} successfully.`
           });
-          this.modalVisible = false;
+          this.modalVisible.set(false);
 
-          if (this.modalMode === 'create') {
+          if (currentMode === 'create') {
             const pageIndex = Math.floor(this.first() / this.pageSize());
             if (pageIndex === 0) {
               this.products.update(current => {
@@ -164,44 +161,49 @@ export class ProductsPageComponent implements OnInit {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: message });
         },
         complete: () => {
-          this.modalSaving = false;
+          this.modalSaving.set(false);
         }
       });
   }
 
   closeModal(): void {
-    this.modalVisible = false;
+    this.modalVisible.set(false);
   }
 
   deleteProduct(product: Product): void {
-    if (!confirm(`Are you sure you want to delete "${product.name}"?`)) return;
+    this.confirmationService.confirm({
+      header: 'Delete Product',
+      message: `Are you sure you want to delete "${product.name}"?`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.productsApi.deleteProduct(product.id)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => {
+              this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Product deleted successfully.' });
+              this.products.update(current => current.filter(p => p.id !== product.id));
+              this.totalRecords.update(t => t - 1);
 
-    this.productsApi.deleteProduct(product.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Product deleted successfully.' });
-          this.products.update(current => current.filter(p => p.id !== product.id));
-          this.totalRecords.update(t => t - 1);
-
-          if (this.products().length === 0 && this.first() > 0) {
-            // Trigger a reload by navigating or calling a internal reload
-            const pageIndex = Math.floor(this.first() / this.pageSize());
-            void this.router.navigate([], {
-              relativeTo: this.route,
-              queryParams: { page: pageIndex },
-              queryParamsHandling: 'merge',
-            });
-          }
-        },
-        error: (err) => {
-          const message = err instanceof Error ? err.message : 'Unexpected error.';
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: message });
-        }
-      });
+              if (this.products().length === 0 && this.first() > 0) {
+                const pageIndex = Math.floor(this.first() / this.pageSize());
+                void this.router.navigate([], {
+                  relativeTo: this.route,
+                  queryParams: { page: pageIndex },
+                  queryParamsHandling: 'merge',
+                });
+              }
+            },
+            error: (err) => {
+              const message = err instanceof Error ? err.message : 'Unexpected error.';
+              this.messageService.add({ severity: 'error', summary: 'Error', detail: message });
+            }
+          });
+      }
+    });
   }
 
-  onPageChange(event: any): void {
+  onPageChange(event: PaginatorState | TablePageEvent): void {
     const first = event.first ?? 0;
     const rows = event.rows ?? this.pageSize();
     const newPageIndex = Math.floor(first / Math.max(rows, 1));

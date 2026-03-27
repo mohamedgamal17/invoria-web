@@ -9,7 +9,7 @@
   (onHide)="onHide()"
   styleClass="modern-dialog"
 >
-  <form (ngSubmit)="submit()" class="space-y-6 pt-2">
+  <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-6 pt-2">
     <div class="space-y-5">
       <div class="flex flex-col gap-1.5">
         <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider" for="productName">Product Name</label>
@@ -18,11 +18,14 @@
           name="productName"
           type="text"
           pInputText
-          [(ngModel)]="draft().name"
+          formControlName="name"
           class="w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all"
           [disabled]="saving()"
           placeholder="Enter product name"
         />
+        @if (form.controls.name.invalid && form.controls.name.touched) {
+          <p-message severity="error" text="Product name is required." />
+        }
       </div>
 
       <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -33,11 +36,14 @@
             name="productCode"
             type="text"
             pInputText
-            [(ngModel)]="draft().code"
+            formControlName="code"
             class="w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all uppercase"
             [disabled]="saving()"
             placeholder="e.g. PRD-001"
           />
+          @if (form.controls.code.invalid && form.controls.code.touched) {
+            <p-message severity="error" text="SKU code is required." />
+          }
         </div>
 
         <div class="flex flex-col gap-1.5">
@@ -45,15 +51,19 @@
           <p-inputNumber
             id="productPrice"
             name="productPrice"
-            [(ngModel)]="draft().price"
+            formControlName="price"
             [disabled]="saving()"
             mode="decimal"
             [minFractionDigits]="2"
+            [min]="0.01"
             [maxFractionDigits]="2"
             inputId="productPrice"
             styleClass="w-full"
             inputStyleClass="w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all tabular-nums"
           />
+          @if (form.controls.price.invalid && form.controls.price.touched) {
+            <p-message severity="error" text="Price must be greater than zero." />
+          }
         </div>
       </div>
     </div>

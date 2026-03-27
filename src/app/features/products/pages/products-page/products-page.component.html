@@ -1,4 +1,5 @@
 <p-toast />
+<p-confirmDialog />
 
 <section class="space-y-6">
   <app-product-header (create)="openCreateModal()" />
@@ -18,16 +19,18 @@
 </section>
 
 <app-product-dialog
-  [(visible)]="modalVisible"
-  [mode]="modalMode"
-  [product]="selectedProduct"
-  [saving]="modalSaving"
+  [visible]="modalVisible()"
+  (visibleChange)="modalVisible.set($event)"
+  [mode]="modalMode()"
+  [product]="selectedProduct()"
+  [saving]="modalSaving()"
   (save)="submitModal($event)"
   (cancel)="closeModal()"
   (hide)="onModalHide()"
 />
 
 <app-product-batches-modal
-  [(visible)]="batchesVisible"
+  [visible]="batchesVisible()"
+  (visibleChange)="batchesVisible.set($event)"
   [product]="selectedProductForInventory()"
 />

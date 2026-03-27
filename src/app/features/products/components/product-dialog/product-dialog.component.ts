@@ -1,10 +1,11 @@
-import { Component, model, input, output, effect, signal } from '@angular/core';
+import { Component, model, input, output, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { MessageModule } from 'primeng/message';
 
 import type { Product } from '../../models/product';
 
@@ -21,11 +22,12 @@ export type ModalMode = 'create' | 'edit';
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
+    ReactiveFormsModule,
     DialogModule,
     ButtonModule,
     InputTextModule,
-    InputNumberModule
+    InputNumberModule,
+    MessageModule
   ],
   templateUrl: './product-dialog.component.html'
 })
@@ -39,23 +41,25 @@ export class ProductDialogComponent {
   cancel = output<void>();
   hide = output<void>();
 
-  draft = signal<ProductDraft>({
-    name: '',
-    code: '',
-    price: 0
+  private readonly formBuilder = inject(FormBuilder);
+
+  readonly form = this.formBuilder.group({
+    name: this.formBuilder.nonNullable.control('', [Validators.required, Validators.maxLength(120)]),
+    code: this.formBuilder.nonNullable.control('', [Validators.required, Validators.maxLength(40)]),
+    price: this.formBuilder.nonNullable.control(0, [Validators.required, Validators.min(0.01)])
   });
 
   constructor() {
     effect(() => {
       const p = this.product();
       if (p) {
-        this.draft.set({
+        this.form.reset({
           name: p.name,
           code: p.code,
           price: p.price
         });
       } else {
-        this.draft.set({
+        this.form.reset({
           name: '',
           code: '',
           price: 0
@@ -65,7 +69,17 @@ export class ProductDialogComponent {
   }
 
   submit(): void {
-    this.save.emit(this.draft());
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    const formValue = this.form.getRawValue();
+    this.save.emit({
+      name: formValue.name,
+      code: formValue.code.trim().toUpperCase(),
+      price: formValue.price
+    });
   }
 
   onHide(): void {

@@ -5,9 +5,8 @@ import { ButtonModule } from 'primeng/button';
   selector: 'app-product-header',
   standalone: true,
   imports: [ButtonModule],
-  styles: [':host { display: block; width: 100%; }'],
   template: `
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-1">
+    <div class="w-full flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-1">
       <div class="space-y-1">
         <h1 class="text-3xl font-bold tracking-tight text-foreground">Product Catalog</h1>
         <p class="text-sm text-muted-foreground">Manage your product inventory and pricing from a central dashboard.</p>
