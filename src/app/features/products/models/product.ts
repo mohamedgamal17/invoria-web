@@ -4,6 +4,8 @@ export type Product = AuditedEntity<{
   name: string;
   code: string;
   price: number;
+  actualQuantity: number;
+  reservedQuantity: number;
 }>;
 
 export type ProductCreateInput = Pick<Product, 'name' | 'code' | 'price'>;

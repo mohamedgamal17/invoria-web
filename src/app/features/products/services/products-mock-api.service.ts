@@ -41,11 +41,15 @@ const INITIAL_PRODUCTS: Product[] = Array.from({ length: 57 }, (_, i) => {
   const price = Math.round((10 + n * 2.75) * 100) / 100;
   const audit = createAuditSnapshot(n);
 
+  const actualQuantity = Math.floor(Math.random() * 500) + 50;
+  const reservedQuantity = Math.floor(Math.random() * (actualQuantity / 2));
   return {
     id: generateId(n),
     name,
     code,
     price,
+    actualQuantity,
+    reservedQuantity,
     ...audit
   };
 });
@@ -81,6 +85,8 @@ export class ProductsMockApiService {
     const created = {
       id: generateId(nowSeed),
       ...input,
+      actualQuantity: 0,
+      reservedQuantity: 0,
       ...createAuditSnapshot(nowSeed)
     } satisfies Product;
 

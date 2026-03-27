@@ -58,6 +58,7 @@ export class ProductListComponent {
 
   edit = output<Product>();
   delete = output<Product>();
+  viewBatches = output<Product>();
   pageChange = output<any>();
 
   get skeletonRows(): number[] {

@@ -58,12 +58,12 @@
       </div>
     </div>
 
-    <div class="flex items-center justify-end gap-3 pt-4 border-t border-border mt-6">
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-5 border-t border-border mt-8">
       <p-button
         label="Cancel"
         type="button"
         [text]="true"
-        styleClass="px-4 py-2 text-sm font-semibold text-muted-foreground hover:bg-muted rounded-lg transition-colors"
+        styleClass="w-full sm:w-auto px-4 py-2.5 text-sm font-semibold text-muted-foreground hover:bg-muted rounded-xl transition-all"
         [disabled]="saving()"
         (onClick)="cancel.emit()"
       />
@@ -73,7 +73,7 @@
         type="submit"
         [disabled]="saving()"
         [loading]="saving()"
-        styleClass="px-6 py-2.5 bg-primary text-primary-foreground text-sm font-bold rounded-lg shadow-sm hover:opacity-90 transition-all focus:ring-2 focus:ring-focus"
+        styleClass="w-full sm:w-auto px-6 py-3 bg-primary text-primary-foreground text-sm font-bold rounded-xl shadow-md hover:opacity-90 transition-all focus:ring-2 focus:ring-focus active:scale-[0.98]"
       />
     </div>
   </form>

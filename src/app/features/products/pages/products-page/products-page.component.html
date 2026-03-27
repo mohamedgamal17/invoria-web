@@ -13,6 +13,7 @@
     (edit)="openEditModal($event)"
     (delete)="deleteProduct($event)"
     (pageChange)="onPageChange($event)"
+    (viewBatches)="viewBatches($event)"
   />
 </section>
 
@@ -24,4 +25,9 @@
   (save)="submitModal($event)"
   (cancel)="closeModal()"
   (hide)="onModalHide()"
+/>
+
+<app-product-batches-modal
+  [(visible)]="batchesVisible"
+  [product]="selectedProductForInventory()"
 />

@@ -7,13 +7,16 @@ import { switchMap, tap, catchError, EMPTY } from 'rxjs';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { DialogService } from 'primeng/dynamicdialog';
 
 import { ProductHeaderComponent } from '../../components/product-header/product-header.component';
 import { ProductListComponent } from '../../components/product-list/product-list.component';
 import { ProductDialogComponent, type ProductDraft, type ModalMode } from '../../components/product-dialog/product-dialog.component';
+import { ProductBatchesModalComponent } from '../../inventory/components/product-batches-modal.component';
 
 import { ProductsMockApiService } from '../../services/products-mock-api.service';
 import type { Product, ProductCreateInput } from '../../models/product';
+import { DialogModule } from 'primeng/dialog';
 
 @Component({
   selector: 'app-products-page',
@@ -23,9 +26,11 @@ import type { Product, ProductCreateInput } from '../../models/product';
     ToastModule,
     ProductHeaderComponent,
     ProductListComponent,
-    ProductDialogComponent
+    ProductDialogComponent,
+    ProductBatchesModalComponent,
+    DialogModule
   ],
-  providers: [MessageService],
+  providers: [MessageService, DialogService],
   templateUrl: './products-page.component.html'
 })
 export class ProductsPageComponent implements OnInit {
@@ -45,12 +50,16 @@ export class ProductsPageComponent implements OnInit {
   modalSaving = false;
   selectedProduct: Product | null = null;
 
+  batchesVisible = signal(false);
+  selectedProductForInventory = signal<Product | null>(null);
+
   private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private readonly productsApi: ProductsMockApiService,
     private readonly cdr: ChangeDetectorRef,
     private readonly messageService: MessageService,
+    private readonly dialogService: DialogService,
     private readonly router: Router,
     private readonly route: ActivatedRoute
   ) { }
@@ -63,12 +72,12 @@ export class ProductsPageComponent implements OnInit {
           const size = params['pageSize'] ? parseInt(params['pageSize'], 10) : 10;
           const newPageIndex = Math.max(0, page - 1);
           const newFirst = newPageIndex * size;
-          
+
           this.first.set(newFirst);
           this.pageSize.set(size);
           this.isListLoading.set(true);
           this.products.set([]);
-          
+
           return this.productsApi.listProducts(newPageIndex, size).pipe(
             catchError(err => {
               const message = err instanceof Error ? err.message : 'Unexpected error.';
@@ -119,7 +128,7 @@ export class ProductsPageComponent implements OnInit {
       price: draft.price
     };
 
-    const request$ = this.modalMode === 'create' 
+    const request$ = this.modalMode === 'create'
       ? this.productsApi.createProduct(input)
       : this.productsApi.updateProduct(this.selectedProduct!.id, input);
 
@@ -127,10 +136,10 @@ export class ProductsPageComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (result) => {
-          this.messageService.add({ 
-            severity: 'success', 
-            summary: 'Success', 
-            detail: `Product ${this.modalMode === 'create' ? 'created' : 'updated'} successfully.` 
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: `Product ${this.modalMode === 'create' ? 'created' : 'updated'} successfully.`
           });
           this.modalVisible = false;
 
@@ -145,7 +154,7 @@ export class ProductsPageComponent implements OnInit {
             }
             this.totalRecords.update(t => t + 1);
           } else {
-            this.products.update(current => 
+            this.products.update(current =>
               current.map(p => p.id === result.id ? result : p)
             );
           }
@@ -174,7 +183,7 @@ export class ProductsPageComponent implements OnInit {
           this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Product deleted successfully.' });
           this.products.update(current => current.filter(p => p.id !== product.id));
           this.totalRecords.update(t => t - 1);
-          
+
           if (this.products().length === 0 && this.first() > 0) {
             // Trigger a reload by navigating or calling a internal reload
             const pageIndex = Math.floor(this.first() / this.pageSize());
@@ -196,11 +205,11 @@ export class ProductsPageComponent implements OnInit {
     const first = event.first ?? 0;
     const rows = event.rows ?? this.pageSize();
     const newPageIndex = Math.floor(first / Math.max(rows, 1));
-    
+
     if (this.first() !== first || this.pageSize() !== rows) {
       void this.router.navigate([], {
         relativeTo: this.route,
-        queryParams: { 
+        queryParams: {
           page: newPageIndex + 1,
           pageSize: rows
         },
@@ -211,6 +220,11 @@ export class ProductsPageComponent implements OnInit {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
+  }
+
+  viewBatches(product: Product): void {
+    this.selectedProductForInventory.set(product);
+    this.batchesVisible.set(true);
   }
 
 
