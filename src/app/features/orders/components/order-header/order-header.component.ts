@@ -5,7 +5,6 @@ import { ButtonModule } from 'primeng/button';
   selector: 'app-order-header',
   standalone: true,
   imports: [ButtonModule],
-  styles: [':host { display: block; width: 100%; }'],
   template: `
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-1">
       <div class="space-y-1">

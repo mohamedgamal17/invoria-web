@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
 import type { Order, OrderState } from '../../models/order';
 
 @Component({
@@ -14,7 +14,7 @@ import type { Order, OrderState } from '../../models/order';
     FormsModule,
     DialogModule,
     ButtonModule,
-    InputTextModule
+    TextareaModule
   ],
   template: `
     <p-dialog
@@ -23,10 +23,9 @@ import type { Order, OrderState } from '../../models/order';
       [modal]="true"
       [dismissableMask]="true"
       [draggable]="false"
-      [style]="{ width: '100%', maxWidth: '450px' }"
       [breakpoints]="{ '641px': '90vw' }"
       (onHide)="onHide()"
-      styleClass="modern-dialog"
+      styleClass="modern-dialog w-full max-w-[450px]"
     >
       <div class="space-y-4 pt-2">
         <div class="flex flex-col gap-2">
@@ -34,7 +33,7 @@ import type { Order, OrderState } from '../../models/order';
           <textarea
             id="reason"
             name="reason"
-            pInputText
+            pTextarea
             [ngModel]="reasonText()"
             (ngModelChange)="reasonText.set($event); reasonTextChange.emit($event)"
             rows="4"

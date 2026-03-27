@@ -31,26 +31,7 @@ import { canEditOrder, canTransition } from '../../models/order';
     PopoverModule,
     TimelineModule
   ],
-  templateUrl: './order-list.component.html',
-  styles: [`
-    :host ::ng-deep .p-paginator {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 0.5rem;
-      padding: 1rem 0.5rem;
-    }
-    :host ::ng-deep .p-paginator .p-dropdown {
-      margin-left: auto;
-      margin-right: auto;
-      min-width: 4rem;
-    }
-    @media screen and (max-width: 641px) {
-      :host ::ng-deep .p-paginator .p-paginator-pages {
-        display: none;
-      }
-    }
-  `]
+  templateUrl: './order-list.component.html'
 })
 export class OrderListComponent {
   orders = input<Order[]>([]);
