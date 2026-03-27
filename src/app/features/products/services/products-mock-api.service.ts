@@ -134,6 +134,22 @@ export class ProductsMockApiService {
     return of(undefined).pipe(delay(200));
   }
 
+  searchProducts(query: string): Observable<Product[]> {
+    const normalizedQuery = (query || '').toLowerCase().trim();
+
+    // If query is empty, return top 20 products to show in "Show all" dropdown
+    if (!normalizedQuery) {
+      return of(productsStore.slice(0, 20)).pipe(delay(50));
+    }
+
+    const results = productsStore.filter(p =>
+      p.name.toLowerCase().includes(normalizedQuery) ||
+      p.code.toLowerCase().includes(normalizedQuery)
+    ).slice(0, 20);
+
+    return of(results).pipe(delay(50));
+  }
+
   private assertCreateOrUpdateInput(input: ProductCreateInput): void {
     const name = (input.name || '').trim();
     const code = (input.code || '').trim();
