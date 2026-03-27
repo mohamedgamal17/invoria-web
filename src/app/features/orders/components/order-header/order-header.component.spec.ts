@@ -22,6 +22,11 @@ describe('OrderHeaderComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should not define component-scoped styles', () => {
+    const componentDef = (OrderHeaderComponent as any).ɵcmp;
+    expect(componentDef.styles?.length ?? 0).toBe(0);
+  });
+
   it('should display default title and description', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('h1')?.textContent).toContain('Orders');

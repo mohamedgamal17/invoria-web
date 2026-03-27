@@ -3,7 +3,7 @@ import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { OrderReasonDialogComponent } from './order-reason-dialog.component';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
 import { FormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Order } from '../../models/order';
@@ -34,7 +34,7 @@ describe('OrderReasonDialogComponent', () => {
         FormsModule,
         DialogModule,
         ButtonModule,
-        InputTextModule,
+        TextareaModule,
         NoopAnimationsModule
       ]
     }).compileComponents();
@@ -51,11 +51,17 @@ describe('OrderReasonDialogComponent', () => {
   it('should display correct header for CANCELLED state', () => {
     fixture.componentRef.setInput('transitionTarget', { order: mockOrder, state: 'CANCELLED' });
     fixture.detectChanges();
-    
-    // The header is inside p-dialog which might be in the body if modal is true.
-    // However, with NoopAnimationsModule and TestBed, it should be in the fixture or accessible.
-    // Let's check the component property instead if template testing is hard for PrimeNG dialogs.
-    expect(component.transitionTarget?.state).toBe('CANCELLED');
+
+    expect(component.transitionTarget()?.state).toBe('CANCELLED');
+  });
+
+  it('should render reason textarea with PrimeNG textarea directive', () => {
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+
+    const textarea = fixture.nativeElement.querySelector('#reason') as HTMLTextAreaElement | null;
+    expect(textarea).toBeTruthy();
+    expect(textarea?.classList.contains('p-textarea')).toBe(true);
   });
 
   it('should emit reasonSubmit when confirm button is clicked', () => {
@@ -74,7 +80,7 @@ describe('OrderReasonDialogComponent', () => {
     
     const confirmButton = fixture.nativeElement.querySelector('p-button[severity="danger"]');
     // PrimeNG buttons handle disabled state via [disabled] attribute on the component or internal button.
-    expect(component.reasonText.trim()).toBe('');
+    expect(component.reasonText().trim()).toBe('');
   });
 
   it('should emit cancel event when keep order button is clicked', () => {

@@ -79,6 +79,11 @@ describe('OrderListComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should not define component-scoped styles', () => {
+    const componentDef = (OrderListComponent as any).ɵcmp;
+    expect(componentDef.styles?.length ?? 0).toBe(0);
+  });
+
   it('should display skeleton when loading is true', () => {
     fixture.componentRef.setInput('loading', true);
     fixture.detectChanges();

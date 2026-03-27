@@ -52,10 +52,14 @@ describe('OrderDialogComponent', () => {
     expect(component.totalItemsCount).toBe(5);
   });
 
-  it('should emit visibleChange when onHide is called', () => {
-    const emitSpy = vi.spyOn(component.visibleChange, 'emit');
+  it('should hide dialog and emit hide when onHide is called', () => {
+    const emitSpy = vi.spyOn(component.hide, 'emit');
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+
     component.onHide();
-    expect(emitSpy).toHaveBeenCalledWith(false);
+    expect(component.visible()).toBe(false);
+    expect(emitSpy).toHaveBeenCalled();
   });
 
   it('should emit orderSubmit when save button is clicked', () => {
