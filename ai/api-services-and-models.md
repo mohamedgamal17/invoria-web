@@ -30,6 +30,8 @@ Shared contracts live in:
 
 Optional convenience aliases (e.g. `Pick<Entity, 'name'>` for form drafts) may live on the entity file for UI use only; **API service methods should not take these** as their primary parameters—use request types below.
 
+**Do not** introduce feature-level barrel files in `models/` (for example a `product.ts` that only re-exports the entity or request types). Import **`*.entity.ts`** and **`*.request.ts`** directly from consumers. This keeps paths explicit and avoids duplicate “source of truth” files.
+
 ---
 
 ## Request files (`[action]-[entity].request.ts`)
@@ -83,3 +85,5 @@ Use the **customers** feature as the canonical example:
 
 - Service: [`src/app/features/customers/services/customers-api.service.ts`](../src/app/features/customers/services/customers-api.service.ts)
 - Models: [`src/app/features/customers/models/`](../src/app/features/customers/models/) (`customer.entity.ts`, `create-customer.request.ts`, `update-customer.request.ts`, `list-customer.request.ts`)
+
+The **products** feature follows the same layout: entity and requests only (e.g. [`product.entity.ts`](../src/app/features/products/models/product.entity.ts), `create-product.request.ts`, `list-product.request.ts`), with no aggregating `models/product.ts` barrel.

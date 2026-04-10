@@ -41,7 +41,7 @@ src/app/
 Each feature (e.g., `products`, `orders`) is organized into:
 - **`pages/`**: Contains "Smart Components" that coordinate between services and UI.
 - **`services/`**: Feature-specific data access logic (Mock APIs or Backend APIs).
-- **`models/`**: TypeScript interfaces defining the feature's data structures.
+- **`models/`**: TypeScript interfaces defining the feature's data structures. Use dedicated files per contract (`*.entity.ts`, `*.request.ts`); do not add a feature-level barrel in `models/` (e.g. `product.ts`) that only re-exports types—import those files directly (see [api-services-and-models.md](./api-services-and-models.md)).
 
 All feature routes are **lazy-loaded** in `app.routes.ts` to optimize initial bundle size.
 
