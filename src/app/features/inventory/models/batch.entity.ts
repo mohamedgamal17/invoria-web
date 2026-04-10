@@ -1,4 +1,4 @@
-import { Entity } from '../../../../core/models/entity';
+import { Entity } from '../../../core/models/entity';
 
 export enum BatchState {
   Active = 'Active',

@@ -13,7 +13,7 @@ import type { TablePageEvent } from 'primeng/table';
 import { ProductHeaderComponent } from '../../components/product-header/product-header.component';
 import { ProductListComponent } from '../../components/product-list/product-list.component';
 import { ProductDialogComponent, type ProductDraft, type ModalMode } from '../../components/product-dialog/product-dialog.component';
-import { ProductBatchesModalComponent } from '../../inventory/components/product-batches-modal.component';
+import { ProductBatchesModalComponent } from '../../../inventory/components/product-batches-modal.component';
 
 import { ProductsMockApiService } from '../../services/products-mock-api.service';
 import type { Product, ProductCreateInput } from '../../models/product.entity';

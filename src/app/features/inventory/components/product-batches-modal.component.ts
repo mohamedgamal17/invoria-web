@@ -9,9 +9,9 @@ import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { BatchesApiService } from '../services/batches-api.service';
 import type { Batch, BatchFormSavePayload } from '../models/batch.entity';
+import type { BatchesProductRef } from '../models/batches-product.ref';
 import type { CreateBatchRequest } from '../models/create-batch.request';
 import type { UpdateBatchRequest } from '../models/update-batch.request';
-import { Product } from '../../models/product.entity';
 import { BatchListComponent } from './batch-list.component';
 import { BatchFormComponent } from './batch-form.component';
 
@@ -139,7 +139,7 @@ export class ProductBatchesModalComponent {
   private messageService = inject(MessageService);
 
   visible = model(false);
-  product = input<Product | null>(null);
+  product = input<BatchesProductRef | null>(null);
 
   batches = signal<Batch[]>([]);
   totalRecords = signal<number>(0);

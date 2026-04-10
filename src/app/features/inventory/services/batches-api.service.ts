@@ -2,9 +2,9 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 
-import { ApiResponse } from '../../../../core/models/api-response';
-import { Paging } from '../../../../core/models/paging';
-import { environment } from '../../../../../environments/environment';
+import { ApiResponse } from '../../../core/models/api-response';
+import { Paging } from '../../../core/models/paging';
+import { environment } from '../../../../environments/environment';
 import type { Batch } from '../models/batch.entity';
 import type { CreateBatchRequest } from '../models/create-batch.request';
 import type { ListBatchRequest } from '../models/list-batch.request';

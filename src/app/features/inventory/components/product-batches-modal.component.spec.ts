@@ -6,7 +6,7 @@ import { of, throwError } from 'rxjs';
 import { ProductBatchesModalComponent } from './product-batches-modal.component';
 import { BatchesApiService } from '../services/batches-api.service';
 import { Batch, BatchState } from '../models/batch.entity';
-import { Product } from '../../models/product.entity';
+import type { BatchesProductRef } from '../models/batches-product.ref';
 
 describe('ProductBatchesModalComponent', () => {
   let component: ProductBatchesModalComponent;
@@ -22,17 +22,10 @@ describe('ProductBatchesModalComponent', () => {
     purchasePrice: 13
   };
 
-  const mockProduct: Product = {
+  const mockProduct: BatchesProductRef = {
     id: 'prd_1',
     name: 'Product A',
-    code: 'P-A',
-    price: 100,
-    actualQuantity: 12,
-    reservedQuantity: 2,
-    createdAt: new Date().toISOString(),
-    createdBy: 'system',
-    lastModifiedAt: new Date().toISOString(),
-    lastModifiedBy: 'system'
+    code: 'P-A'
   };
 
   const listSuccessBody = {
