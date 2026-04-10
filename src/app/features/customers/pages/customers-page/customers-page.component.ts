@@ -1,26 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, type OnInit, signal, computed, DestroyRef, inject } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
-import { finalize, take } from 'rxjs';
+import { Component, computed, inject, linkedSignal, model, signal } from '@angular/core';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
+import { catchError, finalize, map, of, take } from 'rxjs';
 
 import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { SkeletonModule } from 'primeng/skeleton';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
 import { ToastModule } from 'primeng/toast';
-import { PaginatorModule } from 'primeng/paginator';
 import { MessageService } from 'primeng/api';
-import { Router, ActivatedRoute } from '@angular/router';
 
-import { CustomersMockApiService } from '../../services/customers-mock-api.service';
-import type { Customer, CustomerCreateInput } from '../../models/customer';
+import { CustomersApiService } from '../../services/customers-api.service';
+import type { CreateCustomerRequest } from '../../models/create-customer.request';
+import type { ListCustomerRequest } from '../../models/list-customer.request';
+import type { UpdateCustomerRequest } from '../../models/update-customer.request';
+import { CustomerFormDialogComponent } from '../../components/customer-form-dialog/customer-form-dialog.component';
+import { CustomerListComponent } from '../../components/customer-list/customer-list.component';
+import type { Customer } from '../../models/customer.entity';
+import type { PagingInfo } from '../../../../core/models/paging';
 
 type CustomerDraft = {
   name: string;
@@ -28,40 +23,97 @@ type CustomerDraft = {
 
 type ModalMode = 'create' | 'edit';
 
+const EMPTY_CUSTOMERS_TUPLE: [Customer[], PagingInfo] = [
+  [],
+  { length: 0, skip: 0, totalCount: 0 }
+];
+
 @Component({
   selector: 'app-customers-page',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     ButtonModule,
-    DialogModule,
-    InputTextModule,
-    TableModule,
-    ProgressSpinnerModule,
-    SkeletonModule,
-    TagModule,
-    TooltipModule,
-    IconFieldModule,
-    InputIconModule,
     ToastModule,
-    PaginatorModule
+    CustomerListComponent,
+    CustomerFormDialogComponent
   ],
   providers: [MessageService],
   templateUrl: './customers-page.component.html'
 })
-export class CustomersPageComponent implements OnInit {
+export class CustomersPageComponent {
   readonly pageSizeOptions = [5, 10, 20];
 
-  customers = signal<Customer[]>([]);
-  totalRecords = signal(0);
+  private readonly customersApi = inject(CustomersApiService);
+  private readonly messageService = inject(MessageService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
-  pageIndex = signal(0);
-  pageSize = signal(10);
+  /** 1-based page number from `?page=` (default 1). */
+  private readonly pageFromRoute = toSignal(
+    this.route.queryParamMap.pipe(
+      map((m) => {
+        const raw = m.get('page');
+        const n = raw ? parseInt(raw, 10) : 1;
+        return Number.isFinite(n) && n >= 1 ? n : 1;
+      })
+    ),
+    { initialValue: 1 }
+  );
 
-  isListLoading = signal(true);
+  /** Page size from `?pageSize=` (must be in pageSizeOptions; default 10). */
+  readonly pageSize = toSignal(
+    this.route.queryParamMap.pipe(
+      map((m) => {
+        const raw = m.get('pageSize');
+        const n = raw ? parseInt(raw, 10) : NaN;
+        return this.pageSizeOptions.includes(n) ? n : 10;
+      })
+    ),
+    { initialValue: 10 }
+  );
 
-  modalVisible = signal(false);
+  /** 0-based page index derived from the URL. */
+  readonly pageIndex = computed(() => Math.max(0, this.pageFromRoute() - 1));
+
+  readonly listRequest = computed((): ListCustomerRequest => ({
+    Skip: this.pageIndex() * this.pageSize(),
+    Length: this.pageSize()
+  }));
+
+  readonly customersResource = rxResource<[Customer[], PagingInfo], ListCustomerRequest>({
+    params: () => this.listRequest(),
+    defaultValue: EMPTY_CUSTOMERS_TUPLE,
+    stream: ({ params }) =>
+      this.customersApi.listCustomers(params).pipe(
+        map((res) => {
+          if (!res.isSuccess || !res.result) {
+            const detail = this.formatApiFailureDetail(res.error);
+            this.messageService.add({ severity: 'error', summary: 'Error', detail });
+            return EMPTY_CUSTOMERS_TUPLE;
+          }
+          return [res.result.data, res.result.info] as [Customer[], PagingInfo];
+        }),
+        catchError((err: unknown) => {
+          const message = err instanceof Error ? err.message : 'Unexpected error.';
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: message });
+          return of(EMPTY_CUSTOMERS_TUPLE);
+        })
+      )
+  });
+
+  readonly displayCustomers = linkedSignal({
+    source: () => this.customersLinkSource(),
+    computation: (src) => [...src.customers]
+  });
+
+  readonly displayPaging = linkedSignal({
+    source: () => this.customersLinkSource(),
+    computation: (src) => ({ ...src.paging })
+  });
+
+  /** Two-way with `app-customer-form-dialog` via `[(visible)]`. */
+  modalVisible = model(false);
   modalMode = signal<ModalMode>('create');
   modalSaving = signal(false);
   private editingId = signal<string | null>(null);
@@ -69,34 +121,6 @@ export class CustomersPageComponent implements OnInit {
   draft = signal<CustomerDraft>({
     name: ''
   });
-
-  skeletonRows = computed(() => 
-    Array.from({ length: this.pageSize() }, (_, i) => i)
-  );
-
-  private readonly destroyRef = inject(DestroyRef);
-
-  constructor(
-    private readonly customersApi: CustomersMockApiService,
-    private readonly cdr: ChangeDetectorRef,
-    private readonly messageService: MessageService,
-    private readonly router: Router,
-    private readonly route: ActivatedRoute
-  ) { }
-
-  ngOnInit(): void {
-    this.route.queryParams
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(params => {
-        const page = params['page'] ? parseInt(params['page'], 10) : 1;
-        const newPageIndex = Math.max(0, page - 1);
-        
-        if (this.pageIndex() !== newPageIndex || this.isListLoading()) {
-          this.pageIndex.set(newPageIndex);
-          this.loadCustomers();
-        }
-      });
-  }
 
   openCreateModal(): void {
     this.modalMode.set('create');
@@ -119,41 +143,69 @@ export class CustomersPageComponent implements OnInit {
   }
 
   submitModal(): void {
+    if (this.modalSaving()) {
+      return;
+    }
     this.modalSaving.set(true);
 
-    const input: CustomerCreateInput = {
-      name: this.draft().name
-    };
+    const name = this.draft().name.trim();
+    const request$ =
+      this.modalMode() === 'create'
+        ? this.customersApi.createCustomer({ Name: name } satisfies CreateCustomerRequest)
+        : this.customersApi.updateCustomer(this.editingId()!, {
+            Name: name
+          } satisfies UpdateCustomerRequest);
 
-    const request$ = this.modalMode() === 'create'
-      ? this.customersApi.createCustomer(input)
-      : this.customersApi.updateCustomer(this.editingId()!, input);
+    request$
+      .pipe(
+        take(1),
+        finalize(() => {
+          this.modalSaving.set(false);
+        })
+      )
+      .subscribe({
+        next: (res) => {
+          if (!res.isSuccess || res.result === undefined) {
+            const detail = this.formatApiFailureDetail(res.error);
+            this.messageService.add({ severity: 'error', summary: 'Error', detail });
+            return;
+          }
+          const action = this.modalMode() === 'create' ? 'created' : 'updated';
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: `Customer ${action} successfully.`
+          });
+          this.modalVisible.set(false);
 
-    request$.pipe(
-      take(1),
-      finalize(() => {
-        this.modalSaving.set(false);
-      })
-    ).subscribe({
-      next: () => {
-        const action = this.modalMode() === 'create' ? 'created' : 'updated';
-        this.messageService.add({ 
-            severity: 'success', 
-            summary: 'Success', 
-            detail: `Customer ${action} successfully.` 
-        });
-        this.modalVisible.set(false);
-        void this.router.navigate([], {
-          relativeTo: this.route,
-          queryParams: { page: 1 },
-          queryParamsHandling: 'merge',
-        });
-      },
-      error: (err: unknown) => {
-        const message = err instanceof Error ? err.message : 'Unexpected error.';
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: message });
-      }
-    });
+          if (this.modalMode() === 'create') {
+            if (this.pageIndex() === 0) {
+              const created = res.result;
+              const pageLen = this.pageSize();
+              this.displayCustomers.update((prev) =>
+                prev.length >= pageLen
+                  ? [created, ...prev.slice(0, pageLen - 1)]
+                  : [created, ...prev]
+              );
+              this.displayPaging.update((p) => ({ ...p, totalCount: p.totalCount + 1 }));
+            }
+            void this.router.navigate([], {
+              relativeTo: this.route,
+              queryParams: { page: 1 },
+              queryParamsHandling: 'merge',
+            });
+          } else {
+            const updated = res.result;
+            this.displayCustomers.update((rows) =>
+              rows.map((c) => (c.id === updated.id ? updated : c))
+            );
+          }
+        },
+        error: (err: unknown) => {
+          const message = err instanceof Error ? err.message : 'Unexpected error.';
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: message });
+        }
+      });
   }
 
   closeModal(): void {
@@ -163,67 +215,55 @@ export class CustomersPageComponent implements OnInit {
   deleteCustomer(customer: Customer): void {
     if (!confirm(`Are you sure you want to delete "${customer.name}"?`)) return;
 
-    this.customersApi.deleteCustomer(customer.id).pipe(take(1)).subscribe({
-      next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Customer deleted successfully.' });
-        this.loadCustomers();
-      },
-      error: (err: unknown) => {
-        const message = err instanceof Error ? err.message : 'Unexpected error.';
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: message });
-      }
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Not supported',
+      detail: 'Deleting customers is not supported by the API.'
     });
   }
 
   onPageChange(event: any): void {
     const rows = event.rows ?? this.pageSize();
     const newPageIndex = event.page ?? Math.floor((event.first ?? 0) / Math.max(rows, 1));
-    
-    if (this.pageIndex() !== newPageIndex || this.pageSize() !== rows) {
-      const isPageSizeChangeOnly = this.pageIndex() === newPageIndex && this.pageSize() !== rows;
-      this.pageSize.set(rows);
 
+    if (this.pageIndex() !== newPageIndex || this.pageSize() !== rows) {
       const isManualPageChange = this.pageIndex() !== newPageIndex;
-      
+
       void this.router.navigate([], {
         relativeTo: this.route,
-        queryParams: { page: newPageIndex + 1 },
+        queryParams: { page: newPageIndex + 1, pageSize: rows },
         queryParamsHandling: 'merge',
       });
 
       if (isManualPageChange) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else if (isPageSizeChangeOnly) {
-        // If only page size changed, navigation above might not trigger queryParams sub
-        // because the 'page' value didn't change in the URL.
-        this.loadCustomers();
       }
     }
   }
 
-  private loadCustomers(): void {
-    this.isListLoading.set(true);
-    this.customers.set([]);
+  private customersLinkSource(): {
+    request: ListCustomerRequest;
+    customers: Customer[];
+    paging: PagingInfo;
+  } {
+    const [customers, paging] = this.customersResource.value();
+    return {
+      request: this.listRequest(),
+      customers,
+      paging
+    };
+  }
 
-    this.customersApi.listCustomers(this.pageIndex(), this.pageSize())
-      .pipe(
-        take(1),
-        finalize(() => {
-          this.isListLoading.set(false);
-          this.cdr.detectChanges();
-        })
-      )
-      .subscribe({
-        next: (result) => {
-          this.customers.set(result.items);
-          this.totalRecords.set(result.total);
-        },
-        error: (err: unknown) => {
-          this.customers.set([]);
-          this.totalRecords.set(0);
-          const message = err instanceof Error ? err.message : 'Unexpected error.';
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: message });
-        }
-      });
+  private formatApiFailureDetail(error: unknown): string {
+    if (error === undefined || error === null) {
+      return 'The server reported an unsuccessful response.';
+    }
+    if (typeof error === 'string') return error;
+    if (error instanceof Error) return error.message;
+    try {
+      return JSON.stringify(error);
+    } catch {
+      return 'The server reported an unsuccessful response.';
+    }
   }
 }
