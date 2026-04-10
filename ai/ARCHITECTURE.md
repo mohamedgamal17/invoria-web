@@ -97,8 +97,9 @@ graph TD
 ## 7. Dependency Rules
 
 1. **Isolation**: Features must not import from other features.
-2. **Shared Usage**: Features may import from `shared/` and `core/`.
-3. **Circular Dependencies**: Strictly forbidden; use `shared/entities` for common base classes.
+2. **Exception**: The `products` feature may import `features/inventory` for product batch UI (`ProductBatchesModalComponent` and related batch models/services). The `inventory` feature must not import from `products`; use `BatchesProductRef` (or similar) instead of `Product` entity types to keep the dependency one-way.
+3. **Shared Usage**: Features may import from `shared/` and `core/`.
+4. **Circular Dependencies**: Strictly forbidden; use `shared/entities` for common base classes.
 
 ---
 
