@@ -1,0 +1,166 @@
+<!-- Mobile View (Cards) -->
+<div class="block md:hidden space-y-4">
+  @if (loading()) {
+    <app-customer-list-skeleton variant="mobile" [count]="pageSize()" />
+  } @else if (customers().length > 0) {
+    @for (customer of customers(); track customer.id) {
+      <div class="rounded-xl border border-border bg-surface p-4 shadow-sm hover:border-primary/30 transition-all active:scale-[0.98]">
+        <div class="flex justify-between items-start mb-4">
+          <div class="flex flex-col min-w-0">
+            <span class="truncate text-base font-bold text-foreground">{{ customer.name }}</span>
+            <span class="text-xs text-muted-foreground mt-0.5">Joined {{ customer.createdAt | date:'shortDate' }}</span>
+          </div>
+          <div class="flex gap-2">
+            <p-button
+              icon="pi pi-pencil"
+              [text]="true"
+              [rounded]="true"
+              styleClass="text-primary hover:bg-primary/10 w-10 h-10 flex items-center justify-center transition-colors border border-border/20"
+              (onClick)="editCustomer.emit(customer)"
+            />
+            <p-button
+              icon="pi pi-trash"
+              [text]="true"
+              [rounded]="true"
+              severity="danger"
+              styleClass="text-danger hover:bg-danger/10 w-10 h-10 flex items-center justify-center transition-colors border border-border/20"
+              (onClick)="deleteCustomer.emit(customer)"
+            />
+          </div>
+        </div>
+      </div>
+    }
+  } @else {
+    <div class="rounded-xl border border-dashed border-border p-12 text-center bg-surface-2/30">
+      <i class="pi pi-users text-4xl text-muted-foreground opacity-20 mb-3 block"></i>
+      <div class="text-base font-medium text-foreground">No customers found</div>
+      <p class="text-sm text-muted-foreground mb-4">Try adjusting your search or create a new customer.</p>
+      <p-button
+        label="Clear Search"
+        [link]="true"
+        (onClick)="dt.reset(); dt.filterGlobal('', 'contains')"
+      />
+    </div>
+  }
+
+  <!-- Mobile Pagination -->
+  <div class="mt-8 pb-4">
+    <p-paginator
+      [first]="pageIndex() * pageSize()"
+      [rows]="pageSize()"
+      [totalRecords]="totalRecords()"
+      [rowsPerPageOptions]="pageSizeOptions()"
+      (onPageChange)="pageChange.emit($event)"
+      styleClass="bg-transparent border-none"
+    />
+  </div>
+</div>
+
+<!-- Desktop Table View -->
+<div class="hidden md:block rounded-xl border border-border bg-surface shadow-sm overflow-visible">
+  <p-table
+    #dt
+    [value]="customers()"
+    dataKey="id"
+    [lazy]="true"
+    [paginator]="true"
+    [rows]="pageSize()"
+    [first]="pageIndex() * pageSize()"
+    [totalRecords]="totalRecords()"
+    [rowsPerPageOptions]="pageSizeOptions()"
+    (onPage)="pageChange.emit($event)"
+    [loading]="loading()"
+    [showLoader]="false"
+    [rowHover]="true"
+    [globalFilterFields]="['name']"
+    [stripedRows]="true"
+    styleClass="p-datatable-sm"
+  >
+    <ng-template pTemplate="caption">
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-4 px-2 py-3">
+        <p-iconfield iconPosition="left" class="w-full sm:w-80">
+          <p-inputicon styleClass="pi pi-search" />
+          <input
+            pInputText
+            type="text"
+            (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+            placeholder="Search by name..."
+            class="w-full rounded-lg border-border bg-surface-2 py-2 text-sm focus:ring-2 focus:ring-focus"
+          />
+        </p-iconfield>
+        <div class="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          Displaying {{ customers().length }} of {{ totalRecords() }} customers
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider">
+          Customer Name
+        </th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider">
+          Joined Date
+        </th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">
+          Actions
+        </th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-customer>
+      <tr>
+        <td class="px-4 py-5">
+          <span class="text-sm font-semibold text-foreground">{{ customer.name }}</span>
+        </td>
+        <td class="px-4 py-5">
+          <span class="text-sm text-muted-foreground">{{ customer.createdAt | date:'mediumDate' }}</span>
+        </td>
+        <td class="px-4 py-5 text-right">
+          <div class="flex justify-end gap-1">
+            <p-button
+              icon="pi pi-pencil"
+              [text]="true"
+              [rounded]="true"
+              pTooltip="Edit Customer"
+              tooltipPosition="top"
+              styleClass="text-primary hover:bg-primary/10 w-9 h-9 flex items-center justify-center transition-colors"
+              (onClick)="editCustomer.emit(customer)"
+            />
+            <p-button
+              icon="pi pi-trash"
+              [text]="true"
+              [rounded]="true"
+              severity="danger"
+              pTooltip="Delete Customer"
+              tooltipPosition="top"
+              styleClass="text-danger hover:bg-danger/10 w-9 h-9 flex items-center justify-center transition-colors"
+              (onClick)="deleteCustomer.emit(customer)"
+            />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="loadingbody">
+      <app-customer-list-skeleton variant="table" [count]="pageSize()" />
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="3" class="px-4 py-12 text-center">
+          <div class="flex flex-col items-center gap-3">
+            <i class="pi pi-users text-4xl text-muted-foreground opacity-20"></i>
+            <div class="text-base font-medium text-foreground">No customers found</div>
+            <p class="text-sm text-muted-foreground">Try adjusting your search or create a new customer.</p>
+            <p-button
+              label="Clear Search"
+              [link]="true"
+              (onClick)="dt.reset(); dt.filterGlobal('', 'contains')"
+            />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
