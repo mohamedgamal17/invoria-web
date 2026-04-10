@@ -1,0 +1,93 @@
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { map, Observable, throwError } from 'rxjs';
+
+import { ApiResponse } from '../../../core/models/api-response';
+import { Paging } from '../../../core/models/paging';
+import { environment } from '../../../../environments/environment';
+import type { Customer } from '../models/customer.entity';
+import type { CreateCustomerRequest } from '../models/create-customer.request';
+import type { ListCustomerRequest } from '../models/list-customer.request';
+import type { UpdateCustomerRequest } from '../models/update-customer.request';
+
+function pagingParams(q: ListCustomerRequest): HttpParams {
+  return new HttpParams().set('Skip', String(q.Skip)).set('Length', String(q.Length));
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class CustomersApiService {
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl = `${environment.apiUrl.replace(/\/?$/, '/')}`;
+
+  listCustomers(request: ListCustomerRequest): Observable<ApiResponse<Paging<Customer>>> {
+    if (request.Skip < 0) {
+      return throwError(() => new Error('Invalid Skip.'));
+    }
+    if (request.Length <= 0) {
+      return throwError(() => new Error('Invalid Length.'));
+    }
+
+    return this.http.get<ApiResponse<Paging<Customer>>>(`${this.baseUrl}customers`, {
+      params: pagingParams(request)
+    });
+  }
+
+  getCustomer(id: string): Observable<ApiResponse<Customer>> {
+    return this.http.get<ApiResponse<Customer>>(
+      `${this.baseUrl}customers/${encodeURIComponent(id)}`
+    );
+  }
+
+  createCustomer(request: CreateCustomerRequest): Observable<ApiResponse<Customer>> {
+    this.assertName(request.Name);
+    return this.http.post<ApiResponse<Customer>>(`${this.baseUrl}customers`, request);
+  }
+
+  updateCustomer(
+    id: string,
+    request: UpdateCustomerRequest
+  ): Observable<ApiResponse<Customer>> {
+    this.assertName(request.Name);
+    return this.http.put<ApiResponse<Customer>>(
+      `${this.baseUrl}customers/${encodeURIComponent(id)}`,
+      request
+    );
+  }
+
+  /**
+   * Loads customers for the given list query and filters by name (orders autocomplete).
+   */
+  searchCustomers(
+    listRequest: ListCustomerRequest,
+    nameFilter: string
+  ): Observable<Customer[]> {
+    return this.http
+      .get<ApiResponse<Paging<Customer>>>(`${this.baseUrl}customers`, {
+        params: pagingParams(listRequest)
+      })
+      .pipe(
+        map((body) => {
+          if (!body.isSuccess || !body.result) {
+            return [];
+          }
+          const normalizedQuery = (nameFilter || '').toLowerCase().trim();
+          const rows = body.result.data;
+          if (!normalizedQuery) {
+            return rows.slice(0, 20);
+          }
+          return rows
+            .filter((c) => c.name.toLowerCase().includes(normalizedQuery))
+            .slice(0, 20);
+        })
+      );
+  }
+
+  private assertName(name: string | undefined): void {
+    const trimmed = (name || '').trim();
+    if (!trimmed) {
+      throw new Error('Name is required.');
+    }
+  }
+}
