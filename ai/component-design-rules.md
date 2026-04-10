@@ -1,6 +1,6 @@
-# Customers feature conventions
+# Component design rules
 
-This document describes the **coding patterns used in the Customers feature** (`src/app/features/customers/`). Treat it as a **reference implementation** for a signal-heavy list page with a modal form, query-param pagination, and local list updates without mutating the async resource.
+These rules describe **conventions for smart vs presentational components**, URL-driven list state, and API boundaries. The **Customers** feature (`src/app/features/customers/`) is the **reference implementation**: a signal-heavy list page with a modal form, query-param pagination, and local list updates without mutating the async resource.
 
 It complements [api-services-and-models.md](./api-services-and-models.md) for HTTP types (`ApiResponse`, `Paging`, `Entity`), request naming, and service structure.
 

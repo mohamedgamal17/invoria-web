@@ -61,7 +61,7 @@ We follow a **Smart (Container) vs. Presentational (Dumb)** component pattern.
     - Communicate via `@Input()` and `@Output()`.
     - (Planned) Extracted from `pages/` as features grow.
 
-For a **concrete reference** of this split with modern signals—**`rxResource`**, **`linkedSignal`**, query-param pagination, and scoped **`MessageService`**—see [customers-feature-conventions.md](./customers-feature-conventions.md) (Customers feature).
+For a **concrete reference** of this split with modern signals—**`rxResource`**, **`linkedSignal`**, query-param pagination, and scoped **`MessageService`**—see [Component design rules](./component-design-rules.md) (Customers reference).
 
 ---
 
@@ -70,7 +70,7 @@ For a **concrete reference** of this split with modern signals—**`rxResource`*
 - **Local State**: Component-level state is managed via class properties and RxJS.
 - **Global State**: (Planned) Core services or Signal-based stores for cross-feature data.
 - **Patterns**: Use of `firstValueFrom` to handle RxJS streams in an `async/await` fashion for complex UI flows (e.g., multiple sequential API calls).
-- **List pages** may instead use **Angular signals**, **`toSignal`/`computed`** for URL-derived params, and **`rxResource`** (with optional **`linkedSignal`** for view state that tracks server data). The Customers feature documents this pattern end-to-end in [customers-feature-conventions.md](./customers-feature-conventions.md).
+- **List pages** may instead use **Angular signals**, **`toSignal`/`computed`** for URL-derived params, and **`rxResource`** (with optional **`linkedSignal`** for view state that tracks server data). The Customers feature documents this pattern end-to-end in [Component design rules](./component-design-rules.md).
 
 ---
 
