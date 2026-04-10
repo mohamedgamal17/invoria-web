@@ -1,7 +1,7 @@
 export interface Entity {
   id: string;
   createdAt: string;
-  createdby?: string;
+  createdBy?: string;
   lastModifiedAt?: string;
   lastModifiedBy?: string;
 }
