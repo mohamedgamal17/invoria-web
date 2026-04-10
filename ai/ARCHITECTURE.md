@@ -25,8 +25,9 @@ src/app/
 │   │   └── services/   # Data access services
 │   └── ...             # Other features (orders, inventory, etc.)
 ├── layout/             # Shell components and navigation
-├── shared/             # Reusable UI components and base entities
-│   └── entities/       # Base classes for domain models
+├── shared/             # Reusable UI components, base entities, shared request shapes
+│   ├── entities/       # Base classes for domain models
+│   └── requests/       # Shared HTTP query/body fragments (e.g. paging)
 ├── styles/             # Design system configuration
 │   ├── primeng/        # PrimeNG theme presets
 │   └── tokens.css      # Core design tokens
@@ -60,6 +61,8 @@ We follow a **Smart (Container) vs. Presentational (Dumb)** component pattern.
     - Communicate via `@Input()` and `@Output()`.
     - (Planned) Extracted from `pages/` as features grow.
 
+For a **concrete reference** of this split with modern signals—**`rxResource`**, **`linkedSignal`**, query-param pagination, and scoped **`MessageService`**—see [customers-feature-conventions.md](./customers-feature-conventions.md) (Customers feature).
+
 ---
 
 ## 5. State Management
@@ -67,6 +70,7 @@ We follow a **Smart (Container) vs. Presentational (Dumb)** component pattern.
 - **Local State**: Component-level state is managed via class properties and RxJS.
 - **Global State**: (Planned) Core services or Signal-based stores for cross-feature data.
 - **Patterns**: Use of `firstValueFrom` to handle RxJS streams in an `async/await` fashion for complex UI flows (e.g., multiple sequential API calls).
+- **List pages** may instead use **Angular signals**, **`toSignal`/`computed`** for URL-derived params, and **`rxResource`** (with optional **`linkedSignal`** for view state that tracks server data). The Customers feature documents this pattern end-to-end in [customers-feature-conventions.md](./customers-feature-conventions.md).
 
 ---
 
@@ -117,6 +121,8 @@ The application uses **Tailwind CSS 4** with a CSS-first configuration.
 - **Services**: All API calls must go through a Service class.
 - **HttpClient**: Services use Angular's `HttpClient` (mocked in `products-mock-api.service.ts` for now).
 - **Abstraction**: Components should not know about the underlying API implementation (e.g., whether it's REST or GraphQL).
+
+For **file naming**, **entity vs. request types**, and **typed API service patterns** (including `ApiResponse`, `Paging`, and `Entity`), see [api-services-and-models.md](./api-services-and-models.md).
 
 ---
 
