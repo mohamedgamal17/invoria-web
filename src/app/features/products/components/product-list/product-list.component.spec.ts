@@ -4,7 +4,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 import { ProductListComponent } from './product-list.component';
-import type { Product } from '../../models/product';
+import type { Product } from '../../models/product.entity';
 
 describe('ProductListComponent', () => {
   let component: ProductListComponent;

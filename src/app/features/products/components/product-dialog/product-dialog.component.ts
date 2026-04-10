@@ -7,7 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { MessageModule } from 'primeng/message';
 
-import type { Product } from '../../models/product';
+import type { Product } from '../../models/product.entity';
 
 export type ProductDraft = {
   name: string;

@@ -10,7 +10,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import type { OrderItem } from '../../models/order';
-import type { Product } from '../../../products/models/product';
+import type { Product } from '../../../products/models/product.entity';
 import type { Customer } from '../../../customers/models/customer.entity';
 
 @Component({

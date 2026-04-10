@@ -9,7 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { BatchService } from '../services/batch.service';
 import { Batch, BatchCreateInput, BatchUpdateInput } from '../models/batch.model';
-import { Product } from '../../models/product';
+import { Product } from '../../models/product.entity';
 import { BatchListComponent } from './batch-list.component';
 import { BatchFormComponent } from './batch-form.component';
 

@@ -3,7 +3,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 import { ProductDialogComponent } from './product-dialog.component';
-import type { Product } from '../../models/product';
+import type { Product } from '../../models/product.entity';
 
 describe('ProductDialogComponent', () => {
   let component: ProductDialogComponent;

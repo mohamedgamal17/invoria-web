@@ -12,7 +12,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import type { PaginatorState } from 'primeng/paginator';
 import type { TablePageEvent } from 'primeng/table';
 
-import type { Product } from '../../models/product';
+import type { Product } from '../../models/product.entity';
 
 @Component({
   selector: 'app-product-list',

@@ -14,7 +14,7 @@ import { ProductsMockApiService } from '../../../products/services/products-mock
 import { CustomersApiService } from '../../../customers/services/customers-api.service';
 import { customerSearchListRequest } from '../../../customers/models/list-customer.request';
 import type { Order, OrderCreateInput, OrderState, OrderItem } from '../../models/order';
-import type { Product } from '../../../products/models/product';
+import type { Product } from '../../../products/models/product.entity';
 import type { Customer } from '../../../customers/models/customer.entity';
 import { canEditOrder, canTransition } from '../../models/order';
 

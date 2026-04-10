@@ -16,7 +16,7 @@ import { ProductDialogComponent, type ProductDraft, type ModalMode } from '../..
 import { ProductBatchesModalComponent } from '../../inventory/components/product-batches-modal.component';
 
 import { ProductsMockApiService } from '../../services/products-mock-api.service';
-import type { Product, ProductCreateInput } from '../../models/product';
+import type { Product, ProductCreateInput } from '../../models/product.entity';
 
 @Component({
   selector: 'app-products-page',

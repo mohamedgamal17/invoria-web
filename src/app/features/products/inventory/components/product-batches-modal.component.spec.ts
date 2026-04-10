@@ -6,7 +6,7 @@ import { of, throwError } from 'rxjs';
 import { ProductBatchesModalComponent } from './product-batches-modal.component';
 import { BatchService } from '../services/batch.service';
 import { Batch, BatchState } from '../models/batch.model';
-import { Product } from '../../models/product';
+import { Product } from '../../models/product.entity';
 
 describe('ProductBatchesModalComponent', () => {
   let component: ProductBatchesModalComponent;
