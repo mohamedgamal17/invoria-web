@@ -5,7 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { MessageModule } from 'primeng/message';
 import { DividerModule } from 'primeng/divider';
-import { Batch, BatchCreateInput, BatchUpdateInput } from '../models/batch.model';
+import type { Batch, BatchFormSavePayload } from '../models/batch.entity';
 
 @Component({
   selector: 'app-batch-form',
@@ -95,7 +95,7 @@ export class BatchFormComponent {
   batch = input<Batch | null>(null);
   loading = input<boolean>(false);
 
-  save = output<BatchCreateInput | BatchUpdateInput>();
+  save = output<BatchFormSavePayload>();
   cancel = output<void>();
 
   editMode = () => !!this.batch();
@@ -136,12 +136,12 @@ export class BatchFormComponent {
         this.save.emit({
           quantity: this.batchForm.value.quantity ?? 0,
           purchasePrice: this.batchForm.value.purchasePrice ?? 1
-        } as BatchUpdateInput);
+        });
       } else {
         this.save.emit({
           quantity: this.batchForm.value.quantity ?? 1,
           purchasePrice: this.batchForm.value.purchasePrice ?? 1
-        } as BatchCreateInput);
+        });
       }
     }
   }

@@ -6,7 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { PaginatorModule } from 'primeng/paginator';
 import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
-import { Batch, BatchState } from '../models/batch.model';
+import { Batch, BatchState } from '../models/batch.entity';
 
 @Component({
   selector: 'app-batch-list',

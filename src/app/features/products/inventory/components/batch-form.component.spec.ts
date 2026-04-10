@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { BatchFormComponent } from './batch-form.component';
-import { Batch, BatchState } from '../models/batch.model';
+import { Batch, BatchState } from '../models/batch.entity';
 
 describe('BatchFormComponent', () => {
   let component: BatchFormComponent;
@@ -10,6 +10,7 @@ describe('BatchFormComponent', () => {
 
   const mockBatch: Batch = {
     id: 'bat_1',
+    createdAt: new Date().toISOString(),
     productId: 'prd_1',
     quantity: 10,
     reservedQuantity: 3,
@@ -31,7 +32,7 @@ describe('BatchFormComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should emit BatchCreateInput in create mode on submit', () => {
+  it('should emit form payload in create mode on submit', () => {
     const saveSpy = vi.spyOn(component.save, 'emit');
     component.batchForm.patchValue({ quantity: 8, purchasePrice: 14.5 });
 
@@ -43,7 +44,7 @@ describe('BatchFormComponent', () => {
     });
   });
 
-  it('should prefill values and emit BatchUpdateInput with purchasePrice in edit mode', () => {
+  it('should prefill values and emit form payload with purchasePrice in edit mode', () => {
     const saveSpy = vi.spyOn(component.save, 'emit');
 
     fixture.componentRef.setInput('batch', mockBatch);

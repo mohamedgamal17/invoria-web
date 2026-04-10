@@ -7,8 +7,10 @@ import { TagModule } from 'primeng/tag';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
-import { BatchService } from '../services/batch.service';
-import { Batch, BatchCreateInput, BatchUpdateInput } from '../models/batch.model';
+import { BatchesApiService } from '../services/batches-api.service';
+import type { Batch, BatchFormSavePayload } from '../models/batch.entity';
+import type { CreateBatchRequest } from '../models/create-batch.request';
+import type { UpdateBatchRequest } from '../models/update-batch.request';
 import { Product } from '../../models/product.entity';
 import { BatchListComponent } from './batch-list.component';
 import { BatchFormComponent } from './batch-form.component';
@@ -133,7 +135,7 @@ import { BatchFormComponent } from './batch-form.component';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProductBatchesModalComponent {
-  private batchService = inject(BatchService);
+  private batchesApi = inject(BatchesApiService);
   private messageService = inject(MessageService);
 
   visible = model(false);
@@ -153,6 +155,7 @@ export class ProductBatchesModalComponent {
   constructor() {
     effect(() => {
       if (this.visible() && this.product()) {
+        this.currentPage = 1;
         this.loadBatches();
       }
     });
@@ -170,12 +173,25 @@ export class ProductBatchesModalComponent {
     if (!p) return;
 
     this.loading.set(true);
-    this.batchService.getBatches(p.id, this.currentPage, this.pageSize)
+    this.batchesApi
+      .listBatches({
+        ProductId: p.id,
+        Skip: (this.currentPage - 1) * this.pageSize,
+        Length: this.pageSize
+      })
       .subscribe({
-        next: (response) => {
-          this.batches.set(response.items);
-          this.totalRecords.set(response.total);
+        next: (body) => {
           this.loading.set(false);
+          if (!body.isSuccess || !body.result) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: body.error?.message ?? 'Failed to load batches'
+            });
+            return;
+          }
+          this.batches.set(body.result.data);
+          this.totalRecords.set(body.result.info.totalCount);
         },
         error: () => {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load batches' });
@@ -212,7 +228,7 @@ export class ProductBatchesModalComponent {
     this.batches.set([]);
   }
 
-  onSave(data: BatchCreateInput | BatchUpdateInput) {
+  onSave(data: BatchFormSavePayload) {
     const p = this.product();
     if (!p) return;
 
@@ -220,21 +236,36 @@ export class ProductBatchesModalComponent {
     const batch = this.selectedBatch();
 
     if (batch) {
-      this.batchService.updateBatch(batch.id, data as BatchUpdateInput)
-        .subscribe({
-          next: () => {
-            this.handleSuccess('Batch updated successfully');
-          },
-          error: () => this.handleError('Failed to update batch')
-        });
+      const request: UpdateBatchRequest = {
+        Quantity: data.quantity,
+        PurchasePrice: data.purchasePrice
+      };
+      this.batchesApi.updateBatch(batch.id, request).subscribe({
+        next: (body) => {
+          if (!body.isSuccess) {
+            this.handleError(body.error?.message ?? 'Failed to update batch');
+            return;
+          }
+          this.handleSuccess('Batch updated successfully');
+        },
+        error: () => this.handleError('Failed to update batch')
+      });
     } else {
-      this.batchService.createBatch(p.id, data as BatchCreateInput)
-        .subscribe({
-          next: () => {
-            this.handleSuccess('Batch created successfully');
-          },
-          error: () => this.handleError('Failed to create batch')
-        });
+      const request: CreateBatchRequest = {
+        ProductId: p.id,
+        Quantity: data.quantity,
+        PurchasePrice: data.purchasePrice
+      };
+      this.batchesApi.createBatch(request).subscribe({
+        next: (body) => {
+          if (!body.isSuccess) {
+            this.handleError(body.error?.message ?? 'Failed to create batch');
+            return;
+          }
+          this.handleSuccess('Batch created successfully');
+        },
+        error: () => this.handleError('Failed to create batch')
+      });
     }
   }
 

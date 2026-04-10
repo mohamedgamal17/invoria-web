@@ -4,8 +4,8 @@ import { MessageService } from 'primeng/api';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { of, throwError } from 'rxjs';
 import { ProductBatchesModalComponent } from './product-batches-modal.component';
-import { BatchService } from '../services/batch.service';
-import { Batch, BatchState } from '../models/batch.model';
+import { BatchesApiService } from '../services/batches-api.service';
+import { Batch, BatchState } from '../models/batch.entity';
 import { Product } from '../../models/product.entity';
 
 describe('ProductBatchesModalComponent', () => {
@@ -14,6 +14,7 @@ describe('ProductBatchesModalComponent', () => {
 
   const mockBatch: Batch = {
     id: 'bat_1',
+    createdAt: new Date().toISOString(),
     productId: 'prd_1',
     quantity: 12,
     reservedQuantity: 2,
@@ -34,10 +35,18 @@ describe('ProductBatchesModalComponent', () => {
     lastModifiedBy: 'system'
   };
 
-  const batchServiceMock = {
-    getBatches: vi.fn(() => of({ items: [mockBatch], total: 1 })),
-    createBatch: vi.fn(() => of(mockBatch)),
-    updateBatch: vi.fn(() => of(mockBatch))
+  const listSuccessBody = {
+    isSuccess: true as const,
+    result: {
+      data: [mockBatch],
+      info: { length: 5, skip: 0, totalCount: 1 }
+    }
+  };
+
+  const batchesApiMock = {
+    listBatches: vi.fn(() => of(listSuccessBody)),
+    createBatch: vi.fn(() => of({ isSuccess: true as const, result: mockBatch })),
+    updateBatch: vi.fn(() => of({ isSuccess: true as const, result: mockBatch }))
   };
 
   const messageServiceMock = {
@@ -50,7 +59,7 @@ describe('ProductBatchesModalComponent', () => {
     await TestBed.configureTestingModule({
       imports: [ProductBatchesModalComponent, NoopAnimationsModule],
       providers: [
-        { provide: BatchService, useValue: batchServiceMock },
+        { provide: BatchesApiService, useValue: batchesApiMock },
         { provide: MessageService, useValue: messageServiceMock }
       ]
     }).compileComponents();
@@ -69,7 +78,11 @@ describe('ProductBatchesModalComponent', () => {
     fixture.componentRef.setInput('visible', true);
     fixture.detectChanges();
 
-    expect(batchServiceMock.getBatches).toHaveBeenCalledWith(mockProduct.id, 1, 5);
+    expect(batchesApiMock.listBatches).toHaveBeenCalledWith({
+      ProductId: mockProduct.id,
+      Skip: 0,
+      Length: 5
+    });
     expect(component.batches().length).toBe(1);
     expect(component.totalRecords()).toBe(1);
   });
@@ -90,9 +103,13 @@ describe('ProductBatchesModalComponent', () => {
 
     const loadSpy = vi.spyOn(component, 'loadBatches');
     component.showForm.set(true);
-    component.onSave({ quantity: 5, purchasePrice: 20, productId: mockProduct.id });
+    component.onSave({ quantity: 5, purchasePrice: 20 });
 
-    expect(batchServiceMock.createBatch).toHaveBeenCalled();
+    expect(batchesApiMock.createBatch).toHaveBeenCalledWith({
+      ProductId: mockProduct.id,
+      Quantity: 5,
+      PurchasePrice: 20
+    });
     expect(messageServiceMock.add).toHaveBeenCalledWith(
       expect.objectContaining({ severity: 'success' })
     );
@@ -109,9 +126,9 @@ describe('ProductBatchesModalComponent', () => {
     component.showForm.set(true);
     component.onSave({ quantity: 9, purchasePrice: 11 });
 
-    expect(batchServiceMock.updateBatch).toHaveBeenCalledWith(mockBatch.id, {
-      quantity: 9,
-      purchasePrice: 11
+    expect(batchesApiMock.updateBatch).toHaveBeenCalledWith(mockBatch.id, {
+      Quantity: 9,
+      PurchasePrice: 11
     });
     expect(messageServiceMock.add).toHaveBeenCalledWith(
       expect.objectContaining({ severity: 'success' })
@@ -122,7 +139,7 @@ describe('ProductBatchesModalComponent', () => {
   });
 
   it('should keep drawer open and show error message on save failure', () => {
-    batchServiceMock.updateBatch.mockReturnValueOnce(throwError(() => new Error('failed')));
+    batchesApiMock.updateBatch.mockReturnValueOnce(throwError(() => new Error('failed')));
     fixture.componentRef.setInput('product', mockProduct);
     fixture.detectChanges();
 

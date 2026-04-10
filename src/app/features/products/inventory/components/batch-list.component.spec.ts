@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { BatchListComponent } from './batch-list.component';
-import { Batch, BatchState } from '../models/batch.model';
+import { Batch, BatchState } from '../models/batch.entity';
 
 describe('BatchListComponent', () => {
   let component: BatchListComponent;
@@ -10,6 +10,7 @@ describe('BatchListComponent', () => {
 
   const mockBatch: Batch = {
     id: 'bat_1',
+    createdAt: new Date().toISOString(),
     productId: 'prd_1',
     quantity: 20,
     reservedQuantity: 5,
