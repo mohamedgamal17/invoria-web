@@ -11,7 +11,7 @@ import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import type { OrderItem } from '../../models/order';
 import type { Product } from '../../../products/models/product';
-import type { Customer } from '../../../customers/models/customer';
+import type { Customer } from '../../../customers/models/customer.entity';
 
 @Component({
   selector: 'app-order-dialog',

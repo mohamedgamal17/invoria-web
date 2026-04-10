@@ -11,10 +11,11 @@ import { Router, ActivatedRoute } from '@angular/router';
 
 import { OrdersMockApiService } from '../../services/orders-mock-api.service';
 import { ProductsMockApiService } from '../../../products/services/products-mock-api.service';
-import { CustomersMockApiService } from '../../../customers/services/customers-mock-api.service';
+import { CustomersApiService } from '../../../customers/services/customers-api.service';
+import { customerSearchListRequest } from '../../../customers/models/list-customer.request';
 import type { Order, OrderCreateInput, OrderState, OrderItem } from '../../models/order';
 import type { Product } from '../../../products/models/product';
-import type { Customer } from '../../../customers/models/customer';
+import type { Customer } from '../../../customers/models/customer.entity';
 import { canEditOrder, canTransition } from '../../models/order';
 
 // New Components
@@ -103,7 +104,7 @@ export class OrdersPageComponent implements OnInit {
   constructor(
     private readonly ordersApi: OrdersMockApiService,
     private readonly productsApi: ProductsMockApiService,
-    private readonly customersApi: CustomersMockApiService,
+    private readonly customersApi: CustomersApiService,
     private readonly cdr: ChangeDetectorRef,
     private readonly messageService: MessageService,
     private readonly confirmationService: ConfirmationService,
@@ -362,7 +363,7 @@ export class OrdersPageComponent implements OnInit {
 
   searchCustomers(event: any): void {
     this.isCustomerLoading.set(true);
-    this.customersApi.searchCustomers(event.query)
+    this.customersApi.searchCustomers(customerSearchListRequest, event.query)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (customers) => {
