@@ -1,6 +1,6 @@
-import { AuditedEntity } from '../../../shared/entities/base-entity';
+import { TypedEntity } from '../../../core/models/entity';
 
-export type Customer = AuditedEntity<{
+export type Customer = TypedEntity<{
   name: string;
 }>;
 

@@ -1,4 +1,4 @@
-import { AuditedEntity } from '../../../shared/entities/base-entity';
+import { TypedEntity } from '../../../core/models/entity';
 
 export type OrderState = 'PENDING' | 'ACCEPTED' | 'REOPENED' | 'COMPLETED' | 'CANCELLED' | 'REFUSED';
 
@@ -17,7 +17,7 @@ export interface OrderItem {
   price: number;
 }
 
-export type Order = AuditedEntity<{
+export type Order = TypedEntity<{
   orderNumber: string;
   customerName: string;
   totalAmount: number;

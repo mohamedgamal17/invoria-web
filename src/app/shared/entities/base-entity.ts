@@ -1,19 +1,11 @@
-export type EntityId = string;
+import { Entity, TypedEntity } from '../../core/models/entity';
 
-export type AuditFields = {
-  createdAt: string;
-  createdBy: string;
-  lastModifiedAt: string;
-  lastModifiedBy: string;
-};
-
-export type BaseEntity = {
-  id: EntityId;
-} & AuditFields;
+export type EntityId = Entity['id'];
+export type AuditFields = Omit<Entity, 'id'>;
+export type BaseEntity = Entity;
 
 /**
- * Generic helper for future entities that share `id` + audit fields.
+ * Backward-compatible alias for existing feature models.
  */
-export type AuditedEntity<T extends object = Record<string, never>> = BaseEntity &
-  T;
+export type AuditedEntity<T extends object = Record<string, never>> = TypedEntity<T>;
 
