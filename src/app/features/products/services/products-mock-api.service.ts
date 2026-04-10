@@ -5,7 +5,7 @@ import type {
   Product,
   ProductCreateInput,
   ProductUpdateInput
-} from '../models/product';
+} from '../models/product.entity';
 
 function createAuditSnapshot(seed: number): {
   createdAt: string;
