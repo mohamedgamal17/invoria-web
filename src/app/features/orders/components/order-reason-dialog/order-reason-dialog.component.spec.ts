@@ -6,13 +6,13 @@ import { ButtonModule } from 'primeng/button';
 import { TextareaModule } from 'primeng/textarea';
 import { FormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { Order } from '../../models/order';
+import type { UiOrder } from '../../models/order-ui.model';
 
 describe('OrderReasonDialogComponent', () => {
   let component: OrderReasonDialogComponent;
   let fixture: ComponentFixture<OrderReasonDialogComponent>;
 
-  const mockOrder: Order = {
+  const mockOrder: UiOrder = {
     id: '1',
     orderNumber: 'ORD-001',
     customerName: 'Customer 1',

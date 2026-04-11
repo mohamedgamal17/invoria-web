@@ -11,8 +11,9 @@ import { PaginatorModule } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
 import { PopoverModule } from 'primeng/popover';
 import { TimelineModule } from 'primeng/timeline';
-import type { Order, OrderState } from '../../models/order';
-import { canEditOrder, canTransition } from '../../models/order';
+import type { UiOrder } from '../../models/order-ui.model';
+import type { OrderState } from '../../models/order-state-machine';
+import { canEditOrder, canTransition } from '../../models/order-state-machine';
 
 @Component({
   selector: 'app-order-list',
@@ -34,7 +35,7 @@ import { canEditOrder, canTransition } from '../../models/order';
   templateUrl: './order-list.component.html'
 })
 export class OrderListComponent {
-  orders = input<Order[]>([]);
+  orders = input<UiOrder[]>([]);
   totalRecords = input(0);
   first = input(0);
   pageSize = input(10);
@@ -42,39 +43,39 @@ export class OrderListComponent {
   loading = input(false);
 
   pageChange = output<any>();
-  edit = output<Order>();
-  accept = output<Order>();
-  cancel = output<Order>();
-  reopen = output<Order>();
-  complete = output<Order>();
-  refuse = output<Order>();
-  delete = output<Order>();
+  edit = output<UiOrder>();
+  accept = output<UiOrder>();
+  cancel = output<UiOrder>();
+  reopen = output<UiOrder>();
+  complete = output<UiOrder>();
+  refuse = output<UiOrder>();
+  delete = output<UiOrder>();
 
   get skeletonRows(): number[] {
     return Array.from({ length: this.pageSize() }, (_, i) => i);
   }
 
-  canEdit(order: Order): boolean {
+  canEdit(order: UiOrder): boolean {
     return canEditOrder(order.status);
   }
 
-  canAccept(order: Order): boolean {
+  canAccept(order: UiOrder): boolean {
     return canTransition(order.status, 'ACCEPTED');
   }
 
-  canCancel(order: Order): boolean {
+  canCancel(order: UiOrder): boolean {
     return canTransition(order.status, 'CANCELLED');
   }
 
-  canReopen(order: Order): boolean {
+  canReopen(order: UiOrder): boolean {
     return canTransition(order.status, 'REOPENED');
   }
 
-  canComplete(order: Order): boolean {
+  canComplete(order: UiOrder): boolean {
     return canTransition(order.status, 'COMPLETED');
   }
 
-  canRefuse(order: Order): boolean {
+  canRefuse(order: UiOrder): boolean {
     return canTransition(order.status, 'REFUSED');
   }
 

@@ -14,13 +14,13 @@ import { PopoverModule } from 'primeng/popover';
 import { TimelineModule } from 'primeng/timeline';
 import { CommonModule } from '@angular/common';
 import { By } from '@angular/platform-browser';
-import { Order } from '../../models/order';
+import type { UiOrder } from '../../models/order-ui.model';
 
 describe('OrderListComponent', () => {
   let component: OrderListComponent;
   let fixture: ComponentFixture<OrderListComponent>;
 
-  const mockOrders: Order[] = [
+  const mockOrders: UiOrder[] = [
     {
       id: '1',
       orderNumber: 'ORD-001',

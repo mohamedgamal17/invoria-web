@@ -11,7 +11,7 @@ import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { OrderItem } from '../../models/order';
+import type { UiOrderItem } from '../../models/order-ui.model';
 
 describe('OrderDialogComponent', () => {
   let component: OrderDialogComponent;
@@ -44,7 +44,7 @@ describe('OrderDialogComponent', () => {
   });
 
   it('should calculate total items count correctly', () => {
-    const mockItems: OrderItem[] = [
+    const mockItems: UiOrderItem[] = [
       { productId: '1', productName: 'P1', quantity: 2, price: 10 },
       { productId: '2', productName: 'P2', quantity: 3, price: 20 }
     ];

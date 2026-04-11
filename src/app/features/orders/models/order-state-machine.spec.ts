@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { canTransition, canEditOrder, OrderState } from './order';
+import { canTransition, canEditOrder, type OrderState } from './order-state-machine';
 
 describe('Order State Machine', () => {
   describe('canTransition', () => {

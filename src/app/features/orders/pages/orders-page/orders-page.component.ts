@@ -13,10 +13,11 @@ import { OrdersMockApiService } from '../../services/orders-mock-api.service';
 import { ProductsMockApiService } from '../../../products/services/products-mock-api.service';
 import { CustomersApiService } from '../../../customers/services/customers-api.service';
 import { customerSearchListRequest } from '../../../customers/models/list-customer.request';
-import type { Order, OrderCreateInput, OrderState, OrderItem } from '../../models/order';
+import type { OrderCreateInput, UiOrder, UiOrderItem } from '../../models/order-ui.model';
+import type { OrderState } from '../../models/order-state-machine';
 import type { Product } from '../../../products/models/product.entity';
 import type { Customer } from '../../../customers/models/customer.entity';
-import { canEditOrder, canTransition } from '../../models/order';
+import { canEditOrder, canTransition } from '../../models/order-state-machine';
 
 // New Components
 import { OrderHeaderComponent } from '../../components/order-header/order-header.component';
@@ -53,7 +54,7 @@ export class OrdersPageComponent implements OnInit {
   readonly pageSizeOptions = [5, 10, 20];
   readonly stateOptions: OrderState[] = ['PENDING', 'ACCEPTED', 'REOPENED', 'COMPLETED', 'CANCELLED', 'REFUSED'];
 
-  orders = signal<Order[]>([]);
+  orders = signal<UiOrder[]>([]);
   totalRecords = signal<number>(0);
 
   first = signal<number>(0);
@@ -69,7 +70,7 @@ export class OrdersPageComponent implements OnInit {
   reasonModalVisible = signal<boolean>(false);
   reasonText = signal<string>('');
   reasonSaving = signal<boolean>(false);
-  protected transitionTarget = signal<{ order: Order; state: OrderState } | null>(null);
+  protected transitionTarget = signal<{ order: UiOrder; state: OrderState } | null>(null);
 
   draft = signal<OrderDraft>({
     orderNumber: '',
@@ -83,7 +84,7 @@ export class OrdersPageComponent implements OnInit {
   selectedProduct = signal<Product | null>(null);
   itemQuantity = signal<number>(1);
   itemPrice = signal<number>(0);
-  draftItems = signal<OrderItem[]>([]);
+  draftItems = signal<UiOrderItem[]>([]);
   isProductLoading = signal<boolean>(false);
 
   // Customer Search & Selection
@@ -164,31 +165,31 @@ export class OrdersPageComponent implements OnInit {
     this.modalVisible.set(true);
   }
 
-  canEdit(order: Order): boolean {
+  canEdit(order: UiOrder): boolean {
     return canEditOrder(order.status);
   }
 
-  canAccept(order: Order): boolean {
+  canAccept(order: UiOrder): boolean {
     return canTransition(order.status, 'ACCEPTED');
   }
 
-  canCancel(order: Order): boolean {
+  canCancel(order: UiOrder): boolean {
     return canTransition(order.status, 'CANCELLED');
   }
 
-  canReopen(order: Order): boolean {
+  canReopen(order: UiOrder): boolean {
     return canTransition(order.status, 'REOPENED');
   }
 
-  canComplete(order: Order): boolean {
+  canComplete(order: UiOrder): boolean {
     return canTransition(order.status, 'COMPLETED');
   }
 
-  canRefuse(order: Order): boolean {
+  canRefuse(order: UiOrder): boolean {
     return canTransition(order.status, 'REFUSED');
   }
 
-  transitionState(order: Order, targetState: OrderState, reason?: string): void {
+  transitionState(order: UiOrder, targetState: OrderState, reason?: string): void {
     if (['CANCELLED', 'REFUSED'].includes(targetState) && !reason) {
       this.transitionTarget.set({ order, state: targetState });
       this.reasonText.set('');
@@ -261,7 +262,7 @@ export class OrdersPageComponent implements OnInit {
     });
   }
 
-  openEditModal(order: Order): void {
+  openEditModal(order: UiOrder): void {
     if (!this.canEdit(order)) {
       this.messageService.add({ severity: 'warn', summary: 'Edit Restricted', detail: `Order cannot be modified in "${order.status}" state.` });
       return;
@@ -463,7 +464,7 @@ export class OrdersPageComponent implements OnInit {
     this.draft.update(d => ({ ...d, totalAmount: total }));
   }
 
-  deleteOrder(order: Order): void {
+  deleteOrder(order: UiOrder): void {
     this.confirmationService.confirm({
       message: `Are you sure you want to delete order "${order.orderNumber}"?`,
       header: 'Delete Confirmation',

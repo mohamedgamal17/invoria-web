@@ -4,7 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { TextareaModule } from 'primeng/textarea';
-import type { Order, OrderState } from '../../models/order';
+import type { UiOrder } from '../../models/order-ui.model';
+import type { OrderState } from '../../models/order-state-machine';
 
 @Component({
   selector: 'app-order-reason-dialog',
@@ -72,7 +73,7 @@ import type { Order, OrderState } from '../../models/order';
 })
 export class OrderReasonDialogComponent {
   visible = model(false);
-  transitionTarget = input<{ order: Order; state: OrderState } | null>(null);
+  transitionTarget = input<{ order: UiOrder; state: OrderState } | null>(null);
   reasonText = model('');
   saving = input(false);
 

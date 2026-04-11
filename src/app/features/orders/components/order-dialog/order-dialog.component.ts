@@ -9,7 +9,7 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
-import type { OrderItem } from '../../models/order';
+import type { UiOrderItem } from '../../models/order-ui.model';
 import type { Product } from '../../../products/models/product.entity';
 import type { Customer } from '../../../customers/models/customer.entity';
 
@@ -34,7 +34,7 @@ export class OrderDialogComponent {
   visible = model(false);
   mode = input<'create' | 'edit'>('create');
   draft = input<any>({});
-  draftItems = input<OrderItem[]>([]);
+  draftItems = input<UiOrderItem[]>([]);
   saving = input(false);
   
   selectedCustomer = model<Customer | null>(null);
