@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { delay, Observable, of, throwError } from 'rxjs';
-import type { Order, OrderCreateInput, OrderUpdateInput, OrderState, OrderStateTransition } from '../models/order';
-import { canEditOrder, canTransition } from '../models/order';
+import type { OrderState, OrderStateTransition } from '../models/order-state-machine';
+import { canEditOrder, canTransition } from '../models/order-state-machine';
+import type { UiOrder, OrderCreateInput, OrderUpdateInput } from '../models/order-ui.model';
 
 function createAuditSnapshot(seed: number): {
   createdAt: string;
@@ -25,13 +26,13 @@ function generateId(seed: number): string {
 }
 
 type ListOrdersResponse = {
-  items: Order[];
+  items: UiOrder[];
   total: number;
 };
 
 const STATE_OPTIONS: OrderState[] = ['PENDING', 'ACCEPTED', 'REOPENED', 'COMPLETED', 'CANCELLED', 'REFUSED'];
 
-const INITIAL_ORDERS: Order[] = Array.from({ length: 42 }, (_, i) => {
+const INITIAL_ORDERS: UiOrder[] = Array.from({ length: 42 }, (_, i) => {
   const n = i + 1;
   const orderNumber = `ORD-${n.toString().padStart(5, '0')}`;
   const customerNames = ['Ahmad Ali', 'Sara Smith', 'David Muller', 'Elena Rossi', 'John Doe'];
@@ -62,7 +63,7 @@ const INITIAL_ORDERS: Order[] = Array.from({ length: 42 }, (_, i) => {
   };
 });
 
-let ordersStore: Order[] = [...INITIAL_ORDERS];
+let ordersStore: UiOrder[] = [...INITIAL_ORDERS];
 
 @Injectable({
   providedIn: 'root'
@@ -81,16 +82,16 @@ export class OrdersMockApiService {
     return of({ items, total: ordersStore.length }).pipe(delay(250));
   }
 
-  getOrderById(id: string): Observable<Order> {
+  getOrderById(id: string): Observable<UiOrder> {
     const order = ordersStore.find(o => o.id === id);
     if (!order) return throwError(() => new Error('Order not found.'));
     return of(order).pipe(delay(150));
   }
 
-  createOrder(input: OrderCreateInput): Observable<Order> {
+  createOrder(input: OrderCreateInput): Observable<UiOrder> {
     const nowSeed = ordersStore.length + 1;
     const audit = createAuditSnapshot(nowSeed);
-    const created: Order = {
+    const created: UiOrder = {
       id: generateId(nowSeed),
       ...input,
       status: 'PENDING',
@@ -108,7 +109,7 @@ export class OrdersMockApiService {
     return of(created).pipe(delay(300));
   }
 
-  updateOrder(id: string, input: OrderUpdateInput): Observable<Order> {
+  updateOrder(id: string, input: OrderUpdateInput): Observable<UiOrder> {
     const idx = ordersStore.findIndex(o => o.id === id);
     if (idx === -1) return throwError(() => new Error('Order not found.'));
 
@@ -122,7 +123,7 @@ export class OrdersMockApiService {
       ...input,
       lastModifiedAt: new Date().toISOString(),
       lastModifiedBy: 'system'
-    } as Order;
+    } as UiOrder;
 
     ordersStore = [
       ...ordersStore.slice(0, idx),
@@ -133,7 +134,7 @@ export class OrdersMockApiService {
     return of(updated).pipe(delay(300));
   }
 
-  transitionOrderState(id: string, targetState: OrderState, reason?: string): Observable<Order> {
+  transitionOrderState(id: string, targetState: OrderState, reason?: string): Observable<UiOrder> {
     const idx = ordersStore.findIndex(o => o.id === id);
     if (idx === -1) return throwError(() => new Error('Order not found.'));
 
@@ -151,7 +152,7 @@ export class OrdersMockApiService {
       reason
     };
 
-    const updated: Order = {
+    const updated: UiOrder = {
       ...order,
       status: targetState,
       stateHistory: [...order.stateHistory, transition],
