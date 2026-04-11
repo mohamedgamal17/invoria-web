@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { map, Observable, throwError } from 'rxjs';
 
@@ -9,10 +9,7 @@ import type { Product } from '../models/product.entity';
 import type { CreateProductRequest } from '../models/create-product.request';
 import type { ListProductRequest } from '../models/list-product.request';
 import type { UpdateProductRequest } from '../models/update-product.request';
-
-function pagingParams(q: ListProductRequest): HttpParams {
-  return new HttpParams().set('Skip', String(q.Skip)).set('Length', String(q.Length));
-}
+import { httpParamsFromRequest } from '../../../shared/requests/http-params-from-request';
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +27,7 @@ export class ProductsApiService {
     }
 
     return this.http.get<ApiResponse<Paging<Product>>>(`${this.baseUrl}products`, {
-      params: pagingParams(request)
+      params: httpParamsFromRequest(request)
     });
   }
 
@@ -71,7 +68,7 @@ export class ProductsApiService {
   ): Observable<Product[]> {
     return this.http
       .get<ApiResponse<Paging<Product>>>(`${this.baseUrl}products`, {
-        params: pagingParams(listRequest)
+        params: httpParamsFromRequest(listRequest)
       })
       .pipe(
         map((body) => {

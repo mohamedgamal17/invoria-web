@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { map, Observable, throwError } from 'rxjs';
 
@@ -9,10 +9,7 @@ import type { Customer } from '../models/customer.entity';
 import type { CreateCustomerRequest } from '../models/create-customer.request';
 import type { ListCustomerRequest } from '../models/list-customer.request';
 import type { UpdateCustomerRequest } from '../models/update-customer.request';
-
-function pagingParams(q: ListCustomerRequest): HttpParams {
-  return new HttpParams().set('Skip', String(q.Skip)).set('Length', String(q.Length));
-}
+import { httpParamsFromRequest } from '../../../shared/requests/http-params-from-request';
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +27,7 @@ export class CustomersApiService {
     }
 
     return this.http.get<ApiResponse<Paging<Customer>>>(`${this.baseUrl}customers`, {
-      params: pagingParams(request)
+      params: httpParamsFromRequest(request)
     });
   }
 
@@ -65,7 +62,7 @@ export class CustomersApiService {
   ): Observable<Customer[]> {
     return this.http
       .get<ApiResponse<Paging<Customer>>>(`${this.baseUrl}customers`, {
-        params: pagingParams(listRequest)
+        params: httpParamsFromRequest(listRequest)
       })
       .pipe(
         map((body) => {

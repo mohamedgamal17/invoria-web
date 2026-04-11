@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 
@@ -9,13 +9,7 @@ import type { Batch } from '../models/batch.entity';
 import type { CreateBatchRequest } from '../models/create-batch.request';
 import type { ListBatchRequest } from '../models/list-batch.request';
 import type { UpdateBatchRequest } from '../models/update-batch.request';
-
-function listParams(q: ListBatchRequest): HttpParams {
-  return new HttpParams()
-    .set('Skip', String(q.Skip))
-    .set('Length', String(q.Length))
-    .set('ProductId', q.ProductId);
-}
+import { httpParamsFromRequest } from '../../../shared/requests/http-params-from-request';
 
 @Injectable({
   providedIn: 'root'
@@ -37,7 +31,7 @@ export class BatchesApiService {
     }
 
     return this.http.get<ApiResponse<Paging<Batch>>>(`${this.baseUrl}batches`, {
-      params: listParams(request)
+      params: httpParamsFromRequest(request)
     });
   }
 
