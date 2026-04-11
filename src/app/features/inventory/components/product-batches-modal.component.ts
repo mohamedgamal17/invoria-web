@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, model, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, model, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { DrawerModule } from 'primeng/drawer';
@@ -140,6 +140,8 @@ export class ProductBatchesModalComponent {
 
   visible = model(false);
   product = input<BatchesProductRef | null>(null);
+  /** Emitted after a batch is created or updated successfully so the host can refresh product aggregates. */
+  batchesMutated = output<void>();
 
   batches = signal<Batch[]>([]);
   totalRecords = signal<number>(0);
@@ -274,6 +276,7 @@ export class ProductBatchesModalComponent {
     this.formLoading.set(false);
     this.closeForm();
     this.loadBatches();
+    this.batchesMutated.emit();
   }
 
   private handleError(message: string) {

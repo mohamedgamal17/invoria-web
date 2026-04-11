@@ -15,8 +15,11 @@ import { ProductListComponent } from '../../components/product-list/product-list
 import { ProductDialogComponent, type ProductDraft, type ModalMode } from '../../components/product-dialog/product-dialog.component';
 import { ProductBatchesModalComponent } from '../../../inventory/components/product-batches-modal.component';
 
-import { ProductsMockApiService } from '../../services/products-mock-api.service';
-import type { Product, ProductCreateInput } from '../../models/product.entity';
+import { ProductsApiService } from '../../services/products-api.service';
+import type { Product } from '../../models/product.entity';
+import type { CreateProductRequest } from '../../models/create-product.request';
+import type { ListProductRequest } from '../../models/list-product.request';
+import type { UpdateProductRequest } from '../../models/update-product.request';
 
 @Component({
   selector: 'app-products-page',
@@ -56,7 +59,7 @@ export class ProductsPageComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   constructor(
-    private readonly productsApi: ProductsMockApiService,
+    private readonly productsApi: ProductsApiService,
     private readonly messageService: MessageService,
     private readonly confirmationService: ConfirmationService,
     private readonly router: Router,
@@ -77,7 +80,12 @@ export class ProductsPageComponent implements OnInit {
           this.isListLoading.set(true);
           this.products.set([]);
 
-          return this.productsApi.listProducts(newPageIndex, size).pipe(
+          const listRequest: ListProductRequest = {
+            Skip: newPageIndex * size,
+            Length: size
+          };
+
+          return this.productsApi.listProducts(listRequest).pipe(
             catchError(err => {
               const message = err instanceof Error ? err.message : 'Unexpected error.';
               this.messageService.add({ severity: 'error', summary: 'Error', detail: message });
@@ -90,10 +98,17 @@ export class ProductsPageComponent implements OnInit {
         }),
         takeUntilDestroyed(this.destroyRef)
       )
-      .subscribe(result => {
-        this.products.set(result.items);
-        this.totalRecords.set(result.total);
+      .subscribe(body => {
         this.isListLoading.set(false);
+        if (!body.isSuccess || !body.result) {
+          const detail = this.formatApiFailureDetail(body.error);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail });
+          this.products.set([]);
+          this.totalRecords.set(0);
+          return;
+        }
+        this.products.set(body.result.data);
+        this.totalRecords.set(body.result.info.totalCount);
       });
   }
 
@@ -117,22 +132,29 @@ export class ProductsPageComponent implements OnInit {
   submitModal(draft: ProductDraft): void {
     this.modalSaving.set(true);
 
-    const input: ProductCreateInput = {
-      name: draft.name,
-      code: draft.code,
-      price: draft.price
+    const body: CreateProductRequest = {
+      Name: draft.name.trim(),
+      Code: draft.code.trim(),
+      Price: draft.price
     };
 
     const currentMode = this.modalMode();
     const currentProduct = this.selectedProduct();
-    const request$ = currentMode === 'create'
-      ? this.productsApi.createProduct(input)
-      : this.productsApi.updateProduct(currentProduct!.id, input);
+    const request$ =
+      currentMode === 'create'
+        ? this.productsApi.createProduct(body)
+        : this.productsApi.updateProduct(currentProduct!.id, body satisfies UpdateProductRequest);
 
     request$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (result) => {
+        next: (res) => {
+          if (!res.isSuccess || res.result === undefined) {
+            const detail = this.formatApiFailureDetail(res.error);
+            this.messageService.add({ severity: 'error', summary: 'Error', detail });
+            return;
+          }
+          const result = res.result;
           this.messageService.add({
             severity: 'success',
             summary: 'Success',
@@ -180,7 +202,12 @@ export class ProductsPageComponent implements OnInit {
         this.productsApi.deleteProduct(product.id)
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({
-            next: () => {
+            next: (res) => {
+              if (!res.isSuccess) {
+                const detail = this.formatApiFailureDetail(res.error);
+                this.messageService.add({ severity: 'error', summary: 'Error', detail });
+                return;
+              }
               this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Product deleted successfully.' });
               this.products.update(current => current.filter(p => p.id !== product.id));
               this.totalRecords.update(t => t - 1);
@@ -229,6 +256,47 @@ export class ProductsPageComponent implements OnInit {
     this.batchesVisible.set(true);
   }
 
+  onBatchesMutated(): void {
+    const listRequest: ListProductRequest = {
+      Skip: this.first(),
+      Length: this.pageSize()
+    };
+    this.productsApi
+      .listProducts(listRequest)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (body) => {
+          if (!body.isSuccess || !body.result) {
+            return;
+          }
+          this.products.set(body.result.data);
+          this.totalRecords.set(body.result.info.totalCount);
 
+          const inv = this.selectedProductForInventory();
+          if (inv) {
+            const updated = body.result.data.find((p) => p.id === inv.id);
+            if (updated) {
+              this.selectedProductForInventory.set(updated);
+            }
+          }
+        },
+        error: (err) => {
+          const message = err instanceof Error ? err.message : 'Unexpected error.';
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: message });
+        }
+      });
+  }
+
+  private formatApiFailureDetail(error: unknown): string {
+    if (error === undefined || error === null) {
+      return 'The server reported an unsuccessful response.';
+    }
+    if (typeof error === 'string') return error;
+    if (error instanceof Error) return error.message;
+    try {
+      return JSON.stringify(error);
+    } catch {
+      return 'The server reported an unsuccessful response.';
+    }
+  }
 }
-
