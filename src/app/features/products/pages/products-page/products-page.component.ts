@@ -1,18 +1,23 @@
 import { CommonModule } from '@angular/common';
-import { Component, type OnInit, DestroyRef, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { switchMap, catchError, EMPTY } from 'rxjs';
+import { Component, computed, effect, inject, linkedSignal, model, signal } from '@angular/core';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
+import { catchError, finalize, map, of, take } from 'rxjs';
 
-import { Router, ActivatedRoute } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import type { PaginatorState } from 'primeng/paginator';
 import type { TablePageEvent } from 'primeng/table';
 
+import type { PagingInfo } from '../../../../core/models/paging';
 import { ProductHeaderComponent } from '../../components/product-header/product-header.component';
 import { ProductListComponent } from '../../components/product-list/product-list.component';
-import { ProductDialogComponent, type ProductDraft, type ModalMode } from '../../components/product-dialog/product-dialog.component';
+import {
+  ProductDialogComponent,
+  type ProductDraft,
+  type ModalMode
+} from '../../components/product-dialog/product-dialog.component';
 import { ProductBatchesModalComponent } from '../../../inventory/components/product-batches-modal.component';
 
 import { ProductsApiService } from '../../services/products-api.service';
@@ -20,6 +25,11 @@ import type { Product } from '../../models/product.entity';
 import type { CreateProductRequest } from '../../models/create-product.request';
 import type { ListProductRequest } from '../../models/list-product.request';
 import type { UpdateProductRequest } from '../../models/update-product.request';
+
+const EMPTY_PRODUCTS_TUPLE: [Product[], PagingInfo] = [
+  [],
+  { length: 0, skip: 0, totalCount: 0 }
+];
 
 @Component({
   selector: 'app-products-page',
@@ -36,81 +46,100 @@ import type { UpdateProductRequest } from '../../models/update-product.request';
   providers: [MessageService, ConfirmationService],
   templateUrl: './products-page.component.html'
 })
-export class ProductsPageComponent implements OnInit {
+export class ProductsPageComponent {
   readonly pageSizeOptions = [5, 10, 20];
 
-  products = signal<Product[]>([]);
-  totalRecords = signal(0);
+  private readonly productsApi = inject(ProductsApiService);
+  private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
-  first = signal(0);
-  pageSize = signal(10);
+  /** 1-based page number from `?page=` (default 1). */
+  private readonly pageFromRoute = toSignal(
+    this.route.queryParamMap.pipe(
+      map((m) => {
+        const raw = m.get('page');
+        const n = raw ? parseInt(raw, 10) : 1;
+        return Number.isFinite(n) && n >= 1 ? n : 1;
+      })
+    ),
+    { initialValue: 1 }
+  );
 
-  // Start in loading state so the first render shows skeleton immediately.
-  isListLoading = signal(true);
+  /** Page size from `?pageSize=` (must be in pageSizeOptions; default 10). */
+  readonly pageSize = toSignal(
+    this.route.queryParamMap.pipe(
+      map((m) => {
+        const raw = m.get('pageSize');
+        const n = raw ? parseInt(raw, 10) : NaN;
+        return this.pageSizeOptions.includes(n) ? n : 10;
+      })
+    ),
+    { initialValue: 10 }
+  );
 
-  modalVisible = signal(false);
+  /** 0-based page index derived from the URL. */
+  readonly pageIndex = computed(() => Math.max(0, this.pageFromRoute() - 1));
+
+  readonly listRequest = computed((): ListProductRequest => ({
+    Skip: this.pageIndex() * this.pageSize(),
+    Length: this.pageSize()
+  }));
+
+  readonly first = computed(() => this.pageIndex() * this.pageSize());
+
+  readonly productsResource = rxResource<[Product[], PagingInfo], ListProductRequest>({
+    params: () => this.listRequest(),
+    defaultValue: EMPTY_PRODUCTS_TUPLE,
+    stream: ({ params }) =>
+      this.productsApi.listProducts(params).pipe(
+        map((res) => {
+          if (!res.isSuccess || !res.result) {
+            const detail = this.formatApiFailureDetail(res.error);
+            this.messageService.add({ severity: 'error', summary: 'Error', detail });
+            return EMPTY_PRODUCTS_TUPLE;
+          }
+          return [res.result.data, res.result.info] as [Product[], PagingInfo];
+        }),
+        catchError((err: unknown) => {
+          const message = err instanceof Error ? err.message : 'Unexpected error.';
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: message });
+          return of(EMPTY_PRODUCTS_TUPLE);
+        })
+      )
+  });
+
+  readonly displayProducts = linkedSignal({
+    source: () => this.productsLinkSource(),
+    computation: (src) => [...src.products]
+  });
+
+  readonly displayPaging = linkedSignal({
+    source: () => this.productsLinkSource(),
+    computation: (src) => ({ ...src.paging })
+  });
+
+  /** Two-way with `app-product-dialog` via `[(visible)]`. */
+  modalVisible = model(false);
   modalMode = signal<ModalMode>('create');
   modalSaving = signal(false);
   selectedProduct = signal<Product | null>(null);
 
-  batchesVisible = signal(false);
+  batchesVisible = model(false);
   selectedProductForInventory = signal<Product | null>(null);
 
-  private readonly destroyRef = inject(DestroyRef);
-
-  constructor(
-    private readonly productsApi: ProductsApiService,
-    private readonly messageService: MessageService,
-    private readonly confirmationService: ConfirmationService,
-    private readonly router: Router,
-    private readonly route: ActivatedRoute
-  ) { }
-
-  ngOnInit(): void {
-    this.route.queryParams
-      .pipe(
-        switchMap(params => {
-          const page = params['page'] ? parseInt(params['page'], 10) : 1;
-          const size = params['pageSize'] ? parseInt(params['pageSize'], 10) : 10;
-          const newPageIndex = Math.max(0, page - 1);
-          const newFirst = newPageIndex * size;
-
-          this.first.set(newFirst);
-          this.pageSize.set(size);
-          this.isListLoading.set(true);
-          this.products.set([]);
-
-          const listRequest: ListProductRequest = {
-            Skip: newPageIndex * size,
-            Length: size
-          };
-
-          return this.productsApi.listProducts(listRequest).pipe(
-            catchError(err => {
-              const message = err instanceof Error ? err.message : 'Unexpected error.';
-              this.messageService.add({ severity: 'error', summary: 'Error', detail: message });
-              this.products.set([]);
-              this.totalRecords.set(0);
-              this.isListLoading.set(false);
-              return EMPTY;
-            })
-          );
-        }),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe(body => {
-        this.isListLoading.set(false);
-        if (!body.isSuccess || !body.result) {
-          const detail = this.formatApiFailureDetail(body.error);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail });
-          this.products.set([]);
-          this.totalRecords.set(0);
-          return;
-        }
-        this.products.set(body.result.data);
-        this.totalRecords.set(body.result.info.totalCount);
-      });
-  }
+  private readonly syncInventoryProductRow = effect(() => {
+    const rows = this.displayProducts();
+    const inv = this.selectedProductForInventory();
+    if (!this.batchesVisible() || !inv) {
+      return;
+    }
+    const updated = rows.find((p) => p.id === inv.id);
+    if (updated && updated !== inv) {
+      this.selectedProductForInventory.set(updated);
+    }
+  });
 
   openCreateModal(): void {
     this.modalMode.set('create');
@@ -130,6 +159,9 @@ export class ProductsPageComponent implements OnInit {
   }
 
   submitModal(draft: ProductDraft): void {
+    if (this.modalSaving()) {
+      return;
+    }
     this.modalSaving.set(true);
 
     const body: CreateProductRequest = {
@@ -146,7 +178,12 @@ export class ProductsPageComponent implements OnInit {
         : this.productsApi.updateProduct(currentProduct!.id, body satisfies UpdateProductRequest);
 
     request$
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        take(1),
+        finalize(() => {
+          this.modalSaving.set(false);
+        })
+      )
       .subscribe({
         next: (res) => {
           if (!res.isSuccess || res.result === undefined) {
@@ -163,27 +200,27 @@ export class ProductsPageComponent implements OnInit {
           this.modalVisible.set(false);
 
           if (currentMode === 'create') {
-            const pageIndex = Math.floor(this.first() / this.pageSize());
-            if (pageIndex === 0) {
-              this.products.update(current => {
-                const next = [result, ...current];
-                if (next.length > this.pageSize()) next.pop();
-                return next;
-              });
+            if (this.pageIndex() === 0) {
+              const pageLen = this.pageSize();
+              this.displayProducts.update((prev) =>
+                prev.length >= pageLen
+                  ? [result, ...prev.slice(0, pageLen - 1)]
+                  : [result, ...prev]
+              );
+              this.displayPaging.update((p) => ({ ...p, totalCount: p.totalCount + 1 }));
             }
-            this.totalRecords.update(t => t + 1);
+            void this.router.navigate([], {
+              relativeTo: this.route,
+              queryParams: { page: 1 },
+              queryParamsHandling: 'merge'
+            });
           } else {
-            this.products.update(current =>
-              current.map(p => p.id === result.id ? result : p)
-            );
+            this.displayProducts.update((rows) => rows.map((p) => (p.id === result.id ? result : p)));
           }
         },
-        error: (err) => {
+        error: (err: unknown) => {
           const message = err instanceof Error ? err.message : 'Unexpected error.';
           this.messageService.add({ severity: 'error', summary: 'Error', detail: message });
-        },
-        complete: () => {
-          this.modalSaving.set(false);
         }
       });
   }
@@ -199,8 +236,9 @@ export class ProductsPageComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => {
-        this.productsApi.deleteProduct(product.id)
-          .pipe(takeUntilDestroyed(this.destroyRef))
+        this.productsApi
+          .deleteProduct(product.id)
+          .pipe(take(1))
           .subscribe({
             next: (res) => {
               if (!res.isSuccess) {
@@ -208,20 +246,24 @@ export class ProductsPageComponent implements OnInit {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail });
                 return;
               }
-              this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Product deleted successfully.' });
-              this.products.update(current => current.filter(p => p.id !== product.id));
-              this.totalRecords.update(t => t - 1);
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Product deleted successfully.'
+              });
+              this.displayProducts.update((current) => current.filter((p) => p.id !== product.id));
+              this.displayPaging.update((p) => ({ ...p, totalCount: p.totalCount - 1 }));
 
-              if (this.products().length === 0 && this.first() > 0) {
-                const pageIndex = Math.floor(this.first() / this.pageSize());
+              if (this.displayProducts().length === 0 && this.first() > 0) {
+                const urlPage = this.pageIndex();
                 void this.router.navigate([], {
                   relativeTo: this.route,
-                  queryParams: { page: pageIndex },
-                  queryParamsHandling: 'merge',
+                  queryParams: { page: urlPage },
+                  queryParamsHandling: 'merge'
                 });
               }
             },
-            error: (err) => {
+            error: (err: unknown) => {
               const message = err instanceof Error ? err.message : 'Unexpected error.';
               this.messageService.add({ severity: 'error', summary: 'Error', detail: message });
             }
@@ -231,21 +273,23 @@ export class ProductsPageComponent implements OnInit {
   }
 
   onPageChange(event: PaginatorState | TablePageEvent): void {
-    const first = event.first ?? 0;
+    const firstEvt = event.first ?? 0;
     const rows = event.rows ?? this.pageSize();
-    const newPageIndex = Math.floor(first / Math.max(rows, 1));
+    const newPageIndex = Math.floor(firstEvt / Math.max(rows, 1));
 
-    if (this.first() !== first || this.pageSize() !== rows) {
+    if (this.pageIndex() !== newPageIndex || this.pageSize() !== rows) {
+      const isManualPageChange = this.pageIndex() !== newPageIndex;
+
       void this.router.navigate([], {
         relativeTo: this.route,
         queryParams: {
           page: newPageIndex + 1,
           pageSize: rows
         },
-        queryParamsHandling: 'merge',
+        queryParamsHandling: 'merge'
       });
 
-      if (this.first() !== first) {
+      if (isManualPageChange) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
@@ -257,34 +301,20 @@ export class ProductsPageComponent implements OnInit {
   }
 
   onBatchesMutated(): void {
-    const listRequest: ListProductRequest = {
-      Skip: this.first(),
-      Length: this.pageSize()
-    };
-    this.productsApi
-      .listProducts(listRequest)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (body) => {
-          if (!body.isSuccess || !body.result) {
-            return;
-          }
-          this.products.set(body.result.data);
-          this.totalRecords.set(body.result.info.totalCount);
+    this.productsResource.reload();
+  }
 
-          const inv = this.selectedProductForInventory();
-          if (inv) {
-            const updated = body.result.data.find((p) => p.id === inv.id);
-            if (updated) {
-              this.selectedProductForInventory.set(updated);
-            }
-          }
-        },
-        error: (err) => {
-          const message = err instanceof Error ? err.message : 'Unexpected error.';
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: message });
-        }
-      });
+  private productsLinkSource(): {
+    request: ListProductRequest;
+    products: Product[];
+    paging: PagingInfo;
+  } {
+    const [products, paging] = this.productsResource.value();
+    return {
+      request: this.listRequest(),
+      products,
+      paging
+    };
   }
 
   private formatApiFailureDetail(error: unknown): string {

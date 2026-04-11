@@ -5,11 +5,11 @@
   <app-product-header (create)="openCreateModal()" />
 
   <app-product-list
-    [products]="products()"
-    [totalRecords]="totalRecords()"
+    [products]="displayProducts()"
+    [totalRecords]="displayPaging().totalCount"
     [first]="first()"
     [pageSize]="pageSize()"
-    [isListLoading]="isListLoading()"
+    [isListLoading]="productsResource.isLoading()"
     [pageSizeOptions]="pageSizeOptions"
     (edit)="openEditModal($event)"
     (delete)="deleteProduct($event)"
@@ -19,8 +19,7 @@
 </section>
 
 <app-product-dialog
-  [visible]="modalVisible()"
-  (visibleChange)="modalVisible.set($event)"
+  [(visible)]="modalVisible"
   [mode]="modalMode()"
   [product]="selectedProduct()"
   [saving]="modalSaving()"
@@ -30,8 +29,7 @@
 />
 
 <app-product-batches-modal
-  [visible]="batchesVisible()"
-  (visibleChange)="batchesVisible.set($event)"
+  [(visible)]="batchesVisible"
   [product]="selectedProductForInventory()"
   (batchesMutated)="onBatchesMutated()"
 />
