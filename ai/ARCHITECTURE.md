@@ -97,7 +97,7 @@ graph TD
 ## 7. Dependency Rules
 
 1. **Isolation**: Features must not import from other features.
-2. **Exception (orders)**: The `orders` feature may use **`import type` only** from `features/customers` and `features/products` for `Order` nested DTOs (`Customer`, `Product`) in [`order.entity.ts`](../src/app/features/orders/models/order.entity.ts), aligned with the API. Do not import services, components, or runtime values from those features into `orders` unless this document is updated.
+2. **Exception (orders)**: The `orders` feature may use **`import type` only** from `features/customers` and `features/products` for `Order` nested DTOs (`Customer`, `Product`) in [`order.entity.ts`](../src/app/features/orders/models/order.entity.ts), aligned with the API. Additionally, `orders` may import and inject **`CustomersApiService`** and **`ProductsApiService`** only (the typed HTTP API services) for order UI flows such as autocomplete that must match the backend; do not import other modules, components, or mock services from those features into `orders`.
 3. **Exception (products / inventory)**: The `products` feature may import `features/inventory` for product batch UI (`ProductBatchesModalComponent` and related batch models/services). The `inventory` feature must not import from `products`; use `BatchesProductRef` (or similar) instead of `Product` entity types to keep the dependency one-way.
 4. **Shared Usage**: Features may import from `shared/` and `core/`.
 5. **Circular Dependencies**: Strictly forbidden; use `shared/entities` for common base classes.
