@@ -1,9 +1,6 @@
-<p-toast />
-<p-confirmDialog />
-
 <section class="space-y-6">
   <app-order-header 
-    (create)="openCreateModal()" 
+    (create)="goToCreatePage()"
   />
 
   <app-order-list
@@ -15,51 +12,6 @@
     [loading]="ordersResource.isLoading()"
     [showDelete]="false"
     (pageChange)="onPageChange($event)"
-    (edit)="openEditModal($event)"
-    (accept)="transitionState($event, 10)"
-    (dispatch)="dispatchOrder($event)"
-    (cancel)="transitionState($event, 20)"
-    (reopen)="transitionState($event, 25)"
-    (complete)="transitionState($event, 15)"
-    (refuse)="transitionState($event, 30)"
+    (view)="goToDetails($event)"
   />
 </section>
-
-<!-- Create/Edit Order Dialog -->
-<app-order-dialog
-  [(visible)]="modalVisible"
-  [mode]="modalMode()"
-  [draft]="draft()"
-  [draftItems]="draftItems()"
-  [saving]="modalSaving()"
-  [(selectedCustomer)]="selectedCustomer"
-  [customers]="customers()"
-  [isCustomerLoading]="isCustomerLoading()"
-  [(selectedProduct)]="selectedProduct"
-  [products]="products()"
-  [isProductLoading]="isProductLoading()"
-  [(itemQuantity)]="itemQuantity"
-  [(itemPrice)]="itemPrice"
-  (hide)="onModalHide()"
-  (orderSubmit)="submitModal()"
-  (cancel)="closeModal()"
-  (searchCustomers)="searchCustomers($event)"
-  (customerSelect)="onCustomerSelect($event)"
-  (clearCustomer)="clearCustomerSelection()"
-  (searchProducts)="searchProducts($event)"
-  (productSelect)="onProductSelect($event)"
-  (clearProduct)="clearProductSelection()"
-  (addItem)="addItem()"
-  (removeItem)="removeItem($event)"
-  (calculateTotal)="calculateTotal()"
-/>
-
-<!-- Transition Reason Dialog -->
-<app-order-reason-dialog
-  [(visible)]="reasonModalVisible"
-  [transitionTarget]="transitionTarget()"
-  [(reasonText)]="reasonText"
-  [saving]="reasonSaving()"
-  (reasonSubmit)="submitReason()"
-  (cancel)="reasonModalVisible.set(false)"
-/>

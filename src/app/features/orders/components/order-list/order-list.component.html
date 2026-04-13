@@ -73,49 +73,13 @@
             </span>
           </div>
           <div class="flex flex-col items-end gap-2">
-            @if (primaryAction(order); as primary) {
-              <p-button
-                [label]="actionLabel(primary)"
-                [icon]="actionIcon(primary)"
-                [severity]="actionSeverity(primary)"
-                size="small"
-                styleClass="h-9"
-                (onClick)="triggerAction(primary, order)"
-                [pTooltip]="actionTooltip(primary)"
-              />
-            } @else {
-              <span class="text-[10px] text-muted-foreground uppercase tracking-wider">
-                No action available
-              </span>
-            }
-
-            @if (secondaryActions(order).length > 0 || (showDelete() && statusLabel(order.status) === 'PENDING')) {
-              <div class="flex gap-1">
-                @for (action of secondaryActions(order); track action) {
-                  <p-button
-                    [icon]="actionIcon(action)"
-                    [text]="true"
-                    [rounded]="true"
-                    [severity]="actionSeverity(action)"
-                    styleClass="w-9 h-9 flex items-center justify-center transition-colors border border-border/20"
-                    (onClick)="triggerAction(action, order)"
-                    [pTooltip]="actionLabel(action)"
-                  />
-                }
-
-                @if (showDelete() && statusLabel(order.status) === 'PENDING') {
-                  <p-button
-                    icon="pi pi-trash"
-                    [text]="true"
-                    [rounded]="true"
-                    severity="danger"
-                    styleClass="text-danger hover:bg-danger/10 w-9 h-9 flex items-center justify-center transition-colors border border-border/20"
-                    (onClick)="delete.emit(order)"
-                    pTooltip="Delete Order"
-                  />
-                }
-              </div>
-            }
+            <p-button
+              label="View Details"
+              icon="pi pi-arrow-right"
+              size="small"
+              styleClass="h-9"
+              (onClick)="view.emit(order)"
+            />
           </div>
         </div>
       </div>
@@ -206,7 +170,7 @@
           Total Amount
         </th>
         <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">
-          Actions
+          Navigation
         </th>
       </tr>
     </ng-template>
@@ -270,34 +234,13 @@
         </td>
         <td class="px-4 py-5 text-right">
           <div class="flex justify-end items-center gap-1">
-            @if (primaryAction(order); as primary) {
-              <p-button
-                [label]="actionLabel(primary)"
-                [icon]="actionIcon(primary)"
-                [severity]="actionSeverity(primary)"
-                tooltipPosition="top"
-                styleClass="h-8 px-3 mr-1"
-                (onClick)="triggerAction(primary, order)"
-                [pTooltip]="actionTooltip(primary)"
-              />
-            } @else {
-              <span class="text-[10px] text-muted-foreground uppercase tracking-wider mr-1">
-                No action
-              </span>
-            }
-
-            @for (action of secondaryActions(order); track action) {
-              <p-button
-                [icon]="actionIcon(action)"
-                [text]="true"
-                [rounded]="true"
-                [severity]="actionSeverity(action)"
-                [pTooltip]="actionLabel(action)"
-                tooltipPosition="top"
-                styleClass="w-8 h-8 flex items-center justify-center transition-colors"
-                (onClick)="triggerAction(action, order)"
-              />
-            }
+            <p-button
+              label="View"
+              icon="pi pi-arrow-right"
+              size="small"
+              styleClass="h-8 px-3 mr-1"
+              (onClick)="view.emit(order)"
+            />
 
             @if (showDelete() && statusLabel(order.status) === 'PENDING') {
               <p-button

@@ -25,10 +25,8 @@ export const routes: Routes = [
       },
       {
         path: 'orders',
-        loadComponent: () =>
-          import('./features/orders/pages/orders-page/orders-page.component').then(
-            (m) => m.OrdersPageComponent
-          )
+        loadChildren: () =>
+          import('./features/orders/orders.routes').then((m) => m.ORDERS_ROUTES)
       },
       {
         path: 'suppliers',

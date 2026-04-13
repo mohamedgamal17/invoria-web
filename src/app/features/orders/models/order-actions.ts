@@ -14,6 +14,55 @@ export type OrderActionKey =
   | 'refuse'
   | 'edit';
 
+export type OrderActionUiMeta = {
+  label: string;
+  icon: string;
+  severity: 'success' | 'secondary' | 'info' | 'warn' | 'danger';
+  routeSegment: string;
+  requiresReason?: boolean;
+};
+
+export const ORDER_ACTION_UI: Record<Exclude<OrderActionKey, 'edit'>, OrderActionUiMeta> = {
+  accept: {
+    label: 'Accept',
+    icon: 'pi pi-check',
+    severity: 'success',
+    routeSegment: 'accept'
+  },
+  dispatch: {
+    label: 'Dispatch',
+    icon: 'pi pi-truck',
+    severity: 'info',
+    routeSegment: 'dispatch'
+  },
+  complete: {
+    label: 'Complete',
+    icon: 'pi pi-check-circle',
+    severity: 'success',
+    routeSegment: 'complete'
+  },
+  cancel: {
+    label: 'Cancel',
+    icon: 'pi pi-times',
+    severity: 'danger',
+    routeSegment: 'cancel',
+    requiresReason: true
+  },
+  reopen: {
+    label: 'Reopen',
+    icon: 'pi pi-refresh',
+    severity: 'warn',
+    routeSegment: 'reopen'
+  },
+  refuse: {
+    label: 'Refuse',
+    icon: 'pi pi-ban',
+    severity: 'danger',
+    routeSegment: 'refuse',
+    requiresReason: true
+  }
+};
+
 export function canEditOrder(order: OrderLike): boolean {
   // Keep existing UX intent: only editable when still not accepted.
   return order.status === OrderStatus.Pending || order.status === OrderStatus.Reopened;

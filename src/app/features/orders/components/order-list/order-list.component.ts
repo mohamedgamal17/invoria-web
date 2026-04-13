@@ -16,9 +16,6 @@ import { OrderFullfillmentStatus } from '../../models/order.entity';
 import { OrderStatus } from '../../models/order.entity';
 import {
   friendlyFullfillmentStatusLabel,
-  getAvailableOrderActions,
-  getPrimaryOrderAction,
-  type OrderActionKey,
   orderStatusLabel
 } from '../../models/order-actions';
 
@@ -52,135 +49,11 @@ export class OrderListComponent {
   showDelete = input(false);
 
   pageChange = output<any>();
-  edit = output<UiOrder>();
-  accept = output<UiOrder>();
-  dispatch = output<UiOrder>();
-  cancel = output<UiOrder>();
-  reopen = output<UiOrder>();
-  complete = output<UiOrder>();
-  refuse = output<UiOrder>();
+  view = output<UiOrder>();
   delete = output<UiOrder>();
 
   get skeletonRows(): number[] {
     return Array.from({ length: this.pageSize() }, (_, i) => i);
-  }
-
-  primaryAction(order: UiOrder): OrderActionKey | null {
-    return getPrimaryOrderAction(order);
-  }
-
-  secondaryActions(order: UiOrder): OrderActionKey[] {
-    const primary = this.primaryAction(order);
-    return getAvailableOrderActions(order).filter((action) => action !== primary);
-  }
-
-  actionLabel(action: OrderActionKey): string {
-    switch (action) {
-      case 'accept':
-        return 'Accept';
-      case 'dispatch':
-        return 'Dispatch';
-      case 'complete':
-        return 'Complete';
-      case 'cancel':
-        return 'Cancel';
-      case 'reopen':
-        return 'Reopen';
-      case 'refuse':
-        return 'Refuse';
-      case 'edit':
-        return 'Edit';
-      default:
-        return 'Action';
-    }
-  }
-
-  actionIcon(action: OrderActionKey): string {
-    switch (action) {
-      case 'accept':
-        return 'pi pi-check';
-      case 'dispatch':
-        return 'pi pi-truck';
-      case 'complete':
-        return 'pi pi-check-circle';
-      case 'cancel':
-        return 'pi pi-times';
-      case 'reopen':
-        return 'pi pi-refresh';
-      case 'refuse':
-        return 'pi pi-ban';
-      case 'edit':
-        return 'pi pi-pencil';
-      default:
-        return 'pi pi-cog';
-    }
-  }
-
-  actionSeverity(action: OrderActionKey): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined {
-    switch (action) {
-      case 'accept':
-      case 'complete':
-        return 'success';
-      case 'dispatch':
-        return 'info';
-      case 'reopen':
-        return 'warn';
-      case 'cancel':
-      case 'refuse':
-        return 'danger';
-      case 'edit':
-      default:
-        return 'secondary';
-    }
-  }
-
-  actionTooltip(action: OrderActionKey): string {
-    switch (action) {
-      case 'accept':
-        return 'Recommended next step: accept order';
-      case 'dispatch':
-        return 'Recommended next step: dispatch order';
-      case 'complete':
-        return 'Recommended next step: mark order completed';
-      case 'cancel':
-        return 'Cancel order';
-      case 'reopen':
-        return 'Reopen order';
-      case 'refuse':
-        return 'Mark order as refused';
-      case 'edit':
-        return 'Edit order';
-      default:
-        return 'Order action';
-    }
-  }
-
-  triggerAction(action: OrderActionKey, order: UiOrder): void {
-    switch (action) {
-      case 'accept':
-        this.accept.emit(order);
-        break;
-      case 'dispatch':
-        this.dispatch.emit(order);
-        break;
-      case 'complete':
-        this.complete.emit(order);
-        break;
-      case 'cancel':
-        this.cancel.emit(order);
-        break;
-      case 'reopen':
-        this.reopen.emit(order);
-        break;
-      case 'refuse':
-        this.refuse.emit(order);
-        break;
-      case 'edit':
-        this.edit.emit(order);
-        break;
-      default:
-        break;
-    }
   }
 
   getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined {

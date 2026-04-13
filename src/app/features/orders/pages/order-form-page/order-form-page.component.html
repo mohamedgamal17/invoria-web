@@ -1,0 +1,46 @@
+<section class="space-y-6">
+  <div class="flex items-center justify-between">
+    <p-button
+      icon="pi pi-arrow-left"
+      label="Back to Orders"
+      [text]="true"
+      (onClick)="goBack()"
+    />
+    <h1 class="text-2xl font-bold text-foreground">
+      {{ mode() === 'create' ? 'Create Order' : 'Edit Order' }}
+    </h1>
+  </div>
+
+  <p-card styleClass="border border-border">
+    @if (loading()) {
+      <div class="text-sm text-muted-foreground">Loading order details...</div>
+    } @else {
+      <app-order-form
+        [mode]="mode()"
+        [orderNumber]="orderNumber()"
+        [totalAmount]="totalAmount()"
+        [draftItems]="draftItems()"
+        [saving]="saving()"
+        [(selectedCustomer)]="selectedCustomer"
+        [customers]="customers()"
+        [isCustomerLoading]="isCustomerLoading()"
+        [(selectedProduct)]="selectedProduct"
+        [products]="products()"
+        [isProductLoading]="isProductLoading()"
+        [(itemQuantity)]="itemQuantity"
+        [(itemPrice)]="itemPrice"
+        (submit)="submit()"
+        (cancel)="goBack()"
+        (searchCustomers)="searchCustomers($event)"
+        (customerSelect)="onCustomerSelect($event)"
+        (clearCustomer)="clearCustomerSelection()"
+        (searchProducts)="searchProducts($event)"
+        (productSelect)="onProductSelect($event)"
+        (clearProduct)="clearProductSelection()"
+        (addItem)="addItem()"
+        (removeItem)="removeItem($event)"
+        (calculateTotal)="calculateTotal()"
+      />
+    }
+  </p-card>
+</section>
