@@ -15,6 +15,7 @@ import { TimelineModule } from 'primeng/timeline';
 import { CommonModule } from '@angular/common';
 import { By } from '@angular/platform-browser';
 import type { UiOrder } from '../../models/order-ui.model';
+import { OrderFullfillmentStatus, OrderStatus } from '../../models/order.entity';
 
 describe('OrderListComponent', () => {
   let component: OrderListComponent;
@@ -26,7 +27,8 @@ describe('OrderListComponent', () => {
       orderNumber: 'ORD-001',
       customerName: 'Customer 1',
       totalAmount: 100,
-      status: 'PENDING',
+      status: OrderStatus.Pending,
+      fullfillmentStatus: OrderFullfillmentStatus.Pending,
       orderDate: new Date().toISOString(),
       items: [],
       stateHistory: [],
@@ -40,7 +42,8 @@ describe('OrderListComponent', () => {
       orderNumber: 'ORD-002',
       customerName: 'Customer 2',
       totalAmount: 200,
-      status: 'ACCEPTED',
+      status: OrderStatus.Accepted,
+      fullfillmentStatus: OrderFullfillmentStatus.Allocated,
       orderDate: new Date().toISOString(),
       items: [],
       stateHistory: [],
@@ -117,6 +120,40 @@ describe('OrderListComponent', () => {
     expect(component.getStatusSeverity('UNKNOWN')).toBe('secondary');
   });
 
+  it('should hide fulfillment tag when order is cancelled', () => {
+    const cancelled: UiOrder = {
+      ...mockOrders[0],
+      id: 'cancelled-1',
+      status: OrderStatus.Cancelled,
+      fullfillmentStatus: OrderFullfillmentStatus.Allocated
+    };
+
+    fixture.componentRef.setInput('orders', [cancelled]);
+    fixture.detectChanges();
+
+    const statusCell = fixture.nativeElement.querySelector(
+      '.p-datatable-tbody tr td:nth-child(3)'
+    ) as HTMLElement | null;
+    expect(statusCell).toBeTruthy();
+
+    const tags = statusCell!.querySelectorAll('p-tag');
+    expect(tags.length).toBe(1);
+    expect(statusCell!.textContent).toContain('CANCELLED');
+  });
+
+  it('should show fulfillment tag when order is not cancelled', () => {
+    fixture.componentRef.setInput('orders', [mockOrders[1]]);
+    fixture.detectChanges();
+
+    const statusCell = fixture.nativeElement.querySelector(
+      '.p-datatable-tbody tr td:nth-child(3)'
+    ) as HTMLElement | null;
+    expect(statusCell).toBeTruthy();
+
+    const tags = statusCell!.querySelectorAll('p-tag');
+    expect(tags.length).toBe(2);
+  });
+
   it('should emit edit event when edit button is clicked', () => {
     fixture.componentRef.setInput('orders', [mockOrders[0]]);
     fixture.detectChanges();
@@ -152,6 +189,7 @@ describe('OrderListComponent', () => {
 
   it('should emit delete event when delete button is clicked', () => {
     fixture.componentRef.setInput('orders', [mockOrders[0]]);
+    fixture.componentRef.setInput('showDelete', true);
     fixture.detectChanges();
     const emitSpy = vi.spyOn(component.delete, 'emit');
     

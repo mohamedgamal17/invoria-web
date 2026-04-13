@@ -7,6 +7,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { FormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import type { UiOrder } from '../../models/order-ui.model';
+import { OrderFullfillmentStatus, OrderStatus } from '../../models/order.entity';
 
 describe('OrderReasonDialogComponent', () => {
   let component: OrderReasonDialogComponent;
@@ -17,7 +18,8 @@ describe('OrderReasonDialogComponent', () => {
     orderNumber: 'ORD-001',
     customerName: 'Customer 1',
     totalAmount: 100,
-    status: 'PENDING',
+    status: OrderStatus.Pending,
+    fullfillmentStatus: OrderFullfillmentStatus.Pending,
     orderDate: new Date().toISOString(),
     items: [],
     stateHistory: [],
@@ -49,10 +51,10 @@ describe('OrderReasonDialogComponent', () => {
   });
 
   it('should display correct header for CANCELLED state', () => {
-    fixture.componentRef.setInput('transitionTarget', { order: mockOrder, state: 'CANCELLED' });
+    fixture.componentRef.setInput('transitionTarget', { order: mockOrder, state: OrderStatus.Cancelled });
     fixture.detectChanges();
 
-    expect(component.transitionTarget()?.state).toBe('CANCELLED');
+    expect(component.transitionTarget()?.state).toBe(OrderStatus.Cancelled);
   });
 
   it('should render reason textarea with PrimeNG textarea directive', () => {

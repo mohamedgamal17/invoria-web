@@ -7,20 +7,21 @@
   />
 
   <app-order-list
-    [orders]="orders()"
-    [totalRecords]="totalRecords()"
+    [orders]="displayOrders()"
+    [totalRecords]="displayPaging().totalCount"
     [first]="first()"
     [pageSize]="pageSize()"
     [pageSizeOptions]="pageSizeOptions"
-    [loading]="isListLoading()"
+    [loading]="ordersResource.isLoading()"
+    [showDelete]="false"
     (pageChange)="onPageChange($event)"
     (edit)="openEditModal($event)"
-    (accept)="transitionState($event, 'ACCEPTED')"
-    (cancel)="transitionState($event, 'CANCELLED')"
-    (reopen)="transitionState($event, 'REOPENED')"
-    (complete)="transitionState($event, 'COMPLETED')"
-    (refuse)="transitionState($event, 'REFUSED')"
-    (delete)="deleteOrder($event)"
+    (accept)="transitionState($event, 10)"
+    (dispatch)="dispatchOrder($event)"
+    (cancel)="transitionState($event, 20)"
+    (reopen)="transitionState($event, 25)"
+    (complete)="transitionState($event, 15)"
+    (refuse)="transitionState($event, 30)"
   />
 </section>
 

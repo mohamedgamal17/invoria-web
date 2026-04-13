@@ -5,8 +5,8 @@ import type { PagingQueryRequest } from '../../../shared/requests/paging-query.r
  */
 export interface ListProductRequest extends PagingQueryRequest {}
 
-/** Default paging for product name/code autocomplete (orders search). */
+/** Default paging for product autocomplete on the orders dialog (first server page). */
 export const productSearchListRequest: ListProductRequest = {
   Skip: 0,
-  Length: 500
+  Length: 20
 };

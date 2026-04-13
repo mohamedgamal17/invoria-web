@@ -16,6 +16,7 @@ import { CustomerFormDialogComponent } from '../../components/customer-form-dial
 import { CustomerListComponent } from '../../components/customer-list/customer-list.component';
 import type { Customer } from '../../models/customer.entity';
 import type { PagingInfo } from '../../../../core/models/paging';
+import { formatApiError } from '../../../../core/http/api-error.format';
 
 type CustomerDraft = {
   name: string;
@@ -95,8 +96,11 @@ export class CustomersPageComponent {
           return [res.result.data, res.result.info] as [Customer[], PagingInfo];
         }),
         catchError((err: unknown) => {
-          const message = err instanceof Error ? err.message : 'Unexpected error.';
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: message });
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: formatApiError(err)
+          });
           return of(EMPTY_CUSTOMERS_TUPLE);
         })
       )
@@ -202,8 +206,7 @@ export class CustomersPageComponent {
           }
         },
         error: (err: unknown) => {
-          const message = err instanceof Error ? err.message : 'Unexpected error.';
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: message });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(err) });
         }
       });
   }
@@ -255,15 +258,6 @@ export class CustomersPageComponent {
   }
 
   private formatApiFailureDetail(error: unknown): string {
-    if (error === undefined || error === null) {
-      return 'The server reported an unsuccessful response.';
-    }
-    if (typeof error === 'string') return error;
-    if (error instanceof Error) return error.message;
-    try {
-      return JSON.stringify(error);
-    } catch {
-      return 'The server reported an unsuccessful response.';
-    }
+    return formatApiError(error);
   }
 }

@@ -1,4 +1,5 @@
-import type { OrderState, OrderStateTransition } from './order-state-machine';
+import type { OrderFullfillmentStatus } from './order.entity';
+import type { OrderStatus } from './order.entity';
 
 /** Mock/UI line item (includes display name not present on API contract). */
 export interface UiOrderItem {
@@ -16,12 +17,15 @@ export interface UiOrder {
   lastModifiedAt?: string;
   lastModifiedBy?: string;
   orderNumber: string;
+  /** Set when row comes from the API (`Order.customerId`). */
+  customerId?: string;
   customerName: string;
   totalAmount: number;
-  status: OrderState;
+  status: OrderStatus;
+  fullfillmentStatus: OrderFullfillmentStatus;
   orderDate: string;
   items: UiOrderItem[];
-  stateHistory: OrderStateTransition[];
+  stateHistory: unknown[];
 }
 
 export type OrderCreateInput = Pick<

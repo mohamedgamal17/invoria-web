@@ -54,11 +54,14 @@ export class CustomersApiService {
   }
 
   /**
-   * Loads customers for the given list query and filters by name (orders autocomplete).
+   * Loads customers for orders autocomplete from GET /customers using `listRequest` only.
+   * Rows are returned as the API sends them (no client-side filtering). When OpenAPI adds
+   * search query params, extend {@link ListCustomerRequest} and pass `nameFilter` through
+   * here; until then the second argument is ignored for HTTP.
    */
   searchCustomers(
     listRequest: ListCustomerRequest,
-    nameFilter: string
+    _nameFilter?: string
   ): Observable<Customer[]> {
     return this.http
       .get<ApiResponse<Paging<Customer>>>(`${this.baseUrl}customers`, {
@@ -69,14 +72,7 @@ export class CustomersApiService {
           if (!body.isSuccess || !body.result) {
             return [];
           }
-          const normalizedQuery = (nameFilter || '').toLowerCase().trim();
-          const rows = body.result.data;
-          if (!normalizedQuery) {
-            return rows.slice(0, 20);
-          }
-          return rows
-            .filter((c) => c.name.toLowerCase().includes(normalizedQuery))
-            .slice(0, 20);
+          return body.result.data;
         })
       );
   }

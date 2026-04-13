@@ -25,13 +25,13 @@
             dataKey="id"
             [forceSelection]="true"
             placeholder="Search and select customer..."
-            [minLength]="1"
+            [minLength]="0"
             [dropdown]="true"
             name="customerAutocomplete"
             styleClass="flex-1"
             inputStyleClass="w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all text-sm"
             appendTo="body"
-            [disabled]="saving()"
+            [disabled]="saving() || mode() === 'edit'"
           >
             <ng-template pTemplate="dropdownicon">
               <i class="pi pi-chevron-down text-muted-foreground" *ngIf="!isCustomerLoading()"></i>
@@ -54,7 +54,7 @@
               pTooltip="Remove customer"
               styleClass="w-10 h-10 border border-danger/30 bg-danger/5 hover:bg-danger/10 transition-colors"
               type="button"
-              [disabled]="saving()"
+              [disabled]="saving() || mode() === 'edit'"
             />
           }
         </div>
@@ -79,7 +79,7 @@
                 dataKey="id"
                 [forceSelection]="true"
                 placeholder="Start typing product name..."
-                [minLength]="1"
+                [minLength]="0"
                 [dropdown]="true"
                 name="productAutocomplete"
                 styleClass="flex-1"

@@ -5,7 +5,8 @@ import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { TextareaModule } from 'primeng/textarea';
 import type { UiOrder } from '../../models/order-ui.model';
-import type { OrderState } from '../../models/order-state-machine';
+import type { OrderStatus } from '../../models/order.entity';
+import { OrderStatus as OrderStatusEnum } from '../../models/order.entity';
 
 @Component({
   selector: 'app-order-reason-dialog',
@@ -19,7 +20,7 @@ import type { OrderState } from '../../models/order-state-machine';
   ],
   template: `
     <p-dialog
-      [header]="'Why are you ' + (transitionTarget()?.state === 'CANCELLED' ? 'cancelling' : 'refusing') + ' this order?'"
+      [header]="'Why are you ' + (transitionTarget()?.state === OrderStatusEnum.Cancelled ? 'cancelling' : 'refusing') + ' this order?'"
       [(visible)]="visible"
       [modal]="true"
       [dismissableMask]="true"
@@ -40,7 +41,7 @@ import type { OrderState } from '../../models/order-state-machine';
             rows="4"
             class="w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all p-3 text-sm resize-none"
             [disabled]="saving()"
-            [placeholder]="'Please provide a reason for ' + (transitionTarget()?.state?.toLowerCase() || 'this action')"
+            [placeholder]="'Please provide a reason for this action'"
           ></textarea>
           @if (!reasonText().trim() && !saving()) {
             <small class="text-danger text-[10px] font-medium">* Reason is required to proceed</small>
@@ -58,7 +59,7 @@ import type { OrderState } from '../../models/order-state-machine';
           />
 
           <p-button
-            [label]="transitionTarget()?.state === 'CANCELLED' ? 'Confirm Cancellation' : 'Confirm Refusal'"
+            [label]="transitionTarget()?.state === OrderStatusEnum.Cancelled ? 'Confirm Cancellation' : 'Confirm Refusal'"
             type="button"
             severity="danger"
             [disabled]="saving() || !reasonText().trim()"
@@ -72,8 +73,10 @@ import type { OrderState } from '../../models/order-state-machine';
   `
 })
 export class OrderReasonDialogComponent {
+  protected readonly OrderStatusEnum = OrderStatusEnum;
+
   visible = model(false);
-  transitionTarget = input<{ order: UiOrder; state: OrderState } | null>(null);
+  transitionTarget = input<{ order: UiOrder; state: OrderStatus } | null>(null);
   reasonText = model('');
   saving = input(false);
 

@@ -60,11 +60,14 @@ export class ProductsApiService {
   }
 
   /**
-   * Loads products for the given list query and filters by name or code (orders autocomplete).
+   * Loads products for orders autocomplete from GET /products using `listRequest` only.
+   * Rows are returned as the API sends them (no client-side filtering). When OpenAPI adds
+   * search query params, extend {@link ListProductRequest} and pass `nameOrCodeFilter`
+   * through here; until then the second argument is ignored for HTTP.
    */
   searchProducts(
     listRequest: ListProductRequest,
-    nameOrCodeFilter: string
+    _nameOrCodeFilter?: string
   ): Observable<Product[]> {
     return this.http
       .get<ApiResponse<Paging<Product>>>(`${this.baseUrl}products`, {
@@ -75,18 +78,7 @@ export class ProductsApiService {
           if (!body.isSuccess || !body.result) {
             return [];
           }
-          const normalizedQuery = (nameOrCodeFilter || '').toLowerCase().trim();
-          const rows = body.result.data;
-          if (!normalizedQuery) {
-            return rows.slice(0, 20);
-          }
-          return rows
-            .filter(
-              (p) =>
-                p.name.toLowerCase().includes(normalizedQuery) ||
-                p.code.toLowerCase().includes(normalizedQuery)
-            )
-            .slice(0, 20);
+          return body.result.data;
         })
       );
   }

@@ -12,8 +12,15 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { PopoverModule } from 'primeng/popover';
 import { TimelineModule } from 'primeng/timeline';
 import type { UiOrder } from '../../models/order-ui.model';
-import type { OrderState } from '../../models/order-state-machine';
-import { canEditOrder, canTransition } from '../../models/order-state-machine';
+import { OrderFullfillmentStatus } from '../../models/order.entity';
+import { OrderStatus } from '../../models/order.entity';
+import {
+  friendlyFullfillmentStatusLabel,
+  getAvailableOrderActions,
+  getPrimaryOrderAction,
+  type OrderActionKey,
+  orderStatusLabel
+} from '../../models/order-actions';
 
 @Component({
   selector: 'app-order-list',
@@ -41,10 +48,13 @@ export class OrderListComponent {
   pageSize = input(10);
   pageSizeOptions = input([5, 10, 20]);
   loading = input(false);
+  /** When false, delete actions are hidden (no backend delete for orders yet). */
+  showDelete = input(false);
 
   pageChange = output<any>();
   edit = output<UiOrder>();
   accept = output<UiOrder>();
+  dispatch = output<UiOrder>();
   cancel = output<UiOrder>();
   reopen = output<UiOrder>();
   complete = output<UiOrder>();
@@ -55,32 +65,126 @@ export class OrderListComponent {
     return Array.from({ length: this.pageSize() }, (_, i) => i);
   }
 
-  canEdit(order: UiOrder): boolean {
-    return canEditOrder(order.status);
+  primaryAction(order: UiOrder): OrderActionKey | null {
+    return getPrimaryOrderAction(order);
   }
 
-  canAccept(order: UiOrder): boolean {
-    return canTransition(order.status, 'ACCEPTED');
+  secondaryActions(order: UiOrder): OrderActionKey[] {
+    const primary = this.primaryAction(order);
+    return getAvailableOrderActions(order).filter((action) => action !== primary);
   }
 
-  canCancel(order: UiOrder): boolean {
-    return canTransition(order.status, 'CANCELLED');
+  actionLabel(action: OrderActionKey): string {
+    switch (action) {
+      case 'accept':
+        return 'Accept';
+      case 'dispatch':
+        return 'Dispatch';
+      case 'complete':
+        return 'Complete';
+      case 'cancel':
+        return 'Cancel';
+      case 'reopen':
+        return 'Reopen';
+      case 'refuse':
+        return 'Refuse';
+      case 'edit':
+        return 'Edit';
+      default:
+        return 'Action';
+    }
   }
 
-  canReopen(order: UiOrder): boolean {
-    return canTransition(order.status, 'REOPENED');
+  actionIcon(action: OrderActionKey): string {
+    switch (action) {
+      case 'accept':
+        return 'pi pi-check';
+      case 'dispatch':
+        return 'pi pi-truck';
+      case 'complete':
+        return 'pi pi-check-circle';
+      case 'cancel':
+        return 'pi pi-times';
+      case 'reopen':
+        return 'pi pi-refresh';
+      case 'refuse':
+        return 'pi pi-ban';
+      case 'edit':
+        return 'pi pi-pencil';
+      default:
+        return 'pi pi-cog';
+    }
   }
 
-  canComplete(order: UiOrder): boolean {
-    return canTransition(order.status, 'COMPLETED');
+  actionSeverity(action: OrderActionKey): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined {
+    switch (action) {
+      case 'accept':
+      case 'complete':
+        return 'success';
+      case 'dispatch':
+        return 'info';
+      case 'reopen':
+        return 'warn';
+      case 'cancel':
+      case 'refuse':
+        return 'danger';
+      case 'edit':
+      default:
+        return 'secondary';
+    }
   }
 
-  canRefuse(order: UiOrder): boolean {
-    return canTransition(order.status, 'REFUSED');
+  actionTooltip(action: OrderActionKey): string {
+    switch (action) {
+      case 'accept':
+        return 'Recommended next step: accept order';
+      case 'dispatch':
+        return 'Recommended next step: dispatch order';
+      case 'complete':
+        return 'Recommended next step: mark order completed';
+      case 'cancel':
+        return 'Cancel order';
+      case 'reopen':
+        return 'Reopen order';
+      case 'refuse':
+        return 'Mark order as refused';
+      case 'edit':
+        return 'Edit order';
+      default:
+        return 'Order action';
+    }
+  }
+
+  triggerAction(action: OrderActionKey, order: UiOrder): void {
+    switch (action) {
+      case 'accept':
+        this.accept.emit(order);
+        break;
+      case 'dispatch':
+        this.dispatch.emit(order);
+        break;
+      case 'complete':
+        this.complete.emit(order);
+        break;
+      case 'cancel':
+        this.cancel.emit(order);
+        break;
+      case 'reopen':
+        this.reopen.emit(order);
+        break;
+      case 'refuse':
+        this.refuse.emit(order);
+        break;
+      case 'edit':
+        this.edit.emit(order);
+        break;
+      default:
+        break;
+    }
   }
 
   getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined {
-    switch (status as OrderState) {
+    switch (status) {
       case 'COMPLETED': return 'success';
       case 'ACCEPTED': return 'info';
       case 'REOPENED': return 'warn';
@@ -88,6 +192,39 @@ export class OrderListComponent {
       case 'CANCELLED':
       case 'REFUSED': return 'danger';
       default: return 'secondary';
+    }
+  }
+
+  statusLabel(status: OrderStatus): string {
+    return orderStatusLabel(status);
+  }
+
+  shouldShowFulfillment(order: UiOrder): boolean {
+    return order.status !== OrderStatus.Cancelled;
+  }
+
+  fullfillmentLabel(status: OrderFullfillmentStatus): string {
+    return friendlyFullfillmentStatusLabel(status);
+  }
+
+  getFulfillmentSeverity(
+    status: OrderFullfillmentStatus
+  ): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined {
+    switch (status) {
+      case OrderFullfillmentStatus.Allocated:
+        return 'success';
+      case OrderFullfillmentStatus.Allocating:
+      case OrderFullfillmentStatus.Releasing:
+        return 'info';
+      case OrderFullfillmentStatus.OnHold:
+        return 'warn';
+      case OrderFullfillmentStatus.Dispatched:
+        return 'contrast';
+      case OrderFullfillmentStatus.Cancelled:
+        return 'danger';
+      case OrderFullfillmentStatus.Pending:
+      default:
+        return 'secondary';
     }
   }
 }
