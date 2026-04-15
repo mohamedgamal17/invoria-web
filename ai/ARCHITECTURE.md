@@ -10,6 +10,7 @@ Invoria Web follows a **Feature-Based Angular Architecture** using **Standalone 
 - **Standalone by Default**: All components are standalone, eliminating the need for `NgModules`.
 - **Reactive State**: State is managed via RxJS observables and processed using `firstValueFrom` where async/await is preferred for readability in components.
 - **Unified Design System**: A single source of truth for design tokens (CSS variables) is shared between Tailwind CSS 4 and PrimeNG.
+- **List and paging UX**: Shared conventions for data tables (query-param paging, row actions, paginator templates) are documented in [docs/frontend-list-conventions.md](../docs/frontend-list-conventions.md). That doc references the broader Invoria solution **`Invoria/ai/Architecture.md`** for backend module context where needed.
 
 ---
 
