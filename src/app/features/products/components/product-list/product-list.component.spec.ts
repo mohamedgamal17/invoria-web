@@ -27,7 +27,7 @@ describe('ProductListComponent', () => {
     fixture.componentRef.setInput('products', [mockProduct]);
     fixture.componentRef.setInput('totalRecords', 1);
     fixture.componentRef.setInput('first', 0);
-    fixture.componentRef.setInput('pageSize', 10);
+    fixture.componentRef.setInput('pageSize', 25);
     fixture.componentRef.setInput('isListLoading', false);
   };
 
@@ -46,27 +46,17 @@ describe('ProductListComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should emit edit, delete, and viewBatches from row action buttons', () => {
-    const editSpy = vi.spyOn(component.edit, 'emit');
-    const deleteSpy = vi.spyOn(component.delete, 'emit');
-    const viewBatchesSpy = vi.spyOn(component.viewBatches, 'emit');
+  it('should emit viewProduct from row action buttons', () => {
+    const viewSpy = vi.spyOn(component.viewProduct, 'emit');
 
     const buttons = fixture.debugElement.queryAll(By.css('p-button'));
-    const batchesButton = buttons.find(btn => btn.nativeElement.innerHTML.includes('pi-box'));
-    const editButton = buttons.find(btn => btn.nativeElement.innerHTML.includes('pi-pencil'));
-    const deleteButton = buttons.find(btn => btn.nativeElement.innerHTML.includes('pi-trash'));
+    const viewButton = buttons.find((btn) => btn.nativeElement.innerHTML.includes('pi-arrow-right'));
 
-    expect(batchesButton).toBeTruthy();
-    expect(editButton).toBeTruthy();
-    expect(deleteButton).toBeTruthy();
+    expect(viewButton).toBeTruthy();
 
-    batchesButton?.triggerEventHandler('onClick', {});
-    editButton?.triggerEventHandler('onClick', {});
-    deleteButton?.triggerEventHandler('onClick', {});
+    viewButton?.triggerEventHandler('onClick', {});
 
-    expect(viewBatchesSpy).toHaveBeenCalledWith(mockProduct);
-    expect(editSpy).toHaveBeenCalledWith(mockProduct);
-    expect(deleteSpy).toHaveBeenCalledWith(mockProduct);
+    expect(viewSpy).toHaveBeenCalledWith(mockProduct);
   });
 
   it('should emit pageChange from desktop table and mobile paginator', () => {

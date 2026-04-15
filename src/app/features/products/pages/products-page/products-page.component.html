@@ -1,8 +1,7 @@
-<p-toast />
-<p-confirmDialog />
-
 <section class="space-y-6">
-  <app-product-header (create)="openCreateModal()" />
+  <app-products-breadcrumb [items]="breadcrumbItems" />
+
+  <app-product-header (create)="navigateToCreate()" />
 
   <app-product-list
     [products]="displayProducts()"
@@ -11,25 +10,7 @@
     [pageSize]="pageSize()"
     [isListLoading]="productsResource.isLoading()"
     [pageSizeOptions]="pageSizeOptions"
-    (edit)="openEditModal($event)"
-    (delete)="deleteProduct($event)"
+    (viewProduct)="viewProduct($event)"
     (pageChange)="onPageChange($event)"
-    (viewBatches)="viewBatches($event)"
   />
 </section>
-
-<app-product-dialog
-  [(visible)]="modalVisible"
-  [mode]="modalMode()"
-  [product]="selectedProduct()"
-  [saving]="modalSaving()"
-  (save)="submitModal($event)"
-  (cancel)="closeModal()"
-  (hide)="onModalHide()"
-/>
-
-<app-product-batches-modal
-  [(visible)]="batchesVisible"
-  [product]="selectedProductForInventory()"
-  (batchesMutated)="onBatchesMutated()"
-/>

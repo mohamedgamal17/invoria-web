@@ -15,9 +15,8 @@
             <p-skeleton height="0.75rem" width="2rem"></p-skeleton>
             <p-skeleton height="1.25rem" width="5rem"></p-skeleton>
           </div>
-          <div class="flex gap-2">
-            <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
-            <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
+          <div class="flex flex-col items-end gap-2">
+            <p-skeleton height="2.25rem" width="7.5rem" borderRadius="8px"></p-skeleton>
           </div>
         </div>
       </div>
@@ -52,28 +51,13 @@
               {{ product.price | currency:'EGP':'symbol-narrow' }}
             </span>
           </div>
-          <div class="flex gap-2">
+          <div class="flex flex-col items-end gap-2">
             <p-button
-              icon="pi pi-box"
-              label="Batches"
-              [text]="true"
-              styleClass="text-secondary hover:bg-secondary/10 px-3 py-2 flex items-center justify-center transition-colors border border-border/20 text-xs"
-              (onClick)="viewBatches.emit(product)"
-            />
-            <p-button
-              icon="pi pi-pencil"
-              [text]="true"
-              [rounded]="true"
-              styleClass="text-primary hover:bg-primary/10 w-10 h-10 flex items-center justify-center transition-colors border border-border/20"
-              (onClick)="edit.emit(product)"
-            />
-            <p-button
-              icon="pi pi-trash"
-              [text]="true"
-              [rounded]="true"
-              severity="danger"
-              styleClass="text-danger hover:bg-danger/10 w-10 h-10 flex items-center justify-center transition-colors border border-border/20"
-              (onClick)="delete.emit(product)"
+              label="View Details"
+              icon="pi pi-arrow-right"
+              size="small"
+              styleClass="h-9"
+              (onClick)="viewProduct.emit(product)"
             />
           </div>
         </div>
@@ -200,34 +184,13 @@
           </div>
         </td>
         <td class="px-4 py-5 text-right">
-          <div class="flex justify-end gap-1">
+          <div class="flex justify-end items-center gap-1">
             <p-button
-              icon="pi pi-box"
-              [text]="true"
-              [rounded]="true"
-              pTooltip="View Batches"
-              tooltipPosition="top"
-              styleClass="text-secondary hover:bg-secondary/10 w-9 h-9 flex items-center justify-center transition-colors"
-              (onClick)="viewBatches.emit(product)"
-            />
-            <p-button
-              icon="pi pi-pencil"
-              [text]="true"
-              [rounded]="true"
-              pTooltip="Edit Product"
-              tooltipPosition="top"
-              styleClass="text-primary hover:bg-primary/10 w-9 h-9 flex items-center justify-center transition-colors"
-              (onClick)="edit.emit(product)"
-            />
-            <p-button
-              icon="pi pi-trash"
-              [text]="true"
-              [rounded]="true"
-              severity="danger"
-              pTooltip="Delete Product"
-              tooltipPosition="top"
-              styleClass="text-danger hover:bg-danger/10 w-9 h-9 flex items-center justify-center transition-colors"
-              (onClick)="delete.emit(product)"
+              label="View"
+              icon="pi pi-arrow-right"
+              size="small"
+              styleClass="h-8 px-3 mr-1"
+              (onClick)="viewProduct.emit(product)"
             />
           </div>
         </td>
@@ -254,10 +217,8 @@
             <p-skeleton height="1.1rem" width="3rem" styleClass="mx-auto"></p-skeleton>
           </td>
           <td class="px-4 py-5 text-right">
-            <div class="flex justify-end gap-2">
-              <p-skeleton shape="circle" size="2.25rem"></p-skeleton>
-              <p-skeleton shape="circle" size="2.25rem"></p-skeleton>
-              <p-skeleton shape="circle" size="2.25rem"></p-skeleton>
+            <div class="flex justify-end">
+              <p-skeleton height="2rem" width="4.5rem" borderRadius="6px" styleClass="ml-auto"></p-skeleton>
             </div>
           </td>
         </tr>

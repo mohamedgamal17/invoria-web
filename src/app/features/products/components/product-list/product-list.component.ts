@@ -5,7 +5,6 @@ import { TableModule } from 'primeng/table';
 import { PaginatorModule } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
@@ -24,7 +23,6 @@ import type { Product } from '../../models/product.entity';
     PaginatorModule,
     SkeletonModule,
     TagModule,
-    TooltipModule,
     IconFieldModule,
     InputIconModule,
     InputTextModule
@@ -37,11 +35,9 @@ export class ProductListComponent {
   first = input.required<number>();
   pageSize = input.required<number>();
   isListLoading = input.required<boolean>();
-  pageSizeOptions = input<number[]>([5, 10, 20]);
+  pageSizeOptions = input<number[]>([25, 50, 100, 200]);
 
-  edit = output<Product>();
-  delete = output<Product>();
-  viewBatches = output<Product>();
+  viewProduct = output<Product>();
   pageChange = output<PaginatorState | TablePageEvent>();
 
   get skeletonRows(): number[] {

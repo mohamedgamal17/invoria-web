@@ -1,0 +1,86 @@
+<section class="space-y-6">
+  <app-products-breadcrumb [items]="breadcrumbItems()" />
+
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <p-button
+      icon="pi pi-arrow-left"
+      label="Back to Products"
+      [text]="true"
+      (onClick)="backToList()"
+    />
+    <div class="flex flex-wrap gap-2 justify-end">
+      <p-button
+        label="Manage Batches"
+        icon="pi pi-box"
+        severity="secondary"
+        [outlined]="true"
+        [disabled]="loading() || !!error() || !product()"
+        (onClick)="openBatches()"
+      />
+      <p-button
+        label="Edit"
+        icon="pi pi-pencil"
+        [disabled]="loading() || !!error() || !product()"
+        (onClick)="goToEdit()"
+      />
+      <p-button
+        label="Delete"
+        icon="pi pi-trash"
+        severity="danger"
+        [outlined]="true"
+        [disabled]="loading() || !!error() || !product()"
+        (onClick)="deleteProduct()"
+      />
+    </div>
+  </div>
+
+  @if (loading()) {
+    <p-card styleClass="border border-border">
+      <div class="space-y-4">
+        <p-skeleton height="2rem" width="40%"></p-skeleton>
+        <p-skeleton height="1rem" width="100%"></p-skeleton>
+        <p-skeleton height="1rem" width="80%"></p-skeleton>
+      </div>
+    </p-card>
+  } @else if (error()) {
+    <p-card styleClass="border border-destructive/30">
+      <div class="flex flex-col gap-3">
+        <p class="text-sm text-destructive">{{ error() }}</p>
+        <p-button label="Retry" icon="pi pi-refresh" (onClick)="retry()" />
+      </div>
+    </p-card>
+  } @else if (product(); as p) {
+    <p-card styleClass="border border-border">
+      <div class="flex flex-col gap-6">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div class="min-w-0 space-y-1">
+            <h1 class="text-2xl font-bold text-foreground truncate">{{ p.name }}</h1>
+            <p class="text-sm text-muted-foreground">Updated {{ p.lastModifiedAt | date: 'medium' }}</p>
+          </div>
+          <p-tag
+            [value]="p.code"
+            severity="secondary"
+            styleClass="px-2.5 py-1 text-xs uppercase font-bold tracking-tight rounded-md border border-border shrink-0"
+          />
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Price</div>
+            <div class="mt-1 text-xl font-black tabular-nums text-foreground">
+              {{ p.price | currency: 'EGP' : 'symbol-narrow' }}
+            </div>
+          </div>
+          <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Quantity (Act / Res)
+            </div>
+            <div class="mt-1 text-xl font-black tabular-nums text-foreground">
+              {{ p.actualQuantity }} / {{ p.reservedQuantity }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </p-card>
+  }
+</section>

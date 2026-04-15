@@ -28,12 +28,22 @@ import { Batch, BatchState } from '../models/batch.entity';
           [value]="batches()"
           [paginator]="true"
           [rows]="pageSize()"
+          [first]="first()"
           [totalRecords]="totalRecords()"
+          [rowsPerPageOptions]="pageSizeOptions()"
           [lazy]="true"
           [loading]="loading()"
           [showLoader]="false"
-          (onLazyLoad)="onPageChange.emit($event)"
+          (onPage)="onPageChange.emit($event)"
           styleClass="p-datatable-sm w-full">
+
+          <ng-template pTemplate="caption">
+            <div class="flex flex-col sm:flex-row justify-end items-center gap-4 px-2 py-2">
+              <div class="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Displaying {{ batches().length }} of {{ totalRecords() }} batches
+              </div>
+            </div>
+          </ng-template>
 
           <ng-template pTemplate="header">
             <tr>
@@ -78,12 +88,15 @@ import { Batch, BatchState } from '../models/batch.entity';
                 <p-tag [value]="batch.state" [severity]="getSeverity(batch.state)"></p-tag>
               </td>
               <td class="px-3 py-3 text-right">
-                <p-button
-                  icon="pi pi-pencil"
-                  [text]="true"
-                  [rounded]="true"
-                  (onClick)="edit.emit(batch)">
-                </p-button>
+                <div class="flex justify-end items-center gap-1">
+                  <p-button
+                    label="Edit"
+                    icon="pi pi-pencil"
+                    size="small"
+                    styleClass="h-8 px-3 mr-1"
+                    (onClick)="edit.emit(batch)">
+                  </p-button>
+                </div>
               </td>
             </tr>
           </ng-template>
@@ -106,7 +119,7 @@ import { Batch, BatchState } from '../models/batch.entity';
                 <p-skeleton width="4.5rem" height="1.5rem" borderRadius="9999px"></p-skeleton>
               </td>
               <td class="px-3 py-3 text-right">
-                <p-skeleton width="2rem" height="2rem" borderRadius="9999px"></p-skeleton>
+                <p-skeleton height="2rem" width="4.5rem" borderRadius="6px" styleClass="ml-auto"></p-skeleton>
               </td>
             </tr>
           </ng-template>
@@ -180,13 +193,15 @@ import { Batch, BatchState } from '../models/batch.entity';
                     </div>
                   </div>
 
-                  <p-button
-                    label="Edit batch"
-                    icon="pi pi-pencil"
-                    [text]="true"
-                    styleClass="w-full justify-center"
-                    (onClick)="edit.emit(batch)">
-                  </p-button>
+                  <div class="flex flex-col items-end gap-2">
+                    <p-button
+                      label="Edit"
+                      icon="pi pi-pencil"
+                      size="small"
+                      styleClass="h-9"
+                      (onClick)="edit.emit(batch)">
+                    </p-button>
+                  </div>
                 </div>
               </p-card>
             }
@@ -199,14 +214,21 @@ import { Batch, BatchState } from '../models/batch.entity';
           </div>
         }
 
-        <p-paginator
-          [rows]="pageSize()"
-          [totalRecords]="totalRecords()"
-          (onPageChange)="onPageChange.emit($event)"
-          [rowsPerPageOptions]="[5, 10]"
-          template="FirstPageLink PreviousPageLink PageLinks NextPageLink LastPageLink"
-          styleClass="border-0 bg-transparent py-2">
-        </p-paginator>
+        <div class="mt-2 pb-2 flex flex-col items-center gap-4">
+          <div class="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] bg-muted/30 px-3 py-1 rounded-full border border-border/50">
+            Displaying {{ batches().length }} of {{ totalRecords() }} batches
+          </div>
+          <p-paginator
+            [first]="first()"
+            [rows]="pageSize()"
+            [totalRecords]="totalRecords()"
+            [rowsPerPageOptions]="pageSizeOptions()"
+            (onPageChange)="onPageChange.emit($event)"
+            styleClass="bg-transparent border-none"
+            dropdownAppendTo="body"
+            template="FirstPageLink PreviousPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown">
+          </p-paginator>
+        </div>
       </div>
     </div>
   `,
@@ -216,9 +238,11 @@ export class BatchListComponent {
   batches = input<Batch[]>([]);
   totalRecords = input<number>(0);
   loading = input<boolean>(false);
-  pageSize = input<number>(5);
+  first = input(0);
+  pageSize = input(25);
+  pageSizeOptions = input<number[]>([25, 50, 100, 200]);
 
-  onPageChange = output<any>();
+  onPageChange = output<{ first?: number; rows?: number }>();
   edit = output<Batch>();
 
   getAvailableQuantity(batch: Batch): number {

@@ -51,10 +51,8 @@ export const routes: Routes = [
       },
       {
         path: 'products',
-        loadComponent: () =>
-          import('./features/products/pages/products-page/products-page.component').then(
-            (m) => m.ProductsPageComponent
-          )
+        loadChildren: () =>
+          import('./features/products/products.routes').then((m) => m.PRODUCTS_ROUTES)
       },
       {
         path: 'settings',
