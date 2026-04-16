@@ -1,28 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, linkedSignal, model, signal } from '@angular/core';
+import { Component, computed, inject, linkedSignal } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, finalize, map, of, take } from 'rxjs';
+import { catchError, map, of } from 'rxjs';
 
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 
 import { CustomersApiService } from '../../services/customers-api.service';
-import type { CreateCustomerRequest } from '../../models/create-customer.request';
 import type { ListCustomerRequest } from '../../models/list-customer.request';
-import type { UpdateCustomerRequest } from '../../models/update-customer.request';
-import { CustomerFormDialogComponent } from '../../components/customer-form-dialog/customer-form-dialog.component';
 import { CustomerListComponent } from '../../components/customer-list/customer-list.component';
 import type { Customer } from '../../models/customer.entity';
 import type { PagingInfo } from '../../../../core/models/paging';
 import { formatApiError } from '../../../../core/http/api-error.format';
-
-type CustomerDraft = {
-  name: string;
-};
-
-type ModalMode = 'create' | 'edit';
 
 const EMPTY_CUSTOMERS_TUPLE: [Customer[], PagingInfo] = [
   [],
@@ -36,8 +27,7 @@ const EMPTY_CUSTOMERS_TUPLE: [Customer[], PagingInfo] = [
     CommonModule,
     ButtonModule,
     ToastModule,
-    CustomerListComponent,
-    CustomerFormDialogComponent
+    CustomerListComponent
   ],
   providers: [MessageService],
   templateUrl: './customers-page.component.html'
@@ -82,6 +72,8 @@ export class CustomersPageComponent {
     Length: this.pageSize()
   }));
 
+  readonly first = computed(() => this.pageIndex() * this.pageSize());
+
   readonly customersResource = rxResource<[Customer[], PagingInfo], ListCustomerRequest>({
     params: () => this.listRequest(),
     defaultValue: EMPTY_CUSTOMERS_TUPLE,
@@ -116,118 +108,19 @@ export class CustomersPageComponent {
     computation: (src) => ({ ...src.paging })
   });
 
-  /** Two-way with `app-customer-form-dialog` via `[(visible)]`. */
-  modalVisible = model(false);
-  modalMode = signal<ModalMode>('create');
-  modalSaving = signal(false);
-  private editingId = signal<string | null>(null);
-
-  draft = signal<CustomerDraft>({
-    name: ''
-  });
-
-  openCreateModal(): void {
-    this.modalMode.set('create');
-    this.editingId.set(null);
-    this.draft.set({ name: '' });
-    this.modalVisible.set(true);
+  navigateToCreate(): void {
+    void this.router.navigate(['new'], { relativeTo: this.route.parent });
   }
 
-  openEditModal(customer: Customer): void {
-    this.modalMode.set('edit');
-    this.editingId.set(customer.id);
-    this.draft.set({
-      name: customer.name
-    });
-    this.modalVisible.set(true);
+  goToDetails(customer: Customer): void {
+    void this.router.navigate([customer.id], { relativeTo: this.route });
   }
 
-  onModalHide(): void {
-    this.modalSaving.set(false);
-  }
-
-  submitModal(): void {
-    if (this.modalSaving()) {
-      return;
-    }
-    this.modalSaving.set(true);
-
-    const name = this.draft().name.trim();
-    const request$ =
-      this.modalMode() === 'create'
-        ? this.customersApi.createCustomer({ Name: name } satisfies CreateCustomerRequest)
-        : this.customersApi.updateCustomer(this.editingId()!, {
-            Name: name
-          } satisfies UpdateCustomerRequest);
-
-    request$
-      .pipe(
-        take(1),
-        finalize(() => {
-          this.modalSaving.set(false);
-        })
-      )
-      .subscribe({
-        next: (res) => {
-          if (!res.isSuccess || res.result === undefined) {
-            const detail = this.formatApiFailureDetail(res.error);
-            this.messageService.add({ severity: 'error', summary: 'Error', detail });
-            return;
-          }
-          const action = this.modalMode() === 'create' ? 'created' : 'updated';
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: `Customer ${action} successfully.`
-          });
-          this.modalVisible.set(false);
-
-          if (this.modalMode() === 'create') {
-            if (this.pageIndex() === 0) {
-              const created = res.result;
-              const pageLen = this.pageSize();
-              this.displayCustomers.update((prev) =>
-                prev.length >= pageLen
-                  ? [created, ...prev.slice(0, pageLen - 1)]
-                  : [created, ...prev]
-              );
-              this.displayPaging.update((p) => ({ ...p, totalCount: p.totalCount + 1 }));
-            }
-            void this.router.navigate([], {
-              relativeTo: this.route,
-              queryParams: { page: 1 },
-              queryParamsHandling: 'merge',
-            });
-          } else {
-            const updated = res.result;
-            this.displayCustomers.update((rows) =>
-              rows.map((c) => (c.id === updated.id ? updated : c))
-            );
-          }
-        },
-        error: (err: unknown) => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(err) });
-        }
-      });
-  }
-
-  closeModal(): void {
-    this.modalVisible.set(false);
-  }
-
-  deleteCustomer(customer: Customer): void {
-    if (!confirm(`Are you sure you want to delete "${customer.name}"?`)) return;
-
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Not supported',
-      detail: 'Deleting customers is not supported by the API.'
-    });
-  }
-
-  onPageChange(event: any): void {
-    const rows = event.rows ?? this.pageSize();
-    const newPageIndex = event.page ?? Math.floor((event.first ?? 0) / Math.max(rows, 1));
+  onPageChange(event: unknown): void {
+    const evt = event as { rows?: number; page?: number; first?: number };
+    const rows = evt.rows ?? this.pageSize();
+    const firstEvt = evt.first ?? 0;
+    const newPageIndex = evt.page ?? Math.floor(firstEvt / Math.max(rows, 1));
 
     if (this.pageIndex() !== newPageIndex || this.pageSize() !== rows) {
       const isManualPageChange = this.pageIndex() !== newPageIndex;

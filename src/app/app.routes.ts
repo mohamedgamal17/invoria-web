@@ -37,10 +37,8 @@ export const routes: Routes = [
       },
       {
         path: 'customers',
-        loadComponent: () =>
-          import('./features/customers/pages/customers-page/customers-page.component').then(
-            (m) => m.CustomersPageComponent
-          )
+        loadChildren: () =>
+          import('./features/customers/customers.routes').then((m) => m.CUSTOMERS_ROUTES)
       },
       {
         path: 'reports',

@@ -1,0 +1,85 @@
+<p-toast />
+
+<section class="space-y-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <p-button
+      icon="pi pi-arrow-left"
+      label="Back to Customers"
+      [text]="true"
+      (onClick)="backToList()"
+    />
+
+    <div class="flex flex-wrap gap-2 justify-end">
+      <p-button
+        label="Edit"
+        icon="pi pi-pencil"
+        [disabled]="loading() || !!error() || !customer()"
+        (onClick)="goToEdit()"
+      />
+    </div>
+  </div>
+
+  @if (loading()) {
+    <p-card styleClass="border border-border">
+      <div class="space-y-4">
+        <p-skeleton height="2rem" width="40%"></p-skeleton>
+        <p-skeleton height="1rem" width="100%"></p-skeleton>
+        <p-skeleton height="1rem" width="80%"></p-skeleton>
+      </div>
+    </p-card>
+  } @else if (error()) {
+    <p-card styleClass="border border-destructive/30">
+      <div class="flex flex-col gap-3">
+        <p class="text-sm text-destructive">{{ error() }}</p>
+        <p-button label="Retry" icon="pi pi-refresh" (onClick)="retry()" />
+      </div>
+    </p-card>
+  } @else if (customer(); as c) {
+    <p-card styleClass="border border-border">
+      <div class="flex flex-col gap-5">
+        <div class="min-w-0 space-y-1">
+          <h1 class="text-2xl font-bold text-foreground truncate">{{ c.name }}</h1>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Customer Name</div>
+            <div class="mt-1 text-sm font-semibold text-foreground">{{ c.name }}</div>
+          </div>
+
+          <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Customer Id</div>
+            <div class="mt-1 text-sm font-semibold text-foreground break-all">{{ c.id }}</div>
+          </div>
+
+          <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Created At</div>
+            <div class="mt-1 text-sm font-semibold text-foreground">{{ c.createdAt | date: 'medium' }}</div>
+          </div>
+
+          <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Created By</div>
+            <div class="mt-1 text-sm font-semibold text-foreground">{{ c.createdBy || 'N/A' }}</div>
+          </div>
+
+          <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Last Modified At
+            </div>
+            <div class="mt-1 text-sm font-semibold text-foreground">
+              {{ c.lastModifiedAt ? (c.lastModifiedAt | date: 'medium') : 'N/A' }}
+            </div>
+          </div>
+
+          <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Last Modified By
+            </div>
+            <div class="mt-1 text-sm font-semibold text-foreground">{{ c.lastModifiedBy || 'N/A' }}</div>
+          </div>
+        </div>
+      </div>
+    </p-card>
+  }
+</section>
+

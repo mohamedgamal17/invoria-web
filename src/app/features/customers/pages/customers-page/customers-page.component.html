@@ -12,31 +12,19 @@
         label="Create Customer"
         icon="pi pi-plus"
         styleClass="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90 transition-all focus:ring-2 focus:ring-focus"
-        (onClick)="openCreateModal()"
+        (onClick)="navigateToCreate()"
       />
     </div>
   </div>
 
   <app-customer-list
     [customers]="displayCustomers()"
-    [loading]="customersResource.isLoading()"
+    [isListLoading]="customersResource.isLoading()"
     [totalRecords]="displayPaging().totalCount"
-    [pageIndex]="pageIndex()"
+    [first]="first()"
     [pageSize]="pageSize()"
     [pageSizeOptions]="pageSizeOptions"
     (pageChange)="onPageChange($event)"
-    (editCustomer)="openEditModal($event)"
-    (deleteCustomer)="deleteCustomer($event)"
+    (viewCustomer)="goToDetails($event)"
   />
 </section>
-
-<app-customer-form-dialog
-  [(visible)]="modalVisible"
-  [mode]="modalMode()"
-  [saving]="modalSaving()"
-  [name]="draft().name"
-  (nameChange)="draft.set({ name: $event })"
-  (submit)="submitModal()"
-  (cancel)="closeModal()"
-  (hide)="onModalHide()"
-/>

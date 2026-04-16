@@ -6,7 +6,9 @@ import { TooltipModule } from 'primeng/tooltip';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
+import type { PaginatorState } from 'primeng/paginator';
 import { PaginatorModule } from 'primeng/paginator';
+import type { TablePageEvent } from 'primeng/table';
 
 import { CustomerListSkeletonComponent } from '../customer-list-skeleton/customer-list-skeleton.component';
 import type { Customer } from '../../models/customer.entity';
@@ -28,14 +30,13 @@ import type { Customer } from '../../models/customer.entity';
   templateUrl: './customer-list.component.html'
 })
 export class CustomerListComponent {
-  customers = input<Customer[]>([]);
-  loading = input(false);
-  totalRecords = input(0);
-  pageIndex = input(0);
-  pageSize = input(10);
+  customers = input.required<Customer[]>();
+  totalRecords = input.required<number>();
+  first = input.required<number>();
+  pageSize = input.required<number>();
+  isListLoading = input.required<boolean>();
   pageSizeOptions = input<number[]>([5, 10, 20]);
 
-  pageChange = output<unknown>();
-  editCustomer = output<Customer>();
-  deleteCustomer = output<Customer>();
+  viewCustomer = output<Customer>();
+  pageChange = output<PaginatorState | TablePageEvent>();
 }

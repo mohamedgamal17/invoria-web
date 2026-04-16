@@ -1,0 +1,66 @@
+<p-toast />
+
+<section class="space-y-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <p-button
+      icon="pi pi-arrow-left"
+      [label]="mode() === 'create' ? 'Back to Customers' : 'Back'"
+      [text]="true"
+      (onClick)="goBack()"
+    />
+    <h1 class="text-2xl font-bold text-foreground">
+      {{ mode() === 'create' ? 'Create Customer' : 'Edit Customer' }}
+    </h1>
+  </div>
+
+  <p-card styleClass="border border-border">
+    @if (loading()) {
+      <div class="text-sm text-muted-foreground">Loading customer…</div>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-6 pt-2">
+        <div class="space-y-5">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider" for="customerName">
+              Customer Name
+            </label>
+            <input
+              id="customerName"
+              name="customerName"
+              type="text"
+              pInputText
+              formControlName="name"
+              class="w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all"
+              [disabled]="saving()"
+              placeholder="Enter customer name"
+            />
+            @if (form.controls.name.invalid && form.controls.name.touched) {
+              <p-message severity="error" text="Customer name is required." />
+            }
+          </div>
+        </div>
+
+        <div
+          class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-5 border-t border-border mt-8"
+        >
+          <p-button
+            label="Cancel"
+            type="button"
+            [text]="true"
+            styleClass="w-full sm:w-auto px-4 py-2.5 text-sm font-semibold text-muted-foreground hover:bg-muted rounded-xl transition-all"
+            [disabled]="saving()"
+            (onClick)="goBack()"
+          />
+
+          <p-button
+            [label]="mode() === 'create' ? 'Create Customer' : 'Save Changes'"
+            type="submit"
+            [disabled]="saving()"
+            [loading]="saving()"
+            styleClass="w-full sm:w-auto px-6 py-3 bg-primary text-primary-foreground text-sm font-bold rounded-xl shadow-md hover:opacity-90 transition-all focus:ring-2 focus:ring-focus active:scale-[0.98]"
+          />
+        </div>
+      </form>
+    }
+  </p-card>
+</section>
+
