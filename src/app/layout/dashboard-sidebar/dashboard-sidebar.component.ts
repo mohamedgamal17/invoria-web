@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output, computed, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import {
+  ClipboardList,
   FileText,
   LayoutDashboard,
   LucideAngularModule,
@@ -60,6 +61,7 @@ export class DashboardSidebarComponent {
   ];
 
   readonly secondary: NavItem[] = [
+    { label: 'Procurement', path: '/dashboard/procurement', icon: ClipboardList },
     { label: 'Suppliers', path: '/dashboard/suppliers', icon: Users },
     { label: 'Customers', path: '/dashboard/customers', icon: User },
     { label: 'Reports', path: '/dashboard/reports', icon: FileText },
