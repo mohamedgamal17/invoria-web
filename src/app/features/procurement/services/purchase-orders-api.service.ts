@@ -31,8 +31,13 @@ export class PurchaseOrdersApiService {
   }
 
   getPurchaseOrder(id: string): Observable<ApiResponse<PurchaseOrder>> {
+    const params = httpParamsFromRequest({
+      IncludePurchaseItems: true,
+      IncludeSupplier: true
+    });
     return this.http.get<ApiResponse<PurchaseOrder>>(
-      `${this.baseUrl}purchase-orders/${encodeURIComponent(id)}`
+      `${this.baseUrl}purchase-orders/${encodeURIComponent(id)}`,
+      { params }
     );
   }
 

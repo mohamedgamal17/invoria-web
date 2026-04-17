@@ -10,6 +10,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
+import { TableModule } from 'primeng/table';
 
 import { formatApiError } from '../../../../core/http/api-error.format';
 import type { PurchaseOrder } from '../../models/purchase-order.entity';
@@ -19,7 +20,7 @@ import { PurchaseOrdersApiService } from '../../services/purchase-orders-api.ser
 @Component({
   selector: 'app-purchase-order-details-page',
   standalone: true,
-  imports: [CommonModule, ButtonModule, CardModule, SkeletonModule, ToastModule, TagModule],
+  imports: [CommonModule, ButtonModule, CardModule, SkeletonModule, ToastModule, TagModule, TableModule],
   providers: [MessageService],
   templateUrl: './purchase-order-details-page.component.html'
 })
