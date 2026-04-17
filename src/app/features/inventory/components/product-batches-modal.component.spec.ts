@@ -62,7 +62,6 @@ describe('ProductBatchesModalComponent', () => {
     fixture.componentInstance.visible.set(false);
     fixture.detectChanges();
 
-    const panel = fixture.debugElement.query(By.directive(ProductBatchesPanelComponent));
-    expect(panel.componentInstance.active()).toBe(false);
+    expect(fixture.componentInstance.panelActive()).toBe(false);
   });
 });

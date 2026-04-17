@@ -1,6 +1,15 @@
-<section class="space-y-2">
-  <h1 class="text-xl font-semibold">Purchase list</h1>
-  <p class="text-sm text-muted-foreground">
-    This section will manage procurement purchases, requisitions, and supplier orders.
-  </p>
+<p-toast />
+<section class="space-y-6">
+  <app-purchase-order-header />
+
+  <app-purchase-order-list
+    [purchaseOrders]="displayPurchaseOrders()"
+    [totalRecords]="displayPaging().totalCount"
+    [first]="first()"
+    [pageSize]="pageSize()"
+    [pageSizeOptions]="pageSizeOptions"
+    [loading]="purchaseOrdersResource.isLoading()"
+    (pageChange)="onPageChange($event)"
+    (view)="goToDetails($event)"
+  />
 </section>

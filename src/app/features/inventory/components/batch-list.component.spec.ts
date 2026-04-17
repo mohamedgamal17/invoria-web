@@ -59,7 +59,7 @@ describe('BatchListComponent', () => {
     const table = fixture.debugElement.query(By.css('p-table'));
     const event = { first: 5, rows: 5 };
 
-    table.triggerEventHandler('onLazyLoad', event);
+    table.triggerEventHandler('onPage', event);
     expect(pageSpy).toHaveBeenCalledWith(event);
   });
 

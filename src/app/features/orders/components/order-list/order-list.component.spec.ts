@@ -154,37 +154,17 @@ describe('OrderListComponent', () => {
     expect(tags.length).toBe(2);
   });
 
-  it('should emit edit event when edit button is clicked', () => {
+  it('should emit view when View Details is clicked', () => {
     fixture.componentRef.setInput('orders', [mockOrders[0]]);
     fixture.detectChanges();
-    const emitSpy = vi.spyOn(component.edit, 'emit');
-    
-    // Find correctly the edit button - p-button with icon pi-pencil
-    const buttons = fixture.debugElement.queryAll(By.css('p-button'));
-    const editButton = buttons.find(b => b.nativeElement.innerHTML.includes('pi-pencil'));
-    
-    if (editButton) {
-      editButton.triggerEventHandler('onClick', {});
-      expect(emitSpy).toHaveBeenCalledWith(mockOrders[0]);
-    } else {
-      throw new Error('Edit button not found');
-    }
-  });
+    const emitSpy = vi.spyOn(component.view, 'emit');
 
-  it('should emit accept event when accept button is clicked', () => {
-    fixture.componentRef.setInput('orders', [mockOrders[0]]);
-    fixture.detectChanges();
-    const emitSpy = vi.spyOn(component.accept, 'emit');
-    
     const buttons = fixture.debugElement.queryAll(By.css('p-button'));
-    const acceptButton = buttons.find(b => b.nativeElement.innerHTML.includes('pi-check'));
-    
-    if (acceptButton) {
-      acceptButton.triggerEventHandler('onClick', {});
-      expect(emitSpy).toHaveBeenCalledWith(mockOrders[0]);
-    } else {
-      throw new Error('Accept button not found');
-    }
+    const viewButton = buttons.find((b) => b.nativeElement.innerHTML.includes('pi-arrow-right'));
+
+    expect(viewButton).toBeTruthy();
+    viewButton!.triggerEventHandler('onClick', {});
+    expect(emitSpy).toHaveBeenCalledWith(mockOrders[0]);
   });
 
   it('should emit delete event when delete button is clicked', () => {

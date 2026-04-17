@@ -1,0 +1,93 @@
+<div class="rounded-xl border border-border bg-surface shadow-sm overflow-x-auto">
+  <p-table
+    [value]="purchaseOrders()"
+    dataKey="id"
+    [lazy]="true"
+    [paginator]="true"
+    [rows]="pageSize()"
+    [first]="first()"
+    [totalRecords]="totalRecords()"
+    [rowsPerPageOptions]="pageSizeOptions()"
+    (onPage)="pageChange.emit($event)"
+    [loading]="loading()"
+    [showLoader]="false"
+    [rowHover]="true"
+    [stripedRows]="true"
+    styleClass="p-datatable-sm min-w-[640px]"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th class="px-4 py-4 font-bold uppercase tracking-wider">PO number</th>
+        <th class="px-4 py-4 font-bold uppercase tracking-wider">Supplier</th>
+        <th class="px-4 py-4 font-bold uppercase tracking-wider">State</th>
+        <th class="px-4 py-4 font-bold uppercase tracking-wider">Order date</th>
+        <th class="px-4 py-4 font-bold uppercase tracking-wider text-right">Total</th>
+        <th class="px-4 py-4 font-bold uppercase tracking-wider text-right">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-row>
+      <tr>
+        <td class="px-4 py-4">
+          <span class="text-sm font-semibold text-foreground">{{ row.purchaseNumber }}</span>
+        </td>
+        <td class="px-4 py-4">
+          <span class="text-sm text-foreground">{{ supplierDisplay(row) }}</span>
+        </td>
+        <td class="px-4 py-4">
+          <p-tag
+            [value]="stateLabel(row.state)"
+            [severity]="stateSeverity(row.state)"
+            styleClass="px-2 py-1 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border"
+          />
+        </td>
+        <td class="px-4 py-4 text-sm text-muted-foreground">
+          @if (row.orderDate) {
+            {{ row.orderDate | date: 'mediumDate' }}
+          } @else {
+            —
+          }
+        </td>
+        <td class="px-4 py-4 text-right text-sm font-bold tabular-nums text-foreground">
+          {{ row.totalAmount | currency: 'EGP' : 'symbol-narrow' }}
+        </td>
+        <td class="px-4 py-4 text-right">
+          <p-button
+            label="View"
+            icon="pi pi-arrow-right"
+            size="small"
+            styleClass="h-8 px-3"
+            (onClick)="view.emit(row)"
+          />
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="loadingbody">
+      @for (_ of skeletonRows; track _) {
+        <tr>
+          <td class="px-4 py-4"><p-skeleton height="1rem" width="40%"></p-skeleton></td>
+          <td class="px-4 py-4"><p-skeleton height="1rem" width="55%"></p-skeleton></td>
+          <td class="px-4 py-4"><p-skeleton height="1.5rem" width="4.5rem" borderRadius="6px"></p-skeleton></td>
+          <td class="px-4 py-4"><p-skeleton height="1rem" width="5rem"></p-skeleton></td>
+          <td class="px-4 py-4 text-right"><p-skeleton height="1rem" width="4rem" styleClass="ml-auto"></p-skeleton></td>
+          <td class="px-4 py-4 text-right">
+            <p-skeleton height="2rem" width="4.5rem" borderRadius="6px" styleClass="ml-auto"></p-skeleton>
+          </td>
+        </tr>
+      }
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6" class="px-4 py-12 text-center">
+          <div class="flex flex-col items-center gap-2">
+            <i class="pi pi-inbox text-4xl text-muted-foreground opacity-20"></i>
+            <div class="text-base font-medium text-foreground">No purchase orders found</div>
+            <p class="text-sm text-muted-foreground">Purchase orders will appear here when available.</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

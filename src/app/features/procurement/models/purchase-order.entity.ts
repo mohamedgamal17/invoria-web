@@ -12,10 +12,17 @@ export interface PurchaseOrderItem {
   lineTotal: number;
 }
 
+/** Populated when list/detail is requested with `IncludeSupplier: true`. */
+export interface PurchaseOrderSupplierRef {
+  id: string;
+  name: string;
+}
+
 /** `InvoriaProcurementContractsDtosPurchaseOrderDto` (camelCase JSON). */
 export interface PurchaseOrder extends Entity {
   purchaseNumber: string;
   supplierId: string;
+  supplier?: PurchaseOrderSupplierRef | null;
   state: PurchaseState;
   orderDate?: string | null;
   expectedDeliveryDate?: string | null;

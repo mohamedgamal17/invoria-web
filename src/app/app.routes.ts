@@ -37,10 +37,8 @@ export const routes: Routes = [
       },
       {
         path: 'procurement',
-        loadComponent: () =>
-          import(
-            './features/procurement/pages/purchase-list-page/purchase-list-page.component'
-          ).then((m) => m.PurchaseListPageComponent)
+        loadChildren: () =>
+          import('./features/procurement/procurement.routes').then((m) => m.PROCUREMENT_ROUTES)
       },
       {
         path: 'customers',

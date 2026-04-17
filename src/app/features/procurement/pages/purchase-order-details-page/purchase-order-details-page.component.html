@@ -1,0 +1,86 @@
+<p-toast />
+
+<section class="space-y-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <p-button
+      icon="pi pi-arrow-left"
+      label="Back to purchase orders"
+      [text]="true"
+      (onClick)="backToList()"
+    />
+  </div>
+
+  @if (loading()) {
+    <p-card styleClass="border border-border">
+      <div class="space-y-4">
+        <p-skeleton height="2rem" width="40%"></p-skeleton>
+        <p-skeleton height="1rem" width="100%"></p-skeleton>
+        <p-skeleton height="1rem" width="80%"></p-skeleton>
+      </div>
+    </p-card>
+  } @else if (error()) {
+    <p-card styleClass="border border-destructive/30">
+      <div class="flex flex-col gap-3">
+        <p class="text-sm text-destructive">{{ error() }}</p>
+        <p-button label="Retry" icon="pi pi-refresh" (onClick)="retry()" />
+      </div>
+    </p-card>
+  } @else if (purchaseOrder(); as po) {
+    <p-card styleClass="border border-border">
+      <div class="flex flex-col gap-5">
+        <div class="flex flex-wrap items-center gap-3 min-w-0">
+          <h1 class="text-2xl font-bold text-foreground truncate">{{ po.purchaseNumber }}</h1>
+          <p-tag
+            [value]="stateLabel(po.state)"
+            [severity]="stateSeverity(po.state)"
+            styleClass="px-2 py-1 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border"
+          />
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Supplier</div>
+            <div class="mt-1 text-sm font-semibold text-foreground break-all">{{ supplierLine(po) }}</div>
+          </div>
+
+          <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Order date</div>
+            <div class="mt-1 text-sm font-semibold text-foreground">
+              @if (po.orderDate) {
+                {{ po.orderDate | date: 'medium' }}
+              } @else {
+                —
+              }
+            </div>
+          </div>
+
+          <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total</div>
+            <div class="mt-1 text-sm font-semibold text-foreground tabular-nums">
+              {{ po.totalAmount | currency: 'EGP' : 'symbol-narrow' }}
+            </div>
+          </div>
+
+          <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Subtotal</div>
+            <div class="mt-1 text-sm font-semibold text-foreground tabular-nums">
+              {{ po.subTotal | currency: 'EGP' : 'symbol-narrow' }}
+            </div>
+          </div>
+
+          <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Tax / Discount</div>
+            <div class="mt-1 text-sm font-semibold text-foreground tabular-nums">
+              {{ po.taxAmount | currency: 'EGP' : 'symbol-narrow' }} / {{ po.discountAmount | currency: 'EGP' : 'symbol-narrow' }}
+            </div>
+          </div>
+
+          <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Id</div>
+            <div class="mt-1 text-sm font-semibold text-foreground break-all">{{ po.id }}</div>
+          </div>
+        </div>
+      </div>
+    </p-card>
+  }
+</section>

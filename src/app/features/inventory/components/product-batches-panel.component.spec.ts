@@ -74,7 +74,7 @@ describe('ProductBatchesPanelComponent', () => {
     expect(batchesApiMock.listBatches).toHaveBeenCalledWith({
       ProductId: mockProduct.id,
       Skip: 0,
-      Length: 5
+      Length: 25
     });
     expect(component.batches().length).toBe(1);
     expect(component.totalRecords()).toBe(1);
