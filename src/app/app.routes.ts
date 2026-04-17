@@ -36,6 +36,13 @@ export const routes: Routes = [
           )
       },
       {
+        path: 'procurement',
+        loadComponent: () =>
+          import(
+            './features/procurement/pages/purchase-list-page/purchase-list-page.component'
+          ).then((m) => m.PurchaseListPageComponent)
+      },
+      {
         path: 'customers',
         loadChildren: () =>
           import('./features/customers/customers.routes').then((m) => m.CUSTOMERS_ROUTES)
