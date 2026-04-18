@@ -4,12 +4,14 @@
 
   <app-purchase-order-list
     [purchaseOrders]="displayPurchaseOrders()"
+    [purchaseNumber]="purchaseNumber()"
     [totalRecords]="displayPaging().totalCount"
     [first]="first()"
     [pageSize]="pageSize()"
     [pageSizeOptions]="pageSizeOptions"
     [loading]="purchaseOrdersResource.isLoading()"
     (pageChange)="onPageChange($event)"
+    (purchaseNumberChange)="onPurchaseNumberChange($event)"
     (view)="goToDetails($event)"
   />
 </section>

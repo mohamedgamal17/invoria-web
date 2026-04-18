@@ -66,6 +66,12 @@ export class PurchaseListPageComponent {
     { initialValue: 25 }
   );
 
+  /** Purchase order number filter from `?number=` (trimmed). */
+  readonly purchaseNumber = toSignal(
+    this.route.queryParamMap.pipe(map((m) => (m.get('number') ?? '').trim())),
+    { initialValue: '' }
+  );
+
   readonly pageIndex = computed(() => Math.max(0, this.pageFromRoute() - 1));
 
   readonly first = computed(() => this.pageIndex() * this.pageSize());
@@ -74,6 +80,7 @@ export class PurchaseListPageComponent {
     (): ListPurchaseOrderRequest => ({
       Skip: this.pageIndex() * this.pageSize(),
       Length: this.pageSize(),
+      Number: this.purchaseNumber() || null,
       IncludePurchaseItems: false,
       IncludeSupplier: true
     })
@@ -138,6 +145,22 @@ export class PurchaseListPageComponent {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
+  }
+
+  onPurchaseNumberChange(value: string): void {
+    const trimmed = (value ?? '').trim();
+    if (trimmed === this.purchaseNumber()) {
+      return;
+    }
+
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        page: 1,
+        number: trimmed || null
+      },
+      queryParamsHandling: 'merge'
+    });
   }
 
   private purchaseOrdersLinkSource(): {

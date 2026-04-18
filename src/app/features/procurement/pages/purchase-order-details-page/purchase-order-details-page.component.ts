@@ -152,7 +152,7 @@ export class PurchaseOrderDetailsPageComponent {
   supplierLine(po: PurchaseOrder): string {
     const name = po.supplier?.name?.trim();
     if (name) {
-      return `${name} (${po.supplierId})`;
+      return name;
     }
     return po.supplierId;
   }

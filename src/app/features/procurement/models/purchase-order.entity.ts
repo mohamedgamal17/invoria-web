@@ -15,6 +15,7 @@ export interface PurchaseOrderItem {
 /** Populated when list/detail is requested with `IncludeSupplier: true`. */
 export interface PurchaseOrderSupplierRef {
   id: string;
+  supplierCode?: string;
   name: string;
 }
 

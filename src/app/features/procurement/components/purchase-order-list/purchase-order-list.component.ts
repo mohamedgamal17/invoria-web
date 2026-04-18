@@ -3,6 +3,9 @@ import { Component, input, output } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
 import { PaginatorModule } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
 import type { PaginatorState } from 'primeng/paginator';
@@ -14,11 +17,22 @@ import { purchaseStateLabel, purchaseStateSeverity } from '../../models/purchase
 @Component({
   selector: 'app-purchase-order-list',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, TagModule, PaginatorModule, SkeletonModule],
+  imports: [
+    CommonModule,
+    TableModule,
+    ButtonModule,
+    TagModule,
+    IconFieldModule,
+    InputIconModule,
+    InputTextModule,
+    PaginatorModule,
+    SkeletonModule
+  ],
   templateUrl: './purchase-order-list.component.html'
 })
 export class PurchaseOrderListComponent {
   purchaseOrders = input<PurchaseOrder[]>([]);
+  purchaseNumber = input('');
   totalRecords = input(0);
   first = input(0);
   pageSize = input(25);
@@ -26,6 +40,7 @@ export class PurchaseOrderListComponent {
   loading = input(false);
 
   pageChange = output<PaginatorState | TablePageEvent>();
+  purchaseNumberChange = output<string>();
   view = output<PurchaseOrder>();
 
   readonly stateLabel = purchaseStateLabel;
