@@ -1,0 +1,123 @@
+<p-toast />
+
+<section class="space-y-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <p-button
+      icon="pi pi-arrow-left"
+      [label]="mode() === 'create' ? 'Back to Suppliers' : 'Back'"
+      [text]="true"
+      (onClick)="goBack()"
+    />
+    <h1 class="text-2xl font-bold text-foreground">
+      {{ mode() === 'create' ? 'Create Supplier' : 'Edit Supplier' }}
+    </h1>
+  </div>
+
+  <p-card styleClass="border border-border">
+    @if (loading()) {
+      <div class="text-sm text-muted-foreground">Loading supplier…</div>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-6 pt-2">
+        <div class="space-y-5">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider" for="supplierCode">
+              Supplier code
+            </label>
+            <input
+              id="supplierCode"
+              name="supplierCode"
+              type="text"
+              pInputText
+              formControlName="supplierCode"
+              class="w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all font-mono"
+              [disabled]="saving()"
+              placeholder="Unique supplier code"
+            />
+            @if (form.controls.supplierCode.invalid && form.controls.supplierCode.touched) {
+              <p-message severity="error" text="Supplier code is required." />
+            }
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider" for="supplierName">
+              Name
+            </label>
+            <input
+              id="supplierName"
+              name="supplierName"
+              type="text"
+              pInputText
+              formControlName="name"
+              class="w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all"
+              [disabled]="saving()"
+              placeholder="Supplier display name"
+            />
+            @if (form.controls.name.hasError('required') && form.controls.name.touched) {
+              <p-message severity="error" text="Name is required." />
+            }
+            @if (form.controls.name.hasError('minlength') && form.controls.name.touched) {
+              <p-message severity="error" text="Name must be at least 3 characters." />
+            }
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider" for="contactEmail">
+              Contact email
+            </label>
+            <input
+              id="contactEmail"
+              name="contactEmail"
+              type="email"
+              pInputText
+              formControlName="contactEmail"
+              class="w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all"
+              [disabled]="saving()"
+              placeholder="Optional"
+            />
+            @if (form.controls.contactEmail.invalid && form.controls.contactEmail.touched) {
+              <p-message severity="error" text="Enter a valid email address." />
+            }
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider" for="phone">Phone</label>
+            <input
+              id="phone"
+              name="phone"
+              type="text"
+              pInputText
+              formControlName="phone"
+              class="w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all"
+              [disabled]="saving()"
+              placeholder="Optional"
+            />
+            @if (form.controls.phone.invalid && form.controls.phone.touched) {
+              <p-message severity="error" text="Phone is too long." />
+            }
+          </div>
+        </div>
+
+        <div
+          class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-5 border-t border-border mt-8"
+        >
+          <p-button
+            label="Cancel"
+            type="button"
+            [text]="true"
+            styleClass="w-full sm:w-auto px-4 py-2.5 text-sm font-semibold text-muted-foreground hover:bg-muted rounded-xl transition-all"
+            [disabled]="saving()"
+            (onClick)="goBack()"
+          />
+
+          <p-button
+            [label]="mode() === 'create' ? 'Create Supplier' : 'Save Changes'"
+            type="submit"
+            [disabled]="saving()"
+            [loading]="saving()"
+            styleClass="w-full sm:w-auto px-6 py-3 bg-primary text-primary-foreground text-sm font-bold rounded-xl shadow-md hover:opacity-90 transition-all focus:ring-2 focus:ring-focus active:scale-[0.98]"
+          />
+        </div>
+      </form>
+    }
+  </p-card>
+</section>

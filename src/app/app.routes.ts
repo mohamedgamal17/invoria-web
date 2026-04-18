@@ -30,10 +30,8 @@ export const routes: Routes = [
       },
       {
         path: 'suppliers',
-        loadComponent: () =>
-          import('./features/suppliers/pages/suppliers-page/suppliers-page.component').then(
-            (m) => m.SuppliersPageComponent
-          )
+        loadChildren: () =>
+          import('./features/suppliers/suppliers.routes').then((m) => m.SUPPLIERS_ROUTES)
       },
       {
         path: 'procurement',

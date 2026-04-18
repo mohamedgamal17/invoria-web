@@ -8,6 +8,8 @@ import { environment } from '../../../../environments/environment';
 import { httpParamsFromRequest } from '../../../shared/requests/http-params-from-request';
 import type { Supplier } from '../models/supplier.entity';
 import type { ListSupplierRequest } from '../models/list-supplier.request';
+import type { CreateSupplierRequest } from '../models/create-supplier.request';
+import type { UpdateSupplierRequest } from '../models/update-supplier.request';
 
 /** Client-side name filter for autocomplete until API exposes search query params. */
 export function filterSuppliersByName(suppliers: Supplier[], nameFilter: string | undefined): Supplier[] {
@@ -38,6 +40,25 @@ export class SuppliersApiService {
     });
   }
 
+  getSupplier(id: string): Observable<ApiResponse<Supplier>> {
+    return this.http.get<ApiResponse<Supplier>>(
+      `${this.baseUrl}suppliers/${encodeURIComponent(id)}`
+    );
+  }
+
+  createSupplier(request: CreateSupplierRequest): Observable<ApiResponse<Supplier>> {
+    this.assertSupplierBody(request.SupplierCode, request.Name);
+    return this.http.post<ApiResponse<Supplier>>(`${this.baseUrl}suppliers`, request);
+  }
+
+  updateSupplier(id: string, request: UpdateSupplierRequest): Observable<ApiResponse<Supplier>> {
+    this.assertSupplierBody(request.SupplierCode, request.Name);
+    return this.http.put<ApiResponse<Supplier>>(
+      `${this.baseUrl}suppliers/${encodeURIComponent(id)}`,
+      request
+    );
+  }
+
   /**
    * Loads suppliers for autocomplete from GET /suppliers; optional `nameFilter` filters client-side on `name`.
    * When OpenAPI adds search query params, extend {@link ListSupplierRequest} and pass the filter through HTTP.
@@ -55,5 +76,14 @@ export class SuppliersApiService {
           return filterSuppliersByName(body.result.data, nameFilter);
         })
       );
+  }
+
+  private assertSupplierBody(supplierCode: string | undefined, name: string | undefined): void {
+    if (!(supplierCode ?? '').trim()) {
+      throw new Error('SupplierCode is required.');
+    }
+    if (!(name ?? '').trim()) {
+      throw new Error('Name is required.');
+    }
   }
 }

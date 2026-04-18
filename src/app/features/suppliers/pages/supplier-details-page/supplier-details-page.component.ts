@@ -1,0 +1,84 @@
+import { CommonModule } from '@angular/common';
+import { Component, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
+import { finalize, map, take } from 'rxjs';
+
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { SkeletonModule } from 'primeng/skeleton';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+
+import { formatApiError } from '../../../../core/http/api-error.format';
+import type { Supplier } from '../../models/supplier.entity';
+import { SuppliersApiService } from '../../services/suppliers-api.service';
+
+@Component({
+  selector: 'app-supplier-details-page',
+  standalone: true,
+  imports: [CommonModule, ButtonModule, CardModule, SkeletonModule, ToastModule],
+  providers: [MessageService],
+  templateUrl: './supplier-details-page.component.html'
+})
+export class SupplierDetailsPageComponent {
+  private readonly suppliersApi = inject(SuppliersApiService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+
+  private readonly supplierId = toSignal(
+    this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
+    { initialValue: '' }
+  );
+
+  readonly loading = signal(true);
+  readonly error = signal('');
+  readonly supplier = signal<Supplier | null>(null);
+
+  constructor() {
+    this.loadSupplier();
+  }
+
+  backToList(): void {
+    void this.router.navigate(['/dashboard', 'suppliers']);
+  }
+
+  goToEdit(): void {
+    void this.router.navigate(['edit'], { relativeTo: this.route });
+  }
+
+  retry(): void {
+    this.loadSupplier();
+  }
+
+  private loadSupplier(idParam?: string): void {
+    const id = idParam ?? this.supplierId();
+    if (!id) {
+      this.loading.set(false);
+      this.error.set('Missing supplier id.');
+      return;
+    }
+
+    this.loading.set(true);
+    this.error.set('');
+
+    this.suppliersApi
+      .getSupplier(id)
+      .pipe(
+        take(1),
+        finalize(() => this.loading.set(false))
+      )
+      .subscribe({
+        next: (res) => {
+          if (!res.isSuccess || !res.result) {
+            this.error.set(formatApiError(res.error));
+            return;
+          }
+          this.supplier.set(res.result);
+        },
+        error: (err: unknown) => {
+          this.error.set(formatApiError(err));
+        }
+      });
+  }
+}

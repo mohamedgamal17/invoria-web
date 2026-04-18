@@ -12,7 +12,7 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 
 import type { PurchaseOrderSupplierRef } from '../../models/purchase-order.entity';
-import type { Supplier } from '../../../suppliers/models/supplier.entity';
+import type { SupplierChoice } from '../../../suppliers/models/supplier.entity';
 import { supplierSearchListRequest } from '../../../suppliers/models/list-supplier.request';
 import { SuppliersApiService } from '../../../suppliers/services/suppliers-api.service';
 
@@ -36,8 +36,8 @@ export class SupplierIdControlComponent implements ControlValueAccessor {
   readonly resolvedSupplier = input<PurchaseOrderSupplierRef | null>(null);
   readonly saving = input(false);
 
-  readonly selectedSupplier = signal<Supplier | null>(null);
-  readonly suggestions = signal<Supplier[]>([]);
+  readonly selectedSupplier = signal<SupplierChoice | null>(null);
+  readonly suggestions = signal<SupplierChoice[]>([]);
 
   private currentId = '';
   private onChange: (value: string) => void = () => {};
@@ -96,7 +96,7 @@ export class SupplierIdControlComponent implements ControlValueAccessor {
     this.onComplete({ query: '' });
   }
 
-  onModelChange(supplier: Supplier | null): void {
+  onModelChange(supplier: SupplierChoice | null): void {
     this.selectedSupplier.set(supplier);
     if (!supplier?.id) {
       if (this.currentId !== '') {
