@@ -113,6 +113,10 @@ export class PurchaseListPageComponent {
     void this.router.navigate([po.id], { relativeTo: this.route });
   }
 
+  goToCreate(): void {
+    void this.router.navigate(['new'], { relativeTo: this.route });
+  }
+
   onPageChange(event: PaginatorState | TablePageEvent): void {
     const firstEvt = event.first ?? 0;
     const rows = event.rows ?? this.pageSize();

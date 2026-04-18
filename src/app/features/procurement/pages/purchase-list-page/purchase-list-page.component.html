@@ -1,6 +1,6 @@
 <p-toast />
 <section class="space-y-6">
-  <app-purchase-order-header />
+  <app-purchase-order-header [showCreate]="true" (create)="goToCreate()" />
 
   <app-purchase-order-list
     [purchaseOrders]="displayPurchaseOrders()"

@@ -1,0 +1,205 @@
+<p-toast />
+
+<section class="space-y-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <p-button
+      icon="pi pi-arrow-left"
+      [label]="mode() === 'create' ? 'Back to purchase orders' : 'Back to details'"
+      [text]="true"
+      (onClick)="goBack()"
+    />
+    <h1 class="text-2xl font-bold text-foreground">
+      {{ mode() === 'create' ? 'Create purchase order' : 'Edit purchase order' }}
+    </h1>
+  </div>
+
+  <p-card styleClass="border border-border">
+    @if (loading()) {
+      <div class="text-sm text-muted-foreground">Loading purchase order…</div>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-6 pt-2">
+        <div class="grid gap-5 sm:grid-cols-2">
+          <div class="flex flex-col gap-1.5 sm:col-span-2">
+            <app-supplier-id-control
+              formControlName="supplierId"
+              [resolvedSupplier]="supplierDisplayRef()"
+              [saving]="saving()"
+            />
+            @if (form.controls.supplierId.invalid && form.controls.supplierId.touched) {
+              <p-message severity="error" text="Supplier is required." />
+            }
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider" for="orderDate"
+              >Order date</label
+            >
+            <input
+              id="orderDate"
+              name="orderDate"
+              type="date"
+              formControlName="orderDate"
+              class="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm focus:ring-2 focus:ring-focus"
+              [disabled]="saving()"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider" for="expectedDeliveryDate"
+              >Expected delivery</label
+            >
+            <input
+              id="expectedDeliveryDate"
+              name="expectedDeliveryDate"
+              type="date"
+              formControlName="expectedDeliveryDate"
+              class="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm focus:ring-2 focus:ring-focus"
+              [disabled]="saving()"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider" for="taxAmount"
+              >Tax amount</label
+            >
+            <p-inputNumber
+              id="taxAmount"
+              formControlName="taxAmount"
+              [disabled]="saving()"
+              mode="decimal"
+              [min]="0"
+              [minFractionDigits]="2"
+              [maxFractionDigits]="2"
+              styleClass="w-full"
+              inputStyleClass="w-full rounded-lg border-border bg-surface-2 tabular-nums"
+            />
+            @if (form.controls.taxAmount.invalid && form.controls.taxAmount.touched) {
+              <p-message severity="error" text="Tax must be zero or greater." />
+            }
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider" for="discountAmount"
+              >Discount amount</label
+            >
+            <p-inputNumber
+              id="discountAmount"
+              formControlName="discountAmount"
+              [disabled]="saving()"
+              mode="decimal"
+              [min]="0"
+              [minFractionDigits]="2"
+              [maxFractionDigits]="2"
+              styleClass="w-full"
+              inputStyleClass="w-full rounded-lg border-border bg-surface-2 tabular-nums"
+            />
+            @if (form.controls.discountAmount.invalid && form.controls.discountAmount.touched) {
+              <p-message severity="error" text="Discount must be zero or greater." />
+            }
+          </div>
+        </div>
+
+        <div class="space-y-3 border-t border-border/60 pt-5">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <h2 class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Line items</h2>
+            <p-button
+              type="button"
+              label="Add line"
+              icon="pi pi-plus"
+              [outlined]="true"
+              [disabled]="saving()"
+              (onClick)="addLine()"
+            />
+          </div>
+
+          <div class="rounded-xl border border-border/60 overflow-x-auto">
+            <table class="w-full min-w-[640px] text-sm border-collapse">
+              <thead>
+                <tr class="border-b border-border/60 bg-surface-2/40">
+                  <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Product</th>
+                  <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Qty</th>
+                  <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Unit price</th>
+                  <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Supplier code</th>
+                  <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider"></th>
+                </tr>
+              </thead>
+              <tbody formArrayName="items">
+                @for (_ of items.controls; track $index) {
+                  <tr [formGroupName]="$index" class="border-b border-border/40">
+                    <td class="px-3 py-2 align-top">
+                      <app-product-id-control
+                        formControlName="productId"
+                        [rowIndex]="$index"
+                        [saving]="saving()"
+                      />
+                    </td>
+                    <td class="px-3 py-2 align-top text-right">
+                      <p-inputNumber
+                        formControlName="quantity"
+                        [disabled]="saving()"
+                        [min]="1"
+                        [showButtons]="true"
+                        styleClass="w-full justify-end"
+                        inputStyleClass="w-24 text-right tabular-nums"
+                      />
+                    </td>
+                    <td class="px-3 py-2 align-top text-right">
+                      <p-inputNumber
+                        formControlName="unitPrice"
+                        [disabled]="saving()"
+                        [min]="0"
+                        mode="decimal"
+                        [minFractionDigits]="2"
+                        [maxFractionDigits]="2"
+                        styleClass="w-full justify-end"
+                        inputStyleClass="w-28 text-right tabular-nums"
+                      />
+                    </td>
+                    <td class="px-3 py-2 align-top">
+                      <input
+                        type="text"
+                        pInputText
+                        formControlName="supplierProductCode"
+                        class="w-full min-w-[6rem]"
+                        [disabled]="saving()"
+                      />
+                    </td>
+                    <td class="px-3 py-2 align-top text-right">
+                      <p-button
+                        type="button"
+                        icon="pi pi-trash"
+                        [text]="true"
+                        [rounded]="true"
+                        severity="danger"
+                        [disabled]="saving() || items.length <= 1"
+                        (onClick)="removeLine($index)"
+                      />
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div
+          class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-5 border-t border-border mt-2"
+        >
+          <p-button
+            label="Cancel"
+            type="button"
+            [text]="true"
+            [disabled]="saving()"
+            (onClick)="goBack()"
+          />
+          <p-button
+            [label]="mode() === 'create' ? 'Create' : 'Save'"
+            type="submit"
+            [disabled]="saving()"
+            [loading]="saving()"
+          />
+        </div>
+      </form>
+    }
+  </p-card>
+</section>

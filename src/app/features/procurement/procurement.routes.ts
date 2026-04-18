@@ -13,6 +13,22 @@ export const PROCUREMENT_ROUTES: Routes = [
           )
       },
       {
+        path: 'new',
+        loadComponent: () =>
+          import('./pages/purchase-order-form-page/purchase-order-form-page.component').then(
+            (m) => m.PurchaseOrderFormPageComponent
+          ),
+        data: { mode: 'create' }
+      },
+      {
+        path: ':id/edit',
+        loadComponent: () =>
+          import('./pages/purchase-order-form-page/purchase-order-form-page.component').then(
+            (m) => m.PurchaseOrderFormPageComponent
+          ),
+        data: { mode: 'edit' }
+      },
+      {
         path: ':id',
         loadComponent: () =>
           import('./pages/purchase-order-details-page/purchase-order-details-page.component').then(

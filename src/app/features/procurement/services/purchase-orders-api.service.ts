@@ -7,6 +7,7 @@ import { Paging } from '../../../core/models/paging';
 import { environment } from '../../../../environments/environment';
 import type { PurchaseOrder } from '../models/purchase-order.entity';
 import type { CreatePurchaseOrderRequest } from '../models/create-purchase-order.request';
+import type { UpdatePurchaseOrderRequest } from '../models/update-purchase-order.request';
 import type { ListPurchaseOrderRequest } from '../models/list-purchase-order.request';
 import { httpParamsFromRequest } from '../../../shared/requests/http-params-from-request';
 
@@ -44,6 +45,14 @@ export class PurchaseOrdersApiService {
   createPurchaseOrder(request: CreatePurchaseOrderRequest): Observable<ApiResponse<PurchaseOrder>> {
     this.assertCreateBody(request);
     return this.http.post<ApiResponse<PurchaseOrder>>(`${this.baseUrl}purchase-orders`, request);
+  }
+
+  updatePurchaseOrder(id: string, request: UpdatePurchaseOrderRequest): Observable<ApiResponse<PurchaseOrder>> {
+    this.assertCreateBody(request);
+    return this.http.put<ApiResponse<PurchaseOrder>>(
+      `${this.baseUrl}purchase-orders/${encodeURIComponent(id)}`,
+      request
+    );
   }
 
   submitPurchaseOrder(id: string): Observable<ApiResponse<PurchaseOrder>> {

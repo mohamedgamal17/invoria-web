@@ -157,4 +157,11 @@ describe('PurchaseListPageComponent', () => {
     component.goToDetails(po);
     expect(router.navigate).toHaveBeenCalledWith([po.id], { relativeTo: route });
   });
+
+  it('should navigate to create form on goToCreate', () => {
+    const router = TestBed.inject(Router);
+    const route = TestBed.inject(ActivatedRoute);
+    component.goToCreate();
+    expect(router.navigate).toHaveBeenCalledWith(['new'], { relativeTo: route });
+  });
 });

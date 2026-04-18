@@ -1,0 +1,40 @@
+<div class="flex flex-col gap-1.5">
+  <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Supplier</span>
+  <div class="flex gap-2 items-start">
+    <p-autocomplete
+      [ngModel]="selectedSupplier()"
+      (ngModelChange)="onModelChange($event)"
+      [suggestions]="suggestions()"
+      (completeMethod)="onComplete($event)"
+      field="name"
+      optionLabel="name"
+      dataKey="id"
+      [forceSelection]="true"
+      [dropdown]="true"
+      [minLength]="0"
+      placeholder="Search and select supplier…"
+      name="supplierPicker"
+      styleClass="flex-1"
+      inputStyleClass="w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all text-sm"
+      appendTo="body"
+      [disabled]="isControlDisabled()"
+      (onFocus)="onInputFocus()"
+      (onBlur)="markTouched()"
+    />
+    @if (selectedSupplier()) {
+      <p-button
+        type="button"
+        icon="pi pi-user-minus"
+        [text]="true"
+        [rounded]="true"
+        severity="danger"
+        [disabled]="isControlDisabled()"
+        (onClick)="clearSelection()"
+        aria-label="Remove supplier"
+      />
+    }
+  </div>
+  @if (selectedSupplier(); as sel) {
+    <p class="text-xs text-muted-foreground break-all">Selected: {{ sel.name }} ({{ sel.id }})</p>
+  }
+</div>

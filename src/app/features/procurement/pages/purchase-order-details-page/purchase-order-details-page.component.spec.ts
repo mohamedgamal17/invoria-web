@@ -4,7 +4,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { of } from 'rxjs';
 
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 
 import { PurchaseOrderDetailsPageComponent } from './purchase-order-details-page.component';
 import { PurchaseOrdersApiService } from '../../services/purchase-orders-api.service';
@@ -24,7 +24,7 @@ describe('PurchaseOrderDetailsPageComponent', () => {
     purchaseNumber: 'PO-100',
     supplierId: 'sup_1',
     supplier: { id: 'sup_1', name: 'Acme' },
-    state: PurchaseState.Approved,
+    state: PurchaseState.Draft,
     orderDate: '2026-01-10T00:00:00.000Z',
     expectedDeliveryDate: '2026-01-20T00:00:00.000Z',
     completedDate: null,
@@ -50,12 +50,22 @@ describe('PurchaseOrderDetailsPageComponent', () => {
     const getPurchaseOrder = vi.fn().mockReturnValue(
       of({ isSuccess: true as const, result: mockPo })
     );
+    const apiMock = {
+      getPurchaseOrder,
+      submitPurchaseOrder: vi.fn(),
+      approvePurchaseOrder: vi.fn(),
+      rejectPurchaseOrder: vi.fn(),
+      cancelPurchaseOrder: vi.fn(),
+      completePurchaseOrder: vi.fn(),
+      reopenPurchaseOrder: vi.fn()
+    };
 
     await TestBed.configureTestingModule({
       imports: [PurchaseOrderDetailsPageComponent, NoopAnimationsModule],
       providers: [
         MessageService,
-        { provide: PurchaseOrdersApiService, useValue: { getPurchaseOrder } },
+        ConfirmationService,
+        { provide: PurchaseOrdersApiService, useValue: apiMock },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -98,6 +108,53 @@ describe('PurchaseOrderDetailsPageComponent', () => {
     expect(text).toContain(firstLine.productId);
     expect(text).toContain(String(firstLine.quantity));
     expect(text).toContain('SKU-1');
+
+    expect(text).toContain('Edit');
+    expect(text).toContain('Submit');
+    expect(text).toContain('Cancel');
+  });
+
+  it('should show Reopen and Complete without Edit when order is Approved', async () => {
+    TestBed.resetTestingModule();
+    const approvedPo: PurchaseOrder = { ...mockPo, state: PurchaseState.Approved };
+    const getPurchaseOrder = vi.fn().mockReturnValue(
+      of({ isSuccess: true as const, result: approvedPo })
+    );
+    const apiMock = {
+      getPurchaseOrder,
+      submitPurchaseOrder: vi.fn(),
+      approvePurchaseOrder: vi.fn(),
+      rejectPurchaseOrder: vi.fn(),
+      cancelPurchaseOrder: vi.fn(),
+      completePurchaseOrder: vi.fn(),
+      reopenPurchaseOrder: vi.fn()
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [PurchaseOrderDetailsPageComponent, NoopAnimationsModule],
+      providers: [
+        MessageService,
+        ConfirmationService,
+        { provide: PurchaseOrdersApiService, useValue: apiMock },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { paramMap: convertToParamMap({ id: 'po_1' }) },
+            paramMap: of(convertToParamMap({ id: 'po_1' }))
+          }
+        },
+        { provide: Router, useValue: { navigate: vi.fn().mockResolvedValue(true) } }
+      ]
+    }).compileComponents();
+
+    const approvedFixture = TestBed.createComponent(PurchaseOrderDetailsPageComponent);
+    approvedFixture.detectChanges();
+    await approvedFixture.whenStable();
+
+    const text = (approvedFixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Reopen');
+    expect(text).toContain('Complete');
+    expect(text).not.toContain('Edit');
   });
 
   it('should navigate back to procurement list', () => {

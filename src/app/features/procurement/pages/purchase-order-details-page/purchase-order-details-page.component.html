@@ -1,13 +1,39 @@
 <p-toast />
+<p-confirmDialog />
 
 <section class="space-y-6">
-  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
     <p-button
       icon="pi pi-arrow-left"
       label="Back to purchase orders"
       [text]="true"
       (onClick)="backToList()"
     />
+    @if (purchaseOrder()) {
+      <div class="flex flex-wrap items-center gap-2 justify-end">
+        @if (canEdit()) {
+          <p-button
+            icon="pi pi-pencil"
+            label="Edit"
+            severity="secondary"
+            [outlined]="true"
+            [disabled]="transitionInProgress()"
+            (onClick)="goToEdit()"
+          />
+        }
+        @for (action of availableTransitions(); track action) {
+          <p-button
+            [label]="actionUi[action].label"
+            [icon]="actionUi[action].icon"
+            [severity]="actionUi[action].severity"
+            [outlined]="action === 'reject' || action === 'cancel'"
+            [loading]="transitionInProgress()"
+            [disabled]="transitionInProgress()"
+            (onClick)="onTransition(action)"
+          />
+        }
+      </div>
+    }
   </div>
 
   @if (loading()) {
