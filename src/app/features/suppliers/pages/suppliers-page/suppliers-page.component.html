@@ -22,8 +22,10 @@
     [totalRecords]="displayPaging().totalCount"
     [first]="first()"
     [pageSize]="pageSize()"
+    [nameFilter]="qFromRoute()"
     [pageSizeOptions]="pageSizeOptions"
     (pageChange)="onPageChange($event)"
+    (nameFilterChange)="onNameFilterChange($event)"
     (viewSupplier)="goToDetails($event)"
   />
 </section>

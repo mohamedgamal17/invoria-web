@@ -35,8 +35,10 @@ export class SupplierListComponent {
   first = input.required<number>();
   pageSize = input.required<number>();
   isListLoading = input.required<boolean>();
+  nameFilter = input<string>('');
   pageSizeOptions = input<number[]>([5, 10, 20]);
 
   viewSupplier = output<Supplier>();
   pageChange = output<PaginatorState | TablePageEvent>();
+  nameFilterChange = output<string>();
 }

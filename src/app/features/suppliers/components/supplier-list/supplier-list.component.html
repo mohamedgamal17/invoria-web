@@ -31,7 +31,7 @@
       <p-button
         label="Clear Search"
         [link]="true"
-        (onClick)="dt.reset(); dt.filterGlobal('', 'contains')"
+        (onClick)="nameFilterChange.emit('')"
       />
     </div>
   }
@@ -75,7 +75,8 @@
           <input
             pInputText
             type="text"
-            (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+            [value]="nameFilter()"
+            (input)="nameFilterChange.emit($any($event.target).value)"
             placeholder="Search suppliers…"
             class="w-full rounded-lg border-border bg-surface-2 py-2 text-sm focus:ring-2 focus:ring-focus"
           />
@@ -144,7 +145,7 @@
             <p-button
               label="Clear Search"
               [link]="true"
-              (onClick)="dt.reset(); dt.filterGlobal('', 'contains')"
+              (onClick)="nameFilterChange.emit('')"
             />
           </div>
         </td>

@@ -28,6 +28,7 @@ describe('SupplierListComponent', () => {
     fixture.componentRef.setInput('first', 0);
     fixture.componentRef.setInput('pageSize', 10);
     fixture.componentRef.setInput('isListLoading', false);
+    fixture.componentRef.setInput('nameFilter', '');
     fixture.detectChanges();
   });
 
@@ -40,5 +41,16 @@ describe('SupplierListComponent', () => {
     component.viewSupplier.subscribe(spy);
     component.viewSupplier.emit(supplier);
     expect(spy).toHaveBeenCalledWith(supplier);
+  });
+
+  it('should emit nameFilterChange when search input changes', () => {
+    const spy = vi.fn();
+    component.nameFilterChange.subscribe(spy);
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('input[pinputtext]');
+    input.value = 'acme';
+    input.dispatchEvent(new Event('input'));
+
+    expect(spy).toHaveBeenCalledWith('acme');
   });
 });

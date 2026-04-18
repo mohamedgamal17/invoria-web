@@ -30,8 +30,12 @@ describe('SuppliersPageComponent', () => {
     }
   };
 
-  function setupWithQueryParams(page: string, pageSize = '10'): BehaviorSubject<ReturnType<typeof convertToParamMap>> {
-    return new BehaviorSubject(convertToParamMap({ page, pageSize }));
+  function setupWithQueryParams(
+    page: string,
+    pageSize = '10',
+    q = ''
+  ): BehaviorSubject<ReturnType<typeof convertToParamMap>> {
+    return new BehaviorSubject(convertToParamMap({ page, pageSize, q }));
   }
 
   async function createFixture(paramMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>) {
@@ -73,6 +77,17 @@ describe('SuppliersPageComponent', () => {
     expect(mockSuppliersApi.listSuppliers).toHaveBeenCalled();
   });
 
+  it('should include q from route in list request', async () => {
+    const paramMap$ = setupWithQueryParams('1', '10', 'acme');
+    await createFixture(paramMap$);
+
+    expect(mockSuppliersApi.listSuppliers).toHaveBeenLastCalledWith({
+      Skip: 0,
+      Length: 10,
+      Name: 'acme'
+    });
+  });
+
   it('navigateToCreate should navigate to new', () => {
     const router = TestBed.inject(Router);
     const route = TestBed.inject(ActivatedRoute);
@@ -85,5 +100,18 @@ describe('SuppliersPageComponent', () => {
     const route = TestBed.inject(ActivatedRoute);
     component.goToDetails(mockSupplier);
     expect(router.navigate).toHaveBeenCalledWith([mockSupplier.id], { relativeTo: route });
+  });
+
+  it('onNameFilterChange should sync q to route and reset page', () => {
+    const router = TestBed.inject(Router);
+    const route = TestBed.inject(ActivatedRoute);
+
+    component.onNameFilterChange('acme');
+
+    expect(router.navigate).toHaveBeenCalledWith([], {
+      relativeTo: route,
+      queryParams: { q: 'acme', page: 1 },
+      queryParamsHandling: 'merge'
+    });
   });
 });
