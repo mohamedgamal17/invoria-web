@@ -79,6 +79,7 @@ describe('PurchaseListPageComponent', () => {
     expect(mockApi.listPurchaseOrders).toHaveBeenCalledWith({
       Skip: 0,
       Length: 25,
+      Number: null,
       IncludePurchaseItems: false,
       IncludeSupplier: true
     });
@@ -94,6 +95,22 @@ describe('PurchaseListPageComponent', () => {
     expect(mockApi.listPurchaseOrders).toHaveBeenCalledWith({
       Skip: 25,
       Length: 25,
+      Number: null,
+      IncludePurchaseItems: false,
+      IncludeSupplier: true
+    });
+  });
+
+  it('should include Number in request when number query param exists', () => {
+    const paramMap$ = new BehaviorSubject(
+      convertToParamMap({ page: '1', pageSize: '25', number: 'PO-555' })
+    );
+    setup(paramMap$);
+
+    expect(mockApi.listPurchaseOrders).toHaveBeenCalledWith({
+      Skip: 0,
+      Length: 25,
+      Number: 'PO-555',
       IncludePurchaseItems: false,
       IncludeSupplier: true
     });
@@ -163,5 +180,21 @@ describe('PurchaseListPageComponent', () => {
     const route = TestBed.inject(ActivatedRoute);
     component.goToCreate();
     expect(router.navigate).toHaveBeenCalledWith(['new'], { relativeTo: route });
+  });
+
+  it('should update number query and reset page on purchase number change', () => {
+    const router = TestBed.inject(Router);
+    const route = TestBed.inject(ActivatedRoute);
+
+    component.onPurchaseNumberChange('PO-100');
+
+    expect(router.navigate).toHaveBeenCalledWith(
+      [],
+      expect.objectContaining({
+        relativeTo: route,
+        queryParams: { page: 1, number: 'PO-100' },
+        queryParamsHandling: 'merge'
+      })
+    );
   });
 });
