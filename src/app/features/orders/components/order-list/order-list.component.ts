@@ -47,10 +47,13 @@ export class OrderListComponent {
   loading = input(false);
   /** When false, delete actions are hidden (no backend delete for orders yet). */
   showDelete = input(false);
+  /** Server-side order number filter (from URL `q`); drives search input value. */
+  orderNumberFilter = input<string>('');
 
   pageChange = output<any>();
   view = output<UiOrder>();
   delete = output<UiOrder>();
+  orderNumberFilterChange = output<string>();
 
   get skeletonRows(): number[] {
     return Array.from({ length: this.pageSize() }, (_, i) => i);

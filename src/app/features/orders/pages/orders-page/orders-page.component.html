@@ -9,9 +9,11 @@
     [first]="first()"
     [pageSize]="pageSize()"
     [pageSizeOptions]="pageSizeOptions"
+    [orderNumberFilter]="qFromRoute()"
     [loading]="ordersResource.isLoading()"
     [showDelete]="false"
     (pageChange)="onPageChange($event)"
+    (orderNumberFilterChange)="onOrderNumberFilterChange($event)"
     (view)="goToDetails($event)"
   />
 </section>

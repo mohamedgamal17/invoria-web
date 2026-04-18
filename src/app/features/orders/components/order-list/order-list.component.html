@@ -92,7 +92,7 @@
         <p-button
           label="Clear Search"
           [link]="true"
-          (onClick)="dt.reset(); dt.filterGlobal('', 'contains')"
+          (onClick)="orderNumberFilterChange.emit('')"
         />
     </div>
   }
@@ -131,7 +131,6 @@
     [loading]="loading()"
     [showLoader]="false"
     [rowHover]="true"
-    [globalFilterFields]="['orderNumber', 'customerName']"
     [stripedRows]="true"
     styleClass="p-datatable-sm"
   >
@@ -143,8 +142,9 @@
           <input
             pInputText
             type="text"
-            (input)="dt.filterGlobal($any($event.target).value, 'contains')"
-            placeholder="Search by order # or customer..."
+            [value]="orderNumberFilter()"
+            (input)="orderNumberFilterChange.emit($any($event.target).value)"
+            placeholder="Search by order number…"
             class="w-full rounded-lg border-border bg-surface-2 py-2 text-sm focus:ring-2 focus:ring-focus"
           />
         </p-iconfield>
@@ -299,7 +299,7 @@
             <p-button
               label="Clear Search"
               [link]="true"
-              (onClick)="dt.reset(); dt.filterGlobal('', 'contains')"
+              (onClick)="orderNumberFilterChange.emit('')"
             />
           </div>
         </td>

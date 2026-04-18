@@ -58,6 +58,17 @@ export class OrdersPageComponent {
     { initialValue: 25 }
   );
 
+  /** Order number filter from `?q=` (server-side `OrderNumber`). */
+  readonly qFromRoute = toSignal(
+    this.route.queryParamMap.pipe(
+      map((m) => {
+        const q = m.get('q')?.trim();
+        return q ? q : '';
+      })
+    ),
+    { initialValue: '' }
+  );
+
   /** 0-based page index derived from the URL. */
   readonly pageIndex = computed(() => Math.max(0, this.pageFromRoute() - 1));
 
@@ -67,7 +78,8 @@ export class OrdersPageComponent {
     (): ListOrderRequest => ({
       Skip: this.pageIndex() * this.pageSize(),
       Length: this.pageSize(),
-      IncludeOrderItems: true
+      IncludeOrderItems: true,
+      OrderNumber: this.qFromRoute() || null
     })
   );
 
@@ -132,6 +144,19 @@ export class OrdersPageComponent {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
+  }
+
+  onOrderNumberFilterChange(q: string): void {
+    const normalized = q.trim();
+    if (normalized === this.qFromRoute()) {
+      return;
+    }
+
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { q: normalized || null, page: 1 },
+      queryParamsHandling: 'merge'
+    });
   }
 
   private ordersLinkSource(): {
