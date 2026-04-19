@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { CommonModule, formatDate } from '@angular/common';
+import { Component, computed, inject, LOCALE_ID, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, map, take } from 'rxjs';
@@ -7,10 +7,11 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { MessageModule } from 'primeng/message';
 import { SkeletonModule } from 'primeng/skeleton';
+import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TimelineModule } from 'primeng/timeline';
+import { ToastModule } from 'primeng/toast';
 
 import { formatApiError } from '../../../../core/http/api-error.format';
 import {
@@ -25,7 +26,7 @@ import { orderToUiOrder } from '../../models/order-ui.mapper';
 import { OrderActionFacade, type OrderTransitionAction } from '../../services/order-action.facade';
 import { OrderReasonDialogComponent } from '../../components/order-reason-dialog/order-reason-dialog.component';
 import { OrderStatus } from '../../models/order.entity';
-import type { UiOrder } from '../../models/order-ui.model';
+import type { UiOrder, UiOrderItem } from '../../models/order-ui.model';
 import { OrdersApiService } from '../../services/orders-api.service';
 
 @Component({
@@ -40,22 +41,27 @@ import { OrdersApiService } from '../../services/orders-api.service';
     TagModule,
     TimelineModule,
     SkeletonModule,
-    MessageModule
+    TableModule,
+    ToastModule
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './order-details-page.component.html'
 })
 export class OrderDetailsPageComponent {
+  /** Display currency for monetary fields (aligned with procurement UI). */
+  readonly currencyCode = 'EGP' as const;
+
   private readonly ordersApi = inject(OrdersApiService);
   private readonly orderActionFacade = inject(OrderActionFacade);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly locale = inject(LOCALE_ID);
 
   private readonly orderId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
-    { initialValue: '' }
+    { initialValue: this.route.snapshot.paramMap.get('id') ?? '' }
   );
 
   readonly loading = signal(true);
@@ -128,6 +134,11 @@ export class OrderDetailsPageComponent {
     this.executeAction(action);
   }
 
+  /** Outlined destructive actions (parity with purchase order reject/cancel). */
+  actionOutlined(action: OrderActionKey): boolean {
+    return action === 'cancel' || action === 'refuse';
+  }
+
   statusSeverity(status: string): 'success' | 'secondary' | 'info' | 'warn' | 'danger' {
     switch (status) {
       case 'COMPLETED':
@@ -144,6 +155,26 @@ export class OrderDetailsPageComponent {
     }
   }
 
+  lineTotal(item: UiOrderItem): number {
+    return item.price * item.quantity;
+  }
+
+  subtotal(o: UiOrder): number {
+    return o.items.reduce((acc, item) => acc + this.lineTotal(item), 0);
+  }
+
+  /** Medium date for schedule fields, or an em dash when missing or invalid. */
+  formatDateOrDash(value: string | null | undefined): string {
+    if (!value?.trim()) {
+      return '—';
+    }
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) {
+      return '—';
+    }
+    return formatDate(d, 'medium', this.locale);
+  }
+
   orderStatusLabel = orderStatusLabel;
   friendlyFullfillmentStatusLabel = friendlyFullfillmentStatusLabel;
   ORDER_ACTION_UI = ORDER_ACTION_UI;
@@ -151,7 +182,12 @@ export class OrderDetailsPageComponent {
 
   private loadOrder(): void {
     const id = this.orderId();
-    if (!id) return;
+    if (!id) {
+      this.loading.set(false);
+      this.error.set('Missing order id.');
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: this.error() });
+      return;
+    }
 
     this.loading.set(true);
     this.error.set('');
@@ -164,15 +200,19 @@ export class OrderDetailsPageComponent {
       .subscribe({
         next: (res) => {
           if (!res.isSuccess || !res.result) {
-            this.error.set(formatApiError(res.error));
+            const detail = formatApiError(res.error);
+            this.error.set(detail);
             this.order.set(null);
+            this.messageService.add({ severity: 'error', summary: 'Error', detail });
             return;
           }
           this.order.set(orderToUiOrder(res.result));
         },
         error: (err: unknown) => {
-          this.error.set(formatApiError(err));
+          const detail = formatApiError(err);
+          this.error.set(detail);
           this.order.set(null);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail });
         }
       });
   }

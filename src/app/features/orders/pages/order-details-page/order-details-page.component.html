@@ -1,19 +1,34 @@
+<p-toast />
 <p-confirmDialog />
 
 <section class="space-y-6">
-  <div class="flex items-start justify-between gap-3">
-    <p-button icon="pi pi-arrow-left" label="Back to Orders" [text]="true" (onClick)="backToList()" />
-    @if (order(); as order) {
-      <div class="flex items-center gap-2">
-        @if (canEditOrder(order)) {
-          <p-button icon="pi pi-pencil" label="Edit" severity="secondary" [outlined]="true" (onClick)="goToEdit()" />
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <p-button
+      icon="pi pi-arrow-left"
+      label="Back to orders"
+      [text]="true"
+      (onClick)="backToList()"
+    />
+    @if (order()) {
+      <div class="flex flex-wrap items-center gap-2 justify-end">
+        @if (canEditOrder(order()!)) {
+          <p-button
+            icon="pi pi-pencil"
+            label="Edit"
+            severity="secondary"
+            [outlined]="true"
+            [disabled]="actionSaving()"
+            (onClick)="goToEdit()"
+          />
         }
         @for (action of availableActions(); track action) {
           <p-button
             [label]="ORDER_ACTION_UI[action].label"
             [icon]="ORDER_ACTION_UI[action].icon"
             [severity]="ORDER_ACTION_UI[action].severity"
+            [outlined]="actionOutlined(action)"
             [loading]="actionSaving()"
+            [disabled]="actionSaving()"
             (onClick)="onAction(action)"
           />
         }
@@ -22,69 +37,189 @@
   </div>
 
   @if (loading()) {
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-      <p-skeleton height="16rem" />
-      <p-skeleton height="16rem" />
-      <p-skeleton height="16rem" />
+    <div class="space-y-5">
+      <p-card styleClass="border border-border">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div class="space-y-2 min-w-0 flex-1">
+            <p-skeleton height="2rem" width="min(280px, 100%)"></p-skeleton>
+            <p-skeleton height="1rem" width="min(360px, 100%)"></p-skeleton>
+          </div>
+          <p-skeleton height="2rem" width="5rem" borderRadius="9999px"></p-skeleton>
+        </div>
+      </p-card>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <p-card styleClass="border border-border lg:col-span-2">
+          <div class="space-y-3">
+            <p-skeleton height="1.25rem" width="30%"></p-skeleton>
+            <p-skeleton height="12rem" width="100%"></p-skeleton>
+          </div>
+        </p-card>
+        <p-card styleClass="border border-border">
+          <div class="space-y-3">
+            <p-skeleton height="1.25rem" width="40%"></p-skeleton>
+            <p-skeleton height="1rem" width="100%"></p-skeleton>
+            <p-skeleton height="1rem" width="100%"></p-skeleton>
+            <p-skeleton height="1rem" width="80%"></p-skeleton>
+            <p-skeleton height="2.5rem" width="100%" class="mt-4"></p-skeleton>
+          </div>
+        </p-card>
+      </div>
     </div>
   } @else if (error()) {
-    <p-message severity="error" [text]="error()" />
-    <p-button label="Retry" icon="pi pi-refresh" [outlined]="true" (onClick)="retry()" />
+    <p-card styleClass="border border-destructive/30">
+      <div class="flex flex-col gap-3">
+        <p class="text-sm text-destructive">{{ error() }}</p>
+        <p-button label="Retry" icon="pi pi-refresh" (onClick)="retry()" />
+      </div>
+    </p-card>
   } @else if (order(); as order) {
     <p-card styleClass="border border-border">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 class="text-2xl font-bold text-foreground">{{ order.orderNumber }}</h1>
-          <p class="text-sm text-muted-foreground">{{ order.orderDate | date:'medium' }}</p>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <p-tag [value]="orderStatusLabel(order.status)" [severity]="statusSeverity(orderStatusLabel(order.status))" />
-          <p-tag [value]="friendlyFullfillmentStatusLabel(order.fullfillmentStatus)" severity="secondary" />
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div class="min-w-0 space-y-1">
+          <div class="flex flex-wrap items-center gap-3">
+            <h1 class="text-2xl font-bold text-foreground truncate">{{ order.orderNumber }}</h1>
+            <p-tag
+              [value]="orderStatusLabel(order.status)"
+              [severity]="statusSeverity(orderStatusLabel(order.status))"
+              styleClass="px-2 py-1 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border shrink-0"
+            />
+            <p-tag
+              [value]="friendlyFullfillmentStatusLabel(order.fullfillmentStatus)"
+              severity="secondary"
+              styleClass="px-2 py-1 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border shrink-0"
+            />
+          </div>
+          <p class="text-sm text-muted-foreground">
+            @if (order.customerName.trim()) {
+              {{ order.customerName }}
+            } @else {
+              —
+            }
+            @if (order.orderDate) {
+              <span class="text-muted-foreground/80"> · </span>
+              {{ order.orderDate | date: 'medium' }}
+            }
+          </p>
         </div>
       </div>
     </p-card>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-      <p-card styleClass="border border-border lg:col-span-2" header="Line Items">
+      <p-card styleClass="border border-border lg:col-span-2" header="Line items">
         @if (order.items.length) {
-          <div class="space-y-3">
-            @for (item of order.items; track item.productId) {
-              <div class="flex items-center justify-between rounded-lg border border-border p-3">
-                <div>
-                  <div class="font-semibold text-foreground">{{ item.productName }}</div>
-                  <div class="text-xs text-muted-foreground">Qty: {{ item.quantity }}</div>
-                </div>
-                <div class="text-right">
-                  <div class="text-sm text-muted-foreground">{{ item.price | currency:'EGP':'symbol-narrow' }}</div>
-                  <div class="font-semibold text-foreground">
-                    {{ item.price * item.quantity | currency:'EGP':'symbol-narrow' }}
-                  </div>
-                </div>
-              </div>
-            }
+          <div class="rounded-xl border border-border/60 overflow-x-auto -mx-1">
+            <p-table
+              [value]="order.items"
+              styleClass="p-datatable-sm min-w-[640px]"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider w-12">#</th>
+                  <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Product</th>
+                  <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Qty</th>
+                  <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Unit price</th>
+                  <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Line total</th>
+                  <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Reference</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-row let-index="rowIndex">
+                <tr>
+                  <td class="px-3 py-2 text-sm tabular-nums text-muted-foreground">{{ index + 1 }}</td>
+                  <td class="px-3 py-2 text-sm font-medium text-foreground break-all">{{ row.productName }}</td>
+                  <td class="px-3 py-2 text-sm text-right tabular-nums">{{ row.quantity }}</td>
+                  <td class="px-3 py-2 text-sm text-right tabular-nums">
+                    {{ row.price | currency: currencyCode : 'symbol-narrow' }}
+                  </td>
+                  <td class="px-3 py-2 text-sm text-right tabular-nums font-medium">
+                    {{ lineTotal(row) | currency: currencyCode : 'symbol-narrow' }}
+                  </td>
+                  <td
+                    class="px-3 py-2 text-xs text-muted-foreground font-mono break-all max-w-[10rem]"
+                    [title]="row.productId"
+                  >
+                    {{ row.productId }}
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
           </div>
         } @else {
-          <p class="text-sm text-muted-foreground">No items found for this order.</p>
+          <p class="text-sm text-muted-foreground">No line items.</p>
         }
       </p-card>
 
-      <p-card styleClass="border border-border" header="Order Summary">
-        <div class="space-y-3 text-sm">
-          <div class="flex justify-between"><span class="text-muted-foreground">Customer</span><span>{{ order.customerName }}</span></div>
-          <div class="flex justify-between"><span class="text-muted-foreground">Items</span><span>{{ order.items.length }}</span></div>
-          <div class="flex justify-between"><span class="text-muted-foreground">Total</span><span class="font-bold">{{ order.totalAmount | currency:'EGP':'symbol-narrow' }}</span></div>
-          <div class="flex justify-between"><span class="text-muted-foreground">Created</span><span>{{ order.createdAt | date:'short' }}</span></div>
+      <p-card styleClass="border border-border h-fit lg:sticky lg:top-4" header="Summary">
+        <div class="flex flex-col gap-5 text-sm">
+          <div class="space-y-2">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Customer</div>
+            <div class="font-semibold text-foreground break-all">
+              @if (order.customerName.trim()) {
+                {{ order.customerName }}
+              } @else {
+                —
+              }
+            </div>
+            @if (order.customerId) {
+              <div class="text-xs text-muted-foreground">Id: {{ order.customerId }}</div>
+            }
+          </div>
+
+          <div class="border-t border-border/60 pt-4 space-y-2.5">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Schedule</div>
+            <div class="flex justify-between gap-3">
+              <span class="text-muted-foreground shrink-0">Order date</span>
+              <span class="text-right font-medium text-foreground">{{ formatDateOrDash(order.orderDate) }}</span>
+            </div>
+            <div class="flex justify-between gap-3">
+              <span class="text-muted-foreground shrink-0">Created</span>
+              <span class="text-right font-medium text-foreground">{{ formatDateOrDash(order.createdAt) }}</span>
+            </div>
+            @if (order.lastModifiedAt) {
+              <div class="flex justify-between gap-3">
+                <span class="text-muted-foreground shrink-0">Last modified</span>
+                <span class="text-right font-medium text-foreground">{{ formatDateOrDash(order.lastModifiedAt) }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="border-t border-border/60 pt-4 space-y-2">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Amounts</div>
+            <div class="flex justify-between gap-3">
+              <span class="text-muted-foreground">Subtotal</span>
+              <span class="tabular-nums text-foreground">{{ subtotal(order) | currency: currencyCode : 'symbol-narrow' }}</span>
+            </div>
+            <div class="flex justify-between gap-3 border-t border-border/60 pt-3 mt-1">
+              <span class="font-semibold text-foreground">Total</span>
+              <span class="font-bold tabular-nums text-foreground text-base">
+                {{ order.totalAmount | currency: currencyCode : 'symbol-narrow' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="border-t border-border/60 pt-4 space-y-1.5 text-xs text-muted-foreground">
+            <div class="text-[10px] font-bold uppercase tracking-wider">Reference</div>
+            <div class="break-all font-mono">
+              <span class="text-muted-foreground">Order id:</span>
+              {{ order.id }}
+            </div>
+            @if (order.customerId) {
+              <div class="break-all font-mono">
+                <span class="text-muted-foreground">Customer id:</span>
+                {{ order.customerId }}
+              </div>
+            }
+          </div>
         </div>
       </p-card>
     </div>
 
-    <p-card styleClass="border border-border" header="Status History">
+    <p-card styleClass="border border-border" header="Status history">
       @if (order.stateHistory.length) {
         <p-timeline [value]="order.stateHistory">
           <ng-template pTemplate="content" let-event>
             <div class="mb-4">
               <div class="font-medium text-foreground">{{ event.to }}</div>
-              <div class="text-xs text-muted-foreground">{{ event.timestamp | date:'short' }}</div>
+              <div class="text-xs text-muted-foreground">{{ event.timestamp | date: 'short' }}</div>
               @if (event.reason) {
                 <div class="text-xs text-muted-foreground mt-1">{{ event.reason }}</div>
               }
