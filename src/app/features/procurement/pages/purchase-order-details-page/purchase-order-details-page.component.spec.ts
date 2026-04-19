@@ -42,6 +42,15 @@ describe('PurchaseOrderDetailsPageComponent', () => {
         supplierProductCode: 'SKU-1',
         lineTotal: 200
       }
+    ],
+    stateHistory: [
+      { toState: PurchaseState.Draft, occurredAt: '2026-01-01T08:00:00.000Z' },
+      {
+        fromState: PurchaseState.Draft,
+        toState: PurchaseState.Submitted,
+        occurredAt: '2026-01-01T10:00:00.000Z',
+        reason: 'Ready for review'
+      }
     ]
   };
 
@@ -136,11 +145,21 @@ describe('PurchaseOrderDetailsPageComponent', () => {
     expect(text).toContain('Edit');
     expect(text).toContain('Submit');
     expect(text).toContain('Cancel');
+
+    expect(fixture.componentInstance.stateTimelineEvents()).toHaveLength(2);
+    expect(text).toContain('Status history');
+    expect(text).toContain(purchaseStateLabel(PurchaseState.Draft));
+    expect(text).toContain(purchaseStateLabel(PurchaseState.Submitted));
+    expect(text).toContain('Ready for review');
   });
 
   it('should show Reopen and Complete without Edit when order is Approved', async () => {
     TestBed.resetTestingModule();
-    const approvedPo: PurchaseOrder = { ...mockPo, state: PurchaseState.Approved };
+    const approvedPo: PurchaseOrder = {
+      ...mockPo,
+      state: PurchaseState.Approved,
+      stateHistory: []
+    };
     const getPurchaseOrder = vi.fn().mockReturnValue(
       of({ isSuccess: true as const, result: approvedPo })
     );
@@ -189,6 +208,47 @@ describe('PurchaseOrderDetailsPageComponent', () => {
     const router = TestBed.inject(Router);
     fixture.componentInstance.backToList();
     expect(router.navigate).toHaveBeenCalledWith(['/dashboard', 'procurement']);
+  });
+
+  it('should show empty state when stateHistory is absent', async () => {
+    TestBed.resetTestingModule();
+    const poNoHistory: PurchaseOrder = { ...mockPo };
+    delete (poNoHistory as { stateHistory?: unknown }).stateHistory;
+    const getPurchaseOrder = vi.fn().mockReturnValue(
+      of({ isSuccess: true as const, result: poNoHistory })
+    );
+
+    await TestBed.configureTestingModule({
+      imports: [PurchaseOrderDetailsPageComponent, NoopAnimationsModule],
+      providers: [
+        MessageService,
+        ConfirmationService,
+        { provide: PurchaseOrdersApiService, useValue: { getPurchaseOrder } },
+        {
+          provide: ProductsApiService,
+          useValue: {
+            getProduct: vi.fn().mockReturnValue(of({ isSuccess: false as const, result: undefined }))
+          }
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { paramMap: convertToParamMap({ id: 'po_1' }) },
+            paramMap: of(convertToParamMap({ id: 'po_1' }))
+          }
+        },
+        { provide: Router, useValue: { navigate: vi.fn().mockResolvedValue(true) } }
+      ]
+    }).compileComponents();
+
+    const noHistFixture = TestBed.createComponent(PurchaseOrderDetailsPageComponent);
+    noHistFixture.detectChanges();
+    await noHistFixture.whenStable();
+
+    expect((noHistFixture.nativeElement as HTMLElement).textContent).toContain(
+      'No transition history available.'
+    );
+    expect(noHistFixture.componentInstance.stateTimelineEvents()).toEqual([]);
   });
 
   it('should show no line items when purchaseOrderItems is empty', async () => {

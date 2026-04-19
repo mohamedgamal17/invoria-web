@@ -21,6 +21,18 @@ export interface PurchaseOrderSupplierRef {
   name: string;
 }
 
+/**
+ * One workflow step on a purchase order (`InvoriaProcurementContracts` history entry; camelCase JSON).
+ * `fromState` may be omitted for the initial transition (e.g. creation into Draft).
+ */
+export interface PurchaseOrderStateTransition {
+  fromState?: PurchaseState | null;
+  toState: PurchaseState;
+  /** ISO 8601 instant when the transition was recorded. */
+  occurredAt: string;
+  reason?: string | null;
+}
+
 /** `InvoriaProcurementContractsDtosPurchaseOrderDto` (camelCase JSON). */
 export interface PurchaseOrder extends Entity {
   purchaseNumber: string;
@@ -36,4 +48,6 @@ export interface PurchaseOrder extends Entity {
   totalAmount: number;
   /** Omitted or empty when list is fetched with `IncludePurchaseItems: false`. */
   purchaseOrderItems?: PurchaseOrderItem[];
+  /** Embedded state transition log when returned by the API. */
+  stateHistory?: PurchaseOrderStateTransition[];
 }

@@ -12,9 +12,10 @@ import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { TableModule } from 'primeng/table';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TimelineModule } from 'primeng/timeline';
 
 import { formatApiError } from '../../../../core/http/api-error.format';
-import type { PurchaseOrder, PurchaseOrderItem } from '../../models/purchase-order.entity';
+import type { PurchaseOrder, PurchaseOrderItem, PurchaseOrderStateTransition } from '../../models/purchase-order.entity';
 import {
   canEditPurchaseOrder,
   getPurchaseOrderTransitionActions,
@@ -25,6 +26,14 @@ import { purchaseStateLabel, purchaseStateSeverity } from '../../models/purchase
 import { PurchaseOrdersApiService } from '../../services/purchase-orders-api.service';
 import { ProductsApiService } from '../../../products/services/products-api.service';
 import type { ApiResponse } from '../../../../core/models/api-response';
+
+type PurchaseOrderStateTimelineRow = {
+  fromLabel: string;
+  toLabel: string;
+  severity: ReturnType<typeof purchaseStateSeverity>;
+  occurredAt: string;
+  reason?: string | null;
+};
 
 @Component({
   selector: 'app-purchase-order-details-page',
@@ -37,7 +46,8 @@ import type { ApiResponse } from '../../../../core/models/api-response';
     ToastModule,
     TagModule,
     TableModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    TimelineModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './purchase-order-details-page.component.html'
@@ -82,6 +92,25 @@ export class PurchaseOrderDetailsPageComponent {
   readonly canEdit = computed(() => {
     const po = this.purchaseOrder();
     return po ? canEditPurchaseOrder(po.state) : false;
+  });
+
+  /** Chronological state transitions (oldest first) for the timeline. */
+  readonly stateTimelineEvents = computed((): PurchaseOrderStateTimelineRow[] => {
+    const po = this.purchaseOrder();
+    const raw = po?.stateHistory;
+    if (!raw?.length) {
+      return [];
+    }
+    const sorted = [...raw].sort(
+      (a, b) => this.transitionInstantMs(a) - this.transitionInstantMs(b)
+    );
+    return sorted.map((e) => ({
+      fromLabel: e.fromState != null ? purchaseStateLabel(e.fromState) : '—',
+      toLabel: purchaseStateLabel(e.toState),
+      severity: purchaseStateSeverity(e.toState),
+      occurredAt: e.occurredAt,
+      reason: e.reason
+    }));
   });
 
   constructor() {
@@ -278,6 +307,11 @@ export class PurchaseOrderDetailsPageComponent {
           this.messageService.add({ severity: 'error', summary: 'Error', detail });
         }
       });
+  }
+
+  private transitionInstantMs(e: PurchaseOrderStateTransition): number {
+    const t = Date.parse(e.occurredAt);
+    return Number.isNaN(t) ? 0 : t;
   }
 
   private resolveProductNames(po: PurchaseOrder): void {
