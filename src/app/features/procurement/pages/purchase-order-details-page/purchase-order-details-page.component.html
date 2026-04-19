@@ -83,21 +83,28 @@
           <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
             <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total</div>
             <div class="mt-1 text-sm font-semibold text-foreground tabular-nums">
-              {{ po.totalAmount | currency: 'EGP' : 'symbol-narrow' }}
+              {{ po.totalAmount | currency: currencyCode : 'symbol-narrow' }}
             </div>
           </div>
 
           <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
             <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Subtotal</div>
             <div class="mt-1 text-sm font-semibold text-foreground tabular-nums">
-              {{ po.subTotal | currency: 'EGP' : 'symbol-narrow' }}
+              {{ po.subTotal | currency: currencyCode : 'symbol-narrow' }}
             </div>
           </div>
 
           <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Tax / Discount</div>
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Tax</div>
             <div class="mt-1 text-sm font-semibold text-foreground tabular-nums">
-              {{ po.taxAmount | currency: 'EGP' : 'symbol-narrow' }} / {{ po.discountAmount | currency: 'EGP' : 'symbol-narrow' }}
+              {{ po.taxAmount | currency: currencyCode : 'symbol-narrow' }}
+            </div>
+          </div>
+
+          <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Discount</div>
+            <div class="mt-1 text-sm font-semibold text-foreground tabular-nums">
+              {{ po.discountAmount | currency: currencyCode : 'symbol-narrow' }}
             </div>
           </div>
 
@@ -129,10 +136,10 @@
                 <ng-template pTemplate="body" let-row>
                   <tr>
                     <td class="px-3 py-2 text-sm break-all">{{ row.id }}</td>
-                    <td class="px-3 py-2 text-sm break-all">{{ row.productId }}</td>
+                    <td class="px-3 py-2 text-sm break-all">{{ productLineLabel(row) }}</td>
                     <td class="px-3 py-2 text-sm text-right tabular-nums">{{ row.quantity }}</td>
                     <td class="px-3 py-2 text-sm text-right tabular-nums">
-                      {{ row.unitPrice | currency: 'EGP' : 'symbol-narrow' }}
+                      {{ row.unitPrice | currency: currencyCode : 'symbol-narrow' }}
                     </td>
                     <td class="px-3 py-2 text-sm">
                       @if (row.supplierProductCode) {
@@ -142,7 +149,7 @@
                       }
                     </td>
                     <td class="px-3 py-2 text-sm text-right tabular-nums">
-                      {{ row.lineTotal | currency: 'EGP' : 'symbol-narrow' }}
+                      {{ row.lineTotal | currency: currencyCode : 'symbol-narrow' }}
                     </td>
                   </tr>
                 </ng-template>

@@ -8,6 +8,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 
 import { PurchaseOrderDetailsPageComponent } from './purchase-order-details-page.component';
 import { PurchaseOrdersApiService } from '../../services/purchase-orders-api.service';
+import { ProductsApiService } from '../../../products/services/products-api.service';
 import type { PurchaseOrder } from '../../models/purchase-order.entity';
 import { PurchaseState } from '../../enums/purchase-state.enum';
 import { purchaseStateLabel } from '../../models/purchase-state.display';
@@ -59,6 +60,25 @@ describe('PurchaseOrderDetailsPageComponent', () => {
       completePurchaseOrder: vi.fn(),
       reopenPurchaseOrder: vi.fn()
     };
+    const productsApiMock = {
+      getProduct: vi.fn().mockReturnValue(
+        of({
+          isSuccess: true as const,
+          result: {
+            id: 'prod_1',
+            name: 'Resolved product name',
+            code: 'CODE-1',
+            price: 100,
+            actualQuantity: 0,
+            reservedQuantity: 0,
+            createdAt: '',
+            createdBy: '',
+            lastModifiedAt: '',
+            lastModifiedBy: ''
+          }
+        })
+      )
+    };
 
     await TestBed.configureTestingModule({
       imports: [PurchaseOrderDetailsPageComponent, NoopAnimationsModule],
@@ -66,6 +86,7 @@ describe('PurchaseOrderDetailsPageComponent', () => {
         MessageService,
         ConfirmationService,
         { provide: PurchaseOrdersApiService, useValue: apiMock },
+        { provide: ProductsApiService, useValue: productsApiMock },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -95,6 +116,9 @@ describe('PurchaseOrderDetailsPageComponent', () => {
     expect(text).toContain(purchaseStateLabel(mockPo.state));
     expect(text).toContain(component.supplierLine(mockPo));
     expect(text).toContain(mockPo.id);
+    expect(text).toMatch(/Tax/i);
+    expect(text).toMatch(/Discount/i);
+    expect(text).not.toContain('Tax / Discount');
 
     const loaded = component.purchaseOrder();
     expect(loaded?.orderDate).toBe(mockPo.orderDate);
@@ -105,7 +129,7 @@ describe('PurchaseOrderDetailsPageComponent', () => {
 
     const firstLine = mockPo.purchaseOrderItems![0];
     expect(text).toContain(firstLine.id);
-    expect(text).toContain(firstLine.productId);
+    expect(text).toContain('Resolved product name');
     expect(text).toContain(String(firstLine.quantity));
     expect(text).toContain('SKU-1');
 
@@ -129,6 +153,9 @@ describe('PurchaseOrderDetailsPageComponent', () => {
       completePurchaseOrder: vi.fn(),
       reopenPurchaseOrder: vi.fn()
     };
+    const productsApiMock = {
+      getProduct: vi.fn().mockReturnValue(of({ isSuccess: false as const, result: undefined }))
+    };
 
     await TestBed.configureTestingModule({
       imports: [PurchaseOrderDetailsPageComponent, NoopAnimationsModule],
@@ -136,6 +163,7 @@ describe('PurchaseOrderDetailsPageComponent', () => {
         MessageService,
         ConfirmationService,
         { provide: PurchaseOrdersApiService, useValue: apiMock },
+        { provide: ProductsApiService, useValue: productsApiMock },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -175,6 +203,7 @@ describe('PurchaseOrderDetailsPageComponent', () => {
       providers: [
         MessageService,
         { provide: PurchaseOrdersApiService, useValue: { getPurchaseOrder } },
+        { provide: ProductsApiService, useValue: { getProduct: vi.fn() } },
         {
           provide: ActivatedRoute,
           useValue: {

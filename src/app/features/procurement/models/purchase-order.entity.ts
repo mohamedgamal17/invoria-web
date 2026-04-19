@@ -6,6 +6,8 @@ import type { PurchaseState } from '../enums/purchase-state.enum';
 export interface PurchaseOrderItem {
   id: string;
   productId: string;
+  /** When present on the DTO, shown as the product label without an extra catalog request. */
+  productName?: string | null;
   quantity: number;
   unitPrice: number;
   supplierProductCode?: string | null;
