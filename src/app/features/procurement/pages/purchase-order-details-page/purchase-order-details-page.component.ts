@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { CommonModule, formatDate } from '@angular/common';
+import { Component, computed, inject, LOCALE_ID, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, finalize, forkJoin, map, Observable, of, take } from 'rxjs';
@@ -53,6 +53,7 @@ export class PurchaseOrderDetailsPageComponent {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly locale = inject(LOCALE_ID);
 
   private readonly purchaseOrderId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
@@ -163,6 +164,24 @@ export class PurchaseOrderDetailsPageComponent {
       return name;
     }
     return po.supplierId;
+  }
+
+  /** Optional supplier code for display when the API includes it. */
+  supplierCodeLine(po: PurchaseOrder): string | null {
+    const code = po.supplier?.supplierCode?.trim();
+    return code ? code : null;
+  }
+
+  /** Medium date for schedule fields, or an em dash when missing or invalid. */
+  formatDateOrDash(value: string | null | undefined): string {
+    if (!value?.trim()) {
+      return '—';
+    }
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) {
+      return '—';
+    }
+    return formatDate(d, 'medium', this.locale);
   }
 
   /** Prefer API line `productName`, then catalog lookup, then `productId`. */

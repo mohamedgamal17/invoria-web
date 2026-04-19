@@ -233,4 +233,21 @@ describe('PurchaseOrderDetailsPageComponent', () => {
     const poNoSupplier: PurchaseOrder = { ...mockPo, supplier: null };
     expect(component.supplierLine(poNoSupplier)).toBe(mockPo.supplierId);
   });
+
+  it('formatDateOrDash should return an em dash for missing or invalid dates', () => {
+    const component = fixture.componentInstance;
+    expect(component.formatDateOrDash(null)).toBe('—');
+    expect(component.formatDateOrDash('')).toBe('—');
+    expect(component.formatDateOrDash('not-a-date')).toBe('—');
+  });
+
+  it('supplierCodeLine should trim and return supplier code when present', () => {
+    const component = fixture.componentInstance;
+    const po: PurchaseOrder = {
+      ...mockPo,
+      supplier: { id: 'sup_1', name: 'Acme', supplierCode: '  SUP-01  ' }
+    };
+    expect(component.supplierCodeLine(po)).toBe('SUP-01');
+    expect(component.supplierCodeLine({ ...mockPo, supplier: { id: 'sup_1', name: 'Acme' } })).toBeNull();
+  });
 });
