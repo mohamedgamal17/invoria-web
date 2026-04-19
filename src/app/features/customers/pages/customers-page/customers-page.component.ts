@@ -64,12 +64,24 @@ export class CustomersPageComponent {
     { initialValue: 10 }
   );
 
+  /** Name filter from `?q=` (trimmed; default empty). */
+  readonly qFromRoute = toSignal(
+    this.route.queryParamMap.pipe(
+      map((m) => {
+        const q = m.get('q')?.trim();
+        return q ? q : '';
+      })
+    ),
+    { initialValue: '' }
+  );
+
   /** 0-based page index derived from the URL. */
   readonly pageIndex = computed(() => Math.max(0, this.pageFromRoute() - 1));
 
   readonly listRequest = computed((): ListCustomerRequest => ({
     Skip: this.pageIndex() * this.pageSize(),
-    Length: this.pageSize()
+    Length: this.pageSize(),
+    Name: this.qFromRoute() || null
   }));
 
   readonly first = computed(() => this.pageIndex() * this.pageSize());
@@ -128,13 +140,26 @@ export class CustomersPageComponent {
       void this.router.navigate([], {
         relativeTo: this.route,
         queryParams: { page: newPageIndex + 1, pageSize: rows },
-        queryParamsHandling: 'merge',
+        queryParamsHandling: 'merge'
       });
 
       if (isManualPageChange) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
+  }
+
+  onNameFilterChange(q: string): void {
+    const normalized = q.trim();
+    if (normalized === this.qFromRoute()) {
+      return;
+    }
+
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { q: normalized || null, page: 1 },
+      queryParamsHandling: 'merge'
+    });
   }
 
   private customersLinkSource(): {

@@ -54,18 +54,21 @@ export class CustomersApiService {
   }
 
   /**
-   * Loads customers for orders autocomplete from GET /customers using `listRequest` only.
-   * Rows are returned as the API sends them (no client-side filtering). When OpenAPI adds
-   * search query params, extend {@link ListCustomerRequest} and pass `nameFilter` through
-   * here; until then the second argument is ignored for HTTP.
+   * Loads customers for orders autocomplete from GET /customers.
+   * Optional `nameFilter` is sent as the `Name` query param when non-empty.
    */
   searchCustomers(
     listRequest: ListCustomerRequest,
-    _nameFilter?: string
+    nameFilter?: string
   ): Observable<Customer[]> {
+    const trimmed = (nameFilter ?? '').trim();
+    const request: ListCustomerRequest = {
+      ...listRequest,
+      Name: trimmed ? trimmed : null
+    };
     return this.http
       .get<ApiResponse<Paging<Customer>>>(`${this.baseUrl}customers`, {
-        params: httpParamsFromRequest(listRequest)
+        params: httpParamsFromRequest(request)
       })
       .pipe(
         map((body) => {

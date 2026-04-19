@@ -1,9 +1,11 @@
 import type { PagingQueryRequest } from '../../../shared/requests/paging-query.request';
 
 /**
- * Query for GET /customers?Skip&Length.
+ * Query for GET /customers?Skip&Length&Name (optional name filter per API).
  */
-export interface ListCustomerRequest extends PagingQueryRequest {}
+export interface ListCustomerRequest extends PagingQueryRequest {
+  Name?: string | null;
+}
 
 /** Default paging for customer autocomplete on the orders dialog (first server page). */
 export const customerSearchListRequest: ListCustomerRequest = {

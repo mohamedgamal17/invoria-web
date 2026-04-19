@@ -30,7 +30,7 @@
       <p-button
         label="Clear Search"
         [link]="true"
-        (onClick)="dt.reset(); dt.filterGlobal('', 'contains')"
+        (onClick)="nameFilterChange.emit('')"
       />
     </div>
   }
@@ -51,7 +51,6 @@
 <!-- Desktop Table View -->
 <div class="hidden md:block rounded-xl border border-border bg-surface shadow-sm overflow-visible">
   <p-table
-    #dt
     [value]="customers()"
     dataKey="id"
     [lazy]="true"
@@ -64,7 +63,6 @@
     [loading]="isListLoading()"
     [showLoader]="false"
     [rowHover]="true"
-    [globalFilterFields]="['name']"
     [stripedRows]="true"
     styleClass="p-datatable-sm"
   >
@@ -75,7 +73,8 @@
           <input
             pInputText
             type="text"
-            (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+            [value]="nameFilter()"
+            (input)="nameFilterChange.emit($any($event.target).value)"
             placeholder="Search by name..."
             class="w-full rounded-lg border-border bg-surface-2 py-2 text-sm focus:ring-2 focus:ring-focus"
           />
@@ -138,7 +137,7 @@
             <p-button
               label="Clear Search"
               [link]="true"
-              (onClick)="dt.reset(); dt.filterGlobal('', 'contains')"
+              (onClick)="nameFilterChange.emit('')"
             />
           </div>
         </td>
