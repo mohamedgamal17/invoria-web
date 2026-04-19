@@ -42,6 +42,10 @@ describe('ProductListComponent', () => {
     fixture.detectChanges();
   });
 
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
@@ -95,5 +99,27 @@ describe('ProductListComponent', () => {
     fixture.componentRef.setInput('pageSize', 20);
     fixture.detectChanges();
     expect(component.skeletonRows.length).toBe(20);
+  });
+
+  it('should emit nameSearchChange debounced after typing', async () => {
+    vi.useFakeTimers();
+    const searchSpy = vi.spyOn(component.nameSearchChange, 'emit');
+
+    component.onNameSearchInput('widget');
+    expect(searchSpy).not.toHaveBeenCalled();
+
+    await vi.advanceTimersByTimeAsync(299);
+    expect(searchSpy).not.toHaveBeenCalled();
+
+    await vi.advanceTimersByTimeAsync(1);
+    expect(searchSpy).toHaveBeenCalledWith('widget');
+  });
+
+  it('should emit nameSearchChange immediately on clearNameSearch', () => {
+    const searchSpy = vi.spyOn(component.nameSearchChange, 'emit');
+
+    component.clearNameSearch();
+
+    expect(searchSpy).toHaveBeenCalledWith('');
   });
 });
