@@ -1,12 +1,10 @@
-import { Component, EventEmitter, Input, Output, computed, signal } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import {
   ClipboardList,
-  FileText,
   LayoutDashboard,
   LucideAngularModule,
   Package,
-  Settings,
   ShoppingBag,
   User,
   Users,
@@ -53,23 +51,16 @@ export class DashboardSidebarComponent {
     avatar: 'MG'
   };
 
-  readonly primary: NavItem[] = [
+  readonly navItems: NavItem[] = [
     { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { label: 'Inventory', path: '/dashboard/inventory', icon: Package },
     { label: 'Products', path: '/dashboard/products', icon: Package },
-    { label: 'Orders', path: '/dashboard/orders', icon: ShoppingBag }
-  ];
-
-  readonly secondary: NavItem[] = [
+    { label: 'Orders', path: '/dashboard/orders', icon: ShoppingBag },
     { label: 'Procurement', path: '/dashboard/procurement', icon: ClipboardList },
     { label: 'Suppliers', path: '/dashboard/suppliers', icon: Users },
-    { label: 'Customers', path: '/dashboard/customers', icon: User },
-    { label: 'Reports', path: '/dashboard/reports', icon: FileText },
-    { label: 'Settings', path: '/dashboard/settings', icon: Settings }
+    { label: 'Customers', path: '/dashboard/customers', icon: User }
   ];
 
   readonly logoutIcon = LogOut;
   readonly collapseIcon = ChevronLeft;
   readonly expandIcon = ChevronRight;
 }
-

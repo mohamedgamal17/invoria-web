@@ -20,12 +20,12 @@ export class RecentActivityComponent {
   readonly items: ActivityItem[] = [
     { id: 'a1', title: 'Order #1042 created', meta: '2 min ago • Sales' },
     { id: 'a2', title: 'Stock received for Item “SKU-AX21”', meta: '18 min ago • Inventory' },
-    { id: 'a3', title: 'Supplier invoice uploaded', meta: '1 hr ago • Suppliers' },
+    { id: 'a3', title: 'Customer record updated', meta: '1 hr ago • Customers' },
     { id: 'a4', title: 'Order #1038 shipped', meta: '3 hr ago • Logistics' }
   ];
 
-  goToReports(): void {
-    this.router.navigate(['/dashboard/reports']);
+  goToOrders(): void {
+    this.router.navigate(['/dashboard/orders']);
   }
 }
 
