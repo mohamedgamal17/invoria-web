@@ -73,13 +73,23 @@ export class ProductsPageComponent {
     { initialValue: 25 }
   );
 
+  /** Name filter from `?name=` (trimmed for API; empty means no filter). */
+  readonly nameSearch = toSignal(
+    this.route.queryParamMap.pipe(map((m) => (m.get('name') ?? '').trim())),
+    { initialValue: '' }
+  );
+
   /** 0-based page index derived from the URL. */
   readonly pageIndex = computed(() => Math.max(0, this.pageFromRoute() - 1));
 
-  readonly listRequest = computed((): ListProductRequest => ({
-    Skip: this.pageIndex() * this.pageSize(),
-    Length: this.pageSize()
-  }));
+  readonly listRequest = computed((): ListProductRequest => {
+    const name = this.nameSearch().trim();
+    return {
+      Skip: this.pageIndex() * this.pageSize(),
+      Length: this.pageSize(),
+      ...(name ? { Name: name } : {})
+    };
+  });
 
   readonly first = computed(() => this.pageIndex() * this.pageSize());
 
@@ -119,6 +129,18 @@ export class ProductsPageComponent {
 
   viewProduct(product: Product): void {
     void this.router.navigate([product.id], { relativeTo: this.route.parent });
+  }
+
+  onNameSearchChange(term: string): void {
+    const trimmed = term.trim();
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        name: trimmed || null,
+        page: 1
+      },
+      queryParamsHandling: 'merge'
+    });
   }
 
   onPageChange(event: PaginatorState | TablePageEvent): void {

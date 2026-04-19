@@ -1,5 +1,17 @@
 <!-- Mobile View (Cards) -->
 <div class="block md:hidden space-y-4">
+  <p-iconfield iconPosition="left" class="w-full">
+    <p-inputicon styleClass="pi pi-search" />
+    <input
+      pInputText
+      type="text"
+      [value]="nameDraft()"
+      (input)="onNameSearchInput($any($event.target).value)"
+      placeholder="Search by name..."
+      class="w-full rounded-lg border-border bg-surface-2 py-2 text-sm focus:ring-2 focus:ring-focus"
+    />
+  </p-iconfield>
+
   @if (isListLoading()) {
     @for (_ of skeletonRows; track _) {
       <div class="rounded-xl border border-border bg-surface p-4 shadow-sm">
@@ -71,7 +83,7 @@
         <p-button
           label="Clear Search"
           [link]="true"
-          (onClick)="dt.reset(); dt.filterGlobal('', 'contains')"
+          (onClick)="clearNameSearch()"
         />
     </div>
   }
@@ -98,7 +110,6 @@
 <!-- Desktop Table View -->
 <div class="hidden md:block rounded-xl border border-border bg-surface shadow-sm overflow-visible">
   <p-table
-    #dt
     [value]="products()"
     dataKey="id"
     [lazy]="true"
@@ -111,7 +122,6 @@
     [loading]="isListLoading()"
     [showLoader]="false"
     [rowHover]="true"
-    [globalFilterFields]="['name', 'code']"
     [stripedRows]="true"
     styleClass="p-datatable-sm"
   >
@@ -123,8 +133,9 @@
           <input
             pInputText
             type="text"
-            (input)="dt.filterGlobal($any($event.target).value, 'contains')"
-            placeholder="Search by name or code..."
+            [value]="nameDraft()"
+            (input)="onNameSearchInput($any($event.target).value)"
+            placeholder="Search by name..."
             class="w-full rounded-lg border-border bg-surface-2 py-2 text-sm focus:ring-2 focus:ring-focus"
           />
         </p-iconfield>
@@ -236,7 +247,7 @@
             <p-button
               label="Clear Search"
               [link]="true"
-              (onClick)="dt.reset(); dt.filterGlobal('', 'contains')"
+              (onClick)="clearNameSearch()"
             />
           </div>
         </td>

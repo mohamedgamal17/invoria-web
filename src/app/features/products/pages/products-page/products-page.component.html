@@ -10,7 +10,9 @@
     [pageSize]="pageSize()"
     [isListLoading]="productsResource.isLoading()"
     [pageSizeOptions]="pageSizeOptions"
+    [nameSearch]="nameSearch()"
     (viewProduct)="viewProduct($event)"
     (pageChange)="onPageChange($event)"
+    (nameSearchChange)="onNameSearchChange($event)"
   />
 </section>
