@@ -78,8 +78,10 @@ describe('PurchaseOrderDetailsPageComponent', () => {
             name: 'Resolved product name',
             code: 'CODE-1',
             price: 100,
-            actualQuantity: 0,
-            reservedQuantity: 0,
+            stock: {
+              actualQuantity: 0,
+              reservedQuantity: 0
+            },
             createdAt: '',
             createdBy: '',
             lastModifiedAt: '',

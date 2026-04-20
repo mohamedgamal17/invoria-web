@@ -10,8 +10,10 @@ describe('filterProductsByNameOrCode', () => {
       name: 'Alpha Widget',
       code: 'AW-1',
       price: 10,
-      actualQuantity: 0,
-      reservedQuantity: 0,
+      stock: {
+        actualQuantity: 0,
+        reservedQuantity: 0
+      },
       createdAt: ''
     },
     {
@@ -19,8 +21,10 @@ describe('filterProductsByNameOrCode', () => {
       name: 'Beta',
       code: 'ZZ-99',
       price: 5,
-      actualQuantity: 0,
-      reservedQuantity: 0,
+      stock: {
+        actualQuantity: 0,
+        reservedQuantity: 0
+      },
       createdAt: ''
     }
   ];

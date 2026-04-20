@@ -14,8 +14,10 @@ describe('ProductDialogComponent', () => {
     name: 'Product A',
     code: 'pr-1',
     price: 50,
-    actualQuantity: 10,
-    reservedQuantity: 2,
+    stock: {
+      actualQuantity: 10,
+      reservedQuantity: 2
+    },
     createdAt: new Date().toISOString(),
     createdBy: 'system',
     lastModifiedAt: new Date().toISOString(),
