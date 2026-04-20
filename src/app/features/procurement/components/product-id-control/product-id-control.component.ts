@@ -24,8 +24,10 @@ function productDisplayStub(id: string, name: string, code: string): Product {
     name,
     code,
     price: 0,
-    actualQuantity: 0,
-    reservedQuantity: 0,
+    stock: {
+      actualQuantity: 0,
+      reservedQuantity: 0
+    },
     createdAt: ''
   };
 }

@@ -48,8 +48,10 @@ const INITIAL_PRODUCTS: Product[] = Array.from({ length: 57 }, (_, i) => {
     name,
     code,
     price,
-    actualQuantity,
-    reservedQuantity,
+    stock: {
+      actualQuantity,
+      reservedQuantity
+    },
     ...audit
   };
 });
@@ -85,8 +87,10 @@ export class ProductsMockApiService {
     const created = {
       id: generateId(nowSeed),
       ...input,
-      actualQuantity: 0,
-      reservedQuantity: 0,
+      stock: {
+        actualQuantity: 0,
+        reservedQuantity: 0
+      },
       ...createAuditSnapshot(nowSeed)
     } satisfies Product;
 
