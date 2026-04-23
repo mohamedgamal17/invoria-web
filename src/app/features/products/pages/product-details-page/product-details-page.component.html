@@ -1,56 +1,78 @@
 <section class="space-y-6">
   <app-products-breadcrumb [items]="breadcrumbItems()" />
 
-  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-    <p-button
-      icon="pi pi-arrow-left"
-      label="Back to Products"
-      [text]="true"
-      (onClick)="backToList()"
-    />
+  <div class="flex flex-col gap-4 rounded-xl border border-border/70 bg-surface-0/80 p-4 sm:flex-row sm:items-center sm:justify-between">
+    <div class="space-y-1">
+      <p-button
+        icon="pi pi-arrow-left"
+        label="Back to Products"
+        [text]="true"
+        (onClick)="backToList()"
+      />
+      <p class="text-xs text-muted-foreground">View and manage product profile, stock, and lifecycle actions.</p>
+    </div>
     <div class="flex flex-wrap gap-2 justify-end">
       <p-button
         label="Manage Batches"
         icon="pi pi-box"
         severity="secondary"
         [outlined]="true"
-        [disabled]="loading() || !!error() || !product()"
+        [disabled]="actionsDisabled()"
         (onClick)="openBatches()"
       />
       <p-button
         label="Edit"
         icon="pi pi-pencil"
-        [disabled]="loading() || !!error() || !product()"
+        [disabled]="actionsDisabled()"
         (onClick)="goToEdit()"
       />
       <p-button
-        label="Delete"
+        [label]="deleting() ? 'Deleting...' : 'Delete'"
         icon="pi pi-trash"
         severity="danger"
         [outlined]="true"
-        [disabled]="loading() || !!error() || !product()"
+        [loading]="deleting()"
+        [disabled]="actionsDisabled()"
         (onClick)="deleteProduct()"
       />
     </div>
   </div>
 
   @if (loading()) {
-    <p-card styleClass="border border-border">
-      <div class="space-y-4">
-        <p-skeleton height="2rem" width="40%"></p-skeleton>
-        <p-skeleton height="1rem" width="100%"></p-skeleton>
-        <p-skeleton height="1rem" width="80%"></p-skeleton>
+    <p-card styleClass="border border-border/70">
+      <div class="space-y-6">
+        <div class="space-y-2">
+          <p-skeleton height="2rem" width="38%"></p-skeleton>
+          <p-skeleton height="1rem" width="22%"></p-skeleton>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4 space-y-2">
+            <p-skeleton height="0.75rem" width="35%"></p-skeleton>
+            <p-skeleton height="1.75rem" width="45%"></p-skeleton>
+          </div>
+          <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4 space-y-2">
+            <p-skeleton height="0.75rem" width="45%"></p-skeleton>
+            <p-skeleton height="1.75rem" width="50%"></p-skeleton>
+          </div>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <p-skeleton height="5rem" width="100%"></p-skeleton>
+          <p-skeleton height="5rem" width="100%"></p-skeleton>
+        </div>
       </div>
     </p-card>
   } @else if (error()) {
-    <p-card styleClass="border border-destructive/30">
-      <div class="flex flex-col gap-3">
-        <p class="text-sm text-destructive">{{ error() }}</p>
-        <p-button label="Retry" icon="pi pi-refresh" (onClick)="retry()" />
+    <p-card styleClass="border border-destructive/30 bg-destructive/5">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="space-y-1">
+          <p class="text-sm font-semibold text-destructive">Could not load product details.</p>
+          <p class="text-sm text-destructive/90">{{ error() }}</p>
+        </div>
+        <p-button label="Retry" icon="pi pi-refresh" [outlined]="true" (onClick)="retry()" />
       </div>
     </p-card>
   } @else if (product(); as p) {
-    <p-card styleClass="border border-border">
+    <p-card styleClass="border border-border/70">
       <div class="flex flex-col gap-6">
         <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div class="min-w-0 space-y-1">
@@ -78,6 +100,17 @@
             <div class="mt-1 text-xl font-black tabular-nums text-foreground">
               {{ p.stock.actualQuantity }} / {{ p.stock.reservedQuantity }}
             </div>
+          </div>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="rounded-xl border border-border/60 bg-surface-2/20 p-4 space-y-1">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Created</div>
+            <div class="text-sm text-foreground">{{ p.createdAt | date: 'medium' }}</div>
+          </div>
+          <div class="rounded-xl border border-border/60 bg-surface-2/20 p-4 space-y-1">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Last Modified</div>
+            <div class="text-sm text-foreground">{{ p.lastModifiedAt | date: 'medium' }}</div>
           </div>
         </div>
       </div>

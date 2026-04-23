@@ -88,6 +88,10 @@ export class ProductListComponent {
     this.searchAction$.next({ kind: 'clear' });
   }
 
+  formatQuantitySummary(actualQuantity: number, reservedQuantity: number): string {
+    return `Actual ${actualQuantity} / Reserved ${reservedQuantity}`;
+  }
+
   get skeletonRows(): number[] {
     return Array.from({ length: this.pageSize() }, (_, i) => i);
   }

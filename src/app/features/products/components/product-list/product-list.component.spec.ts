@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
 import { ProductListComponent } from './product-list.component';
 import type { Product } from '../../models/product.entity';
@@ -50,6 +50,14 @@ describe('ProductListComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should render enhanced actual/reserved quantity view in mobile and desktop', () => {
+    const quantityBadges = fixture.nativeElement.querySelectorAll('[aria-label="Actual 15 / Reserved 4"]');
+
+    expect(quantityBadges.length).toBe(2);
+    expect(fixture.nativeElement.textContent).toContain('Act');
+    expect(fixture.nativeElement.textContent).toContain('Res');
   });
 
   it('should emit viewProduct from row action buttons', () => {

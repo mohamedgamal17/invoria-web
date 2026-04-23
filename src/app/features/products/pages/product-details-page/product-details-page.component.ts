@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, map, take } from 'rxjs';
@@ -40,8 +40,13 @@ export class ProductDetailsPageComponent {
   );
 
   readonly loading = signal(true);
+  readonly deleting = signal(false);
   readonly error = signal('');
   readonly product = signal<Product | null>(null);
+  readonly hasProduct = computed(() => !!this.product());
+  readonly actionsDisabled = computed(
+    () => this.loading() || this.deleting() || !!this.error() || !this.hasProduct()
+  );
 
   readonly breadcrumbItems = computed(() => {
     const p = this.product();
@@ -53,7 +58,9 @@ export class ProductDetailsPageComponent {
   });
 
   constructor() {
-    this.loadProduct();
+    effect(() => {
+      this.loadProduct(this.productId());
+    });
   }
 
   backToList(): void {
@@ -70,7 +77,7 @@ export class ProductDetailsPageComponent {
 
   deleteProduct(): void {
     const p = this.product();
-    if (!p) {
+    if (!p || this.deleting()) {
       return;
     }
     this.confirmationService.confirm({
@@ -79,16 +86,20 @@ export class ProductDetailsPageComponent {
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => {
+        this.deleting.set(true);
         this.productsApi
           .deleteProduct(p.id)
-          .pipe(take(1))
+          .pipe(
+            take(1),
+            finalize(() => this.deleting.set(false))
+          )
           .subscribe({
             next: (res) => {
               if (!res.isSuccess) {
                 this.messageService.add({
                   severity: 'error',
                   summary: 'Error',
-                  detail: formatApiError(res.error)
+                  detail: `Could not delete product. ${formatApiError(res.error)}`
                 });
                 return;
               }
@@ -100,7 +111,11 @@ export class ProductDetailsPageComponent {
               void this.router.navigate(['/dashboard', 'products']);
             },
             error: (err: unknown) => {
-              this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(err) });
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: `Could not delete product. ${formatApiError(err)}`
+              });
             }
           });
       }
@@ -115,11 +130,13 @@ export class ProductDetailsPageComponent {
     const id = idParam ?? this.productId();
     if (!id) {
       this.loading.set(false);
-      this.error.set('Missing product id.');
+      this.product.set(null);
+      this.error.set('Product id is missing from the route.');
       return;
     }
     this.loading.set(true);
     this.error.set('');
+    this.product.set(null);
     this.productsApi
       .getProduct(id)
       .pipe(
@@ -129,13 +146,13 @@ export class ProductDetailsPageComponent {
       .subscribe({
         next: (res) => {
           if (!res.isSuccess || !res.result) {
-            this.error.set(formatApiError(res.error));
+            this.error.set(`Could not load product details. ${formatApiError(res.error)}`);
             return;
           }
           this.product.set(res.result);
         },
         error: (err: unknown) => {
-          this.error.set(formatApiError(err));
+          this.error.set(`Could not load product details. ${formatApiError(err)}`);
         }
       });
   }
