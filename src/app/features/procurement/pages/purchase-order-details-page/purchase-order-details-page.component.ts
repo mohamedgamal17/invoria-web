@@ -31,7 +31,7 @@ type PurchaseOrderStateTimelineRow = {
   fromLabel: string;
   toLabel: string;
   severity: ReturnType<typeof purchaseStateSeverity>;
-  occurredAt: string;
+  changedAt: string;
   reason?: string | null;
 };
 
@@ -104,13 +104,13 @@ export class PurchaseOrderDetailsPageComponent {
     const sorted = [...raw].sort(
       (a, b) => this.transitionInstantMs(a) - this.transitionInstantMs(b)
     );
-    return sorted.map((e) => ({
-      fromLabel: e.fromState != null ? purchaseStateLabel(e.fromState) : '—',
-      toLabel: purchaseStateLabel(e.toState),
-      severity: purchaseStateSeverity(e.toState),
-      occurredAt: e.occurredAt,
-      reason: e.reason
-    }));
+    return sorted.map((entry) => ({
+        fromLabel: entry?.fromState != null ? purchaseStateLabel(entry.fromState) : '—',
+        toLabel: purchaseStateLabel(entry.toState),
+        severity: purchaseStateSeverity(entry.toState),
+        changedAt: entry.changedAt,
+        reason: entry.reason
+      }));
   });
 
   constructor() {
@@ -310,7 +310,7 @@ export class PurchaseOrderDetailsPageComponent {
   }
 
   private transitionInstantMs(e: PurchaseOrderStateTransition): number {
-    const t = Date.parse(e.occurredAt);
+    const t = Date.parse(e.changedAt);
     return Number.isNaN(t) ? 0 : t;
   }
 

@@ -29,7 +29,7 @@ export interface PurchaseOrderStateTransition {
   fromState?: PurchaseState | null;
   toState: PurchaseState;
   /** ISO 8601 instant when the transition was recorded. */
-  occurredAt: string;
+  changedAt: string;
   reason?: string | null;
 }
 

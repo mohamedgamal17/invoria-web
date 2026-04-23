@@ -229,7 +229,7 @@
                 <span class="font-semibold text-foreground">{{ event.toLabel }}</span>
               </div>
               <div class="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-                <span>{{ event.occurredAt | date: 'medium' }}</span>
+                <span>{{ event.changedAt | date: 'medium' }}</span>
               </div>
               @if (event.reason?.trim()) {
                 <div

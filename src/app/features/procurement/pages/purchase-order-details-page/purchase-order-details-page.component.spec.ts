@@ -44,11 +44,11 @@ describe('PurchaseOrderDetailsPageComponent', () => {
       }
     ],
     stateHistory: [
-      { toState: PurchaseState.Draft, occurredAt: '2026-01-01T08:00:00.000Z' },
+      { toState: PurchaseState.Draft, changedAt: '2026-01-01T08:00:00.000Z' },
       {
         fromState: PurchaseState.Draft,
         toState: PurchaseState.Submitted,
-        occurredAt: '2026-01-01T10:00:00.000Z',
+        changedAt: '2026-01-01T10:00:00.000Z',
         reason: 'Ready for review'
       }
     ]
