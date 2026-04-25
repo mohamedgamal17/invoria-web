@@ -104,6 +104,62 @@
       </div>
     </p-card>
 
+    @if (isFailedOrder()) {
+      <p-card styleClass="border border-border/60 bg-destructive/5" header="Order failed">
+        @if (failureDetails().length) {
+          <div class="space-y-3">
+            <p class="text-sm text-muted-foreground">
+              This order could not be completed because some items could not be fulfilled.
+            </p>
+
+            <div class="rounded-xl border border-border/60 overflow-x-auto -mx-1">
+              <p-table [value]="failureDetails()" styleClass="p-datatable-sm min-w-[720px]">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Item</th>
+                    <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Message</th>
+                    <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Requested</th>
+                    <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Available</th>
+                    <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Shortage</th>
+                    <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Reference</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-row>
+                  <tr>
+                    <td class="px-3 py-2 text-sm font-medium text-foreground break-all">
+                      {{ row.itemDisplayName }}
+                    </td>
+                    <td class="px-3 py-2 text-sm text-muted-foreground break-all">
+                      @if (row.quantityAvailable === 0) {
+                        No stock available — requested {{ row.quantityRequested }} (shortage {{ row.shortage }}).
+                      } @else if (row.shortage > 0) {
+                        Requested {{ row.quantityRequested }}, available {{ row.quantityAvailable }} (shortage {{ row.shortage }}).
+                      } @else {
+                        Requested {{ row.quantityRequested }}, available {{ row.quantityAvailable }}.
+                      }
+                    </td>
+                    <td class="px-3 py-2 text-sm text-right tabular-nums">{{ row.quantityRequested }}</td>
+                    <td class="px-3 py-2 text-sm text-right tabular-nums">{{ row.quantityAvailable }}</td>
+                    <td class="px-3 py-2 text-sm text-right tabular-nums font-semibold text-destructive">
+                      {{ row.shortage }}
+                    </td>
+                    <td
+                      class="px-3 py-2 text-xs text-muted-foreground font-mono break-all max-w-[12rem]"
+                      [title]="row.itemId"
+                    >
+                      {{ row.itemId }}
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </div>
+        } @else {
+          <p class="text-sm text-muted-foreground">No failure details are available for this order.</p>
+        }
+      </p-card>
+    }
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
       <p-card styleClass="border border-border lg:col-span-2" header="Line items">
         @if (order.items.length) {

@@ -1,0 +1,5391 @@
+{
+  "x-generator": "NSwag v14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))",
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Invoria API",
+    "description": "HTTP API for the Invoria modular backend. The host wires Catalog, CustomerManagement, Ordering, Inventory, and Procurement. Successful and failed responses are wrapped in a JSON envelope: on success, isSuccess is true and the payload is in result; on failure, isSuccess is false and problem details are in error (RFC 7807-style fields plus optional errorCode and field errors for validation).",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "https://localhost:7012"
+    }
+  ],
+  "paths": {
+    "/products": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Create product",
+        "description": "Creates a new catalog product.",
+        "operationId": "CreateProductEndpoint",
+        "requestBody": {
+          "x-name": "CreateProductRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoriaCatalogEndpointsProductsRequestsCreateProductRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the created product.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfProductDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "List products",
+        "description": "Returns a paged list of catalog products with optional name filtering.",
+        "operationId": "ListProductsEndpoint",
+        "parameters": [
+          {
+            "name": "Name",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Length",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns paged product data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfProductDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/{id}": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Get product by id",
+        "description": "Returns a single product by its identifier.",
+        "operationId": "GetProductByIdEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the product DTO.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfProductDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Update product",
+        "description": "Updates an existing product by identifier.",
+        "operationId": "UpdateProductEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "UpdateProductRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoriaCatalogEndpointsProductsRequestsUpdateProductRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated product.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfProductDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customers": {
+      "post": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Create customer",
+        "description": "Registers a new customer.",
+        "operationId": "CreateCustomerEndpoint",
+        "requestBody": {
+          "x-name": "CreateCustomerRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoriaCustomerManagementEndpointsCustomersRequestsCreateCustomerRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the created customer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfCustomerDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "List customers",
+        "description": "Returns a paged list of customers.",
+        "operationId": "ListCustomersEndpoint",
+        "parameters": [
+          {
+            "name": "Name",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Length",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns paged customer data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfCustomerDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customers/{id}": {
+      "get": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Get customer by id",
+        "description": "Returns a customer by identifier.",
+        "operationId": "GetCustomerByIdEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the customer DTO.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfCustomerDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Update customer",
+        "description": "Updates customer name by identifier.",
+        "operationId": "UpdateCustomerEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "UpdateCustomerRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoriaCustomerManagementEndpointsCustomersRequestsUpdateCustomerRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated customer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfCustomerDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/batches": {
+      "post": {
+        "tags": [
+          "Batches"
+        ],
+        "summary": "Create batch",
+        "description": "Creates a new inventory batch for a product.",
+        "operationId": "CreateBatchEndpoint",
+        "requestBody": {
+          "x-name": "CreateBatchRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoriaInventoryEndpointsBatchesRequestsCreateBatchRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the created batch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfBatchDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Batches"
+        ],
+        "summary": "List batches",
+        "description": "Returns a paged list of batches, optionally filtered by product and state.",
+        "operationId": "ListBatchesEndpoint",
+        "parameters": [
+          {
+            "name": "ProductId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "State",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/InvoriaInventoryDomainBatchesBatchState"
+                }
+              ]
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Length",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns paged batch data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfBatchDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/batches/{id}": {
+      "get": {
+        "tags": [
+          "Batches"
+        ],
+        "summary": "Get batch by id",
+        "description": "Returns a single batch by identifier.",
+        "operationId": "GetBatchByIdEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the batch DTO.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfBatchDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Batches"
+        ],
+        "summary": "Update batch",
+        "description": "Updates quantity and purchase price for an existing batch.",
+        "operationId": "UpdateBatchEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "UpdateBatchRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoriaInventoryEndpointsBatchesRequestsUpdateBatchRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated batch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfBatchDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{id}/accept": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Accept order",
+        "description": "Transitions the order to accepted when business rules allow.",
+        "operationId": "AcceptOrderEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfOrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{id}/cancel": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Cancel order",
+        "description": "Cancels the order when allowed by its current state.",
+        "operationId": "CancelOrderEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfOrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{id}/complete": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Complete order",
+        "description": "Marks the order as completed when allowed.",
+        "operationId": "CompleteOrderEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfOrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Create order",
+        "description": "Creates a new sales order for a customer with line items.",
+        "operationId": "CreateOrderEndpoint",
+        "requestBody": {
+          "x-name": "CreateOrderRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoriaOrderingEndpointsOrdersRequestsCreateOrderRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the created order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfOrderDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "List orders",
+        "description": "Returns a paged list of orders with optional filters.",
+        "operationId": "ListOrdersEndpoint",
+        "parameters": [
+          {
+            "name": "OrderNumber",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "IncludeOrderItems",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Length",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns paged order data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfOrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{id}/dispatch": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Dispatch order",
+        "description": "Transitions the order to dispatched for fulfillment.",
+        "operationId": "DispatchOrderEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfOrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{id}": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Get order by id",
+        "description": "Returns a single order by identifier, optionally with items per query.",
+        "operationId": "GetOrderByIdEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the order DTO.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfOrderDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Update order line items",
+        "description": "Replaces order line items for an existing order.",
+        "operationId": "UpdateOrderItemsEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "UpdateOrderItemsRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoriaOrderingEndpointsOrdersRequestsUpdateOrderItemsRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfOrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{id}/refuse": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Refuse order",
+        "description": "Refuses the order when allowed by workflow rules.",
+        "operationId": "RefuseOrderEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfOrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{id}/reopen": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Reopen order",
+        "description": "Reopens the order from a terminal or closed state when allowed.",
+        "operationId": "ReopenOrderEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfOrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchase-orders/{id}/approve": {
+      "post": {
+        "tags": [
+          "PurchaseOrders"
+        ],
+        "summary": "Approve purchase order",
+        "description": "Approves the purchase order when workflow rules allow.",
+        "operationId": "ApprovePurchaseOrderEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated purchase order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPurchaseOrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchase-orders/{id}/cancel": {
+      "post": {
+        "tags": [
+          "PurchaseOrders"
+        ],
+        "summary": "Cancel purchase order",
+        "description": "Cancels the purchase order when allowed.",
+        "operationId": "CancelPurchaseOrderEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated purchase order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPurchaseOrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchase-orders/{id}/complete": {
+      "post": {
+        "tags": [
+          "PurchaseOrders"
+        ],
+        "summary": "Complete purchase order",
+        "description": "Marks the purchase order as completed when allowed.",
+        "operationId": "CompletePurchaseOrderEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated purchase order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPurchaseOrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchase-orders": {
+      "post": {
+        "tags": [
+          "PurchaseOrders"
+        ],
+        "summary": "Create purchase order",
+        "description": "Creates a new purchase order for a supplier with line items and amounts.",
+        "operationId": "CreatePurchaseOrderEndpoint",
+        "requestBody": {
+          "x-name": "CreatePurchaseOrderRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoriaProcurementEndpointsPurchaseOrdersRequestsCreatePurchaseOrderRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the created purchase order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPurchaseOrderDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "PurchaseOrders"
+        ],
+        "summary": "List purchase orders",
+        "description": "Returns a paged list of purchase orders with optional includes.",
+        "operationId": "ListPurchaseOrdersEndpoint",
+        "parameters": [
+          {
+            "name": "Number",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "IncludePurchaseItems",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "IncludeSupplier",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Length",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns paged purchase order data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfPurchaseOrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchase-orders/{id}": {
+      "get": {
+        "tags": [
+          "PurchaseOrders"
+        ],
+        "summary": "Get purchase order by id",
+        "description": "Returns a purchase order by identifier.",
+        "operationId": "GetPurchaseOrderByIdEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the purchase order DTO.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPurchaseOrderDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "PurchaseOrders"
+        ],
+        "summary": "Update purchase order",
+        "description": "Updates purchase order header and line items when allowed (Draft/Reopened).",
+        "operationId": "UpdatePurchaseOrderEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "UpdatePurchaseOrderRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoriaProcurementEndpointsPurchaseOrdersRequestsUpdatePurchaseOrderRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated purchase order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPurchaseOrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchase-orders/{id}/reject": {
+      "post": {
+        "tags": [
+          "PurchaseOrders"
+        ],
+        "summary": "Reject purchase order",
+        "description": "Rejects the purchase order when allowed.",
+        "operationId": "RejectPurchaseOrderEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated purchase order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPurchaseOrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchase-orders/{id}/reopen": {
+      "post": {
+        "tags": [
+          "PurchaseOrders"
+        ],
+        "summary": "Reopen purchase order",
+        "description": "Reopens the purchase order from a closed state when allowed.",
+        "operationId": "ReopenPurchaseOrderEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated purchase order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPurchaseOrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchase-orders/{id}/submit": {
+      "post": {
+        "tags": [
+          "PurchaseOrders"
+        ],
+        "summary": "Submit purchase order",
+        "description": "Submits the purchase order for approval when allowed.",
+        "operationId": "SubmitPurchaseOrderEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated purchase order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPurchaseOrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/suppliers": {
+      "post": {
+        "tags": [
+          "Suppliers"
+        ],
+        "summary": "Create supplier",
+        "description": "Registers a new procurement supplier.",
+        "operationId": "CreateSupplierEndpoint",
+        "requestBody": {
+          "x-name": "CreateSupplierRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoriaProcurementEndpointsPartiesRequestsCreateSupplierRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the created supplier.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfSupplierDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Suppliers"
+        ],
+        "summary": "List suppliers",
+        "description": "Returns a paged list of suppliers with optional name or code filters.",
+        "operationId": "ListSuppliersEndpoint",
+        "parameters": [
+          {
+            "name": "Name",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "Code",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Length",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns paged supplier data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfSupplierDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/suppliers/{id}": {
+      "get": {
+        "tags": [
+          "Suppliers"
+        ],
+        "summary": "Get supplier by id",
+        "description": "Returns a supplier by identifier.",
+        "operationId": "GetSupplierByIdEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the supplier DTO.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfSupplierDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Suppliers"
+        ],
+        "summary": "Update supplier",
+        "description": "Updates supplier details by identifier.",
+        "operationId": "UpdateSupplierEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "UpdateSupplierRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoriaProcurementEndpointsPartiesRequestsUpdateSupplierRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated supplier.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfSupplierDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "FastEndpointsProblemDetails": {
+        "type": "object",
+        "description": "RFC7807 compatible problem details/ error response class. this can be used by configuring startup like so:\napp.UseFastEndpoints(c => c.Errors.UseProblemDetails())",
+        "additionalProperties": false,
+        "properties": {
+          "Type": {
+            "type": "string",
+            "default": "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1"
+          },
+          "Title": {
+            "type": "string",
+            "default": "One or more validation errors occurred."
+          },
+          "Status": {
+            "type": "integer",
+            "format": "int32",
+            "default": 400
+          },
+          "Instance": {
+            "type": "string",
+            "default": "/api/route"
+          },
+          "TraceId": {
+            "type": "string",
+            "default": "0HMPNHL0JHL76:00000001"
+          },
+          "Detail": {
+            "type": "string",
+            "description": "the details of the error",
+            "nullable": true
+          },
+          "Errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FastEndpointsProblemDetails_Error"
+            }
+          }
+        }
+      },
+      "FastEndpointsProblemDetails_Error": {
+        "type": "object",
+        "description": "the error details object",
+        "additionalProperties": false,
+        "properties": {
+          "Name": {
+            "type": "string",
+            "description": "the name of the error or property of the dto that caused the error",
+            "default": "Error or field name"
+          },
+          "Reason": {
+            "type": "string",
+            "description": "the reason for the error",
+            "default": "Error reason"
+          },
+          "Code": {
+            "type": "string",
+            "description": "the code of the error",
+            "nullable": true
+          },
+          "Severity": {
+            "type": "string",
+            "description": "the severity of the error",
+            "nullable": true
+          }
+        }
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfProductDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaCatalogContractsDtosProductDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Type": {
+            "type": "string"
+          },
+          "Title": {
+            "type": "string"
+          },
+          "Status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "Instance": {
+            "type": "string",
+            "nullable": true
+          },
+          "CorrelationId": {
+            "type": "string",
+            "nullable": true
+          },
+          "ErrorCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "ErrorKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "Errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "InvoriaCatalogContractsDtosProductDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CreatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "CreatedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "LastModifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "LastModifiedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "Id": {
+            "type": "string"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "Code": {
+            "type": "string",
+            "nullable": true
+          },
+          "Price": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "Stock": {
+            "$ref": "#/components/schemas/InvoriaInventoryContractsDtosStockDto"
+          }
+        }
+      },
+      "InvoriaInventoryContractsDtosStockDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ActualQuantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ReservedQuantity": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "InvoriaCatalogEndpointsProductsRequestsCreateProductRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Name": {
+            "type": "string"
+          },
+          "Code": {
+            "type": "string",
+            "nullable": true
+          },
+          "Price": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "InvoriaCatalogEndpointsProductsRequestsGetProductByIdRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfProductDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingDtoOfProductDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaBuildingBlocksDomainDtosPagingDtoOfProductDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaCatalogContractsDtosProductDto"
+            }
+          },
+          "Info": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingInfoDto"
+          }
+        }
+      },
+      "InvoriaBuildingBlocksDomainDtosPagingInfoDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Length": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Skip": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "TotalCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "InvoriaCatalogEndpointsProductsRequestsListProductsRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaCatalogEndpointsProductsRequestsUpdateProductRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Name": {
+            "type": "string"
+          },
+          "Code": {
+            "type": "string",
+            "nullable": true
+          },
+          "Price": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfCustomerDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaCustomerManagementContractsDtosCustomerDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaCustomerManagementContractsDtosCustomerDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CreatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "CreatedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "LastModifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "LastModifiedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "Id": {
+            "type": "string"
+          },
+          "Name": {
+            "type": "string"
+          }
+        }
+      },
+      "InvoriaCustomerManagementEndpointsCustomersRequestsCreateCustomerRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Name": {
+            "type": "string"
+          }
+        }
+      },
+      "InvoriaCustomerManagementEndpointsCustomersRequestsGetCustomerByIdRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfCustomerDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingDtoOfCustomerDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaBuildingBlocksDomainDtosPagingDtoOfCustomerDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaCustomerManagementContractsDtosCustomerDto"
+            }
+          },
+          "Info": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingInfoDto"
+          }
+        }
+      },
+      "InvoriaCustomerManagementEndpointsCustomersRequestsListCustomersRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaCustomerManagementEndpointsCustomersRequestsUpdateCustomerRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Name": {
+            "type": "string"
+          }
+        }
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfBatchDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaInventoryContractsDtosBatchDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaInventoryContractsDtosBatchDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CreatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "CreatedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "LastModifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "LastModifiedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "Id": {
+            "type": "string"
+          },
+          "ProductId": {
+            "type": "string"
+          },
+          "PurchaseOrderItemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "Quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ReservedQuantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "PurchasePrice": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "InvoriaInventoryEndpointsBatchesRequestsCreateBatchRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ProductId": {
+            "type": "string"
+          },
+          "Quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "PurchasePrice": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "InvoriaInventoryEndpointsBatchesRequestsGetBatchByIdRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfBatchDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingDtoOfBatchDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaBuildingBlocksDomainDtosPagingDtoOfBatchDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaInventoryContractsDtosBatchDto"
+            }
+          },
+          "Info": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingInfoDto"
+          }
+        }
+      },
+      "InvoriaInventoryEndpointsBatchesRequestsListBatchesRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaInventoryDomainBatchesBatchState": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Active",
+          "Depleted",
+          "Disabled"
+        ],
+        "enum": [
+          10,
+          20,
+          30
+        ]
+      },
+      "InvoriaInventoryEndpointsBatchesRequestsUpdateBatchRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "PurchasePrice": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfOrderDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaOrderingContractsDtosOrderDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaOrderingContractsDtosOrderDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CreatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "CreatedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "LastModifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "LastModifiedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "Id": {
+            "type": "string"
+          },
+          "OrderNumber": {
+            "type": "string"
+          },
+          "CustomerId": {
+            "type": "string"
+          },
+          "Customer": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaCustomerManagementContractsDtosCustomerDto"
+              }
+            ]
+          },
+          "Status": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderStatus"
+          },
+          "FullfillmentStatus": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersFullfillmentStatus"
+          },
+          "Items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaOrderingContractsDtosOrderItemDto"
+            }
+          },
+          "FailureDetails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaOrderingContractsDtosOrderFailureDetailsDto"
+            }
+          },
+          "StateTransitionHistory": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaOrderingContractsDtosOrderStateTransitionHistoryDto"
+            }
+          }
+        }
+      },
+      "InvoriaOrderingContractsOrdersOrderStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Pending",
+          "Accepted",
+          "Completed",
+          "Cancelled",
+          "Reopened",
+          "Refused"
+        ],
+        "enum": [
+          5,
+          10,
+          15,
+          20,
+          25,
+          30
+        ]
+      },
+      "InvoriaOrderingContractsOrdersFullfillmentStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Pending",
+          "Allocating",
+          "Allocated",
+          "OnHold",
+          "Releasing",
+          "Dispatched",
+          "Cancelled"
+        ],
+        "enum": [
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35
+        ]
+      },
+      "InvoriaOrderingContractsDtosOrderItemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ProductId": {
+            "type": "string"
+          },
+          "Quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Price": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "Product": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaCatalogContractsDtosProductDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaOrderingContractsDtosOrderFailureDetailsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CreatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "CreatedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "LastModifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "LastModifiedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "Id": {
+            "type": "string"
+          },
+          "ItemId": {
+            "type": "string"
+          },
+          "ItemName": {
+            "type": "string",
+            "nullable": true
+          },
+          "QuantityRequested": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "QuantityAvailable": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Shortage": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "InvoriaOrderingContractsDtosOrderStateTransitionHistoryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "FromStatus": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderStatus"
+          },
+          "ToStatus": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderStatus"
+          },
+          "FromFullfillmentStatus": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersFullfillmentStatus"
+          },
+          "ToFullfillmentStatus": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersFullfillmentStatus"
+          },
+          "ChangedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "Reason": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "InvoriaOrderingEndpointsOrdersRequestsAcceptOrderRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaOrderingEndpointsOrdersRequestsCancelOrderRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaOrderingEndpointsOrdersRequestsCompleteOrderRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaOrderingEndpointsOrdersRequestsCreateOrderRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CustomerId": {
+            "type": "string"
+          },
+          "Items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaOrderingEndpointsOrdersRequestsCreateOrderLineItemRequest"
+            }
+          }
+        }
+      },
+      "InvoriaOrderingEndpointsOrdersRequestsCreateOrderLineItemRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ProductId": {
+            "type": "string"
+          },
+          "Quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Price": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "InvoriaOrderingEndpointsOrdersRequestsDispatchOrderRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaOrderingEndpointsOrdersRequestsGetOrderByIdRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfOrderDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingDtoOfOrderDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaBuildingBlocksDomainDtosPagingDtoOfOrderDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaOrderingContractsDtosOrderDto"
+            }
+          },
+          "Info": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingInfoDto"
+          }
+        }
+      },
+      "InvoriaOrderingEndpointsOrdersRequestsListOrdersRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaOrderingEndpointsOrdersRequestsRefuseOrderRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaOrderingEndpointsOrdersRequestsReopenOrderRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaOrderingEndpointsOrdersRequestsUpdateOrderItemsRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaOrderingEndpointsOrdersRequestsCreateOrderLineItemRequest"
+            }
+          }
+        }
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPurchaseOrderDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaProcurementContractsDtosPurchaseOrderDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaProcurementContractsDtosPurchaseOrderDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CreatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "CreatedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "LastModifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "LastModifiedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "Id": {
+            "type": "string"
+          },
+          "PurchaseNumber": {
+            "type": "string"
+          },
+          "SupplierId": {
+            "type": "string"
+          },
+          "Supplier": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaProcurementContractsDtosPurchaseOrderSupplierSummaryDto"
+              }
+            ]
+          },
+          "State": {
+            "$ref": "#/components/schemas/InvoriaProcurementContractsPurchaseOrdersPurchaseState"
+          },
+          "OrderDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "ExpectedDeliveryDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "CompletedDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "SubTotal": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "TaxAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "DiscountAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "TotalAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "StateHistory": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaProcurementContractsDtosPurchaseOrderStateHistoryDto"
+            }
+          },
+          "PurchaseOrderItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaProcurementContractsDtosPurchaseOrderItemDto"
+            }
+          }
+        }
+      },
+      "InvoriaProcurementContractsDtosPurchaseOrderSupplierSummaryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CreatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "CreatedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "LastModifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "LastModifiedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "Id": {
+            "type": "string"
+          },
+          "SupplierCode": {
+            "type": "string"
+          },
+          "Name": {
+            "type": "string"
+          }
+        }
+      },
+      "InvoriaProcurementContractsPurchaseOrdersPurchaseState": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Draft",
+          "Submitted",
+          "Approved",
+          "Reopened",
+          "Completed",
+          "Cancelled",
+          "Rejected"
+        ],
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      "InvoriaProcurementContractsDtosPurchaseOrderStateHistoryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "FromState": {
+            "$ref": "#/components/schemas/InvoriaProcurementContractsPurchaseOrdersPurchaseState"
+          },
+          "ToState": {
+            "$ref": "#/components/schemas/InvoriaProcurementContractsPurchaseOrdersPurchaseState"
+          },
+          "ChangedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "Reason": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "InvoriaProcurementContractsDtosPurchaseOrderItemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "string"
+          },
+          "ProductId": {
+            "type": "string"
+          },
+          "Quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "UnitPrice": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "SupplierProductCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "LineTotal": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "InvoriaProcurementEndpointsPurchaseOrdersRequestsApprovePurchaseOrderRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaProcurementEndpointsPurchaseOrdersRequestsCancelPurchaseOrderRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaProcurementEndpointsPurchaseOrdersRequestsCompletePurchaseOrderRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaProcurementEndpointsPurchaseOrdersRequestsCreatePurchaseOrderRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "SupplierId": {
+            "type": "string"
+          },
+          "TaxAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "DiscountAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "OrderDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "ExpectedDeliveryDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "PurchaseOrderItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaProcurementEndpointsPurchaseOrdersRequestsPurchaseOrderItemRequest"
+            }
+          }
+        }
+      },
+      "InvoriaProcurementEndpointsPurchaseOrdersRequestsPurchaseOrderItemRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ProductId": {
+            "type": "string"
+          },
+          "Quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "UnitPrice": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "SupplierProductCode": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "InvoriaProcurementEndpointsPurchaseOrdersRequestsGetPurchaseOrderByIdRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfPurchaseOrderDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingDtoOfPurchaseOrderDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaBuildingBlocksDomainDtosPagingDtoOfPurchaseOrderDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaProcurementContractsDtosPurchaseOrderDto"
+            }
+          },
+          "Info": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingInfoDto"
+          }
+        }
+      },
+      "InvoriaProcurementEndpointsPurchaseOrdersRequestsListPurchaseOrdersRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaProcurementEndpointsPurchaseOrdersRequestsRejectPurchaseOrderRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaProcurementEndpointsPurchaseOrdersRequestsReopenPurchaseOrderRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaProcurementEndpointsPurchaseOrdersRequestsSubmitPurchaseOrderRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaProcurementEndpointsPurchaseOrdersRequestsUpdatePurchaseOrderRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "SupplierId": {
+            "type": "string"
+          },
+          "TaxAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "DiscountAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "OrderDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "ExpectedDeliveryDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "PurchaseOrderItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaProcurementEndpointsPurchaseOrdersRequestsPurchaseOrderItemRequest"
+            }
+          }
+        }
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfSupplierDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaProcurementContractsDtosSupplierDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaProcurementContractsDtosSupplierDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CreatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "CreatedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "LastModifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "LastModifiedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "Id": {
+            "type": "string"
+          },
+          "SupplierCode": {
+            "type": "string"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "ContactEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "Phone": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "InvoriaProcurementEndpointsPartiesRequestsCreateSupplierRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "SupplierCode": {
+            "type": "string"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "ContactEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "Phone": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "InvoriaProcurementEndpointsPartiesRequestsGetSupplierByIdRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfSupplierDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingDtoOfSupplierDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaBuildingBlocksDomainDtosPagingDtoOfSupplierDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaProcurementContractsDtosSupplierDto"
+            }
+          },
+          "Info": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingInfoDto"
+          }
+        }
+      },
+      "InvoriaProcurementEndpointsPartiesRequestsListSuppliersRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaProcurementEndpointsPartiesRequestsUpdateSupplierRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "SupplierCode": {
+            "type": "string"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "ContactEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "Phone": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "JWTBearerAuth": {
+        "type": "http",
+        "description": "Enter a JWT token to authorize the requests...",
+        "scheme": "Bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Products",
+      "description": "Catalog products: create, update, list, and retrieve items sold through Invoria."
+    },
+    {
+      "name": "Customers",
+      "description": "Customer master data: register, update, search, and retrieve customers."
+    },
+    {
+      "name": "Batches",
+      "description": "Inventory batches: create, update, list, and retrieve stock batches."
+    },
+    {
+      "name": "Orders",
+      "description": "Sales orders: create and manage order lifecycle (accept, dispatch, complete, cancel, and related transitions)."
+    },
+    {
+      "name": "Suppliers",
+      "description": "Procurement suppliers: create, update, list, and retrieve supplier records."
+    },
+    {
+      "name": "PurchaseOrders",
+      "description": "Purchase orders: create and drive PO workflow (submit, approve, reject, complete, cancel, reopen, and related actions)."
+    }
+  ]
+}

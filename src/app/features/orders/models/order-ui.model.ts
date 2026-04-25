@@ -9,7 +9,23 @@ export interface UiOrderItem {
   price: number;
 }
 
-/** Mock/UI order row used until the orders page is wired to {@link Order}. */
+export interface UiOrderStateHistoryEvent {
+  from?: string;
+  to: string;
+  timestamp: string;
+  reason?: string | null;
+}
+
+export interface UiOrderFailureDetailRow {
+  itemId: string;
+  itemName?: string | null;
+  itemDisplayName: string;
+  quantityRequested: number;
+  quantityAvailable: number;
+  shortage: number;
+}
+
+/** UI order used by Orders pages. */
 export interface UiOrder {
   id: string;
   createdAt: string;
@@ -25,7 +41,8 @@ export interface UiOrder {
   fullfillmentStatus: OrderFullfillmentStatus;
   orderDate: string;
   items: UiOrderItem[];
-  stateHistory: unknown[];
+  stateHistory: UiOrderStateHistoryEvent[];
+  failureDetails: UiOrderFailureDetailRow[];
 }
 
 export type OrderCreateInput = Pick<

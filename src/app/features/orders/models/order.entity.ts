@@ -31,6 +31,25 @@ export interface OrderItem {
   product?: Product | null;
 }
 
+/** `InvoriaOrderingContractsDtosOrderFailureDetailsDto` (GET/POST order responses). */
+export interface OrderFailureDetails extends Entity {
+  itemId: string;
+  itemName?: string | null;
+  quantityRequested: number;
+  quantityAvailable: number;
+  shortage: number;
+}
+
+/** `InvoriaOrderingContractsDtosOrderStateTransitionHistoryDto` (GET/POST order responses). */
+export interface OrderStateTransitionHistory {
+  fromStatus: OrderStatus;
+  toStatus: OrderStatus;
+  fromFullfillmentStatus: OrderFullfillmentStatus;
+  toFullfillmentStatus: OrderFullfillmentStatus;
+  changedAt: string;
+  reason?: string | null;
+}
+
 /** `InvoriaOrderingContractsDtosOrderDto` (Swagger-aligned; JSON uses camelCase). */
 export interface Order extends Entity {
   orderNumber: string;
@@ -41,4 +60,8 @@ export interface Order extends Entity {
   fullfillmentStatus: OrderFullfillmentStatus;
   /** Omitted or empty when list is fetched with `IncludeOrderItems: false`. */
   items?: OrderItem[];
+  /** Present when order operations fail (e.g. allocation shortage). */
+  failureDetails?: OrderFailureDetails[];
+  /** Server-side state transition history. */
+  stateTransitionHistory?: OrderStateTransitionHistory[];
 }

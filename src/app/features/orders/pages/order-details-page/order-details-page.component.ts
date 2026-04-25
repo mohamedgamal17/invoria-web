@@ -26,7 +26,7 @@ import { orderToUiOrder } from '../../models/order-ui.mapper';
 import { OrderActionFacade, type OrderTransitionAction } from '../../services/order-action.facade';
 import { OrderReasonDialogComponent } from '../../components/order-reason-dialog/order-reason-dialog.component';
 import { OrderStatus } from '../../models/order.entity';
-import type { UiOrder, UiOrderItem } from '../../models/order-ui.model';
+import type { UiOrder, UiOrderFailureDetailRow, UiOrderItem } from '../../models/order-ui.model';
 import { OrdersApiService } from '../../services/orders-api.service';
 
 @Component({
@@ -76,6 +76,17 @@ export class OrderDetailsPageComponent {
     const order = this.order();
     if (!order) return [];
     return getAvailableOrderActions(order).filter((action) => action !== 'edit');
+  });
+
+  readonly isFailedOrder = computed(() => {
+    const order = this.order();
+    if (!order) return false;
+    return order.status === OrderStatus.Cancelled || order.status === OrderStatus.Refused;
+  });
+
+  readonly failureDetails = computed((): UiOrderFailureDetailRow[] => {
+    const order = this.order();
+    return order?.failureDetails ?? [];
   });
 
   readonly reasonTransitionTarget = computed(() => {

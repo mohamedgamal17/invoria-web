@@ -23,6 +23,7 @@ describe('OrderReasonDialogComponent', () => {
     orderDate: new Date().toISOString(),
     items: [],
     stateHistory: [],
+    failureDetails: [],
     createdAt: new Date().toISOString(),
     createdBy: 'system',
     lastModifiedAt: new Date().toISOString(),

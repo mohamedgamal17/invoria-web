@@ -1,6 +1,7 @@
 import type { CreateOrderLineItemRequest } from './create-order-line-item.request';
-import type { Order, OrderItem } from './order.entity';
-import type { UiOrder, UiOrderItem } from './order-ui.model';
+import type { Order, OrderFailureDetails, OrderItem, OrderStateTransitionHistory } from './order.entity';
+import { friendlyFullfillmentStatusLabel, orderStatusLabel } from './order-actions';
+import type { UiOrder, UiOrderFailureDetailRow, UiOrderItem, UiOrderStateHistoryEvent } from './order-ui.model';
 
 function orderItemToUiItem(line: OrderItem): UiOrderItem {
   return {
@@ -9,6 +10,42 @@ function orderItemToUiItem(line: OrderItem): UiOrderItem {
     quantity: line.quantity,
     price: line.price
   };
+}
+
+function mapStateTransitionHistory(items: OrderStateTransitionHistory[] | undefined): UiOrderStateHistoryEvent[] {
+  return (items ?? []).map((h) => {
+    const to = orderStatusLabel(h.toStatus);
+    const from = orderStatusLabel(h.fromStatus);
+    const toFulfillment = friendlyFullfillmentStatusLabel(h.toFullfillmentStatus);
+
+    return {
+      from,
+      to: `${to} · ${toFulfillment}`,
+      timestamp: h.changedAt,
+      reason: h.reason
+    };
+  });
+}
+
+function resolveFailureItemDisplayName(detail: OrderFailureDetails, orderItems: UiOrderItem[]): string {
+  const apiProvided = detail.itemName?.trim();
+  if (apiProvided) return apiProvided;
+
+  const byProductId = orderItems.find((i) => i.productId === detail.itemId);
+  if (byProductId?.productName?.trim()) return byProductId.productName;
+
+  return `Item ${detail.itemId}`;
+}
+
+function mapFailureDetails(details: OrderFailureDetails[] | undefined, orderItems: UiOrderItem[]): UiOrderFailureDetailRow[] {
+  return (details ?? []).map((d) => ({
+    itemId: d.itemId,
+    itemName: d.itemName,
+    itemDisplayName: resolveFailureItemDisplayName(d, orderItems),
+    quantityRequested: d.quantityRequested,
+    quantityAvailable: d.quantityAvailable,
+    shortage: d.shortage
+  }));
 }
 
 export function orderToUiOrder(order: Order): UiOrder {
@@ -29,7 +66,8 @@ export function orderToUiOrder(order: Order): UiOrder {
     fullfillmentStatus: order.fullfillmentStatus,
     orderDate: order.createdAt,
     items,
-    stateHistory: []
+    stateHistory: mapStateTransitionHistory(order.stateTransitionHistory),
+    failureDetails: mapFailureDetails(order.failureDetails, items)
   };
 }
 
