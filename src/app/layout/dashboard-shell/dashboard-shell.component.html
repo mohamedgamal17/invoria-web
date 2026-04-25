@@ -27,6 +27,11 @@
         (collapseToggle)="toggleSidebarCollapsed()"
         (menuClick)="openMobileSidebar()"
       />
+      <div class="relative h-1 overflow-hidden bg-foreground/10" aria-hidden="true">
+        @if (navigationLoading.isLoading()) {
+          <div class="route-progress-indicator"></div>
+        }
+      </div>
       <main class="mx-auto w-full max-w-7xl p-4 md:p-6">
         <router-outlet />
       </main>

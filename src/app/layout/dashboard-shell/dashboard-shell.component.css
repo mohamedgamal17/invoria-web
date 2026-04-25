@@ -1,0 +1,22 @@
+.route-progress-indicator {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 40%;
+  background: linear-gradient(
+    90deg,
+    rgb(59 130 246 / 0.2) 0%,
+    rgb(59 130 246 / 1) 50%,
+    rgb(14 165 233 / 0.9) 100%
+  );
+  animation: route-progress-indeterminate 1.2s ease-in-out infinite;
+}
+
+@keyframes route-progress-indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(260%);
+  }
+}
