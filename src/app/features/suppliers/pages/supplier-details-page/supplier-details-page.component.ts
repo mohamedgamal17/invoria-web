@@ -40,7 +40,7 @@ export class SupplierDetailsPageComponent {
   }
 
   backToList(): void {
-    void this.router.navigate(['/dashboard', 'suppliers']);
+    void this.router.navigate(['/suppliers']);
   }
 
   goToEdit(): void {

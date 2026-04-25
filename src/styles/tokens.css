@@ -20,20 +20,20 @@
   --t-gray-950: #020617;
 
   /* Base palette (brand + status) */
-  --t-brand-50: #eff6ff;
-  --t-brand-100: #dbeafe;
-  --t-brand-200: #bfdbfe;
-  --t-brand-300: #93c5fd;
-  --t-brand-400: #60a5fa;
-  --t-brand-500: #3b82f6;
-  --t-brand-600: #2563eb;
-  --t-brand-700: #1d4ed8;
-  --t-brand-800: #1e40af;
-  --t-brand-900: #1e3a8a;
+  --t-brand-50: #f3f6ff;
+  --t-brand-100: #e6edff;
+  --t-brand-200: #ccd9ff;
+  --t-brand-300: #aebfff;
+  --t-brand-400: #8da2f6;
+  --t-brand-500: #6f84e8;
+  --t-brand-600: #5a6fd4;
+  --t-brand-700: #4a5bb2;
+  --t-brand-800: #3d4b92;
+  --t-brand-900: #333f78;
 
-  --t-success-500: #16a34a;
-  --t-warning-500: #f59e0b;
-  --t-danger-500: #dc2626;
+  --t-success-500: #15803d;
+  --t-warning-500: #c87f1d;
+  --t-danger-500: #c03a3a;
 
   /* Base measures */
   --t-radius-sm: 0.375rem; /* 6px */
@@ -68,13 +68,13 @@
   --c-success-foreground: var(--t-gray-950);
   --c-warning: var(--t-warning-500);
   --c-warning-foreground: var(--t-gray-950);
-  --c-danger: #ef4444;
+  --c-danger: var(--t-danger-500);
   --c-danger-foreground: var(--t-gray-950);
   --c-destructive: var(--c-danger);
   --c-destructive-foreground: var(--c-danger-foreground);
-  --c-accent: #7c3aed;
-  --c-accent-2: #0ea5e9;
-  --c-highlight: #f97316;
+  --c-accent: #6d5bd0;
+  --c-accent-2: #2e8ebf;
+  --c-highlight: #d8892f;
 
   --c-focus: var(--t-brand-400);
 
@@ -115,17 +115,17 @@
   --c-secondary: var(--t-gray-50);
   --c-secondary-foreground: var(--t-gray-950);
 
-  --c-success: #22c55e;
+  --c-success: #22a35b;
   --c-success-foreground: var(--t-gray-950);
-  --c-warning: #fbbf24;
+  --c-warning: #d09a3a;
   --c-warning-foreground: var(--t-gray-950);
-  --c-danger: #ef4444;
+  --c-danger: #d35a5a;
   --c-danger-foreground: var(--t-gray-950);
   --c-destructive: var(--c-danger);
   --c-destructive-foreground: var(--c-danger-foreground);
-  --c-accent: #a78bfa;
-  --c-accent-2: #38bdf8;
-  --c-highlight: #fb923c;
+  --c-accent: #9586e0;
+  --c-accent-2: #54acd6;
+  --c-highlight: #e2a162;
 
   --c-focus: var(--t-brand-300);
 }

@@ -25,7 +25,7 @@ export class RecentActivityComponent {
   ];
 
   goToOrders(): void {
-    this.router.navigate(['/dashboard/orders']);
+    this.router.navigate(['/orders']);
   }
 }
 

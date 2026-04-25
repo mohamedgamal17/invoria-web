@@ -60,6 +60,6 @@ describe('SupplierDetailsPageComponent', () => {
   it('backToList navigates to suppliers', () => {
     const router = TestBed.inject(Router);
     component.backToList();
-    expect(router.navigate).toHaveBeenCalledWith(['/dashboard', 'suppliers']);
+    expect(router.navigate).toHaveBeenCalledWith(['/suppliers']);
   });
 });

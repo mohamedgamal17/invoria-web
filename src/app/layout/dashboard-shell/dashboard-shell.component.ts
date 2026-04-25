@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
+import { NavigationLoadingService } from '../../core/router/navigation-loading.service';
 import { DashboardNavbarComponent } from '../dashboard-navbar/dashboard-navbar.component';
 import { DashboardSidebarComponent } from '../dashboard-sidebar/dashboard-sidebar.component';
 
@@ -8,11 +9,13 @@ import { DashboardSidebarComponent } from '../dashboard-sidebar/dashboard-sideba
   selector: 'app-dashboard-shell',
   standalone: true,
   imports: [RouterOutlet, DashboardNavbarComponent, DashboardSidebarComponent],
-  templateUrl: './dashboard-shell.component.html'
+  templateUrl: './dashboard-shell.component.html',
+  styleUrl: './dashboard-shell.component.css'
 })
 export class DashboardShellComponent {
   readonly isMobileSidebarOpen = signal(false);
   readonly isSidebarCollapsed = signal(false);
+  readonly navigationLoading = inject(NavigationLoadingService);
 
   openMobileSidebar(): void {
     this.isMobileSidebarOpen.set(true);

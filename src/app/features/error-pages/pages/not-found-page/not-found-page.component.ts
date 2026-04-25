@@ -29,7 +29,7 @@ export class NotFoundPageComponent {
   private readonly router = inject(Router);
 
   goDashboard(): void {
-    void this.router.navigate(['/dashboard']);
+    void this.router.navigate(['/']);
   }
 
   goBack(): void {

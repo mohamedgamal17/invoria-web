@@ -41,7 +41,7 @@ export class CustomerDetailsPageComponent {
   }
 
   backToList(): void {
-    void this.router.navigate(['/dashboard', 'customers']);
+    void this.router.navigate(['/customers']);
   }
 
   goToEdit(): void {

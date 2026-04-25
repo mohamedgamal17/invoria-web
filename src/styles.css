@@ -57,25 +57,16 @@
 
 /* Shared visual helpers for reusable creative-bold surfaces. */
 .invoria-gradient-surface {
-  background-image: radial-gradient(
-      140% 100% at 0% 0%,
-      color-mix(in srgb, var(--c-accent), transparent 90%) 0%,
-      transparent 60%
-    ),
-    radial-gradient(
-      120% 100% at 100% 0%,
-      color-mix(in srgb, var(--c-accent-2), transparent 88%) 0%,
-      transparent 70%
-    );
+  background-image: none;
 }
 
 .modern-popover {
-  border: 1px solid color-mix(in srgb, var(--c-border), var(--c-accent) 18%);
+  border: 1px solid color-mix(in srgb, var(--c-border), var(--c-accent) 10%);
   border-radius: var(--r-lg);
   box-shadow: var(--sh-md);
-  background: color-mix(in srgb, var(--c-surface), var(--c-surface-2) 12%);
+  background: color-mix(in srgb, var(--c-surface), var(--c-surface-2) 8%);
 }
 
 .custom-timeline .p-timeline-event-connector {
-  background: color-mix(in srgb, var(--c-border), var(--c-accent) 22%);
+  background: color-mix(in srgb, var(--c-border), var(--c-accent) 12%);
 }

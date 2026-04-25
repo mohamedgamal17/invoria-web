@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 
 export const routes: Routes = [
   {
-    path: 'dashboard',
+    path: '',
     loadComponent: () =>
       import('./layout/dashboard-shell/dashboard-shell.component').then(
         (m) => m.DashboardShellComponent
@@ -46,6 +46,5 @@ export const routes: Routes = [
   { path: 'not-found', loadComponent: () => import('./features/error-pages/pages/not-found-page/not-found-page.component').then((m) => m.NotFoundPageComponent) },
   { path: 'internal-error', loadComponent: () => import('./features/error-pages/pages/internal-error-page/internal-error-page.component').then((m) => m.InternalErrorPageComponent) },
   { path: 'service-unavailable', loadComponent: () => import('./features/error-pages/pages/service-unavailable-page/service-unavailable-page.component').then((m) => m.ServiceUnavailablePageComponent) },
-  { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
   { path: '**', redirectTo: 'not-found' }
 ];

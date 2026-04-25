@@ -59,7 +59,7 @@ export class CustomerFormPageComponent {
 
   goBack(): void {
     if (this.mode() === 'create') {
-      void this.router.navigate(['/dashboard', 'customers']);
+      void this.router.navigate(['/customers']);
       return;
     }
     void this.router.navigate(['../'], { relativeTo: this.route });
@@ -156,7 +156,7 @@ export class CustomerFormPageComponent {
             this.messageService.add({
               ...presentApiError(res.error).toast
             });
-            void this.router.navigate(['/dashboard', 'customers']);
+            void this.router.navigate(['/customers']);
             return;
           }
           const c = res.result;
@@ -164,7 +164,7 @@ export class CustomerFormPageComponent {
         },
         error: (err: unknown) => {
           this.messageService.add({ ...presentApiError(err).toast });
-          void this.router.navigate(['/dashboard', 'customers']);
+          void this.router.navigate(['/customers']);
         }
       });
   }

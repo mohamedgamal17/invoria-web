@@ -52,7 +52,7 @@ export class ProductDetailsPageComponent {
     const p = this.product();
     const label = p ? p.name.trim() || p.code : 'Product';
     return [
-      { label: 'Products', routerLink: ['/dashboard', 'products'] as string[] },
+      { label: 'Products', routerLink: ['/products'] as string[] },
       { label }
     ];
   });
@@ -64,7 +64,7 @@ export class ProductDetailsPageComponent {
   }
 
   backToList(): void {
-    void this.router.navigate(['/dashboard', 'products']);
+    void this.router.navigate(['/products']);
   }
 
   goToEdit(): void {
@@ -108,7 +108,7 @@ export class ProductDetailsPageComponent {
                 summary: 'Success',
                 detail: 'Product deleted successfully.'
               });
-              void this.router.navigate(['/dashboard', 'products']);
+              void this.router.navigate(['/products']);
             },
             error: (err: unknown) => {
               const presentation = presentApiError(err);

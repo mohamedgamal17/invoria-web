@@ -84,10 +84,10 @@ export class PurchaseOrderFormPageComponent {
 
   goBack(): void {
     if (this.mode() === 'edit' && this.purchaseOrderId()) {
-      void this.router.navigate(['/dashboard', 'procurement', this.purchaseOrderId()]);
+      void this.router.navigate(['/procurement', this.purchaseOrderId()]);
       return;
     }
-    void this.router.navigate(['/dashboard', 'procurement']);
+    void this.router.navigate(['/procurement']);
   }
 
   addLine(): void {
@@ -143,7 +143,7 @@ export class PurchaseOrderFormPageComponent {
               summary: 'Success',
               detail: 'Purchase order created.'
             });
-            void this.router.navigate(['/dashboard', 'procurement', res.result.id]);
+            void this.router.navigate(['/procurement', res.result.id]);
           },
           error: (err: unknown) => {
             this.messageService.add({ ...presentApiError(err).toast });
@@ -176,7 +176,7 @@ export class PurchaseOrderFormPageComponent {
             summary: 'Success',
             detail: 'Purchase order updated.'
           });
-          void this.router.navigate(['/dashboard', 'procurement', id]);
+          void this.router.navigate(['/procurement', id]);
         },
         error: (err: unknown) => {
           this.messageService.add({ ...presentApiError(err).toast });
@@ -238,7 +238,7 @@ export class PurchaseOrderFormPageComponent {
             this.messageService.add({
               ...presentApiError(res.error).toast
             });
-            void this.router.navigate(['/dashboard', 'procurement']);
+            void this.router.navigate(['/procurement']);
             return;
           }
           const po = res.result;
@@ -248,14 +248,14 @@ export class PurchaseOrderFormPageComponent {
               summary: 'Cannot edit',
               detail: 'Purchase orders can only be edited in Draft or Reopened state.'
             });
-            void this.router.navigate(['/dashboard', 'procurement', id]);
+            void this.router.navigate(['/procurement', id]);
             return;
           }
           this.patchFormFromPurchaseOrder(po);
         },
         error: (err: unknown) => {
           this.messageService.add({ ...presentApiError(err).toast });
-          void this.router.navigate(['/dashboard', 'procurement']);
+          void this.router.navigate(['/procurement']);
         }
       });
   }

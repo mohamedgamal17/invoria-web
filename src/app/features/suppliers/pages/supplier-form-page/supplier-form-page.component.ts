@@ -79,7 +79,7 @@ export class SupplierFormPageComponent {
 
   goBack(): void {
     if (this.mode() === 'create') {
-      void this.router.navigate(['/dashboard', 'suppliers']);
+      void this.router.navigate(['/suppliers']);
       return;
     }
     void this.router.navigate(['../'], { relativeTo: this.route });
@@ -183,7 +183,7 @@ export class SupplierFormPageComponent {
             this.messageService.add({
               ...presentApiError(res.error).toast
             });
-            void this.router.navigate(['/dashboard', 'suppliers']);
+            void this.router.navigate(['/suppliers']);
             return;
           }
           const s = res.result;
@@ -196,7 +196,7 @@ export class SupplierFormPageComponent {
         },
         error: (err: unknown) => {
           this.messageService.add({ ...presentApiError(err).toast });
-          void this.router.navigate(['/dashboard', 'suppliers']);
+          void this.router.navigate(['/suppliers']);
         }
       });
   }

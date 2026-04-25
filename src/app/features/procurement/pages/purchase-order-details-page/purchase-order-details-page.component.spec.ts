@@ -209,7 +209,7 @@ describe('PurchaseOrderDetailsPageComponent', () => {
   it('should navigate back to procurement list', () => {
     const router = TestBed.inject(Router);
     fixture.componentInstance.backToList();
-    expect(router.navigate).toHaveBeenCalledWith(['/dashboard', 'procurement']);
+    expect(router.navigate).toHaveBeenCalledWith(['/procurement']);
   });
 
   it('should show empty state when stateHistory is absent', async () => {

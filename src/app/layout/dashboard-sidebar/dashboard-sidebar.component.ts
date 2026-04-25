@@ -52,12 +52,12 @@ export class DashboardSidebarComponent {
   };
 
   readonly navItems: NavItem[] = [
-    { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { label: 'Products', path: '/dashboard/products', icon: Package },
-    { label: 'Orders', path: '/dashboard/orders', icon: ShoppingBag },
-    { label: 'Procurement', path: '/dashboard/procurement', icon: ClipboardList },
-    { label: 'Suppliers', path: '/dashboard/suppliers', icon: Users },
-    { label: 'Customers', path: '/dashboard/customers', icon: User }
+    { label: 'Dashboard', path: '/', icon: LayoutDashboard },
+    { label: 'Products', path: '/products', icon: Package },
+    { label: 'Orders', path: '/orders', icon: ShoppingBag },
+    { label: 'Procurement', path: '/procurement', icon: ClipboardList },
+    { label: 'Suppliers', path: '/suppliers', icon: Users },
+    { label: 'Customers', path: '/customers', icon: User }
   ];
 
   readonly logoutIcon = LogOut;
