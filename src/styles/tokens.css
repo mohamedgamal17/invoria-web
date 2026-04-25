@@ -51,6 +51,7 @@
   --t-ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
 
   /* Semantic colors (light) */
+  --c-surface-0: var(--t-gray-0);
   --c-surface: var(--t-gray-0);
   --c-surface-2: var(--t-gray-50);
   --c-foreground: var(--t-gray-950);
@@ -69,6 +70,11 @@
   --c-warning-foreground: var(--t-gray-950);
   --c-danger: #ef4444;
   --c-danger-foreground: var(--t-gray-950);
+  --c-destructive: var(--c-danger);
+  --c-destructive-foreground: var(--c-danger-foreground);
+  --c-accent: #7c3aed;
+  --c-accent-2: #0ea5e9;
+  --c-highlight: #f97316;
 
   --c-focus: var(--t-brand-400);
 
@@ -82,6 +88,10 @@
   --sh-sm: var(--t-shadow-sm);
   --sh-md: var(--t-shadow-md);
   --sh-lg: var(--t-shadow-lg);
+  --sh-glow-sm: 0 0 0 1px color-mix(in srgb, var(--c-accent), transparent 65%),
+    0 8px 24px -14px color-mix(in srgb, var(--c-accent), transparent 40%);
+  --sh-glow-md: 0 0 0 1px color-mix(in srgb, var(--c-accent-2), transparent 60%),
+    0 18px 36px -18px color-mix(in srgb, var(--c-accent-2), transparent 35%);
 
   /* Semantic motion */
   --m-duration-150: var(--t-duration-150);
@@ -92,6 +102,7 @@
 
 .dark {
   /* Semantic colors (dark) */
+  --c-surface-0: var(--t-gray-900);
   --c-surface: var(--t-gray-950);
   --c-surface-2: var(--t-gray-900);
   --c-foreground: var(--t-gray-50);
@@ -110,6 +121,11 @@
   --c-warning-foreground: var(--t-gray-950);
   --c-danger: #ef4444;
   --c-danger-foreground: var(--t-gray-950);
+  --c-destructive: var(--c-danger);
+  --c-destructive-foreground: var(--c-danger-foreground);
+  --c-accent: #a78bfa;
+  --c-accent-2: #38bdf8;
+  --c-highlight: #fb923c;
 
   --c-focus: var(--t-brand-300);
 }

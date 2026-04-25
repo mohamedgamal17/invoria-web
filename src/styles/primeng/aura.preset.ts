@@ -77,6 +77,20 @@ const AuraInvoria = definePreset(Aura, {
       900: 'color-mix(in srgb, var(--c-primary), black 60%)',
       950: 'color-mix(in srgb, var(--c-primary), black 75%)'
     },
+    // Additional creative accent palette for badges/highlights.
+    cyan: {
+      50: 'color-mix(in srgb, var(--c-accent-2), white 92%)',
+      100: 'color-mix(in srgb, var(--c-accent-2), white 88%)',
+      200: 'color-mix(in srgb, var(--c-accent-2), white 80%)',
+      300: 'color-mix(in srgb, var(--c-accent-2), white 65%)',
+      400: 'color-mix(in srgb, var(--c-accent-2), white 45%)',
+      500: 'var(--c-accent-2)',
+      600: 'color-mix(in srgb, var(--c-accent-2), black 15%)',
+      700: 'color-mix(in srgb, var(--c-accent-2), black 30%)',
+      800: 'color-mix(in srgb, var(--c-accent-2), black 45%)',
+      900: 'color-mix(in srgb, var(--c-accent-2), black 60%)',
+      950: 'color-mix(in srgb, var(--c-accent-2), black 75%)'
+    },
     colorScheme: {
       light: {
         surface: {

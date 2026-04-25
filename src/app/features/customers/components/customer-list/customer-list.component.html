@@ -23,16 +23,13 @@
       </div>
     }
   } @else {
-    <div class="rounded-xl border border-dashed border-border p-12 text-center bg-surface-2/30">
-      <i class="pi pi-users text-4xl text-muted-foreground opacity-20 mb-3 block"></i>
-      <div class="text-base font-medium text-foreground">No customers found</div>
-      <p class="text-sm text-muted-foreground mb-4">Try adjusting your search or create a new customer.</p>
-      <p-button
-        label="Clear Search"
-        [link]="true"
-        (onClick)="nameFilterChange.emit('')"
-      />
-    </div>
+    <app-empty-state
+      icon="pi pi-users"
+      title="No customers found"
+      description="Try adjusting your search or create a new customer."
+    >
+      <p-button label="Clear Search" [link]="true" (onClick)="nameFilterChange.emit('')" />
+    </app-empty-state>
   }
 
   <!-- Mobile Pagination -->
@@ -49,7 +46,7 @@
 </div>
 
 <!-- Desktop Table View -->
-<div class="hidden md:block rounded-xl border border-border bg-surface shadow-sm overflow-visible">
+<app-surface-card tone="accent" class="hidden md:block overflow-visible">
   <p-table
     [value]="customers()"
     dataKey="id"
@@ -144,4 +141,4 @@
       </tr>
     </ng-template>
   </p-table>
-</div>
+</app-surface-card>

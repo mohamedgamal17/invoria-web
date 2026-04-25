@@ -11,6 +11,8 @@ import { PaginatorModule } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
 import { PopoverModule } from 'primeng/popover';
 import { TimelineModule } from 'primeng/timeline';
+import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
+import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
 import type { UiOrder } from '../../models/order-ui.model';
 import { OrderFullfillmentStatus } from '../../models/order.entity';
 import { OrderStatus } from '../../models/order.entity';
@@ -34,7 +36,9 @@ import {
     PaginatorModule,
     SkeletonModule,
     PopoverModule,
-    TimelineModule
+    TimelineModule,
+    EmptyStateComponent,
+    SurfaceCardComponent
   ],
   templateUrl: './order-list.component.html'
 })

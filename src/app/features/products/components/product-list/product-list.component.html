@@ -83,16 +83,12 @@
       </div>
     }
   } @else {
-    <div class="rounded-xl border border-dashed border-border p-12 text-center bg-surface-2/30">
-        <i class="pi pi-inbox text-4xl text-muted-foreground opacity-20 mb-3 block"></i>
-        <div class="text-base font-medium text-foreground">No products found</div>
-        <p class="text-sm text-muted-foreground mb-4">Try adjusting your search or create a new product.</p>
-        <p-button
-          label="Clear Search"
-          [link]="true"
-          (onClick)="clearNameSearch()"
-        />
-    </div>
+    <app-empty-state
+      title="No products found"
+      description="Try adjusting your search or create a new product."
+    >
+      <p-button label="Clear Search" [link]="true" (onClick)="clearNameSearch()" />
+    </app-empty-state>
   }
 
   <!-- Mobile Pagination -->
@@ -115,7 +111,7 @@
 
 
 <!-- Desktop Table View -->
-<div class="hidden md:block rounded-xl border border-border bg-surface shadow-sm overflow-visible">
+<app-surface-card tone="accent" class="hidden md:block overflow-visible">
   <p-table
     [value]="products()"
     dataKey="id"
@@ -269,4 +265,4 @@
       </tr>
     </ng-template>
   </p-table>
-</div>
+</app-surface-card>

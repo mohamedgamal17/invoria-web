@@ -9,6 +9,7 @@
    `bg-surface`, `text-foreground`, `border-border`, `rounded-md`, `shadow-sm`,
    and `duration-150` work everywhere. */
 @theme {
+  --color-surface-0: var(--c-surface-0);
   --color-surface: var(--c-surface);
   --color-surface-2: var(--c-surface-2);
   --color-foreground: var(--c-foreground);
@@ -27,6 +28,11 @@
   --color-warning-foreground: var(--c-warning-foreground);
   --color-danger: var(--c-danger);
   --color-danger-foreground: var(--c-danger-foreground);
+  --color-destructive: var(--c-destructive);
+  --color-destructive-foreground: var(--c-destructive-foreground);
+  --color-accent: var(--c-accent);
+  --color-accent-2: var(--c-accent-2);
+  --color-highlight: var(--c-highlight);
 
   --color-focus: var(--c-focus);
 
@@ -38,6 +44,8 @@
   --shadow-sm: var(--sh-sm);
   --shadow-md: var(--sh-md);
   --shadow-lg: var(--sh-lg);
+  --shadow-glow-sm: var(--sh-glow-sm);
+  --shadow-glow-md: var(--sh-glow-md);
 
   --duration-150: var(--m-duration-150);
   --duration-200: var(--m-duration-200);
@@ -46,3 +54,28 @@
 }
 
 @import 'tailwindcss';
+
+/* Shared visual helpers for reusable creative-bold surfaces. */
+.invoria-gradient-surface {
+  background-image: radial-gradient(
+      140% 100% at 0% 0%,
+      color-mix(in srgb, var(--c-accent), transparent 90%) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      120% 100% at 100% 0%,
+      color-mix(in srgb, var(--c-accent-2), transparent 88%) 0%,
+      transparent 70%
+    );
+}
+
+.modern-popover {
+  border: 1px solid color-mix(in srgb, var(--c-border), var(--c-accent) 18%);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-md);
+  background: color-mix(in srgb, var(--c-surface), var(--c-surface-2) 12%);
+}
+
+.custom-timeline .p-timeline-event-connector {
+  background: color-mix(in srgb, var(--c-border), var(--c-accent) 22%);
+}

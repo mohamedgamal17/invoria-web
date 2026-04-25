@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { finalize, take } from 'rxjs';
+import { EMPTY, catchError, finalize, map, take } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { MessageService } from 'primeng/api';
@@ -96,20 +96,21 @@ export class OrderFormPageComponent {
         })
         .pipe(
           take(1),
+          map((res) => {
+            if (!res.isSuccess || !res.result) {
+              throw res.error ?? new Error('Failed to create order.');
+            }
+            return res.result;
+          }),
+          catchError((err: unknown) => {
+            this.showCreateError(err);
+            return EMPTY;
+          }),
           finalize(() => this.saving.set(false))
         )
-        .subscribe({
-          next: (res) => {
-            if (!res.isSuccess || !res.result) {
-              this.messageService.add({ ...presentApiError(res.error).toast });
-              return;
-            }
+        .subscribe((result) => {
             this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order created successfully.' });
-            void this.router.navigate(['../', res.result.id], { relativeTo: this.route });
-          },
-          error: (err: unknown) => {
-            this.messageService.add({ ...presentApiError(err).toast });
-          }
+            void this.router.navigate(['../', result.id], { relativeTo: this.route });
         });
       return;
     }
@@ -259,5 +260,9 @@ export class OrderFormPageComponent {
           this.messageService.add({ ...presentApiError(err).toast });
         }
       });
+  }
+
+  private showCreateError(err: unknown): void {
+    this.messageService.add({ ...presentApiError(err).toast });
   }
 }

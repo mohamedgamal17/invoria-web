@@ -16,22 +16,30 @@
       <app-quick-actions />
     </div>
     <div class="lg:col-span-2">
-      <app-recent-activity />
+      <app-surface-card tone="accent">
+        <div class="text-sm font-semibold">API-connected modules</div>
+        <p class="mt-1 text-sm text-muted-foreground">
+          Deployment scope currently focuses on backend-driven flows.
+        </p>
+        <div class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <div class="rounded-md border border-border/70 bg-surface-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide">Orders</div>
+          <div class="rounded-md border border-border/70 bg-surface-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide">Products</div>
+          <div class="rounded-md border border-border/70 bg-surface-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide">Customers</div>
+          <div class="rounded-md border border-border/70 bg-surface-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide">Suppliers</div>
+          <div class="rounded-md border border-border/70 bg-surface-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide">Procurement</div>
+          <div class="rounded-md border border-border/70 bg-surface-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide">Inventory batches</div>
+        </div>
+      </app-surface-card>
     </div>
   </section>
 
-  <section class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-    <div class="lg:col-span-2">
-      <app-low-stock-widget />
-    </div>
-    <div class="lg:col-span-1">
-      <div class="rounded-md border border-border bg-surface p-4 shadow-sm">
-        <div class="text-sm font-semibold">Notes</div>
-        <p class="mt-2 text-sm text-muted-foreground">
-          This panel can hold announcements, reminders, or a small chart widget.
-        </p>
-      </div>
-    </div>
+  <section>
+    <app-surface-card>
+      <div class="text-sm font-semibold">Notes</div>
+      <p class="mt-2 text-sm text-muted-foreground">
+        Non-API placeholder modules were removed from primary navigation to keep deployment scope focused.
+      </p>
+    </app-surface-card>
   </section>
 </section>
 

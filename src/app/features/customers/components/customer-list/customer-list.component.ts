@@ -12,6 +12,8 @@ import type { TablePageEvent } from 'primeng/table';
 
 import { CustomerListSkeletonComponent } from '../customer-list-skeleton/customer-list-skeleton.component';
 import type { Customer } from '../../models/customer.entity';
+import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
+import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
 
 @Component({
   selector: 'app-customer-list',
@@ -25,7 +27,9 @@ import type { Customer } from '../../models/customer.entity';
     InputIconModule,
     InputTextModule,
     PaginatorModule,
-    CustomerListSkeletonComponent
+    CustomerListSkeletonComponent,
+    EmptyStateComponent,
+    SurfaceCardComponent
   ],
   templateUrl: './customer-list.component.html'
 })

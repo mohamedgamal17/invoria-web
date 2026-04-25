@@ -12,6 +12,8 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import type { PaginatorState } from 'primeng/paginator';
 import type { TablePageEvent } from 'primeng/table';
+import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
+import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
 
 import type { Product } from '../../models/product.entity';
 
@@ -33,7 +35,9 @@ type SearchAction =
     TagModule,
     IconFieldModule,
     InputIconModule,
-    InputTextModule
+    InputTextModule,
+    EmptyStateComponent,
+    SurfaceCardComponent
   ],
   templateUrl: './product-list.component.html'
 })
