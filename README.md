@@ -59,6 +59,18 @@ ng build
 
 This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
+### Vercel production variable
+
+Production builds require `API_URL` to be set as an environment variable.
+
+Example local production build:
+
+```bash
+API_URL=https://api.example.com npm run build
+```
+
+In Vercel, add `API_URL` in your project Environment Variables so the build can generate `src/environments/environment.production.ts` automatically.
+
 ## Running unit tests
 
 To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
