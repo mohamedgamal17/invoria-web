@@ -88,7 +88,7 @@ export class ProductBatchesPageComponent {
     const p = this.product();
     const id = this.routeProductId();
     const label = p ? p.name.trim() || p.code : 'Product';
-    const base = ['/dashboard', 'products'] as string[];
+    const base = ['/products'] as string[];
     return [
       { label: 'Products', routerLink: base },
       { label, routerLink: [...base, id] },

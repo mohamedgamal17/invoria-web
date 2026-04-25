@@ -57,14 +57,14 @@ export class ProductFormPageComponent {
     const m = this.mode();
     if (m === 'create') {
       return [
-        { label: 'Products', routerLink: ['/dashboard', 'products'] as string[] },
+        { label: 'Products', routerLink: ['/products'] as string[] },
         { label: 'Create' }
       ];
     }
     const name = this.loadedName();
     return [
-      { label: 'Products', routerLink: ['/dashboard', 'products'] as string[] },
-      { label: name || 'Product', routerLink: ['/dashboard', 'products', this.productId() ?? ''] },
+      { label: 'Products', routerLink: ['/products'] as string[] },
+      { label: name || 'Product', routerLink: ['/products', this.productId() ?? ''] },
       { label: 'Edit' }
     ];
   });
@@ -173,7 +173,7 @@ export class ProductFormPageComponent {
             this.messageService.add({
               ...presentApiError(res.error).toast
             });
-            void this.router.navigate(['/dashboard', 'products']);
+            void this.router.navigate(['/products']);
             return;
           }
           const p = res.result;
@@ -186,7 +186,7 @@ export class ProductFormPageComponent {
         },
         error: (err: unknown) => {
           this.messageService.add({ ...presentApiError(err).toast });
-          void this.router.navigate(['/dashboard', 'products']);
+          void this.router.navigate(['/products']);
         }
       });
   }

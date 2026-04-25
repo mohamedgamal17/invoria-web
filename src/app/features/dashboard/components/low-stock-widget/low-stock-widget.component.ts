@@ -28,7 +28,7 @@ export class LowStockWidgetComponent {
   ];
 
   goToInventory(): void {
-    this.router.navigate(['/dashboard/inventory']);
+    this.router.navigate(['/inventory']);
   }
 }
 

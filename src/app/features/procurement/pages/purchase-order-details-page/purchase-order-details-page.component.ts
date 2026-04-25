@@ -118,7 +118,7 @@ export class PurchaseOrderDetailsPageComponent {
   }
 
   backToList(): void {
-    void this.router.navigate(['/dashboard', 'procurement']);
+    void this.router.navigate(['/procurement']);
   }
 
   retry(): void {
