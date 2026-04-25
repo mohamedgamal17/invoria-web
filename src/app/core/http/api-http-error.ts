@@ -1,8 +1,18 @@
 export type ValidationErrors = Record<string, string[]>;
 
+export type ApiErrorKind =
+  | 'validation'
+  | 'not-found'
+  | 'internal'
+  | 'service-unavailable'
+  | 'offline'
+  | 'api';
+
 export type ApiNormalizedError = {
   /** HTTP status code if known (0 for network/CORS). */
   status?: number;
+  /** UI error kind to drive route and wording decisions. */
+  kind: ApiErrorKind;
   /** Short human title (e.g. "Validation failed"). */
   title: string;
   /** Longer description suitable for a toast. */
@@ -27,6 +37,7 @@ export class ApiEmptyResponseError extends ApiHttpError {
   constructor(url?: string, status?: number) {
     super({
       status,
+      kind: 'api',
       title: 'Empty response from server',
       detail: url ? `The server returned an empty response for ${url}.` : 'The server returned an empty response.'
     });

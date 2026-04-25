@@ -13,7 +13,7 @@ import { orderToUiOrder } from '../../models/order-ui.mapper';
 import { OrdersApiService } from '../../services/orders-api.service';
 import { OrderHeaderComponent } from '../../components/order-header/order-header.component';
 import { OrderListComponent } from '../../components/order-list/order-list.component';
-import { formatApiError } from '../../../../core/http/api-error.format';
+import { presentApiError } from '../../../../core/http/api-error.presenter';
 
 const EMPTY_ORDERS_TUPLE: [UiOrder[], PagingInfo] = [
   [],
@@ -90,15 +90,14 @@ export class OrdersPageComponent {
       this.ordersApi.listOrders(params).pipe(
         map((res) => {
           if (!res.isSuccess || !res.result) {
-            const detail = this.formatApiFailureDetail(res.error);
-            this.messageService.add({ severity: 'error', summary: 'Error', detail });
+            this.showApiError(res.error);
             return EMPTY_ORDERS_TUPLE;
           }
           const uiRows = res.result.data.map(orderToUiOrder);
           return [uiRows, res.result.info] as [UiOrder[], PagingInfo];
         }),
         catchError((err: unknown) => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(err) });
+          this.showApiError(err);
           return of(EMPTY_ORDERS_TUPLE);
         })
       )
@@ -172,7 +171,11 @@ export class OrdersPageComponent {
     };
   }
 
-  private formatApiFailureDetail(error: unknown): string {
-    return formatApiError(error);
+  private showApiError(error: unknown): void {
+    const presentation = presentApiError(error);
+    this.messageService.add(presentation.toast);
+    if (presentation.routeTarget) {
+      void this.router.navigate([presentation.routeTarget]);
+    }
   }
 }

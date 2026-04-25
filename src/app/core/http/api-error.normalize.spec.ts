@@ -20,8 +20,42 @@ describe('normalizeApiError', () => {
 
     const n = normalizeApiError(err);
     expect(n.status).toBe(400);
+    expect(n.kind).toBe('validation');
     expect(n.validationErrors?.['Name']?.[0]).toBe('Name is required.');
     expect(n.validationErrors?.['Price']?.[0]).toBe('Price must be non-negative.');
+  });
+
+  it('should classify 404 as not-found', () => {
+    const err = new HttpErrorResponse({
+      status: 404,
+      statusText: 'Not Found',
+      error: { title: 'Not found' }
+    });
+
+    const n = normalizeApiError(err);
+    expect(n.kind).toBe('not-found');
+  });
+
+  it('should classify 503 as service-unavailable', () => {
+    const err = new HttpErrorResponse({
+      status: 503,
+      statusText: 'Service Unavailable',
+      error: { title: 'Service unavailable' }
+    });
+
+    const n = normalizeApiError(err);
+    expect(n.kind).toBe('service-unavailable');
+  });
+
+  it('should classify status 0 as offline', () => {
+    const err = new HttpErrorResponse({
+      status: 0,
+      statusText: 'Unknown Error',
+      error: 'Network error'
+    });
+
+    const n = normalizeApiError(err);
+    expect(n.kind).toBe('offline');
   });
 });
 

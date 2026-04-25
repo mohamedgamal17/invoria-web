@@ -10,7 +10,7 @@ import { TagModule } from 'primeng/tag';
 import type { PaginatorState } from 'primeng/paginator';
 import type { TablePageEvent } from 'primeng/table';
 
-import { formatApiError } from '../../../../core/http/api-error.format';
+import { presentApiError } from '../../../../core/http/api-error.presenter';
 import { ProductBatchesPanelComponent } from '../../../inventory/components/product-batches-panel.component';
 import type { BatchesProductRef } from '../../../inventory/models/batches-product.ref';
 import { ProductsBreadcrumbComponent } from '../../components/products-breadcrumb/products-breadcrumb.component';
@@ -174,13 +174,21 @@ export class ProductBatchesPageComponent {
       .subscribe({
         next: (res) => {
           if (!res.isSuccess || !res.result) {
-            this.error.set(formatApiError(res.error));
+            const presentation = presentApiError(res.error);
+            this.error.set(presentation.toast.detail ?? 'Failed to load product.');
+            if (presentation.routeTarget) {
+              void this.router.navigate([presentation.routeTarget]);
+            }
             return;
           }
           this.product.set(res.result);
         },
         error: (err: unknown) => {
-          this.error.set(formatApiError(err));
+          const presentation = presentApiError(err);
+          this.error.set(presentation.toast.detail ?? 'Failed to load product.');
+          if (presentation.routeTarget) {
+            void this.router.navigate([presentation.routeTarget]);
+          }
         }
       });
   }

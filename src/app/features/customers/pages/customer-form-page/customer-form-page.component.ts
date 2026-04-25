@@ -11,7 +11,7 @@ import { MessageModule } from 'primeng/message';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 
-import { formatApiError } from '../../../../core/http/api-error.format';
+import { presentApiError } from '../../../../core/http/api-error.presenter';
 import { CustomersApiService } from '../../services/customers-api.service';
 import type { CreateCustomerRequest } from '../../models/create-customer.request';
 import type { UpdateCustomerRequest } from '../../models/update-customer.request';
@@ -92,9 +92,7 @@ export class CustomerFormPageComponent {
           next: (res) => {
             if (!res.isSuccess || res.result === undefined) {
               this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: formatApiError(res.error)
+                ...presentApiError(res.error).toast
               });
               return;
             }
@@ -106,7 +104,7 @@ export class CustomerFormPageComponent {
             void this.router.navigate([res.result.id], { relativeTo: this.route.parent });
           },
           error: (err: unknown) => {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(err) });
+            this.messageService.add({ ...presentApiError(err).toast });
           }
         });
       return;
@@ -127,9 +125,7 @@ export class CustomerFormPageComponent {
         next: (res) => {
           if (!res.isSuccess || res.result === undefined) {
             this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: formatApiError(res.error)
+              ...presentApiError(res.error).toast
             });
             return;
           }
@@ -141,7 +137,7 @@ export class CustomerFormPageComponent {
           void this.router.navigate(['../'], { relativeTo: this.route });
         },
         error: (err: unknown) => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(err) });
+          this.messageService.add({ ...presentApiError(err).toast });
         }
       });
   }
@@ -158,9 +154,7 @@ export class CustomerFormPageComponent {
         next: (res) => {
           if (!res.isSuccess || !res.result) {
             this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: formatApiError(res.error)
+              ...presentApiError(res.error).toast
             });
             void this.router.navigate(['/dashboard', 'customers']);
             return;
@@ -169,7 +163,7 @@ export class CustomerFormPageComponent {
           this.form.reset({ name: c.name });
         },
         error: (err: unknown) => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(err) });
+          this.messageService.add({ ...presentApiError(err).toast });
           void this.router.navigate(['/dashboard', 'customers']);
         }
       });

@@ -20,7 +20,7 @@ import {
 import { ProductsApiService } from '../../services/products-api.service';
 import type { Product } from '../../models/product.entity';
 import type { ListProductRequest } from '../../models/list-product.request';
-import { formatApiError } from '../../../../core/http/api-error.format';
+import { presentApiError } from '../../../../core/http/api-error.presenter';
 
 const EMPTY_PRODUCTS_TUPLE: [Product[], PagingInfo] = [
   [],
@@ -100,14 +100,13 @@ export class ProductsPageComponent {
       this.productsApi.listProducts(params).pipe(
         map((res) => {
           if (!res.isSuccess || !res.result) {
-            const detail = formatApiError(res.error);
-            this.messageService.add({ severity: 'error', summary: 'Error', detail });
+            this.showApiError(res.error);
             return EMPTY_PRODUCTS_TUPLE;
           }
           return [res.result.data, res.result.info] as [Product[], PagingInfo];
         }),
         catchError((err: unknown) => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(err) });
+          this.showApiError(err);
           return of(EMPTY_PRODUCTS_TUPLE);
         })
       )
@@ -177,5 +176,13 @@ export class ProductsPageComponent {
       products,
       paging
     };
+  }
+
+  private showApiError(error: unknown): void {
+    const presentation = presentApiError(error);
+    this.messageService.add(presentation.toast);
+    if (presentation.routeTarget) {
+      void this.router.navigate([presentation.routeTarget]);
+    }
   }
 }

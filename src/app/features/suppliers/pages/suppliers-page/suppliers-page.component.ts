@@ -13,7 +13,7 @@ import type { ListSupplierRequest } from '../../models/list-supplier.request';
 import { SupplierListComponent } from '../../components/supplier-list/supplier-list.component';
 import type { Supplier } from '../../models/supplier.entity';
 import type { PagingInfo } from '../../../../core/models/paging';
-import { formatApiError } from '../../../../core/http/api-error.format';
+import { presentApiError } from '../../../../core/http/api-error.presenter';
 
 const EMPTY_SUPPLIERS_TUPLE: [Supplier[], PagingInfo] = [
   [],
@@ -84,18 +84,13 @@ export class SuppliersPageComponent {
       this.suppliersApi.listSuppliers(params).pipe(
         map((res) => {
           if (!res.isSuccess || !res.result) {
-            const detail = formatApiError(res.error);
-            this.messageService.add({ severity: 'error', summary: 'Error', detail });
+            this.showApiError(res.error);
             return EMPTY_SUPPLIERS_TUPLE;
           }
           return [res.result.data, res.result.info] as [Supplier[], PagingInfo];
         }),
         catchError((err: unknown) => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: formatApiError(err)
-          });
+          this.showApiError(err);
           return of(EMPTY_SUPPLIERS_TUPLE);
         })
       )
@@ -164,5 +159,13 @@ export class SuppliersPageComponent {
       suppliers,
       paging
     };
+  }
+
+  private showApiError(error: unknown): void {
+    const presentation = presentApiError(error);
+    this.messageService.add(presentation.toast);
+    if (presentation.routeTarget) {
+      void this.router.navigate([presentation.routeTarget]);
+    }
   }
 }

@@ -15,7 +15,7 @@ import type { PurchaseOrder } from '../../models/purchase-order.entity';
 import { PurchaseOrdersApiService } from '../../services/purchase-orders-api.service';
 import { PurchaseOrderHeaderComponent } from '../../components/purchase-order-header/purchase-order-header.component';
 import { PurchaseOrderListComponent } from '../../components/purchase-order-list/purchase-order-list.component';
-import { formatApiError } from '../../../../core/http/api-error.format';
+import { presentApiError } from '../../../../core/http/api-error.presenter';
 
 const EMPTY_PURCHASE_ORDERS_TUPLE: [PurchaseOrder[], PagingInfo] = [
   [],
@@ -93,14 +93,13 @@ export class PurchaseListPageComponent {
       this.purchaseOrdersApi.listPurchaseOrders(params).pipe(
         map((res) => {
           if (!res.isSuccess || !res.result) {
-            const detail = formatApiError(res.error);
-            this.messageService.add({ severity: 'error', summary: 'Error', detail });
+            this.showApiError(res.error);
             return EMPTY_PURCHASE_ORDERS_TUPLE;
           }
           return [res.result.data, res.result.info] as [PurchaseOrder[], PagingInfo];
         }),
         catchError((err: unknown) => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(err) });
+          this.showApiError(err);
           return of(EMPTY_PURCHASE_ORDERS_TUPLE);
         })
       )
@@ -174,5 +173,13 @@ export class PurchaseListPageComponent {
       rows,
       paging
     };
+  }
+
+  private showApiError(error: unknown): void {
+    const presentation = presentApiError(error);
+    this.messageService.add(presentation.toast);
+    if (presentation.routeTarget) {
+      void this.router.navigate([presentation.routeTarget]);
+    }
   }
 }

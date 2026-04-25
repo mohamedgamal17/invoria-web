@@ -16,7 +16,7 @@ import { CustomersApiService } from '../../../customers/services/customers-api.s
 import { ProductsApiService } from '../../../products/services/products-api.service';
 import type { UiOrderItem } from '../../models/order-ui.model';
 import { draftItemsToLineItems, orderToUiOrder } from '../../models/order-ui.mapper';
-import { formatApiError } from '../../../../core/http/api-error.format';
+import { presentApiError } from '../../../../core/http/api-error.presenter';
 
 @Component({
   selector: 'app-order-form-page',
@@ -101,14 +101,14 @@ export class OrderFormPageComponent {
         .subscribe({
           next: (res) => {
             if (!res.isSuccess || !res.result) {
-              this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(res.error) });
+              this.messageService.add({ ...presentApiError(res.error).toast });
               return;
             }
             this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order created successfully.' });
             void this.router.navigate(['../', res.result.id], { relativeTo: this.route });
           },
           error: (err: unknown) => {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(err) });
+            this.messageService.add({ ...presentApiError(err).toast });
           }
         });
       return;
@@ -123,14 +123,14 @@ export class OrderFormPageComponent {
       .subscribe({
         next: (res) => {
           if (!res.isSuccess || !res.result) {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(res.error) });
+            this.messageService.add({ ...presentApiError(res.error).toast });
             return;
           }
           this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order updated successfully.' });
           void this.router.navigate(['../../', res.result.id], { relativeTo: this.route });
         },
         error: (err: unknown) => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(err) });
+          this.messageService.add({ ...presentApiError(err).toast });
         }
       });
   }
@@ -244,7 +244,7 @@ export class OrderFormPageComponent {
       .subscribe({
         next: (res) => {
           if (!res.isSuccess || !res.result) {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(res.error) });
+            this.messageService.add({ ...presentApiError(res.error).toast });
             return;
           }
           const full = orderToUiOrder(res.result);
@@ -256,7 +256,7 @@ export class OrderFormPageComponent {
           );
         },
         error: (err: unknown) => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(err) });
+          this.messageService.add({ ...presentApiError(err).toast });
         }
       });
   }

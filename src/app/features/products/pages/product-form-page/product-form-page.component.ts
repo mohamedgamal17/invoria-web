@@ -10,7 +10,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { MessageService } from 'primeng/api';
 
-import { formatApiError } from '../../../../core/http/api-error.format';
+import { presentApiError } from '../../../../core/http/api-error.presenter';
 import { ProductsBreadcrumbComponent } from '../../components/products-breadcrumb/products-breadcrumb.component';
 import { ProductsApiService } from '../../services/products-api.service';
 import type { CreateProductRequest } from '../../models/create-product.request';
@@ -112,9 +112,7 @@ export class ProductFormPageComponent {
           next: (res) => {
             if (!res.isSuccess || res.result === undefined) {
               this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: formatApiError(res.error)
+                ...presentApiError(res.error).toast
               });
               return;
             }
@@ -126,7 +124,7 @@ export class ProductFormPageComponent {
             void this.router.navigate([res.result.id], { relativeTo: this.route.parent });
           },
           error: (err: unknown) => {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(err) });
+            this.messageService.add({ ...presentApiError(err).toast });
           }
         });
       return;
@@ -147,9 +145,7 @@ export class ProductFormPageComponent {
         next: (res) => {
           if (!res.isSuccess || res.result === undefined) {
             this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: formatApiError(res.error)
+              ...presentApiError(res.error).toast
             });
             return;
           }
@@ -161,7 +157,7 @@ export class ProductFormPageComponent {
           void this.router.navigate(['../'], { relativeTo: this.route });
         },
         error: (err: unknown) => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(err) });
+          this.messageService.add({ ...presentApiError(err).toast });
         }
       });
   }
@@ -175,9 +171,7 @@ export class ProductFormPageComponent {
         next: (res) => {
           if (!res.isSuccess || !res.result) {
             this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: formatApiError(res.error)
+              ...presentApiError(res.error).toast
             });
             void this.router.navigate(['/dashboard', 'products']);
             return;
@@ -191,7 +185,7 @@ export class ProductFormPageComponent {
           });
         },
         error: (err: unknown) => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(err) });
+          this.messageService.add({ ...presentApiError(err).toast });
           void this.router.navigate(['/dashboard', 'products']);
         }
       });

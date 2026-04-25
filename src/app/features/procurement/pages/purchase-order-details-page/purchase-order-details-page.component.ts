@@ -14,7 +14,7 @@ import { TableModule } from 'primeng/table';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TimelineModule } from 'primeng/timeline';
 
-import { formatApiError } from '../../../../core/http/api-error.format';
+import { presentApiError } from '../../../../core/http/api-error.presenter';
 import type { PurchaseOrder, PurchaseOrderItem, PurchaseOrderStateTransition } from '../../models/purchase-order.entity';
 import {
   canEditPurchaseOrder,
@@ -233,8 +233,8 @@ export class PurchaseOrderDetailsPageComponent {
       .subscribe({
         next: (res) => {
           if (!res.isSuccess || !res.result) {
-            const detail = formatApiError(res.error);
-            this.messageService.add({ severity: 'error', summary: 'Error', detail });
+            const presentation = presentApiError(res.error);
+            this.messageService.add(presentation.toast);
             return;
           }
           this.purchaseOrder.set(res.result);
@@ -246,8 +246,7 @@ export class PurchaseOrderDetailsPageComponent {
           });
         },
         error: (err: unknown) => {
-          const detail = formatApiError(err);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail });
+          this.messageService.add(presentApiError(err).toast);
         }
       });
   }
@@ -293,18 +292,26 @@ export class PurchaseOrderDetailsPageComponent {
       .subscribe({
         next: (res) => {
           if (!res.isSuccess || !res.result) {
-            const detail = formatApiError(res.error);
+            const presentation = presentApiError(res.error);
+            const detail = presentation.toast.detail ?? 'Failed to load purchase order.';
             this.error.set(detail);
-            this.messageService.add({ severity: 'error', summary: 'Error', detail });
+            this.messageService.add(presentation.toast);
+            if (presentation.routeTarget) {
+              void this.router.navigate([presentation.routeTarget]);
+            }
             return;
           }
           this.purchaseOrder.set(res.result);
           this.resolveProductNames(res.result);
         },
         error: (err: unknown) => {
-          const detail = formatApiError(err);
+          const presentation = presentApiError(err);
+          const detail = presentation.toast.detail ?? 'Failed to load purchase order.';
           this.error.set(detail);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail });
+          this.messageService.add(presentation.toast);
+          if (presentation.routeTarget) {
+            void this.router.navigate([presentation.routeTarget]);
+          }
         }
       });
   }

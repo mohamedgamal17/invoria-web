@@ -10,7 +10,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 
-import { formatApiError } from '../../../../core/http/api-error.format';
+import { presentApiError } from '../../../../core/http/api-error.presenter';
 import type { Customer } from '../../models/customer.entity';
 import { CustomersApiService } from '../../services/customers-api.service';
 
@@ -72,13 +72,21 @@ export class CustomerDetailsPageComponent {
       .subscribe({
         next: (res) => {
           if (!res.isSuccess || !res.result) {
-            this.error.set(formatApiError(res.error));
+            const presentation = presentApiError(res.error);
+            this.error.set(presentation.toast.detail ?? 'Failed to load customer.');
+            if (presentation.routeTarget) {
+              void this.router.navigate([presentation.routeTarget]);
+            }
             return;
           }
           this.customer.set(res.result);
         },
         error: (err: unknown) => {
-          this.error.set(formatApiError(err));
+          const presentation = presentApiError(err);
+          this.error.set(presentation.toast.detail ?? 'Failed to load customer.');
+          if (presentation.routeTarget) {
+            void this.router.navigate([presentation.routeTarget]);
+          }
         }
       });
   }

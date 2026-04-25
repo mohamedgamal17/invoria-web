@@ -25,6 +25,13 @@ export function formatApiError(err: unknown, opts?: { maxValidationLines?: numbe
     return shown.length ? `${head}\n${shown.join('\n')}${more}` : head;
   }
 
+  if (!n.detail) {
+    if (n.kind === 'not-found') return 'The requested resource was not found.';
+    if (n.kind === 'internal') return 'An internal server error occurred. Please try again.';
+    if (n.kind === 'service-unavailable') return 'The service is currently unavailable. Please try again shortly.';
+    if (n.kind === 'offline') return 'No internet connection or API unreachable. Please check your network.';
+  }
+
   return (n.detail ?? `${statusPrefix}${n.title}`.trim()) || 'Unexpected error.';
 }
 

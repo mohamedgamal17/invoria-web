@@ -18,7 +18,7 @@ import { MessageModule } from 'primeng/message';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 
-import { formatApiError } from '../../../../core/http/api-error.format';
+import { presentApiError } from '../../../../core/http/api-error.presenter';
 import { canEditPurchaseOrder } from '../../models/purchase-order-actions';
 import type { CreatePurchaseOrderRequest } from '../../models/create-purchase-order.request';
 import type { PurchaseOrder, PurchaseOrderSupplierRef } from '../../models/purchase-order.entity';
@@ -134,9 +134,7 @@ export class PurchaseOrderFormPageComponent {
           next: (res) => {
             if (!res.isSuccess || !res.result) {
               this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: formatApiError(res.error)
+                ...presentApiError(res.error).toast
               });
               return;
             }
@@ -148,7 +146,7 @@ export class PurchaseOrderFormPageComponent {
             void this.router.navigate(['/dashboard', 'procurement', res.result.id]);
           },
           error: (err: unknown) => {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(err) });
+            this.messageService.add({ ...presentApiError(err).toast });
           }
         });
       return;
@@ -169,9 +167,7 @@ export class PurchaseOrderFormPageComponent {
         next: (res) => {
           if (!res.isSuccess || !res.result) {
             this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: formatApiError(res.error)
+              ...presentApiError(res.error).toast
             });
             return;
           }
@@ -183,7 +179,7 @@ export class PurchaseOrderFormPageComponent {
           void this.router.navigate(['/dashboard', 'procurement', id]);
         },
         error: (err: unknown) => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(err) });
+          this.messageService.add({ ...presentApiError(err).toast });
         }
       });
   }
@@ -240,9 +236,7 @@ export class PurchaseOrderFormPageComponent {
         next: (res) => {
           if (!res.isSuccess || !res.result) {
             this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: formatApiError(res.error)
+              ...presentApiError(res.error).toast
             });
             void this.router.navigate(['/dashboard', 'procurement']);
             return;
@@ -260,7 +254,7 @@ export class PurchaseOrderFormPageComponent {
           this.patchFormFromPurchaseOrder(po);
         },
         error: (err: unknown) => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(err) });
+          this.messageService.add({ ...presentApiError(err).toast });
           void this.router.navigate(['/dashboard', 'procurement']);
         }
       });

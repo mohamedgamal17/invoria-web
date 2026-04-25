@@ -64,5 +64,9 @@ export const routes: Routes = [
       }
     ]
   },
-  { path: '', pathMatch: 'full', redirectTo: 'dashboard' }
+  { path: 'not-found', loadComponent: () => import('./features/error-pages/pages/not-found-page/not-found-page.component').then((m) => m.NotFoundPageComponent) },
+  { path: 'internal-error', loadComponent: () => import('./features/error-pages/pages/internal-error-page/internal-error-page.component').then((m) => m.InternalErrorPageComponent) },
+  { path: 'service-unavailable', loadComponent: () => import('./features/error-pages/pages/service-unavailable-page/service-unavailable-page.component').then((m) => m.ServiceUnavailablePageComponent) },
+  { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+  { path: '**', redirectTo: 'not-found' }
 ];

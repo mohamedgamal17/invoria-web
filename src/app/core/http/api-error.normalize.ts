@@ -54,6 +54,7 @@ function tryExtractProblemDetails(payload: unknown): ApiNormalizedError | undefi
   if (title || detail || validationErrors || status !== undefined) {
     return {
       status,
+      kind: 'api',
       title: title ?? 'Request failed',
       detail,
       validationErrors,
@@ -73,7 +74,7 @@ function tryExtractApiResponseFailure(payload: unknown): ApiNormalizedError | un
 
   const error = body.error;
   if (typeof error === 'string') {
-    return { title: 'Request failed', detail: error, raw: payload };
+    return { kind: 'api', title: 'Request failed', detail: error, raw: payload };
   }
 
   const problem = tryExtractProblemDetails(error);
@@ -81,14 +82,14 @@ function tryExtractApiResponseFailure(payload: unknown): ApiNormalizedError | un
 
   const validationErrors = tryExtractValidationErrors(error);
   if (validationErrors) {
-    return { title: 'Validation failed', validationErrors, raw: payload };
+    return { kind: 'validation', title: 'Validation failed', validationErrors, raw: payload };
   }
 
   if (isRecord(error) && typeof error['message'] === 'string') {
-    return { title: 'Request failed', detail: error['message'] as string, raw: payload };
+    return { kind: 'api', title: 'Request failed', detail: error['message'] as string, raw: payload };
   }
 
-  return { title: 'Request failed', detail: safeJson(error), raw: payload };
+  return { kind: 'api', title: 'Request failed', detail: safeJson(error), raw: payload };
 }
 
 function safeJson(v: unknown): string {
@@ -97,6 +98,15 @@ function safeJson(v: unknown): string {
   } catch {
     return 'Request failed.';
   }
+}
+
+function classifyByStatus(status?: number, hasValidationErrors = false): ApiNormalizedError['kind'] {
+  if (hasValidationErrors || status === 400 || status === 422) return 'validation';
+  if (status === 404) return 'not-found';
+  if (status === 503) return 'service-unavailable';
+  if (status === 0) return 'offline';
+  if (status !== undefined && status >= 500) return 'internal';
+  return 'api';
 }
 
 export function normalizeApiError(err: unknown): ApiNormalizedError {
@@ -111,18 +121,31 @@ export function normalizeApiError(err: unknown): ApiNormalizedError {
 
     const fromApiResponse = tryExtractApiResponseFailure(payload);
     if (fromApiResponse) {
-      return { ...fromApiResponse, status: err.status ?? fromApiResponse.status, raw: payload };
+      const status = err.status ?? fromApiResponse.status;
+      return {
+        ...fromApiResponse,
+        status,
+        kind: classifyByStatus(status, !!fromApiResponse.validationErrors),
+        raw: payload
+      };
     }
 
     const fromProblem = tryExtractProblemDetails(payload);
     if (fromProblem) {
-      return { ...fromProblem, status: err.status ?? fromProblem.status, raw: payload };
+      const status = err.status ?? fromProblem.status;
+      return {
+        ...fromProblem,
+        status,
+        kind: classifyByStatus(status, !!fromProblem.validationErrors),
+        raw: payload
+      };
     }
 
     const validationErrors = tryExtractValidationErrors(payload);
     if (validationErrors) {
       return {
         status: err.status,
+        kind: classifyByStatus(err.status, true),
         title: 'Validation failed',
         validationErrors,
         raw: payload
@@ -138,6 +161,7 @@ export function normalizeApiError(err: unknown): ApiNormalizedError {
 
     return {
       status: err.status,
+      kind: classifyByStatus(err.status),
       title: err.status ? `Request failed (${err.status})` : 'Request failed',
       detail: message || 'Request failed.',
       raw: payload
@@ -146,10 +170,10 @@ export function normalizeApiError(err: unknown): ApiNormalizedError {
 
   // Generic JS errors
   if (err instanceof Error) {
-    return { title: 'Error', detail: err.message, raw: err };
+    return { kind: 'api', title: 'Error', detail: err.message, raw: err };
   }
 
   // Unknown
-  return { title: 'Error', detail: safeJson(err), raw: err };
+  return { kind: 'api', title: 'Error', detail: safeJson(err), raw: err };
 }
 

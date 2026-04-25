@@ -13,7 +13,7 @@ import { TagModule } from 'primeng/tag';
 import { TimelineModule } from 'primeng/timeline';
 import { ToastModule } from 'primeng/toast';
 
-import { formatApiError } from '../../../../core/http/api-error.format';
+import { presentApiError } from '../../../../core/http/api-error.presenter';
 import {
   canEditOrder,
   getAvailableOrderActions,
@@ -211,19 +211,27 @@ export class OrderDetailsPageComponent {
       .subscribe({
         next: (res) => {
           if (!res.isSuccess || !res.result) {
-            const detail = formatApiError(res.error);
+            const presentation = presentApiError(res.error);
+            const detail = presentation.toast.detail ?? 'Failed to load order.';
             this.error.set(detail);
             this.order.set(null);
-            this.messageService.add({ severity: 'error', summary: 'Error', detail });
+            this.messageService.add(presentation.toast);
+            if (presentation.routeTarget) {
+              void this.router.navigate([presentation.routeTarget]);
+            }
             return;
           }
           this.order.set(orderToUiOrder(res.result));
         },
         error: (err: unknown) => {
-          const detail = formatApiError(err);
+          const presentation = presentApiError(err);
+          const detail = presentation.toast.detail ?? 'Failed to load order.';
           this.error.set(detail);
           this.order.set(null);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail });
+          this.messageService.add(presentation.toast);
+          if (presentation.routeTarget) {
+            void this.router.navigate([presentation.routeTarget]);
+          }
         }
       });
   }
@@ -242,7 +250,7 @@ export class OrderDetailsPageComponent {
       .subscribe({
         next: (res) => {
           if (!res.isSuccess || !res.result) {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(res.error) });
+            this.messageService.add(presentApiError(res.error).toast);
             return;
           }
           this.messageService.add({
@@ -253,7 +261,7 @@ export class OrderDetailsPageComponent {
           this.order.set(orderToUiOrder(res.result));
         },
         error: (err: unknown) => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: formatApiError(err) });
+          this.messageService.add(presentApiError(err).toast);
         }
       });
   }

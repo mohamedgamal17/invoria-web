@@ -13,7 +13,7 @@ import type { ListCustomerRequest } from '../../models/list-customer.request';
 import { CustomerListComponent } from '../../components/customer-list/customer-list.component';
 import type { Customer } from '../../models/customer.entity';
 import type { PagingInfo } from '../../../../core/models/paging';
-import { formatApiError } from '../../../../core/http/api-error.format';
+import { presentApiError } from '../../../../core/http/api-error.presenter';
 
 const EMPTY_CUSTOMERS_TUPLE: [Customer[], PagingInfo] = [
   [],
@@ -93,18 +93,13 @@ export class CustomersPageComponent {
       this.customersApi.listCustomers(params).pipe(
         map((res) => {
           if (!res.isSuccess || !res.result) {
-            const detail = this.formatApiFailureDetail(res.error);
-            this.messageService.add({ severity: 'error', summary: 'Error', detail });
+            this.showApiError(res.error);
             return EMPTY_CUSTOMERS_TUPLE;
           }
           return [res.result.data, res.result.info] as [Customer[], PagingInfo];
         }),
         catchError((err: unknown) => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: formatApiError(err)
-          });
+          this.showApiError(err);
           return of(EMPTY_CUSTOMERS_TUPLE);
         })
       )
@@ -175,7 +170,11 @@ export class CustomersPageComponent {
     };
   }
 
-  private formatApiFailureDetail(error: unknown): string {
-    return formatApiError(error);
+  private showApiError(error: unknown): void {
+    const presentation = presentApiError(error);
+    this.messageService.add(presentation.toast);
+    if (presentation.routeTarget) {
+      void this.router.navigate([presentation.routeTarget]);
+    }
   }
 }

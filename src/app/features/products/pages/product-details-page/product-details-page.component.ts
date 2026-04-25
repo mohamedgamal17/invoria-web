@@ -9,7 +9,7 @@ import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
 
-import { formatApiError } from '../../../../core/http/api-error.format';
+import { presentApiError } from '../../../../core/http/api-error.presenter';
 import { ProductsBreadcrumbComponent } from '../../components/products-breadcrumb/products-breadcrumb.component';
 import type { Product } from '../../models/product.entity';
 import { ProductsApiService } from '../../services/products-api.service';
@@ -96,10 +96,10 @@ export class ProductDetailsPageComponent {
           .subscribe({
             next: (res) => {
               if (!res.isSuccess) {
+                const presentation = presentApiError(res.error);
                 this.messageService.add({
-                  severity: 'error',
-                  summary: 'Error',
-                  detail: `Could not delete product. ${formatApiError(res.error)}`
+                  ...presentation.toast,
+                  detail: `Could not delete product. ${presentation.toast.detail}`
                 });
                 return;
               }
@@ -111,10 +111,10 @@ export class ProductDetailsPageComponent {
               void this.router.navigate(['/dashboard', 'products']);
             },
             error: (err: unknown) => {
+              const presentation = presentApiError(err);
               this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: `Could not delete product. ${formatApiError(err)}`
+                ...presentation.toast,
+                detail: `Could not delete product. ${presentation.toast.detail}`
               });
             }
           });
@@ -146,13 +146,21 @@ export class ProductDetailsPageComponent {
       .subscribe({
         next: (res) => {
           if (!res.isSuccess || !res.result) {
-            this.error.set(`Could not load product details. ${formatApiError(res.error)}`);
+            const presentation = presentApiError(res.error);
+            this.error.set(`Could not load product details. ${presentation.toast.detail}`);
+            if (presentation.routeTarget) {
+              void this.router.navigate([presentation.routeTarget]);
+            }
             return;
           }
           this.product.set(res.result);
         },
         error: (err: unknown) => {
-          this.error.set(`Could not load product details. ${formatApiError(err)}`);
+          const presentation = presentApiError(err);
+          this.error.set(`Could not load product details. ${presentation.toast.detail}`);
+          if (presentation.routeTarget) {
+            void this.router.navigate([presentation.routeTarget]);
+          }
         }
       });
   }
