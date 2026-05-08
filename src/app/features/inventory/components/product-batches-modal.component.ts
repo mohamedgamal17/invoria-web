@@ -9,14 +9,13 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
-import { TagModule } from 'primeng/tag';
 import type { BatchesProductRef } from '../models/batches-product.ref';
 import { ProductBatchesPanelComponent } from './product-batches-panel.component';
 
 @Component({
   selector: 'app-product-batches-modal',
   standalone: true,
-  imports: [CommonModule, DialogModule, TagModule, ProductBatchesPanelComponent],
+  imports: [CommonModule, DialogModule, ProductBatchesPanelComponent],
   template: `
     <p-dialog
       [(visible)]="visible"
@@ -32,14 +31,9 @@ import { ProductBatchesPanelComponent } from './product-batches-panel.component'
       <ng-template pTemplate="header">
         <div class="flex flex-col gap-1">
           <span class="text-xs font-bold uppercase tracking-widest text-primary">Inventory Management</span>
-          <div class="flex min-w-0 flex-wrap items-center gap-2">
-            <h2 class="m-0 max-w-full truncate text-2xl font-extrabold leading-none text-foreground md:text-3xl">
-              {{ product()?.name }}
-            </h2>
-            @if (product()?.code) {
-              <p-tag [value]="product()!.code" severity="secondary" styleClass="text-xs font-mono shrink-0" />
-            }
-          </div>
+          <h2 class="m-0 max-w-full truncate text-2xl font-extrabold leading-none text-foreground md:text-3xl">
+            {{ product()?.name }}
+          </h2>
         </div>
       </ng-template>
 

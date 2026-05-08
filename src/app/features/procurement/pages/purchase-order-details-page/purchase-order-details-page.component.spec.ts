@@ -76,7 +76,6 @@ describe('PurchaseOrderDetailsPageComponent', () => {
           result: {
             id: 'prod_1',
             name: 'Resolved product name',
-            code: 'CODE-1',
             price: 100,
             stock: {
               actualQuantity: 0,
@@ -209,7 +208,7 @@ describe('PurchaseOrderDetailsPageComponent', () => {
   it('should navigate back to procurement list', () => {
     const router = TestBed.inject(Router);
     fixture.componentInstance.backToList();
-    expect(router.navigate).toHaveBeenCalledWith(['/procurement']);
+    expect(router.navigate).toHaveBeenCalledWith(['/dashboard', 'procurement']);
   });
 
   it('should show empty state when stateHistory is absent', async () => {

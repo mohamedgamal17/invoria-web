@@ -4,5 +4,4 @@
 export interface BatchesProductRef {
   id: string;
   name: string;
-  code?: string;
 }

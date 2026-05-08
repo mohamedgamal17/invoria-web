@@ -21,16 +21,7 @@
       (onClick)="backToProduct()"
     />
     @if (!loading() && !error() && product(); as p) {
-      <div class="flex min-w-0 flex-wrap items-center justify-end gap-2">
-        <h1 class="m-0 max-w-full truncate text-xl font-bold text-foreground md:text-2xl">{{ p.name }}</h1>
-        @if (p.code) {
-          <p-tag
-            [value]="p.code"
-            severity="secondary"
-            styleClass="px-2.5 py-1 text-xs uppercase font-bold tracking-tight rounded-md border border-border shrink-0"
-          />
-        }
-      </div>
+      <h1 class="m-0 max-w-full truncate text-xl font-bold text-foreground md:text-2xl">{{ p.name }}</h1>
     }
   </div>
 

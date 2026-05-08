@@ -11,7 +11,6 @@ import type { Product } from '../../models/product.entity';
 
 export type ProductDraft = {
   name: string;
-  code: string;
   price: number;
 };
 
@@ -45,7 +44,6 @@ export class ProductDialogComponent {
 
   readonly form = this.formBuilder.group({
     name: this.formBuilder.nonNullable.control('', [Validators.required, Validators.maxLength(120)]),
-    code: this.formBuilder.nonNullable.control('', [Validators.required, Validators.maxLength(40)]),
     price: this.formBuilder.nonNullable.control(0, [Validators.required, Validators.min(0.01)])
   });
 
@@ -55,13 +53,11 @@ export class ProductDialogComponent {
       if (p) {
         this.form.reset({
           name: p.name,
-          code: p.code,
           price: p.price
         });
       } else {
         this.form.reset({
           name: '',
-          code: '',
           price: 0
         });
       }
@@ -77,7 +73,6 @@ export class ProductDialogComponent {
     const formValue = this.form.getRawValue();
     this.save.emit({
       name: formValue.name,
-      code: formValue.code.trim().toUpperCase(),
       price: formValue.price
     });
   }

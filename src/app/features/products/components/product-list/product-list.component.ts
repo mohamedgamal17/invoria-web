@@ -6,7 +6,6 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { PaginatorModule } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
-import { TagModule } from 'primeng/tag';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
@@ -32,7 +31,6 @@ type SearchAction =
     TableModule,
     PaginatorModule,
     SkeletonModule,
-    TagModule,
     IconFieldModule,
     InputIconModule,
     InputTextModule,

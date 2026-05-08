@@ -34,12 +34,6 @@
     }
   </div>
   @if (selectedProduct(); as p) {
-    <p class="text-[10px] text-muted-foreground break-all">
-      @if (p.code) {
-        {{ p.name }} · {{ p.code }}
-      } @else {
-        {{ p.name }}
-      }
-    </p>
+    <p class="text-[10px] text-muted-foreground break-all">{{ p.name }}</p>
   }
 </div>

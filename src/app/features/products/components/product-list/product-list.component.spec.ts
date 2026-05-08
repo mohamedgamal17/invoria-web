@@ -13,7 +13,6 @@ describe('ProductListComponent', () => {
   const mockProduct: Product = {
     id: 'prd_1',
     name: 'Product A',
-    code: 'PRD-A',
     price: 100,
     stock: {
       actualQuantity: 15,

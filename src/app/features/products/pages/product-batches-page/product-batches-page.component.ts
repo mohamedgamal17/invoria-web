@@ -6,7 +6,6 @@ import { finalize, map, take } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
-import { TagModule } from 'primeng/tag';
 import type { PaginatorState } from 'primeng/paginator';
 import type { TablePageEvent } from 'primeng/table';
 
@@ -25,7 +24,6 @@ import { ProductsApiService } from '../../services/products-api.service';
     ButtonModule,
     CardModule,
     SkeletonModule,
-    TagModule,
     ProductsBreadcrumbComponent,
     ProductBatchesPanelComponent
   ],
@@ -81,14 +79,14 @@ export class ProductBatchesPageComponent {
     if (!p) {
       return null;
     }
-    return { id: p.id, name: p.name, code: p.code };
+    return { id: p.id, name: p.name };
   });
 
   readonly breadcrumbItems = computed(() => {
     const p = this.product();
     const id = this.routeProductId();
-    const label = p ? p.name.trim() || p.code : 'Product';
-    const base = ['/products'] as string[];
+    const label = p ? p.name.trim() || 'Product' : 'Product';
+    const base = ['/dashboard', 'products'] as string[];
     return [
       { label: 'Products', routerLink: base },
       { label, routerLink: [...base, id] },

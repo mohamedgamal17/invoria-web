@@ -7,8 +7,6 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
-import { TagModule } from 'primeng/tag';
-
 import { presentApiError } from '../../../../core/http/api-error.presenter';
 import { ProductsBreadcrumbComponent } from '../../components/products-breadcrumb/products-breadcrumb.component';
 import type { Product } from '../../models/product.entity';
@@ -22,7 +20,6 @@ import { ProductsApiService } from '../../services/products-api.service';
     ButtonModule,
     CardModule,
     SkeletonModule,
-    TagModule,
     ProductsBreadcrumbComponent
   ],
   templateUrl: './product-details-page.component.html'
@@ -50,9 +47,9 @@ export class ProductDetailsPageComponent {
 
   readonly breadcrumbItems = computed(() => {
     const p = this.product();
-    const label = p ? p.name.trim() || p.code : 'Product';
+    const label = p ? p.name.trim() || 'Product' : 'Product';
     return [
-      { label: 'Products', routerLink: ['/products'] as string[] },
+      { label: 'Products', routerLink: ['/dashboard', 'products'] as string[] },
       { label }
     ];
   });
@@ -64,7 +61,7 @@ export class ProductDetailsPageComponent {
   }
 
   backToList(): void {
-    void this.router.navigate(['/products']);
+    void this.router.navigate(['/dashboard', 'products']);
   }
 
   goToEdit(): void {
@@ -108,7 +105,7 @@ export class ProductDetailsPageComponent {
                 summary: 'Success',
                 detail: 'Product deleted successfully.'
               });
-              void this.router.navigate(['/products']);
+              void this.router.navigate(['/dashboard', 'products']);
             },
             error: (err: unknown) => {
               const presentation = presentApiError(err);

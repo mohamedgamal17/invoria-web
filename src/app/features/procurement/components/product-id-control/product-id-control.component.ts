@@ -16,13 +16,12 @@ import { productSearchListRequest } from '../../../products/models/list-product.
 import { ProductsApiService } from '../../../products/services/products-api.service';
 
 /** Optional label when the parent only has an id (e.g. purchase order line). */
-export type ResolvedProductRef = Pick<Product, 'id' | 'name' | 'code'>;
+export type ResolvedProductRef = Pick<Product, 'id' | 'name'>;
 
-function productDisplayStub(id: string, name: string, code: string): Product {
+function productDisplayStub(id: string, name: string): Product {
   return {
     id,
     name,
-    code,
     price: 0,
     stock: {
       actualQuantity: 0,
@@ -67,9 +66,7 @@ export class ProductIdControlComponent implements ControlValueAccessor {
       if (!this.currentId || !ref || ref.id !== this.currentId) {
         return;
       }
-      this.selectedProduct.set(
-        productDisplayStub(ref.id, ref.name, (ref.code ?? '').trim())
-      );
+      this.selectedProduct.set(productDisplayStub(ref.id, ref.name));
     });
   }
 
@@ -85,11 +82,9 @@ export class ProductIdControlComponent implements ControlValueAccessor {
     }
     const ref = this.resolvedProduct();
     if (ref?.id === this.currentId) {
-      this.selectedProduct.set(
-        productDisplayStub(ref.id, ref.name, (ref.code ?? '').trim())
-      );
+      this.selectedProduct.set(productDisplayStub(ref.id, ref.name));
     } else {
-      this.selectedProduct.set(productDisplayStub(this.currentId, this.currentId, ''));
+      this.selectedProduct.set(productDisplayStub(this.currentId, this.currentId));
     }
   }
 

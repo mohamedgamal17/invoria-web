@@ -14,8 +14,7 @@ describe('ProductBatchesModalComponent', () => {
 
   const mockProduct: BatchesProductRef = {
     id: 'prd_1',
-    name: 'Product A',
-    code: 'P-A'
+    name: 'Product A'
   };
 
   const batchesApiMock = {

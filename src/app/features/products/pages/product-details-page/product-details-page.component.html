@@ -74,16 +74,9 @@
   } @else if (product(); as p) {
     <p-card styleClass="border border-border/70">
       <div class="flex flex-col gap-6">
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-          <div class="min-w-0 space-y-1">
-            <h1 class="text-2xl font-bold text-foreground truncate">{{ p.name }}</h1>
-            <p class="text-sm text-muted-foreground">Updated {{ p.lastModifiedAt | date: 'medium' }}</p>
-          </div>
-          <p-tag
-            [value]="p.code"
-            severity="secondary"
-            styleClass="px-2.5 py-1 text-xs uppercase font-bold tracking-tight rounded-md border border-border shrink-0"
-          />
+        <div class="min-w-0 space-y-1">
+          <h1 class="text-2xl font-bold text-foreground truncate">{{ p.name }}</h1>
+          <p class="text-sm text-muted-foreground">Updated {{ p.lastModifiedAt | date: 'medium' }}</p>
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2">

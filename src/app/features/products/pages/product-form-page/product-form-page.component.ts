@@ -49,7 +49,6 @@ export class ProductFormPageComponent {
 
   readonly form = this.formBuilder.group({
     name: this.formBuilder.nonNullable.control('', [Validators.required, Validators.maxLength(120)]),
-    code: this.formBuilder.nonNullable.control('', [Validators.required, Validators.maxLength(40)]),
     price: this.formBuilder.nonNullable.control(0, [Validators.required, Validators.min(0.01)])
   });
 
@@ -57,14 +56,14 @@ export class ProductFormPageComponent {
     const m = this.mode();
     if (m === 'create') {
       return [
-        { label: 'Products', routerLink: ['/products'] as string[] },
+        { label: 'Products', routerLink: ['/dashboard', 'products'] as string[] },
         { label: 'Create' }
       ];
     }
     const name = this.loadedName();
     return [
-      { label: 'Products', routerLink: ['/products'] as string[] },
-      { label: name || 'Product', routerLink: ['/products', this.productId() ?? ''] },
+      { label: 'Products', routerLink: ['/dashboard', 'products'] as string[] },
+      { label: name || 'Product', routerLink: ['/dashboard', 'products', this.productId() ?? ''] },
       { label: 'Edit' }
     ];
   });
@@ -93,7 +92,6 @@ export class ProductFormPageComponent {
     const raw = this.form.getRawValue();
     const body: CreateProductRequest = {
       Name: raw.name.trim(),
-      Code: raw.code.trim(),
       Price: raw.price
     };
 
@@ -173,20 +171,19 @@ export class ProductFormPageComponent {
             this.messageService.add({
               ...presentApiError(res.error).toast
             });
-            void this.router.navigate(['/products']);
+            void this.router.navigate(['/dashboard', 'products']);
             return;
           }
           const p = res.result;
           this.loadedName.set(p.name);
           this.form.reset({
             name: p.name,
-            code: p.code,
             price: p.price
           });
         },
         error: (err: unknown) => {
           this.messageService.add({ ...presentApiError(err).toast });
-          void this.router.navigate(['/products']);
+          void this.router.navigate(['/dashboard', 'products']);
         }
       });
   }

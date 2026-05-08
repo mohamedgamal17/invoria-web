@@ -20,7 +20,6 @@
             <p-skeleton height="1.25rem" width="80%"></p-skeleton>
             <p-skeleton height="0.875rem" width="40%"></p-skeleton>
           </div>
-          <p-skeleton height="1.5rem" width="4rem" shape="rectangle"></p-skeleton>
         </div>
         <div class="flex justify-between items-center pt-3 border-t border-border/50">
           <div class="space-y-1">
@@ -41,14 +40,9 @@
             <span class="truncate text-base font-bold text-foreground">{{ product.name }}</span>
             <span class="text-xs text-muted-foreground mt-0.5">Updated {{ product.lastModifiedAt | date:'shortDate' }}</span>
           </div>
-          <p-tag
-            [value]="product.code"
-            severity="secondary"
-            styleClass="px-2.5 py-1 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border shrink-0"
-          />
         </div>
         
-        <div class="flex flex-col items-end mb-4">
+        <div class="flex flex-col items-end mb-4 px-1">
           <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-1">Inventory</span>
           <span
             class="inline-flex items-center gap-2 text-xs font-semibold tabular-nums rounded-md border border-border/70 bg-surface-2 px-2.5 py-1"
@@ -154,9 +148,6 @@
         <th class="px-4 py-5 font-bold uppercase tracking-wider">
           Product Details
         </th>
-        <th class="px-4 py-5 font-bold uppercase tracking-wider">
-          SKU Code
-        </th>
         <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">
           Price
         </th>
@@ -177,13 +168,6 @@
             <span class="truncate text-sm font-semibold text-foreground">{{ product.name }}</span>
             <span class="text-xs text-muted-foreground mt-0.5">Updated {{ product.lastModifiedAt | date:'shortDate' }}</span>
           </div>
-        </td>
-        <td class="px-4 py-5">
-          <p-tag
-            [value]="product.code"
-            severity="secondary"
-            styleClass="px-2 py-1 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border"
-          />
         </td>
         <td class="px-4 py-5 text-right">
           <div class="text-sm font-bold text-foreground tabular-nums">
@@ -229,9 +213,6 @@
               <p-skeleton height="0.8rem" width="40%"></p-skeleton>
             </div>
           </td>
-          <td class="px-4 py-5">
-            <p-skeleton height="1.5rem" width="5rem" shape="rectangle"></p-skeleton>
-          </td>
           <td class="px-4 py-5 text-right">
             <p-skeleton height="1.1rem" width="4rem" styleClass="ml-auto"></p-skeleton>
           </td>
@@ -250,7 +231,7 @@
     <!-- Empty Message -->
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="5" class="px-4 py-12 text-center">
+        <td colspan="4" class="px-4 py-12 text-center">
           <div class="flex flex-col items-center gap-3">
             <i class="pi pi-inbox text-4xl text-muted-foreground opacity-20"></i>
             <div class="text-base font-medium text-foreground">No products found</div>

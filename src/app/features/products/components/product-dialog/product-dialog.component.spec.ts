@@ -12,7 +12,6 @@ describe('ProductDialogComponent', () => {
   const mockProduct: Product = {
     id: 'prd_1',
     name: 'Product A',
-    code: 'pr-1',
     price: 50,
     stock: {
       actualQuantity: 10,
@@ -42,7 +41,6 @@ describe('ProductDialogComponent', () => {
   it('should initialize empty form in create mode', () => {
     expect(component.form.getRawValue()).toEqual({
       name: '',
-      code: '',
       price: 0
     });
   });
@@ -53,28 +51,25 @@ describe('ProductDialogComponent', () => {
 
     expect(component.form.getRawValue()).toEqual({
       name: mockProduct.name,
-      code: mockProduct.code,
       price: mockProduct.price
     });
   });
 
   it('should block submit and mark controls touched when form is invalid', () => {
     const saveSpy = vi.spyOn(component.save, 'emit');
-    component.form.setValue({ name: '', code: '', price: 0 });
+    component.form.setValue({ name: '', price: 0 });
 
     component.submit();
 
     expect(saveSpy).not.toHaveBeenCalled();
     expect(component.form.controls.name.touched).toBe(true);
-    expect(component.form.controls.code.touched).toBe(true);
     expect(component.form.controls.price.touched).toBe(true);
   });
 
-  it('should emit normalized payload on valid submit', () => {
+  it('should emit payload on valid submit', () => {
     const saveSpy = vi.spyOn(component.save, 'emit');
     component.form.setValue({
       name: '  Product X  ',
-      code: '  prd-7 ',
       price: 77.5
     });
 
@@ -82,7 +77,6 @@ describe('ProductDialogComponent', () => {
 
     expect(saveSpy).toHaveBeenCalledWith({
       name: '  Product X  ',
-      code: 'PRD-7',
       price: 77.5
     });
   });
