@@ -1,14 +1,13 @@
 import { describe, it, expect } from 'vitest';
 
 import type { Product } from '../models/product.entity';
-import { filterProductsByNameOrCode } from './products-api.service';
+import { filterProductsByName } from './products-api.service';
 
-describe('filterProductsByNameOrCode', () => {
+describe('filterProductsByName', () => {
   const rows: Product[] = [
     {
       id: '1',
       name: 'Alpha Widget',
-      code: 'AW-1',
       price: 10,
       stock: {
         actualQuantity: 0,
@@ -19,7 +18,6 @@ describe('filterProductsByNameOrCode', () => {
     {
       id: '2',
       name: 'Beta',
-      code: 'ZZ-99',
       price: 5,
       stock: {
         actualQuantity: 0,
@@ -30,14 +28,14 @@ describe('filterProductsByNameOrCode', () => {
   ];
 
   it('returns all rows when filter is empty or whitespace', () => {
-    expect(filterProductsByNameOrCode(rows, '')).toEqual(rows);
-    expect(filterProductsByNameOrCode(rows, '   ')).toEqual(rows);
-    expect(filterProductsByNameOrCode(rows, undefined)).toEqual(rows);
+    expect(filterProductsByName(rows, '')).toEqual(rows);
+    expect(filterProductsByName(rows, '   ')).toEqual(rows);
+    expect(filterProductsByName(rows, undefined)).toEqual(rows);
   });
 
-  it('filters case-insensitively on name or code', () => {
-    expect(filterProductsByNameOrCode(rows, 'alpha')).toEqual([rows[0]]);
-    expect(filterProductsByNameOrCode(rows, 'ZZ-99')).toEqual([rows[1]]);
-    expect(filterProductsByNameOrCode(rows, 'widget')).toEqual([rows[0]]);
+  it('filters case-insensitively on name', () => {
+    expect(filterProductsByName(rows, 'alpha')).toEqual([rows[0]]);
+    expect(filterProductsByName(rows, 'beta')).toEqual([rows[1]]);
+    expect(filterProductsByName(rows, 'widget')).toEqual([rows[0]]);
   });
 });

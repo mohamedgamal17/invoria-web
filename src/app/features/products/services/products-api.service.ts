@@ -12,15 +12,12 @@ import type { UpdateProductRequest } from '../models/update-product.request';
 import { httpParamsFromRequest } from '../../../shared/requests/http-params-from-request';
 
 /** Client-side filter for autocomplete until API exposes search query params. */
-export function filterProductsByNameOrCode(products: Product[], nameOrCodeFilter?: string): Product[] {
-  const q = (nameOrCodeFilter ?? '').trim().toLowerCase();
+export function filterProductsByName(products: Product[], nameFilter?: string): Product[] {
+  const q = (nameFilter ?? '').trim().toLowerCase();
   if (!q) {
     return products;
   }
-  return products.filter(
-    (p) =>
-      (p.name || '').toLowerCase().includes(q) || (p.code || '').toLowerCase().includes(q)
-  );
+  return products.filter((p) => (p.name || '').toLowerCase().includes(q));
 }
 
 @Injectable({
@@ -72,10 +69,10 @@ export class ProductsApiService {
   }
 
   /**
-   * Loads products for autocomplete from GET /products; optional `nameOrCodeFilter` filters client-side on name/code.
+   * Loads products for autocomplete from GET /products; optional `nameFilter` filters client-side on name.
    * When OpenAPI adds search query params, extend {@link ListProductRequest} and pass the filter through HTTP.
    */
-  searchProducts(listRequest: ListProductRequest, nameOrCodeFilter?: string): Observable<Product[]> {
+  searchProducts(listRequest: ListProductRequest, nameFilter?: string): Observable<Product[]> {
     return this.http
       .get<ApiResponse<Paging<Product>>>(`${this.baseUrl}products`, {
         params: httpParamsFromRequest(listRequest)
@@ -85,21 +82,17 @@ export class ProductsApiService {
           if (!body.isSuccess || !body.result) {
             return [];
           }
-          return filterProductsByNameOrCode(body.result.data, nameOrCodeFilter);
+          return filterProductsByName(body.result.data, nameFilter);
         })
       );
   }
 
   private assertCreateOrUpdateBody(request: CreateProductRequest): void {
     const name = (request.Name || '').trim();
-    const code = (request.Code || '').trim();
     const price = request.Price;
 
     if (!name) {
       throw new Error('Name is required.');
-    }
-    if (!code) {
-      throw new Error('Code is required.');
     }
     if (!Number.isFinite(price) || price < 0) {
       throw new Error('Price must be a valid non-negative number.');
