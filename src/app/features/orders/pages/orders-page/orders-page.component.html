@@ -1,6 +1,16 @@
-<section class="space-y-6">
+<section class="flex flex-col gap-8">
   <app-order-header 
     (create)="goToCreatePage()"
+  />
+
+  <app-orders-filter-panel
+    [orderNumber]="qFromRoute()"
+    [status]="orderStatusFilterFromRoute()"
+    [paymentStatus]="paymentStatusFilterFromRoute()"
+    [paymentType]="paymentTypeFilterFromRoute()"
+    [loading]="ordersResource.isLoading()"
+    (filtersChange)="onFiltersChange($event)"
+    (clearFilters)="onClearFilters()"
   />
 
   <app-order-list
@@ -9,11 +19,10 @@
     [first]="first()"
     [pageSize]="pageSize()"
     [pageSizeOptions]="pageSizeOptions"
-    [orderNumberFilter]="qFromRoute()"
     [loading]="ordersResource.isLoading()"
     [showDelete]="false"
     (pageChange)="onPageChange($event)"
-    (orderNumberFilterChange)="onOrderNumberFilterChange($event)"
+    (clearFilters)="onClearFilters()"
     (view)="goToDetails($event)"
   />
 </section>

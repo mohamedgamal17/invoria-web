@@ -13,6 +13,7 @@ import { ProductsApiService } from '../../../products/services/products-api.serv
 import { CustomersApiService } from '../../../customers/services/customers-api.service';
 import type { Order } from '../../models/order.entity';
 import { OrderFullfillmentStatus, OrderStatus } from '../../models/order.entity';
+import { PaymentStatus, PaymentType } from '../../models/order-payment.enums';
 
 describe('OrdersPageComponent', () => {
   let component: OrdersPageComponent;
@@ -116,5 +117,25 @@ describe('OrdersPageComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
     expect(mockOrdersApi.listOrders).toHaveBeenCalled();
+  });
+
+  it('passes Status and payment filters to listOrders when query params are set', async () => {
+    const paramMap$ = new BehaviorSubject(
+      convertToParamMap({
+        page: '1',
+        pageSize: '25',
+        status: String(OrderStatus.Accepted),
+        paymentStatus: String(PaymentStatus.Paid),
+        paymentType: String(PaymentType.Cash)
+      })
+    );
+    await createFixture(paramMap$);
+    expect(mockOrdersApi.listOrders).toHaveBeenCalledWith(
+      expect.objectContaining({
+        Status: OrderStatus.Accepted,
+        PaymentStatus: PaymentStatus.Paid,
+        PaymentType: PaymentType.Cash
+      })
+    );
   });
 });
