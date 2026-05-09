@@ -1,0 +1,15 @@
+<section class="space-y-4">
+  <app-order-list
+    [orders]="displayOrders()"
+    [totalRecords]="displayPaging().totalCount"
+    [first]="first()"
+    [pageSize]="pageSize()"
+    [pageSizeOptions]="pageSizeOptions"
+    [orderNumberFilter]="q()"
+    [loading]="ordersResource.isLoading()"
+    [showDelete]="false"
+    (pageChange)="onPageChange($event)"
+    (orderNumberFilterChange)="onOrderNumberFilterChange($event)"
+    (view)="goToDetails($event)"
+  />
+</section>
