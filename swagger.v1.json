@@ -1781,6 +1781,54 @@
             }
           },
           {
+            "name": "PaymentType",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderPaymentType"
+                }
+              ]
+            }
+          },
+          {
+            "name": "PaymentStatus",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderPaymentStatus"
+                }
+              ]
+            }
+          },
+          {
+            "name": "Status",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderStatus"
+                }
+              ]
+            }
+          },
+          {
+            "name": "FullfillmentStatus",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersFullfillmentStatus"
+                }
+              ]
+            }
+          },
+          {
             "name": "Skip",
             "in": "query",
             "required": true,
@@ -1796,33 +1844,6 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            }
-          },
-          {
-            "name": "Status",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "nullable": true
-            }
-          },
-          {
-            "name": "PaymentStatus",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "nullable": true
-            }
-          },
-          {
-            "name": "PaymentType",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "nullable": true
             }
           }
         ],
@@ -2137,6 +2158,121 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/InvoriaOrderingEndpointsOrdersRequestsUpdateOrderItemsRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfOrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{id}/payments": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Record order payment",
+        "description": "Adds a payment to a completed order. Immediate orders require one payment matching the total; debt orders allow partial payments up to outstanding.",
+        "operationId": "RecordOrderPaymentEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "RecordOrderPaymentRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoriaOrderingEndpointsOrdersRequestsRecordOrderPaymentRequest"
               }
             }
           },
@@ -2851,6 +2987,26 @@
         "parameters": [
           {
             "name": "Number",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "Status",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/InvoriaProcurementContractsPurchaseOrdersPurchaseState"
+                }
+              ]
+            }
+          },
+          {
+            "name": "SupplierId",
             "in": "query",
             "schema": {
               "type": "string",
@@ -4109,10 +4265,6 @@
           "Name": {
             "type": "string"
           },
-          "Code": {
-            "type": "string",
-            "nullable": true
-          },
           "Price": {
             "type": "number",
             "format": "decimal"
@@ -4142,10 +4294,6 @@
         "properties": {
           "Name": {
             "type": "string"
-          },
-          "Code": {
-            "type": "string",
-            "nullable": true
           },
           "Price": {
             "type": "number",
@@ -4225,10 +4373,6 @@
         "properties": {
           "Name": {
             "type": "string"
-          },
-          "Code": {
-            "type": "string",
-            "nullable": true
           },
           "Price": {
             "type": "number",
@@ -4588,6 +4732,20 @@
           "FullfillmentStatus": {
             "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersFullfillmentStatus"
           },
+          "PaymentType": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderPaymentType"
+          },
+          "AmountPaid": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "AmountOutstanding": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "PaymentStatus": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderPaymentStatus"
+          },
           "Items": {
             "type": "array",
             "items": {
@@ -4604,6 +4762,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/InvoriaOrderingContractsDtosOrderStateTransitionHistoryDto"
+            }
+          },
+          "Payments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaOrderingContractsDtosOrderPaymentDto"
             }
           }
         }
@@ -4648,6 +4812,32 @@
           25,
           30,
           35
+        ]
+      },
+      "InvoriaOrderingContractsOrdersOrderPaymentType": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Immediate",
+          "Debt"
+        ],
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "InvoriaOrderingContractsOrdersOrderPaymentStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Unpaid",
+          "Partial",
+          "Paid"
+        ],
+        "enum": [
+          0,
+          1,
+          2
         ]
       },
       "InvoriaOrderingContractsDtosOrderItemDto": {
@@ -4746,6 +4936,62 @@
           }
         }
       },
+      "InvoriaOrderingContractsDtosOrderPaymentDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CreatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "CreatedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "LastModifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "LastModifiedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "Id": {
+            "type": "string"
+          },
+          "OrderId": {
+            "type": "string"
+          },
+          "PaidAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "PaymentMethod": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderPaymentMethod"
+          },
+          "PaidAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "InvoriaOrderingContractsOrdersOrderPaymentMethod": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Cash",
+          "BankTransfer",
+          "Cheque",
+          "Other"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
       "InvoriaOrderingEndpointsOrdersRequestsAcceptOrderRequest": {
         "type": "object",
         "additionalProperties": false
@@ -4770,6 +5016,14 @@
             "items": {
               "$ref": "#/components/schemas/InvoriaOrderingEndpointsOrdersRequestsCreateOrderLineItemRequest"
             }
+          },
+          "PaymentType": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderPaymentType"
+              }
+            ]
           }
         }
       },
@@ -4841,6 +5095,24 @@
       "InvoriaOrderingEndpointsOrdersRequestsListOrdersRequest": {
         "type": "object",
         "additionalProperties": false
+      },
+      "InvoriaOrderingEndpointsOrdersRequestsRecordOrderPaymentRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "PaidAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "PaymentMethod": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderPaymentMethod"
+          },
+          "PaidAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
       },
       "InvoriaOrderingEndpointsOrdersRequestsRefuseOrderRequest": {
         "type": "object",
