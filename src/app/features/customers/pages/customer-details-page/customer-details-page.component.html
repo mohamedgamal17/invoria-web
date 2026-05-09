@@ -1,35 +1,7 @@
 <p-toast />
 
 <section class="space-y-6">
-  <div class="rounded-2xl border border-border/60 bg-surface-1 p-4 shadow-sm sm:p-5">
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div class="space-y-2">
-        <p-button
-          icon="pi pi-arrow-left"
-          label="Back to Customers"
-          [text]="true"
-          styleClass="px-0 text-sm text-muted-foreground hover:text-foreground"
-          (onClick)="backToList()"
-        />
-        <div class="space-y-1">
-          <h1 class="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Customer Details</h1>
-          <p class="text-sm text-muted-foreground">
-            View profile information and audit history for this customer.
-          </p>
-        </div>
-      </div>
-
-      <div class="flex justify-start sm:justify-end">
-        <p-button
-          label="Edit"
-          icon="pi pi-pencil"
-          [disabled]="loading() || !!error() || !customer()"
-          styleClass="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90 transition-all"
-          (onClick)="goToEdit()"
-        />
-      </div>
-    </div>
-  </div>
+  <app-customer-details-toolbar (back)="backToList()" />
 
   @if (loading()) {
     <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
@@ -59,66 +31,23 @@
       </div>
     </p-card>
   } @else if (customer(); as c) {
-    <div class="grid gap-5">
-      <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
-        <div class="space-y-5">
-          <div class="space-y-1">
-            <p class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Profile</p>
-            <h2 class="text-2xl font-bold tracking-tight text-foreground break-words">{{ c.name }}</h2>
+    <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" [lazy]="true">
+      <p-tablist>
+        <p-tab [value]="0">Profile</p-tab>
+        <p-tab [value]="1">Orders</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <p-tabpanel [value]="0">
+          <div class="pt-5">
+            <app-customer-details-profile [customer]="c" (edit)="goToEdit()" />
           </div>
-
-          <div class="grid gap-4 sm:grid-cols-2">
-            <div class="rounded-xl border border-border/60 bg-surface-2/50 p-4">
-              <div class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Customer Name</div>
-              <div class="mt-1.5 text-sm font-semibold text-foreground break-words">{{ c.name }}</div>
-            </div>
-            <div class="rounded-xl border border-border/60 bg-surface-2/50 p-4">
-              <div class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Customer Id</div>
-              <div class="mt-1.5 text-sm font-semibold text-foreground break-all">{{ c.id }}</div>
-            </div>
+        </p-tabpanel>
+        <p-tabpanel [value]="1">
+          <div class="pt-5">
+            <app-customer-details-orders-tab [customerId]="c.id" />
           </div>
-        </div>
-      </p-card>
-
-      <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
-        <div class="space-y-4">
-          <div class="space-y-1">
-            <p class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Audit</p>
-            <h3 class="text-lg font-semibold text-foreground">Lifecycle Information</h3>
-          </div>
-
-          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
-              <div class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Created At</div>
-              <div class="mt-1.5 text-sm font-semibold text-foreground">{{ c.createdAt | date: 'medium' }}</div>
-            </div>
-
-            <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
-              <div class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Created By</div>
-              <div class="mt-1.5 text-sm font-semibold text-foreground break-words">{{ c.createdBy || 'N/A' }}</div>
-            </div>
-
-            <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
-              <div class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Last Modified At
-              </div>
-              <div class="mt-1.5 text-sm font-semibold text-foreground">
-                {{ c.lastModifiedAt ? (c.lastModifiedAt | date: 'medium') : 'N/A' }}
-              </div>
-            </div>
-
-            <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
-              <div class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Last Modified By
-              </div>
-              <div class="mt-1.5 text-sm font-semibold text-foreground break-words">
-                {{ c.lastModifiedBy || 'N/A' }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </p-card>
-    </div>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
   }
 </section>
-
