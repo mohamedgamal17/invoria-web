@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
@@ -38,6 +38,10 @@ export class PurchaseOrderListComponent {
   pageSize = input(25);
   pageSizeOptions = input([25, 50, 100, 200]);
   loading = input(false);
+  /** When false, hides the supplier column (e.g. supplier-scoped embedded lists). */
+  showSupplierColumn = input(true);
+
+  readonly tableColspan = computed(() => (this.showSupplierColumn() ? 6 : 5));
 
   pageChange = output<PaginatorState | TablePageEvent>();
   purchaseNumberChange = output<string>();

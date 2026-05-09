@@ -37,7 +37,9 @@
     <ng-template pTemplate="header">
       <tr>
         <th class="px-4 py-5 font-bold uppercase tracking-wider">PO number</th>
-        <th class="px-4 py-5 font-bold uppercase tracking-wider">Supplier</th>
+        @if (showSupplierColumn()) {
+          <th class="px-4 py-5 font-bold uppercase tracking-wider">Supplier</th>
+        }
         <th class="px-4 py-5 font-bold uppercase tracking-wider">State</th>
         <th class="px-4 py-5 font-bold uppercase tracking-wider">Order date</th>
         <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">Total</th>
@@ -50,9 +52,11 @@
         <td class="px-4 py-5">
           <span class="text-sm font-semibold text-foreground">{{ row.purchaseNumber }}</span>
         </td>
-        <td class="px-4 py-5">
-          <span class="text-sm text-foreground">{{ supplierDisplay(row) }}</span>
-        </td>
+        @if (showSupplierColumn()) {
+          <td class="px-4 py-5">
+            <span class="text-sm text-foreground">{{ supplierDisplay(row) }}</span>
+          </td>
+        }
         <td class="px-4 py-5">
           <p-tag
             [value]="stateLabel(row.state)"
@@ -86,7 +90,9 @@
       @for (_ of skeletonRows; track _) {
         <tr>
           <td class="px-4 py-5"><p-skeleton height="1rem" width="40%"></p-skeleton></td>
-          <td class="px-4 py-5"><p-skeleton height="1rem" width="55%"></p-skeleton></td>
+          @if (showSupplierColumn()) {
+            <td class="px-4 py-5"><p-skeleton height="1rem" width="55%"></p-skeleton></td>
+          }
           <td class="px-4 py-5"><p-skeleton height="1.5rem" width="4.5rem" borderRadius="6px"></p-skeleton></td>
           <td class="px-4 py-5"><p-skeleton height="1rem" width="5rem"></p-skeleton></td>
           <td class="px-4 py-5 text-right"><p-skeleton height="1rem" width="4rem" styleClass="ml-auto"></p-skeleton></td>
@@ -99,7 +105,7 @@
 
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="6" class="px-4 py-12 text-center">
+        <td [attr.colspan]="tableColspan()" class="px-4 py-12 text-center">
           <div class="flex flex-col items-center gap-3">
             <i class="pi pi-inbox text-4xl text-muted-foreground opacity-20"></i>
             <div class="text-base font-medium text-foreground">No purchase orders found</div>
