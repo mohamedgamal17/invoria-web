@@ -1765,6 +1765,14 @@
             }
           },
           {
+            "name": "CustomerId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
             "name": "IncludeOrderItems",
             "in": "query",
             "required": true,
