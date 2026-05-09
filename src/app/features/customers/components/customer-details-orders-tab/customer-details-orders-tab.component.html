@@ -1,15 +1,24 @@
-<section class="space-y-4">
+<section class="flex flex-col gap-8">
+  <app-orders-filter-panel
+    [orderNumber]="orderNumber()"
+    [status]="orderStatusFilter()"
+    [paymentStatus]="paymentStatusFilter()"
+    [paymentType]="paymentTypeFilter()"
+    [loading]="ordersResource.isLoading()"
+    (filtersChange)="onFiltersChange($event)"
+    (clearFilters)="onClearFilters()"
+  />
+
   <app-order-list
     [orders]="displayOrders()"
     [totalRecords]="displayPaging().totalCount"
     [first]="first()"
     [pageSize]="pageSize()"
     [pageSizeOptions]="pageSizeOptions"
-    [orderNumberFilter]="q()"
     [loading]="ordersResource.isLoading()"
     [showDelete]="false"
     (pageChange)="onPageChange($event)"
-    (orderNumberFilterChange)="onOrderNumberFilterChange($event)"
+    (clearFilters)="onClearFilters()"
     (view)="goToDetails($event)"
   />
 </section>

@@ -8,6 +8,10 @@ import { MessageService } from 'primeng/api';
 
 import { presentApiError } from '../../../../core/http/api-error.presenter';
 import type { PagingInfo } from '../../../../core/models/paging';
+import {
+  OrdersFilterPanelComponent,
+  type OrdersListFilters
+} from '../../../orders/components/orders-filter-panel/orders-filter-panel.component';
 import { OrderListComponent } from '../../../orders/components/order-list/order-list.component';
 import type { ListOrderRequest } from '../../../orders/models/list-order.request';
 import type { UiOrder } from '../../../orders/models/order-ui.model';
@@ -22,7 +26,7 @@ const EMPTY_ORDERS_TUPLE: [UiOrder[], PagingInfo] = [
 @Component({
   selector: 'app-customer-details-orders-tab',
   standalone: true,
-  imports: [CommonModule, OrderListComponent],
+  imports: [CommonModule, OrdersFilterPanelComponent, OrderListComponent],
   templateUrl: './customer-details-orders-tab.component.html'
 })
 export class CustomerDetailsOrdersTabComponent {
@@ -36,19 +40,36 @@ export class CustomerDetailsOrdersTabComponent {
 
   readonly pageIndex = signal(0);
   readonly pageSize = signal(25);
-  readonly q = signal('');
+
+  readonly orderNumber = signal('');
+  readonly orderStatusFilter = signal<number | null>(null);
+  readonly paymentStatusFilter = signal<number | null>(null);
+  readonly paymentTypeFilter = signal<number | null>(null);
 
   readonly first = computed(() => this.pageIndex() * this.pageSize());
 
-  readonly listRequest = computed(
-    (): ListOrderRequest => ({
+  readonly listRequest = computed((): ListOrderRequest => {
+    const req: ListOrderRequest = {
       Skip: this.pageIndex() * this.pageSize(),
       Length: this.pageSize(),
       IncludeOrderItems: true,
       CustomerId: this.customerId(),
-      OrderNumber: this.q() || null
-    })
-  );
+      OrderNumber: this.orderNumber().trim() || null
+    };
+    const st = this.orderStatusFilter();
+    const ps = this.paymentStatusFilter();
+    const pt = this.paymentTypeFilter();
+    if (st != null) {
+      req.Status = st;
+    }
+    if (ps != null) {
+      req.PaymentStatus = ps;
+    }
+    if (pt != null) {
+      req.PaymentType = pt;
+    }
+    return req;
+  });
 
   readonly ordersResource = rxResource<[UiOrder[], PagingInfo], ListOrderRequest>({
     params: () => this.listRequest(),
@@ -100,12 +121,38 @@ export class CustomerDetailsOrdersTabComponent {
     }
   }
 
-  onOrderNumberFilterChange(q: string): void {
-    const normalized = q.trim();
-    if (normalized === this.q()) {
+  onFiltersChange(filters: OrdersListFilters): void {
+    const normalized = filters.orderNumber.trim();
+    if (
+      normalized === this.orderNumber().trim() &&
+      filters.status === this.orderStatusFilter() &&
+      filters.paymentStatus === this.paymentStatusFilter() &&
+      filters.paymentType === this.paymentTypeFilter()
+    ) {
       return;
     }
-    this.q.set(normalized);
+
+    this.orderNumber.set(filters.orderNumber);
+    this.orderStatusFilter.set(filters.status);
+    this.paymentStatusFilter.set(filters.paymentStatus);
+    this.paymentTypeFilter.set(filters.paymentType);
+    this.pageIndex.set(0);
+  }
+
+  onClearFilters(): void {
+    if (
+      !this.orderNumber().trim() &&
+      this.orderStatusFilter() == null &&
+      this.paymentStatusFilter() == null &&
+      this.paymentTypeFilter() == null
+    ) {
+      return;
+    }
+
+    this.orderNumber.set('');
+    this.orderStatusFilter.set(null);
+    this.paymentStatusFilter.set(null);
+    this.paymentTypeFilter.set(null);
     this.pageIndex.set(0);
   }
 
