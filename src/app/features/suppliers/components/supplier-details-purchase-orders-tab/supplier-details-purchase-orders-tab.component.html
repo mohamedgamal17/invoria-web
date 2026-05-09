@@ -1,0 +1,15 @@
+<section class="space-y-4">
+  <app-purchase-order-list
+    [purchaseOrders]="displayPurchaseOrders()"
+    [purchaseNumber]="q()"
+    [totalRecords]="displayPaging().totalCount"
+    [first]="first()"
+    [pageSize]="pageSize()"
+    [pageSizeOptions]="pageSizeOptions"
+    [loading]="purchaseOrdersResource.isLoading()"
+    [showSupplierColumn]="false"
+    (pageChange)="onPageChange($event)"
+    (purchaseNumberChange)="onPurchaseNumberFilterChange($event)"
+    (view)="goToDetails($event)"
+  />
+</section>

@@ -15,6 +15,16 @@ describe('SupplierDetailsPageComponent', () => {
   let component: SupplierDetailsPageComponent;
   let getSupplier: ReturnType<typeof vi.fn>;
 
+  beforeEach(() => {
+    if (typeof globalThis.ResizeObserver === 'undefined') {
+      globalThis.ResizeObserver = class {
+        observe(): void {}
+        unobserve(): void {}
+        disconnect(): void {}
+      };
+    }
+  });
+
   const supplier: Supplier = {
     id: 'sup_1',
     supplierCode: 'ACME',
