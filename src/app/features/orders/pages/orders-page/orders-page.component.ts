@@ -12,7 +12,7 @@ import { OrderStatus } from '../../models/order.entity';
 import type { UiOrder } from '../../models/order-ui.model';
 import { orderToUiOrder } from '../../models/order-ui.mapper';
 import { PaymentStatus, PaymentType } from '../../models/order-payment.enums';
-import { parseOptionalEnumQueryParam } from '../../models/orders-query-params';
+import { parseOptionalEnumQueryParam } from '../../../../shared/navigation/query-param-parsers';
 import { OrdersApiService } from '../../services/orders-api.service';
 import { OrderHeaderComponent } from '../../components/order-header/order-header.component';
 import {
