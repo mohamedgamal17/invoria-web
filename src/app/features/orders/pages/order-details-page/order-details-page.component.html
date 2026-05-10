@@ -100,6 +100,85 @@
               {{ order.orderDate | date: 'medium' }}
             }
           </p>
+
+          <div class="mt-4 pt-4 border-t border-border/60 space-y-4">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground shrink-0"
+                >Payment terms</span
+              >
+              <p-tag
+                [value]="paymentTypeDisplay(order.paymentType)"
+                [severity]="getPaymentTypeSeverity(order.paymentType)"
+                styleClass="px-2 py-1 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border shrink-0"
+              />
+              <p-tag
+                [value]="paymentStatusDisplay(order.paymentStatus)"
+                [severity]="getPaymentStatusSeverity(order.paymentStatus)"
+                styleClass="px-2 py-1 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border shrink-0"
+              />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+              <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Order total</div>
+                <div class="text-base font-semibold tabular-nums text-foreground">
+                  {{ order.totalAmount | currency: currencyCode : 'symbol-narrow' }}
+                </div>
+                <p class="text-xs text-muted-foreground">Subtotal from line items before further adjustments.</p>
+              </div>
+              <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Amount paid</div>
+                <div class="text-base font-semibold tabular-nums text-foreground">
+                  @if (order.amountPaid !== undefined && order.amountPaid !== null) {
+                    {{ order.amountPaid | currency: currencyCode : 'symbol-narrow' }}
+                  } @else {
+                    —
+                  }
+                </div>
+                @if (paidPercentOfTotal(order) !== null) {
+                  <p class="text-xs text-muted-foreground">
+                    {{ paidPercentOfTotal(order)! | number: '1.0-1' }}% of order total collected so far.
+                  </p>
+                } @else {
+                  <p class="text-xs text-muted-foreground">Cumulative payments posted to this order.</p>
+                }
+              </div>
+              <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Outstanding</div>
+                <div class="text-base font-semibold tabular-nums text-foreground">
+                  @if (order.amountOutstanding !== undefined && order.amountOutstanding !== null) {
+                    {{ order.amountOutstanding | currency: currencyCode : 'symbol-narrow' }}
+                  } @else {
+                    —
+                  }
+                </div>
+                <p class="text-xs text-muted-foreground">Balance still due according to the server.</p>
+              </div>
+            </div>
+
+            @if (order.amountPaid !== undefined && order.amountPaid !== null && order.amountOutstanding !== undefined && order.amountOutstanding !== null) {
+              <p class="text-xs text-muted-foreground leading-relaxed">
+                <span class="font-semibold text-foreground">Balance check:</span>
+                paid
+                <span class="tabular-nums text-foreground">{{
+                  order.amountPaid | currency: currencyCode : 'symbol-narrow'
+                }}</span>
+                + outstanding
+                <span class="tabular-nums text-foreground">{{
+                  order.amountOutstanding | currency: currencyCode : 'symbol-narrow'
+                }}</span>
+                should equal order total
+                <span class="tabular-nums text-foreground">{{
+                  order.totalAmount | currency: currencyCode : 'symbol-narrow'
+                }}</span>.
+                @if (!paymentTotalsAligned(order)) {
+                  <span class="text-destructive font-medium">
+                    These three figures are not reconciled to the penny—confirm with finance if needed.</span
+                  >
+                }
+              </p>
+            }
+          </div>
         </div>
       </div>
     </p-card>
@@ -160,132 +239,35 @@
       </p-card>
     }
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-      <p-card styleClass="border border-border lg:col-span-2" header="Line items">
-        @if (order.items.length) {
-          <div class="rounded-xl border border-border/60 overflow-x-auto -mx-1">
-            <p-table
-              [value]="order.items"
-              styleClass="p-datatable-sm min-w-[640px]"
-            >
-              <ng-template pTemplate="header">
-                <tr>
-                  <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider w-12">#</th>
-                  <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Product</th>
-                  <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Qty</th>
-                  <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Unit price</th>
-                  <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Line total</th>
-                  <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Reference</th>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="body" let-row let-index="rowIndex">
-                <tr>
-                  <td class="px-3 py-2 text-sm tabular-nums text-muted-foreground">{{ index + 1 }}</td>
-                  <td class="px-3 py-2 text-sm font-medium text-foreground break-all">{{ row.productName }}</td>
-                  <td class="px-3 py-2 text-sm text-right tabular-nums">{{ row.quantity }}</td>
-                  <td class="px-3 py-2 text-sm text-right tabular-nums">
-                    {{ row.price | currency: currencyCode : 'symbol-narrow' }}
-                  </td>
-                  <td class="px-3 py-2 text-sm text-right tabular-nums font-medium">
-                    {{ lineTotal(row) | currency: currencyCode : 'symbol-narrow' }}
-                  </td>
-                  <td
-                    class="px-3 py-2 text-xs text-muted-foreground font-mono break-all max-w-[10rem]"
-                    [title]="row.productId"
-                  >
-                    {{ row.productId }}
-                  </td>
-                </tr>
-              </ng-template>
-            </p-table>
+    <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" [lazy]="true">
+      <p-tablist>
+        <p-tab [value]="0">Overview</p-tab>
+        <p-tab [value]="1">Payment</p-tab>
+        <p-tab [value]="2">History</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <p-tabpanel [value]="0">
+          <div class="pt-5">
+            <app-order-details-overview-tab [order]="order" [currencyCode]="currencyCode" />
           </div>
-        } @else {
-          <p class="text-sm text-muted-foreground">No line items.</p>
-        }
-      </p-card>
-
-      <p-card styleClass="border border-border h-fit lg:sticky lg:top-4" header="Summary">
-        <div class="flex flex-col gap-5 text-sm">
-          <div class="space-y-2">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Customer</div>
-            <div class="font-semibold text-foreground break-all">
-              @if (order.customerName.trim()) {
-                {{ order.customerName }}
-              } @else {
-                —
-              }
-            </div>
-            @if (order.customerId) {
-              <div class="text-xs text-muted-foreground">Id: {{ order.customerId }}</div>
-            }
+        </p-tabpanel>
+        <p-tabpanel [value]="1">
+          <div class="pt-5">
+            <app-order-details-payment-tab
+              [order]="order"
+              [currencyCode]="currencyCode"
+              [recordingDisabled]="actionSaving()"
+              (refreshRequested)="loadOrder()"
+            />
           </div>
-
-          <div class="border-t border-border/60 pt-4 space-y-2.5">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Schedule</div>
-            <div class="flex justify-between gap-3">
-              <span class="text-muted-foreground shrink-0">Order date</span>
-              <span class="text-right font-medium text-foreground">{{ formatDateOrDash(order.orderDate) }}</span>
-            </div>
-            <div class="flex justify-between gap-3">
-              <span class="text-muted-foreground shrink-0">Created</span>
-              <span class="text-right font-medium text-foreground">{{ formatDateOrDash(order.createdAt) }}</span>
-            </div>
-            @if (order.lastModifiedAt) {
-              <div class="flex justify-between gap-3">
-                <span class="text-muted-foreground shrink-0">Last modified</span>
-                <span class="text-right font-medium text-foreground">{{ formatDateOrDash(order.lastModifiedAt) }}</span>
-              </div>
-            }
+        </p-tabpanel>
+        <p-tabpanel [value]="2">
+          <div class="pt-5">
+            <app-order-details-history-tab [events]="order.stateHistory" />
           </div>
-
-          <div class="border-t border-border/60 pt-4 space-y-2">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Amounts</div>
-            <div class="flex justify-between gap-3">
-              <span class="text-muted-foreground">Subtotal</span>
-              <span class="tabular-nums text-foreground">{{ subtotal(order) | currency: currencyCode : 'symbol-narrow' }}</span>
-            </div>
-            <div class="flex justify-between gap-3 border-t border-border/60 pt-3 mt-1">
-              <span class="font-semibold text-foreground">Total</span>
-              <span class="font-bold tabular-nums text-foreground text-base">
-                {{ order.totalAmount | currency: currencyCode : 'symbol-narrow' }}
-              </span>
-            </div>
-          </div>
-
-          <div class="border-t border-border/60 pt-4 space-y-1.5 text-xs text-muted-foreground">
-            <div class="text-[10px] font-bold uppercase tracking-wider">Reference</div>
-            <div class="break-all font-mono">
-              <span class="text-muted-foreground">Order id:</span>
-              {{ order.id }}
-            </div>
-            @if (order.customerId) {
-              <div class="break-all font-mono">
-                <span class="text-muted-foreground">Customer id:</span>
-                {{ order.customerId }}
-              </div>
-            }
-          </div>
-        </div>
-      </p-card>
-    </div>
-
-    <p-card styleClass="border border-border" header="Status history">
-      @if (order.stateHistory.length) {
-        <p-timeline [value]="order.stateHistory">
-          <ng-template pTemplate="content" let-event>
-            <div class="mb-4">
-              <div class="font-medium text-foreground">{{ event.to }}</div>
-              <div class="text-xs text-muted-foreground">{{ event.timestamp | date: 'short' }}</div>
-              @if (event.reason) {
-                <div class="text-xs text-muted-foreground mt-1">{{ event.reason }}</div>
-              }
-            </div>
-          </ng-template>
-        </p-timeline>
-      } @else {
-        <p class="text-sm text-muted-foreground">No transition history available.</p>
-      }
-    </p-card>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
   }
 
   <app-order-reason-dialog

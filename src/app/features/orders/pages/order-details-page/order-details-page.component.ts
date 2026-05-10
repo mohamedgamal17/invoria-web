@@ -1,5 +1,5 @@
-import { CommonModule, formatDate } from '@angular/common';
-import { Component, computed, inject, LOCALE_ID, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, map, take } from 'rxjs';
@@ -10,8 +10,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import { TimelineModule } from 'primeng/timeline';
 import { ToastModule } from 'primeng/toast';
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
 import { presentApiError } from '../../../../core/http/api-error.presenter';
 import {
@@ -24,9 +24,20 @@ import {
 import { friendlyFullfillmentStatusLabel } from '../../models/order-actions';
 import { orderToUiOrder } from '../../models/order-ui.mapper';
 import { OrderActionFacade, type OrderTransitionAction } from '../../services/order-action.facade';
+import { OrderDetailsHistoryTabComponent } from '../../components/order-details-history-tab/order-details-history-tab.component';
+import { OrderDetailsOverviewTabComponent } from '../../components/order-details-overview-tab/order-details-overview-tab.component';
+import { OrderDetailsPaymentTabComponent } from '../../components/order-details-payment-tab/order-details-payment-tab.component';
 import { OrderReasonDialogComponent } from '../../components/order-reason-dialog/order-reason-dialog.component';
 import { OrderStatus } from '../../models/order.entity';
-import type { UiOrder, UiOrderFailureDetailRow, UiOrderItem } from '../../models/order-ui.model';
+import {
+  PaymentStatus,
+  PaymentType,
+  paymentStatusLabel,
+  paymentTypeLabel
+} from '../../models/order-payment.enums';
+import type { UiOrder, UiOrderFailureDetailRow } from '../../models/order-ui.model';
+
+const PAYMENT_SUMMARY_EPS = 0.02;
 import { OrdersApiService } from '../../services/orders-api.service';
 
 @Component({
@@ -37,9 +48,16 @@ import { OrdersApiService } from '../../services/orders-api.service';
     ButtonModule,
     CardModule,
     ConfirmDialogModule,
+    OrderDetailsHistoryTabComponent,
+    OrderDetailsOverviewTabComponent,
+    OrderDetailsPaymentTabComponent,
     OrderReasonDialogComponent,
     TagModule,
-    TimelineModule,
+    Tabs,
+    TabList,
+    Tab,
+    TabPanels,
+    TabPanel,
     SkeletonModule,
     TableModule,
     ToastModule
@@ -57,7 +75,6 @@ export class OrderDetailsPageComponent {
   private readonly messageService = inject(MessageService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly locale = inject(LOCALE_ID);
 
   private readonly orderId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
@@ -71,6 +88,9 @@ export class OrderDetailsPageComponent {
   readonly reasonModalVisible = signal(false);
   readonly reasonText = signal('');
   readonly reasonTarget = signal<OrderTransitionAction | null>(null);
+
+  /** Active tab index: 0 Overview, 1 Payment, 2 History. */
+  readonly activeTab = signal(0);
 
   readonly availableActions = computed(() => {
     const order = this.order();
@@ -138,6 +158,14 @@ export class OrderDetailsPageComponent {
     this.loadOrder();
   }
 
+  onTabChange(value: string | number | undefined): void {
+    if (value === undefined || value === null) {
+      return;
+    }
+    const n = typeof value === 'number' ? value : Number(value);
+    this.activeTab.set(Number.isFinite(n) ? n : 0);
+  }
+
   submitReasonAction(): void {
     const action = this.reasonTarget();
     if (!action || !this.reasonText().trim()) return;
@@ -166,24 +194,58 @@ export class OrderDetailsPageComponent {
     }
   }
 
-  lineTotal(item: UiOrderItem): number {
-    return item.price * item.quantity;
+  paymentTypeDisplay(type: PaymentType | undefined): string {
+    return type !== undefined ? paymentTypeLabel(type) : '—';
   }
 
-  subtotal(o: UiOrder): number {
-    return o.items.reduce((acc, item) => acc + this.lineTotal(item), 0);
+  paymentStatusDisplay(status: PaymentStatus | undefined): string {
+    return status !== undefined ? paymentStatusLabel(status) : '—';
   }
 
-  /** Medium date for schedule fields, or an em dash when missing or invalid. */
-  formatDateOrDash(value: string | null | undefined): string {
-    if (!value?.trim()) {
-      return '—';
+  getPaymentStatusSeverity(
+    status: PaymentStatus | undefined
+  ): 'success' | 'secondary' | 'info' | 'warn' | 'danger' {
+    if (status === undefined) return 'secondary';
+    switch (status) {
+      case PaymentStatus.Paid:
+        return 'success';
+      case PaymentStatus.Partial:
+        return 'warn';
+      case PaymentStatus.Unpaid:
+      default:
+        return 'secondary';
     }
-    const d = new Date(value);
-    if (Number.isNaN(d.getTime())) {
-      return '—';
+  }
+
+  getPaymentTypeSeverity(type: PaymentType | undefined): 'success' | 'secondary' | 'info' | 'warn' | 'danger' {
+    if (type === undefined) return 'secondary';
+    switch (type) {
+      case PaymentType.Immediate:
+        return 'info';
+      case PaymentType.Debt:
+        return 'warn';
+      default:
+        return 'secondary';
     }
-    return formatDate(d, 'medium', this.locale);
+  }
+
+  paidPercentOfTotal(order: UiOrder): number | null {
+    if (
+      order.amountPaid === undefined ||
+      order.amountPaid === null ||
+      !Number.isFinite(order.totalAmount) ||
+      order.totalAmount <= 0
+    ) {
+      return null;
+    }
+    return (order.amountPaid / order.totalAmount) * 100;
+  }
+
+  paymentTotalsAligned(order: UiOrder): boolean {
+    if (order.amountPaid == null || order.amountOutstanding == null) {
+      return true;
+    }
+    return Math.abs(order.amountPaid + order.amountOutstanding - order.totalAmount) <= PAYMENT_SUMMARY_EPS;
   }
 
   orderStatusLabel = orderStatusLabel;
@@ -191,7 +253,7 @@ export class OrderDetailsPageComponent {
   ORDER_ACTION_UI = ORDER_ACTION_UI;
   canEditOrder = canEditOrder;
 
-  private loadOrder(): void {
+  loadOrder(): void {
     const id = this.orderId();
     if (!id) {
       this.loading.set(false);
