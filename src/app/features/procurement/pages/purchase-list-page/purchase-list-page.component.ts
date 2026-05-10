@@ -12,15 +12,25 @@ import type { TablePageEvent } from 'primeng/table';
 import type { PagingInfo } from '../../../../core/models/paging';
 import type { ListPurchaseOrderRequest } from '../../models/list-purchase-order.request';
 import type { PurchaseOrder } from '../../models/purchase-order.entity';
+import { PurchaseState } from '../../enums/purchase-state.enum';
 import { PurchaseOrdersApiService } from '../../services/purchase-orders-api.service';
 import { PurchaseOrderHeaderComponent } from '../../components/purchase-order-header/purchase-order-header.component';
 import { PurchaseOrderListComponent } from '../../components/purchase-order-list/purchase-order-list.component';
+import {
+  PurchaseOrdersFilterPanelComponent,
+  type PurchaseOrdersListFilters
+} from '../../components/purchase-orders-filter-panel/purchase-orders-filter-panel.component';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
+import { parseOptionalEnumQueryParam } from '../../../../shared/navigation/query-param-parsers';
 
 const EMPTY_PURCHASE_ORDERS_TUPLE: [PurchaseOrder[], PagingInfo] = [
   [],
   { length: 0, skip: 0, totalCount: 0 }
 ];
+
+const PURCHASE_STATE_VALUES = Object.values(PurchaseState).filter(
+  (v): v is number => typeof v === 'number'
+);
 
 @Component({
   selector: 'app-purchase-list-page',
@@ -29,6 +39,7 @@ const EMPTY_PURCHASE_ORDERS_TUPLE: [PurchaseOrder[], PagingInfo] = [
     CommonModule,
     ToastModule,
     PurchaseOrderHeaderComponent,
+    PurchaseOrdersFilterPanelComponent,
     PurchaseOrderListComponent
   ],
   providers: [MessageService],
@@ -72,19 +83,32 @@ export class PurchaseListPageComponent {
     { initialValue: '' }
   );
 
+  /** `PurchaseState` filter from `?status=` (GET /purchase-orders `Status`). */
+  readonly purchaseStatusFilterFromRoute = toSignal(
+    this.route.queryParamMap.pipe(
+      map((m) => parseOptionalEnumQueryParam(m, 'status', PURCHASE_STATE_VALUES))
+    ),
+    { initialValue: null as number | null }
+  );
+
   readonly pageIndex = computed(() => Math.max(0, this.pageFromRoute() - 1));
 
   readonly first = computed(() => this.pageIndex() * this.pageSize());
 
-  readonly listRequest = computed(
-    (): ListPurchaseOrderRequest => ({
+  readonly listRequest = computed((): ListPurchaseOrderRequest => {
+    const req: ListPurchaseOrderRequest = {
       Skip: this.pageIndex() * this.pageSize(),
       Length: this.pageSize(),
       Number: this.purchaseNumber() || null,
       IncludePurchaseItems: false,
       IncludeSupplier: true
-    })
-  );
+    };
+    const st = this.purchaseStatusFilterFromRoute();
+    if (st != null) {
+      req.Status = st;
+    }
+    return req;
+  });
 
   readonly purchaseOrdersResource = rxResource<[PurchaseOrder[], PagingInfo], ListPurchaseOrderRequest>({
     params: () => this.listRequest(),
@@ -146,17 +170,37 @@ export class PurchaseListPageComponent {
     }
   }
 
-  onPurchaseNumberChange(value: string): void {
-    const trimmed = (value ?? '').trim();
-    if (trimmed === this.purchaseNumber()) {
+  onFiltersChange(filters: PurchaseOrdersListFilters): void {
+    const normalized = filters.purchaseNumber.trim();
+    if (
+      normalized === this.purchaseNumber() &&
+      filters.status === this.purchaseStatusFilterFromRoute()
+    ) {
       return;
     }
 
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {
-        page: 1,
-        number: trimmed || null
+        number: normalized || null,
+        status: filters.status != null ? String(filters.status) : null,
+        page: 1
+      },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  onClearFilters(): void {
+    if (!this.purchaseNumber() && this.purchaseStatusFilterFromRoute() == null) {
+      return;
+    }
+
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        number: null,
+        status: null,
+        page: 1
       },
       queryParamsHandling: 'merge'
     });

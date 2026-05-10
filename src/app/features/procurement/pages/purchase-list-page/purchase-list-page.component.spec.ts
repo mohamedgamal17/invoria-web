@@ -182,17 +182,68 @@ describe('PurchaseListPageComponent', () => {
     expect(router.navigate).toHaveBeenCalledWith(['new'], { relativeTo: route });
   });
 
-  it('should update number query and reset page on purchase number change', () => {
+  it('should include Status in request when status query param is valid', () => {
+    const paramMap$ = new BehaviorSubject(
+      convertToParamMap({
+        page: '1',
+        pageSize: '25',
+        status: String(PurchaseState.Approved)
+      })
+    );
+    setup(paramMap$);
+
+    expect(mockApi.listPurchaseOrders).toHaveBeenCalledWith({
+      Skip: 0,
+      Length: 25,
+      Number: null,
+      Status: PurchaseState.Approved,
+      IncludePurchaseItems: false,
+      IncludeSupplier: true
+    });
+  });
+
+  it('should update query params on filters change', () => {
     const router = TestBed.inject(Router);
     const route = TestBed.inject(ActivatedRoute);
 
-    component.onPurchaseNumberChange('PO-100');
+    component.onFiltersChange({ purchaseNumber: 'PO-100', status: PurchaseState.Draft });
 
     expect(router.navigate).toHaveBeenCalledWith(
       [],
       expect.objectContaining({
         relativeTo: route,
-        queryParams: { page: 1, number: 'PO-100' },
+        queryParams: {
+          page: 1,
+          number: 'PO-100',
+          status: String(PurchaseState.Draft)
+        },
+        queryParamsHandling: 'merge'
+      })
+    );
+  });
+
+  it('should clear filter query params on clear filters', () => {
+    const paramMap$ = new BehaviorSubject(
+      convertToParamMap({
+        page: '2',
+        pageSize: '25',
+        number: 'PO-1',
+        status: String(PurchaseState.Submitted)
+      })
+    );
+    setup(paramMap$);
+
+    const router = TestBed.inject(Router);
+    const route = TestBed.inject(ActivatedRoute);
+    vi.mocked(router.navigate).mockClear();
+
+    component.onClearFilters();
+
+    expect(router.navigate).toHaveBeenCalledWith(
+      [],
+      expect.objectContaining({
+        relativeTo: route,
+        queryParams: { page: 1, number: null, status: null },
         queryParamsHandling: 'merge'
       })
     );

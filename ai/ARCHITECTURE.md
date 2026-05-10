@@ -99,9 +99,11 @@ graph TD
 
 1. **Isolation**: Features must not import from other features.
 2. **Exception (orders)**: The `orders` feature may use **`import type` only** from `features/customers` and `features/products` for `Order` nested DTOs (`Customer`, `Product`) in [`order.entity.ts`](../src/app/features/orders/models/order.entity.ts), aligned with the API. Additionally, `orders` may import and inject **`CustomersApiService`** and **`ProductsApiService`** only (the typed HTTP API services) for order UI flows such as autocomplete that must match the backend; do not import other modules, components, or mock services from those features into `orders`.
-3. **Exception (products / inventory)**: The `products` feature may import `features/inventory` for product batch UI (`ProductBatchesModalComponent` and related batch models/services). The `inventory` feature must not import from `products`; use `BatchesProductRef` (or similar) instead of `Product` entity types to keep the dependency one-way.
-4. **Shared Usage**: Features may import from `shared/` and `core/`.
-5. **Circular Dependencies**: Strictly forbidden; use `shared/entities` for common base classes.
+3. **Exception (customers / orders)**: The `customers` feature may import and inject **`OrdersApiService`** only (the typed HTTP API service) for customer-scoped order listing. It may import **`OrderListComponent`** and the minimal read-only order UI pieces needed to drive that list (**`UiOrder`**, **`orderToUiOrder`** from `features/orders`). Do not import order pages, forms, or other services from `orders`.
+4. **Exception (products / inventory)**: The `products` feature may import `features/inventory` for product batch UI (`ProductBatchesModalComponent` and related batch models/services). The `inventory` feature must not import from `products`; use `BatchesProductRef` (or similar) instead of `Product` entity types to keep the dependency one-way.
+5. **Exception (suppliers / procurement)**: The `suppliers` feature may import and inject **`PurchaseOrdersApiService`** only (the typed HTTP API service) for supplier-scoped purchase order listing. It may import **`PurchaseOrderListComponent`** and the minimal read-only procurement types needed to drive that list (**`PurchaseOrder`**, **`ListPurchaseOrderRequest`** from `features/procurement`). Do not import procurement pages, forms, or other services from `procurement`.
+6. **Shared Usage**: Features may import from `shared/` and `core/`.
+7. **Circular Dependencies**: Strictly forbidden; use `shared/entities` for common base classes.
 
 ---
 

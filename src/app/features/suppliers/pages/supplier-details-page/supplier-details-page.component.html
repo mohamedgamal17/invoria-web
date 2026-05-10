@@ -1,128 +1,53 @@
 <p-toast />
 
 <section class="space-y-6">
-  <div class="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-6">
-    <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-      <div class="min-w-0 space-y-3">
-        <p-button
-          icon="pi pi-arrow-left"
-          label="Back to Suppliers"
-          [text]="true"
-          styleClass="!px-0"
-          (onClick)="backToList()"
-        />
-        @if (supplier(); as s) {
-          <div class="space-y-2">
-            <h1 class="text-2xl font-bold leading-tight text-foreground truncate">{{ s.name }}</h1>
-            <div class="inline-flex items-center rounded-full border border-border bg-surface-2 px-3 py-1 text-xs font-semibold tracking-wide text-muted-foreground">
-              {{ s.supplierCode }}
-            </div>
-          </div>
-        } @else {
-          <div class="space-y-3 pt-1">
-            <p-skeleton height="2rem" width="16rem"></p-skeleton>
-            <p-skeleton height="1.6rem" width="8rem" borderRadius="9999px"></p-skeleton>
-          </div>
-        }
-      </div>
-
-      <div class="flex flex-wrap gap-2 justify-end">
-        <p-button
-          label="Edit Supplier"
-          icon="pi pi-pencil"
-          [disabled]="loading() || !!error() || !supplier()"
-          (onClick)="goToEdit()"
-        />
-      </div>
-    </div>
-  </div>
+  <app-supplier-details-toolbar (back)="backToList()" />
 
   @if (loading()) {
-    <p-card styleClass="border border-border shadow-sm">
-      <div class="space-y-5">
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <p-skeleton height="6.25rem" borderRadius="1rem"></p-skeleton>
-          <p-skeleton height="6.25rem" borderRadius="1rem"></p-skeleton>
-          <p-skeleton height="6.25rem" borderRadius="1rem"></p-skeleton>
+    <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
+      <div class="space-y-5 p-1">
+        <p-skeleton height="2rem" width="45%"></p-skeleton>
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <p-skeleton height="5.5rem"></p-skeleton>
+          <p-skeleton height="5.5rem"></p-skeleton>
+          <p-skeleton height="5.5rem"></p-skeleton>
         </div>
-        <div class="grid gap-4 sm:grid-cols-2">
-          <p-skeleton height="6.25rem" borderRadius="1rem"></p-skeleton>
-          <p-skeleton height="6.25rem" borderRadius="1rem"></p-skeleton>
-        </div>
+        <p-skeleton height="1rem" width="80%"></p-skeleton>
       </div>
     </p-card>
   } @else if (error()) {
-    <p-card styleClass="border border-destructive/30 bg-destructive/5 shadow-sm">
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <p-card styleClass="border border-destructive/30 rounded-2xl shadow-sm">
+      <div class="flex flex-col gap-4 p-1 sm:flex-row sm:items-center sm:justify-between">
         <div class="space-y-1">
-          <div class="text-sm font-semibold text-destructive">Could not load supplier details</div>
-          <p class="text-sm text-destructive/90">{{ error() }}</p>
+          <h2 class="text-base font-semibold text-foreground">Unable to load supplier</h2>
+          <p class="text-sm text-destructive">{{ error() }}</p>
         </div>
-        <p-button label="Retry" icon="pi pi-refresh" (onClick)="retry()" />
+        <p-button
+          label="Retry"
+          icon="pi pi-refresh"
+          styleClass="rounded-xl px-4 py-2.5 text-sm font-semibold"
+          (onClick)="retry()"
+        />
       </div>
     </p-card>
   } @else if (supplier(); as s) {
-    <p-card styleClass="border border-border shadow-sm">
-      <div class="space-y-6">
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <div class="rounded-2xl border border-border/70 bg-surface-2/50 p-4">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Supplier Id</div>
-            <div class="mt-2 break-all text-sm font-semibold leading-6 text-foreground">{{ s.id }}</div>
+    <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" [lazy]="true">
+      <p-tablist>
+        <p-tab [value]="0">Profile</p-tab>
+        <p-tab [value]="1">Purchase orders</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <p-tabpanel [value]="0">
+          <div class="pt-5">
+            <app-supplier-details-profile [supplier]="s" (edit)="goToEdit()" />
           </div>
-
-          <div class="rounded-2xl border border-border/70 bg-surface-2/50 p-4">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Supplier Code</div>
-            <div class="mt-2 text-sm font-semibold leading-6 text-foreground">{{ s.supplierCode }}</div>
+        </p-tabpanel>
+        <p-tabpanel [value]="1">
+          <div class="pt-6">
+            <app-supplier-details-purchase-orders-tab [supplierId]="s.id" />
           </div>
-
-          <div class="rounded-2xl border border-border/70 bg-surface-2/50 p-4">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Supplier Name</div>
-            <div class="mt-2 text-sm font-semibold leading-6 text-foreground">{{ s.name }}</div>
-          </div>
-        </div>
-
-        <div class="grid gap-4 md:grid-cols-2">
-          <div class="rounded-2xl border border-border/70 bg-surface p-5">
-            <div class="mb-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Contact</div>
-            <div class="space-y-4">
-              <div>
-                <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Email</div>
-                <div class="mt-1 break-all text-sm font-semibold leading-6 text-foreground">
-                  {{ s.contactEmail || 'N/A' }}
-                </div>
-              </div>
-              <div>
-                <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Phone</div>
-                <div class="mt-1 text-sm font-semibold leading-6 text-foreground">{{ s.phone || 'N/A' }}</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="rounded-2xl border border-border/70 bg-surface p-5">
-            <div class="mb-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Audit</div>
-            <div class="space-y-4">
-              <div>
-                <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Created At</div>
-                <div class="mt-1 text-sm font-semibold leading-6 text-foreground">{{ s.createdAt | date: 'medium' }}</div>
-              </div>
-              <div>
-                <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Created By</div>
-                <div class="mt-1 text-sm font-semibold leading-6 text-foreground">{{ s.createdBy || 'N/A' }}</div>
-              </div>
-              <div>
-                <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Last Modified</div>
-                <div class="mt-1 text-sm font-semibold leading-6 text-foreground">
-                  {{ s.lastModifiedAt ? (s.lastModifiedAt | date: 'medium') : 'N/A' }}
-                </div>
-              </div>
-              <div>
-                <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Last Modified By</div>
-                <div class="mt-1 text-sm font-semibold leading-6 text-foreground">{{ s.lastModifiedBy || 'N/A' }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </p-card>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
   }
 </section>

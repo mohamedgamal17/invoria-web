@@ -87,9 +87,9 @@
   } @else {
     <app-empty-state
       title="No orders found"
-      description="Try adjusting your search or create a new order."
+      description="Try adjusting your filters or create a new order."
     >
-      <p-button label="Clear Search" [link]="true" (onClick)="orderNumberFilterChange.emit('')" />
+      <p-button label="Clear filters" [link]="true" (onClick)="clearFilters.emit()" />
     </app-empty-state>
   }
 
@@ -130,20 +130,9 @@
     [stripedRows]="true"
     styleClass="p-datatable-sm"
   >
-    <!-- Table Caption / Filter -->
+    <!-- Table caption -->
     <ng-template pTemplate="caption">
-      <div class="flex flex-col sm:flex-row justify-between items-center gap-4 px-2 py-3">
-        <p-iconfield iconPosition="left" class="w-full sm:w-80">
-          <p-inputicon styleClass="pi pi-search" />
-          <input
-            pInputText
-            type="text"
-            [value]="orderNumberFilter()"
-            (input)="orderNumberFilterChange.emit($any($event.target).value)"
-            placeholder="Search by order number…"
-            class="w-full rounded-lg border-border bg-surface-2 py-2 text-sm focus:ring-2 focus:ring-focus"
-          />
-        </p-iconfield>
+      <div class="flex flex-col sm:flex-row justify-end items-center gap-4 px-2 py-3">
         <div class="text-xs font-medium text-muted-foreground uppercase tracking-wider">
           Displaying {{ orders().length }} of {{ totalRecords() }} orders
         </div>
@@ -291,11 +280,11 @@
           <div class="flex flex-col items-center gap-3">
             <i class="pi pi-inbox text-4xl text-muted-foreground opacity-20"></i>
             <div class="text-base font-medium text-foreground">No orders found</div>
-            <p class="text-sm text-muted-foreground">Try adjusting your search or create a new order.</p>
+            <p class="text-sm text-muted-foreground">Try adjusting your filters or create a new order.</p>
             <p-button
-              label="Clear Search"
+              label="Clear filters"
               [link]="true"
-              (onClick)="orderNumberFilterChange.emit('')"
+              (onClick)="clearFilters.emit()"
             />
           </div>
         </td>

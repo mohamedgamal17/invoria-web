@@ -4,9 +4,6 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { InputTextModule } from 'primeng/inputtext';
 import { PaginatorModule } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
 import { PopoverModule } from 'primeng/popover';
@@ -30,9 +27,6 @@ import {
     ButtonModule,
     TagModule,
     TooltipModule,
-    IconFieldModule,
-    InputIconModule,
-    InputTextModule,
     PaginatorModule,
     SkeletonModule,
     PopoverModule,
@@ -51,13 +45,10 @@ export class OrderListComponent {
   loading = input(false);
   /** When false, delete actions are hidden (no backend delete for orders yet). */
   showDelete = input(false);
-  /** Server-side order number filter (from URL `q`); drives search input value. */
-  orderNumberFilter = input<string>('');
-
   pageChange = output<any>();
   view = output<UiOrder>();
   delete = output<UiOrder>();
-  orderNumberFilterChange = output<string>();
+  clearFilters = output<void>();
 
   get skeletonRows(): number[] {
     return Array.from({ length: this.pageSize() }, (_, i) => i);

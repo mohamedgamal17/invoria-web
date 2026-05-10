@@ -1,13 +1,9 @@
 <section class="flex flex-col gap-8">
-  <app-order-header 
-    (create)="goToCreatePage()"
-  />
-
   <app-orders-filter-panel
-    [orderNumber]="qFromRoute()"
-    [status]="orderStatusFilterFromRoute()"
-    [paymentStatus]="paymentStatusFilterFromRoute()"
-    [paymentType]="paymentTypeFilterFromRoute()"
+    [orderNumber]="orderNumber()"
+    [status]="orderStatusFilter()"
+    [paymentStatus]="paymentStatusFilter()"
+    [paymentType]="paymentTypeFilter()"
     [loading]="ordersResource.isLoading()"
     (filtersChange)="onFiltersChange($event)"
     (clearFilters)="onClearFilters()"

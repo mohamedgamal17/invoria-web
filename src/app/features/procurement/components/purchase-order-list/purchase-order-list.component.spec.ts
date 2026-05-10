@@ -102,6 +102,15 @@ describe('PurchaseOrderListComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('sup_2');
   });
 
+  it('should hide supplier column when showSupplierColumn is false', () => {
+    fixture.componentRef.setInput('purchaseOrders', mockRows);
+    fixture.componentRef.setInput('totalRecords', 2);
+    fixture.componentRef.setInput('showSupplierColumn', false);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).not.toContain('Supplier A');
+    expect(fixture.nativeElement.textContent).toContain('PO-001');
+  });
+
   it('should emit pageChange from table paginator', () => {
     const emitSpy = vi.spyOn(component.pageChange, 'emit');
     const table = fixture.debugElement.query(By.css('p-table'));
@@ -123,25 +132,4 @@ describe('PurchaseOrderListComponent', () => {
     expect(emitSpy).toHaveBeenCalledWith(mockRows[0]);
   });
 
-  it('should bind purchase number input value', () => {
-    fixture.componentRef.setInput('purchaseNumber', 'PO-001');
-    fixture.detectChanges();
-
-    const input: HTMLInputElement | null = fixture.nativeElement.querySelector('input[pinputtext]');
-    expect(input).toBeTruthy();
-    expect(input?.value).toBe('PO-001');
-  });
-
-  it('should emit purchaseNumberChange when typing in search input', () => {
-    const emitSpy = vi.spyOn(component.purchaseNumberChange, 'emit');
-    fixture.detectChanges();
-
-    const input: HTMLInputElement | null = fixture.nativeElement.querySelector('input[pinputtext]');
-    expect(input).toBeTruthy();
-    input!.value = 'PO-200';
-    input!.dispatchEvent(new Event('input'));
-    fixture.detectChanges();
-
-    expect(emitSpy).toHaveBeenCalledWith('PO-200');
-  });
 });

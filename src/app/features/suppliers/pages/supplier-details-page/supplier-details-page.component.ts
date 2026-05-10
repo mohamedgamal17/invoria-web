@@ -9,15 +9,33 @@ import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
 import { presentApiError } from '../../../../core/http/api-error.presenter';
+import { SupplierDetailsProfileComponent } from '../../components/supplier-details-profile/supplier-details-profile.component';
+import { SupplierDetailsPurchaseOrdersTabComponent } from '../../components/supplier-details-purchase-orders-tab/supplier-details-purchase-orders-tab.component';
+import { SupplierDetailsToolbarComponent } from '../../components/supplier-details-toolbar/supplier-details-toolbar.component';
 import type { Supplier } from '../../models/supplier.entity';
 import { SuppliersApiService } from '../../services/suppliers-api.service';
 
 @Component({
   selector: 'app-supplier-details-page',
   standalone: true,
-  imports: [CommonModule, ButtonModule, CardModule, SkeletonModule, ToastModule],
+  imports: [
+    CommonModule,
+    ButtonModule,
+    CardModule,
+    SkeletonModule,
+    ToastModule,
+    Tabs,
+    TabList,
+    Tab,
+    TabPanels,
+    TabPanel,
+    SupplierDetailsToolbarComponent,
+    SupplierDetailsProfileComponent,
+    SupplierDetailsPurchaseOrdersTabComponent
+  ],
   providers: [MessageService],
   templateUrl: './supplier-details-page.component.html'
 })
@@ -34,6 +52,8 @@ export class SupplierDetailsPageComponent {
   readonly loading = signal(true);
   readonly error = signal('');
   readonly supplier = signal<Supplier | null>(null);
+  /** Active tab index (`0` = Profile, `1` = Purchase orders). */
+  readonly activeTab = signal(0);
 
   constructor() {
     this.loadSupplier();
@@ -45,6 +65,14 @@ export class SupplierDetailsPageComponent {
 
   goToEdit(): void {
     void this.router.navigate(['edit'], { relativeTo: this.route });
+  }
+
+  onTabChange(value: string | number | undefined): void {
+    if (value === undefined || value === null) {
+      return;
+    }
+    const n = typeof value === 'number' ? value : Number(value);
+    this.activeTab.set(Number.isFinite(n) ? n : 0);
   }
 
   retry(): void {

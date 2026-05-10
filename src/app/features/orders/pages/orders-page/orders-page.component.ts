@@ -8,10 +8,17 @@ import { MessageService } from 'primeng/api';
 
 import type { PagingInfo } from '../../../../core/models/paging';
 import type { ListOrderRequest } from '../../models/list-order.request';
+import { OrderStatus } from '../../models/order.entity';
 import type { UiOrder } from '../../models/order-ui.model';
 import { orderToUiOrder } from '../../models/order-ui.mapper';
+import { PaymentStatus, PaymentType } from '../../models/order-payment.enums';
+import { parseOptionalEnumQueryParam } from '../../../../shared/navigation/query-param-parsers';
 import { OrdersApiService } from '../../services/orders-api.service';
 import { OrderHeaderComponent } from '../../components/order-header/order-header.component';
+import {
+  OrdersFilterPanelComponent,
+  type OrdersListFilters
+} from '../../components/orders-filter-panel/orders-filter-panel.component';
 import { OrderListComponent } from '../../components/order-list/order-list.component';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
 
@@ -20,10 +27,20 @@ const EMPTY_ORDERS_TUPLE: [UiOrder[], PagingInfo] = [
   { length: 0, skip: 0, totalCount: 0 }
 ];
 
+const ORDER_STATUS_VALUES = Object.values(OrderStatus).filter(
+  (v): v is number => typeof v === 'number'
+);
+const PAYMENT_STATUS_VALUES = Object.values(PaymentStatus).filter(
+  (v): v is number => typeof v === 'number'
+);
+const PAYMENT_TYPE_VALUES = Object.values(PaymentType).filter(
+  (v): v is number => typeof v === 'number'
+);
+
 @Component({
   selector: 'app-orders-page',
   standalone: true,
-  imports: [CommonModule, OrderHeaderComponent, OrderListComponent],
+  imports: [CommonModule, OrderHeaderComponent, OrdersFilterPanelComponent, OrderListComponent],
   templateUrl: './orders-page.component.html'
 })
 export class OrdersPageComponent {
@@ -69,19 +86,58 @@ export class OrdersPageComponent {
     { initialValue: '' }
   );
 
+  /** `OrderStatus` filter from `?status=` (server-side `Status`). */
+  readonly orderStatusFilterFromRoute = toSignal(
+    this.route.queryParamMap.pipe(
+      map((m) => parseOptionalEnumQueryParam(m, 'status', ORDER_STATUS_VALUES))
+    ),
+    { initialValue: null as number | null }
+  );
+
+  /** Payment status filter from `?paymentStatus=`. */
+  readonly paymentStatusFilterFromRoute = toSignal(
+    this.route.queryParamMap.pipe(
+      map((m) =>
+        parseOptionalEnumQueryParam(m, 'paymentStatus', PAYMENT_STATUS_VALUES)
+      )
+    ),
+    { initialValue: null as number | null }
+  );
+
+  /** Payment type filter from `?paymentType=`. */
+  readonly paymentTypeFilterFromRoute = toSignal(
+    this.route.queryParamMap.pipe(
+      map((m) => parseOptionalEnumQueryParam(m, 'paymentType', PAYMENT_TYPE_VALUES))
+    ),
+    { initialValue: null as number | null }
+  );
+
   /** 0-based page index derived from the URL. */
   readonly pageIndex = computed(() => Math.max(0, this.pageFromRoute() - 1));
 
   readonly first = computed(() => this.pageIndex() * this.pageSize());
 
-  readonly listRequest = computed(
-    (): ListOrderRequest => ({
+  readonly listRequest = computed((): ListOrderRequest => {
+    const req: ListOrderRequest = {
       Skip: this.pageIndex() * this.pageSize(),
       Length: this.pageSize(),
       IncludeOrderItems: true,
       OrderNumber: this.qFromRoute() || null
-    })
-  );
+    };
+    const st = this.orderStatusFilterFromRoute();
+    const ps = this.paymentStatusFilterFromRoute();
+    const pt = this.paymentTypeFilterFromRoute();
+    if (st != null) {
+      req.Status = st;
+    }
+    if (ps != null) {
+      req.PaymentStatus = ps;
+    }
+    if (pt != null) {
+      req.PaymentType = pt;
+    }
+    return req;
+  });
 
   readonly ordersResource = rxResource<[UiOrder[], PagingInfo], ListOrderRequest>({
     params: () => this.listRequest(),
@@ -145,15 +201,50 @@ export class OrdersPageComponent {
     }
   }
 
-  onOrderNumberFilterChange(q: string): void {
-    const normalized = q.trim();
-    if (normalized === this.qFromRoute()) {
+  onFiltersChange(filters: OrdersListFilters): void {
+    const normalized = filters.orderNumber.trim();
+    if (
+      normalized === this.qFromRoute() &&
+      filters.status === this.orderStatusFilterFromRoute() &&
+      filters.paymentStatus === this.paymentStatusFilterFromRoute() &&
+      filters.paymentType === this.paymentTypeFilterFromRoute()
+    ) {
       return;
     }
 
     void this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { q: normalized || null, page: 1 },
+      queryParams: {
+        q: normalized || null,
+        status: filters.status != null ? String(filters.status) : null,
+        paymentStatus:
+          filters.paymentStatus != null ? String(filters.paymentStatus) : null,
+        paymentType: filters.paymentType != null ? String(filters.paymentType) : null,
+        page: 1
+      },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  onClearFilters(): void {
+    if (
+      !this.qFromRoute() &&
+      this.orderStatusFilterFromRoute() == null &&
+      this.paymentStatusFilterFromRoute() == null &&
+      this.paymentTypeFilterFromRoute() == null
+    ) {
+      return;
+    }
+
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        q: null,
+        status: null,
+        paymentStatus: null,
+        paymentType: null,
+        page: 1
+      },
       queryParamsHandling: 'merge'
     });
   }

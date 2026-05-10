@@ -1,0 +1,66 @@
+<div class="grid gap-5">
+  <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
+    <div class="space-y-5">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div class="space-y-1">
+          <p class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Profile</p>
+          <h2 class="text-2xl font-bold tracking-tight text-foreground break-words">{{ customer().name }}</h2>
+        </div>
+        <div class="flex shrink-0 justify-start sm:justify-end">
+          <p-button
+            label="Edit"
+            icon="pi pi-pencil"
+            styleClass="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90 transition-all"
+            (onClick)="edit.emit()"
+          />
+        </div>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="rounded-xl border border-border/60 bg-surface-2/50 p-4">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Customer Name</div>
+          <div class="mt-1.5 text-sm font-semibold text-foreground break-words">{{ customer().name }}</div>
+        </div>
+        <div class="rounded-xl border border-border/60 bg-surface-2/50 p-4">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Customer Id</div>
+          <div class="mt-1.5 text-sm font-semibold text-foreground break-all">{{ customer().id }}</div>
+        </div>
+      </div>
+    </div>
+  </p-card>
+
+  <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
+    <div class="space-y-4">
+      <div class="space-y-1">
+        <p class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Audit</p>
+        <h3 class="text-lg font-semibold text-foreground">Lifecycle Information</h3>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Created At</div>
+          <div class="mt-1.5 text-sm font-semibold text-foreground">{{ customer().createdAt | date: 'medium' }}</div>
+        </div>
+
+        <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Created By</div>
+          <div class="mt-1.5 text-sm font-semibold text-foreground break-words">{{ customer().createdBy || 'N/A' }}</div>
+        </div>
+
+        <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Last Modified At</div>
+          <div class="mt-1.5 text-sm font-semibold text-foreground">
+            {{ customer().lastModifiedAt ? (customer().lastModifiedAt | date: 'medium') : 'N/A' }}
+          </div>
+        </div>
+
+        <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Last Modified By</div>
+          <div class="mt-1.5 text-sm font-semibold text-foreground break-words">
+            {{ customer().lastModifiedBy || 'N/A' }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </p-card>
+</div>
