@@ -9,6 +9,8 @@ import type { Order } from '../models/order.entity';
 import type { CreateOrderRequest } from '../models/create-order.request';
 import type { ListOrderRequest } from '../models/list-order.request';
 import type { UpdateOrderItemsRequest } from '../models/update-order-items.request';
+import type { RecordOrderPaymentRequest } from '../models/record-order-payment.request';
+import { OrderPaymentMethod } from '../models/order-payment.enums';
 import { httpParamsFromRequest } from '../../../shared/requests/http-params-from-request';
 
 @Injectable({
@@ -40,6 +42,17 @@ export class OrdersApiService {
   createOrder(request: CreateOrderRequest): Observable<ApiResponse<Order>> {
     this.assertCreateBody(request);
     return this.http.post<ApiResponse<Order>>(`${this.baseUrl}orders`, request);
+  }
+
+  recordOrderPayment(
+    id: string,
+    request: RecordOrderPaymentRequest
+  ): Observable<ApiResponse<Order>> {
+    this.assertRecordPaymentBody(request);
+    return this.http.post<ApiResponse<Order>>(
+      `${this.baseUrl}orders/${encodeURIComponent(id)}/payments`,
+      request
+    );
   }
 
   updateOrderItems(id: string, request: UpdateOrderItemsRequest): Observable<ApiResponse<Order>> {
@@ -107,6 +120,18 @@ export class OrdersApiService {
     }
     for (const line of request.Items) {
       this.assertLineItem(line);
+    }
+  }
+
+  private assertRecordPaymentBody(request: RecordOrderPaymentRequest): void {
+    if (!Number.isFinite(request.PaidAmount) || request.PaidAmount <= 0) {
+      throw new Error('PaidAmount must be a positive number.');
+    }
+    const methods = new Set(
+      Object.values(OrderPaymentMethod).filter((v): v is OrderPaymentMethod => typeof v === 'number')
+    );
+    if (!methods.has(request.PaymentMethod)) {
+      throw new Error('PaymentMethod is invalid.');
     }
   }
 
