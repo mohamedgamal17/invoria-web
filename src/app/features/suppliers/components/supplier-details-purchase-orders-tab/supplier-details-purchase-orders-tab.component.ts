@@ -9,6 +9,10 @@ import { MessageService } from 'primeng/api';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
 import type { PagingInfo } from '../../../../core/models/paging';
 import { PurchaseOrderListComponent } from '../../../procurement/components/purchase-order-list/purchase-order-list.component';
+import {
+  PurchaseOrdersFilterPanelComponent,
+  type PurchaseOrdersListFilters
+} from '../../../procurement/components/purchase-orders-filter-panel/purchase-orders-filter-panel.component';
 import type { ListPurchaseOrderRequest } from '../../../procurement/models/list-purchase-order.request';
 import type { PurchaseOrder } from '../../../procurement/models/purchase-order.entity';
 import { PurchaseOrdersApiService } from '../../../procurement/services/purchase-orders-api.service';
@@ -21,7 +25,7 @@ const EMPTY_PURCHASE_ORDERS_TUPLE: [PurchaseOrder[], PagingInfo] = [
 @Component({
   selector: 'app-supplier-details-purchase-orders-tab',
   standalone: true,
-  imports: [CommonModule, PurchaseOrderListComponent],
+  imports: [CommonModule, PurchaseOrdersFilterPanelComponent, PurchaseOrderListComponent],
   templateUrl: './supplier-details-purchase-orders-tab.component.html'
 })
 export class SupplierDetailsPurchaseOrdersTabComponent {
@@ -35,20 +39,26 @@ export class SupplierDetailsPurchaseOrdersTabComponent {
 
   readonly pageIndex = signal(0);
   readonly pageSize = signal(25);
-  readonly q = signal('');
+  readonly purchaseNumber = signal('');
+  readonly statusFilter = signal<number | null>(null);
 
   readonly first = computed(() => this.pageIndex() * this.pageSize());
 
-  readonly listRequest = computed(
-    (): ListPurchaseOrderRequest => ({
+  readonly listRequest = computed((): ListPurchaseOrderRequest => {
+    const req: ListPurchaseOrderRequest = {
       Skip: this.pageIndex() * this.pageSize(),
       Length: this.pageSize(),
-      Number: this.q() || null,
+      Number: this.purchaseNumber().trim() || null,
       SupplierId: this.supplierId(),
       IncludePurchaseItems: false,
       IncludeSupplier: true
-    })
-  );
+    };
+    const st = this.statusFilter();
+    if (st != null) {
+      req.Status = st;
+    }
+    return req;
+  });
 
   readonly purchaseOrdersResource = rxResource<[PurchaseOrder[], PagingInfo], ListPurchaseOrderRequest>({
     params: () => this.listRequest(),
@@ -99,12 +109,22 @@ export class SupplierDetailsPurchaseOrdersTabComponent {
     }
   }
 
-  onPurchaseNumberFilterChange(value: string): void {
-    const normalized = value.trim();
-    if (normalized === this.q()) {
+  onFiltersChange(filters: PurchaseOrdersListFilters): void {
+    const normalized = filters.purchaseNumber.trim();
+    if (normalized === this.purchaseNumber().trim() && filters.status === this.statusFilter()) {
       return;
     }
-    this.q.set(normalized);
+    this.purchaseNumber.set(normalized);
+    this.statusFilter.set(filters.status);
+    this.pageIndex.set(0);
+  }
+
+  onClearFilters(): void {
+    if (!this.purchaseNumber().trim() && this.statusFilter() == null) {
+      return;
+    }
+    this.purchaseNumber.set('');
+    this.statusFilter.set(null);
     this.pageIndex.set(0);
   }
 

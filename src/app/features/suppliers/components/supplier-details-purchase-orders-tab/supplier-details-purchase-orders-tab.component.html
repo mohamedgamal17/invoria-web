@@ -1,7 +1,14 @@
-<section class="space-y-4">
+<section class="flex flex-col gap-10">
+  <app-purchase-orders-filter-panel
+    [purchaseNumber]="purchaseNumber()"
+    [status]="statusFilter()"
+    [loading]="purchaseOrdersResource.isLoading()"
+    (filtersChange)="onFiltersChange($event)"
+    (clearFilters)="onClearFilters()"
+  />
+
   <app-purchase-order-list
     [purchaseOrders]="displayPurchaseOrders()"
-    [purchaseNumber]="q()"
     [totalRecords]="displayPaging().totalCount"
     [first]="first()"
     [pageSize]="pageSize()"
@@ -9,7 +16,6 @@
     [loading]="purchaseOrdersResource.isLoading()"
     [showSupplierColumn]="false"
     (pageChange)="onPageChange($event)"
-    (purchaseNumberChange)="onPurchaseNumberFilterChange($event)"
     (view)="goToDetails($event)"
   />
 </section>

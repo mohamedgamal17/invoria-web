@@ -8,6 +8,7 @@ import { MessageService } from 'primeng/api';
 
 import { SupplierDetailsPurchaseOrdersTabComponent } from './supplier-details-purchase-orders-tab.component';
 import { PurchaseOrdersApiService } from '../../../procurement/services/purchase-orders-api.service';
+import { PurchaseState } from '../../../procurement/enums/purchase-state.enum';
 
 describe('SupplierDetailsPurchaseOrdersTabComponent', () => {
   let fixture: ComponentFixture<SupplierDetailsPurchaseOrdersTabComponent>;
@@ -44,5 +45,19 @@ describe('SupplierDetailsPurchaseOrdersTabComponent', () => {
     expect(req.SupplierId).toBe('sup_1');
     expect(req.IncludePurchaseItems).toBe(false);
     expect(req.IncludeSupplier).toBe(true);
+  });
+
+  it('should include Status in list request after status filter change', () => {
+    listPurchaseOrders.mockClear();
+    fixture.componentInstance.onFiltersChange({
+      purchaseNumber: '',
+      status: PurchaseState.Approved
+    });
+    fixture.detectChanges();
+
+    expect(listPurchaseOrders).toHaveBeenCalled();
+    const lastReq = listPurchaseOrders.mock.calls[listPurchaseOrders.mock.calls.length - 1][0];
+    expect(lastReq.Status).toBe(PurchaseState.Approved);
+    expect(lastReq.SupplierId).toBe('sup_1');
   });
 });
