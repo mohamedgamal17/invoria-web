@@ -1,17 +1,23 @@
 <p-toast />
-<section class="space-y-6">
+<section class="flex flex-col gap-10">
   <app-purchase-order-header [showCreate]="true" (create)="goToCreate()" />
+
+  <app-purchase-orders-filter-panel
+    [purchaseNumber]="purchaseNumber()"
+    [status]="purchaseStatusFilterFromRoute()"
+    [loading]="purchaseOrdersResource.isLoading()"
+    (filtersChange)="onFiltersChange($event)"
+    (clearFilters)="onClearFilters()"
+  />
 
   <app-purchase-order-list
     [purchaseOrders]="displayPurchaseOrders()"
-    [purchaseNumber]="purchaseNumber()"
     [totalRecords]="displayPaging().totalCount"
     [first]="first()"
     [pageSize]="pageSize()"
     [pageSizeOptions]="pageSizeOptions"
     [loading]="purchaseOrdersResource.isLoading()"
     (pageChange)="onPageChange($event)"
-    (purchaseNumberChange)="onPurchaseNumberChange($event)"
     (view)="goToDetails($event)"
   />
 </section>
