@@ -29,7 +29,7 @@
             id="po-filter-number"
             pInputText
             type="text"
-            [ngModel]="purchaseNumber()"
+            [ngModel]="localPurchaseNumber()"
             (ngModelChange)="onPurchaseNumberInput($event)"
             [disabled]="loading()"
             placeholder="Search by PO number…"

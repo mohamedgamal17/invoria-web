@@ -1,6 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ButtonModule } from 'primeng/button';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -22,6 +25,8 @@ function numericEnumValues<T extends Record<string, string | number>>(e: T): num
   return Object.values(e).filter((v): v is number => typeof v === 'number');
 }
 
+const PURCHASE_NUMBER_FILTER_DEBOUNCE_MS = 700;
+
 @Component({
   selector: 'app-purchase-orders-filter-panel',
   standalone: true,
@@ -38,12 +43,34 @@ function numericEnumValues<T extends Record<string, string | number>>(e: T): num
   templateUrl: './purchase-orders-filter-panel.component.html'
 })
 export class PurchaseOrdersFilterPanelComponent {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly purchaseNumberInput$ = new Subject<string>();
+
   purchaseNumber = input<string>('');
   status = input<number | null>(null);
   loading = input(false);
 
+  /** Draft PO number for the text field; synced from `purchaseNumber` when the parent input changes. */
+  readonly localPurchaseNumber = signal('');
+
   filtersChange = output<PurchaseOrdersListFilters>();
   clearFilters = output<void>();
+
+  constructor() {
+    effect(() => {
+      this.localPurchaseNumber.set(this.purchaseNumber());
+    });
+
+    this.purchaseNumberInput$
+      .pipe(
+        debounceTime(PURCHASE_NUMBER_FILTER_DEBOUNCE_MS),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((value) => {
+        this.emitFilters({ purchaseNumber: value });
+      });
+  }
 
   readonly statusOptions: FilterOption[] = [
     { label: 'All statuses', value: null },
@@ -54,7 +81,8 @@ export class PurchaseOrdersFilterPanelComponent {
   ];
 
   onPurchaseNumberInput(value: string): void {
-    this.emitFilters({ purchaseNumber: value });
+    this.localPurchaseNumber.set(value);
+    this.purchaseNumberInput$.next(value);
   }
 
   onStatusChange(value: number | null | undefined): void {
@@ -67,7 +95,7 @@ export class PurchaseOrdersFilterPanelComponent {
 
   private emitFilters(patch: Partial<PurchaseOrdersListFilters>): void {
     this.filtersChange.emit({
-      purchaseNumber: patch.purchaseNumber ?? this.purchaseNumber(),
+      purchaseNumber: patch.purchaseNumber ?? this.localPurchaseNumber(),
       status: patch.status !== undefined ? patch.status : this.status()
     });
   }

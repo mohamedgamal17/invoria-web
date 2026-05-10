@@ -1,6 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ButtonModule } from 'primeng/button';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -30,6 +33,8 @@ function numericEnumValues<T extends Record<string, string | number>>(e: T): num
   return Object.values(e).filter((v): v is number => typeof v === 'number');
 }
 
+const ORDER_NUMBER_FILTER_DEBOUNCE_MS = 700;
+
 @Component({
   selector: 'app-orders-filter-panel',
   standalone: true,
@@ -46,14 +51,36 @@ function numericEnumValues<T extends Record<string, string | number>>(e: T): num
   templateUrl: './orders-filter-panel.component.html'
 })
 export class OrdersFilterPanelComponent {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly orderNumberInput$ = new Subject<string>();
+
   orderNumber = input<string>('');
   status = input<number | null>(null);
   paymentStatus = input<number | null>(null);
   paymentType = input<number | null>(null);
   loading = input(false);
 
+  /** Draft order number for the text field; synced from `orderNumber` when the parent input changes. */
+  readonly localOrderNumber = signal('');
+
   filtersChange = output<OrdersListFilters>();
   clearFilters = output<void>();
+
+  constructor() {
+    effect(() => {
+      this.localOrderNumber.set(this.orderNumber());
+    });
+
+    this.orderNumberInput$
+      .pipe(
+        debounceTime(ORDER_NUMBER_FILTER_DEBOUNCE_MS),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((value) => {
+        this.emitFilters({ orderNumber: value });
+      });
+  }
 
   readonly statusOptions: FilterOption[] = [
     { label: 'All statuses', value: null },
@@ -80,7 +107,8 @@ export class OrdersFilterPanelComponent {
   ];
 
   onOrderNumberInput(value: string): void {
-    this.emitFilters({ orderNumber: value });
+    this.localOrderNumber.set(value);
+    this.orderNumberInput$.next(value);
   }
 
   onStatusChange(value: number | null | undefined): void {
@@ -101,7 +129,7 @@ export class OrdersFilterPanelComponent {
 
   private emitFilters(patch: Partial<OrdersListFilters>): void {
     this.filtersChange.emit({
-      orderNumber: patch.orderNumber ?? this.orderNumber(),
+      orderNumber: patch.orderNumber ?? this.localOrderNumber(),
       status: patch.status !== undefined ? patch.status : this.status(),
       paymentStatus:
         patch.paymentStatus !== undefined ? patch.paymentStatus : this.paymentStatus(),

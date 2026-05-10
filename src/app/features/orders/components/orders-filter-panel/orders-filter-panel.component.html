@@ -31,7 +31,7 @@
             id="orders-filter-order-number"
             pInputText
             type="text"
-            [ngModel]="orderNumber()"
+            [ngModel]="localOrderNumber()"
             (ngModelChange)="onOrderNumberInput($event)"
             [disabled]="loading()"
             placeholder="Search by order number…"
