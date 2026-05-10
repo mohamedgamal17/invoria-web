@@ -16,18 +16,7 @@
     styleClass="p-datatable-sm min-w-[640px]"
   >
     <ng-template pTemplate="caption">
-      <div class="flex flex-col sm:flex-row justify-between items-center gap-4 px-2 py-3">
-        <p-iconfield iconPosition="left" class="w-full sm:w-80">
-          <p-inputicon styleClass="pi pi-search" />
-          <input
-            pInputText
-            type="text"
-            [value]="purchaseNumber()"
-            (input)="purchaseNumberChange.emit(($any($event.target).value ?? '').toString())"
-            placeholder="Search by PO number..."
-            class="w-full rounded-lg border-border bg-surface-2 py-2 text-sm focus:ring-2 focus:ring-focus"
-          />
-        </p-iconfield>
+      <div class="flex flex-col sm:flex-row justify-end items-center gap-2 px-2 py-3">
         <div class="text-xs font-medium text-muted-foreground uppercase tracking-wider">
           Displaying {{ purchaseOrders().length }} of {{ totalRecords() }} purchase orders
         </div>
