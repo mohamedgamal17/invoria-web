@@ -1,4 +1,4 @@
-<section class="space-y-6">
+<section class="flex flex-col gap-8">
   <app-products-breadcrumb [items]="breadcrumbItems()" />
 
   <div class="flex flex-col gap-4 rounded-xl border border-border/70 bg-surface-0/80 p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -9,17 +9,11 @@
         [text]="true"
         (onClick)="backToList()"
       />
-      <p class="text-xs text-muted-foreground">View and manage product profile, stock, and lifecycle actions.</p>
+      <p class="text-xs text-muted-foreground">
+        View and manage profile, batches, stock, and lifecycle actions.
+      </p>
     </div>
     <div class="flex flex-wrap gap-2 justify-end">
-      <p-button
-        label="Manage Batches"
-        icon="pi pi-box"
-        severity="secondary"
-        [outlined]="true"
-        [disabled]="actionsDisabled()"
-        (onClick)="openBatches()"
-      />
       <p-button
         label="Edit"
         icon="pi pi-pencil"
@@ -72,41 +66,75 @@
       </div>
     </p-card>
   } @else if (product(); as p) {
-    <p-card styleClass="border border-border/70">
-      <div class="flex flex-col gap-6">
-        <div class="min-w-0 space-y-1">
-          <h1 class="text-2xl font-bold text-foreground truncate">{{ p.name }}</h1>
-          <p class="text-sm text-muted-foreground">Updated {{ p.lastModifiedAt | date: 'medium' }}</p>
-        </div>
+    <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" [lazy]="true">
+      <p-tablist>
+        <p-tab [value]="0">Info</p-tab>
+        <p-tab [value]="1">Batches</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <p-tabpanel [value]="0">
+          <div class="pt-5">
+            <p-card styleClass="border border-border/70">
+              <div class="flex flex-col gap-6">
+                <div class="min-w-0 space-y-1">
+                  <h1 class="text-2xl font-bold text-foreground truncate">{{ p.name }}</h1>
+                  <p class="text-sm text-muted-foreground">Updated {{ p.lastModifiedAt | date: 'medium' }}</p>
+                </div>
 
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Price</div>
-            <div class="mt-1 text-xl font-black tabular-nums text-foreground">
-              {{ p.price | currency: 'EGP' : 'symbol-narrow' }}
-            </div>
-          </div>
-          <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              Quantity (Act / Res)
-            </div>
-            <div class="mt-1 text-xl font-black tabular-nums text-foreground">
-              {{ p.stock.actualQuantity }} / {{ p.stock.reservedQuantity }}
-            </div>
-          </div>
-        </div>
+                <div class="grid gap-4 sm:grid-cols-2">
+                  <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Price</div>
+                    <div class="mt-1 text-xl font-black tabular-nums text-foreground">
+                      {{ p.price | currency: 'EGP' : 'symbol-narrow' }}
+                    </div>
+                  </div>
+                  <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Quantity (Act / Res)
+                    </div>
+                    <div class="mt-1 text-xl font-black tabular-nums text-foreground">
+                      {{ p.stock.actualQuantity }} / {{ p.stock.reservedQuantity }}
+                    </div>
+                  </div>
+                </div>
 
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div class="rounded-xl border border-border/60 bg-surface-2/20 p-4 space-y-1">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Created</div>
-            <div class="text-sm text-foreground">{{ p.createdAt | date: 'medium' }}</div>
+                <div class="grid gap-4 sm:grid-cols-2">
+                  <div class="rounded-xl border border-border/60 bg-surface-2/20 p-4 space-y-1">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Created</div>
+                    <div class="text-sm text-foreground">{{ p.createdAt | date: 'medium' }}</div>
+                  </div>
+                  <div class="rounded-xl border border-border/60 bg-surface-2/20 p-4 space-y-1">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Last Modified
+                    </div>
+                    <div class="text-sm text-foreground">{{ p.lastModifiedAt | date: 'medium' }}</div>
+                  </div>
+                </div>
+              </div>
+            </p-card>
           </div>
-          <div class="rounded-xl border border-border/60 bg-surface-2/20 p-4 space-y-1">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Last Modified</div>
-            <div class="text-sm text-foreground">{{ p.lastModifiedAt | date: 'medium' }}</div>
+        </p-tabpanel>
+
+        <p-tabpanel [value]="1">
+          <div class="pt-6">
+            <p-card styleClass="border border-border">
+              <div class="mb-4 flex flex-col gap-1 border-b border-border pb-4">
+                <span class="text-xs font-bold uppercase tracking-widest text-primary">Inventory</span>
+                <p class="m-0 text-sm text-muted-foreground">Manage batches and stock for this product.</p>
+              </div>
+              <app-product-batches-panel
+                [product]="batchesProductRef()"
+                [active]="activeTab() === 1"
+                [first]="first()"
+                [pageSize]="pageSize()"
+                [pageSizeOptions]="pageSizeOptions"
+                (pageChange)="onPageChange($event)"
+                (batchesMutated)="onBatchesMutated()"
+              />
+            </p-card>
           </div>
-        </div>
-      </div>
-    </p-card>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
   }
 </section>

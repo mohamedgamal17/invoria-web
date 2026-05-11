@@ -47,23 +47,20 @@
           <p-skeleton height="2rem" width="5rem" borderRadius="9999px"></p-skeleton>
         </div>
       </p-card>
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <p-card styleClass="border border-border lg:col-span-2">
-          <div class="space-y-3">
-            <p-skeleton height="1.25rem" width="30%"></p-skeleton>
-            <p-skeleton height="12rem" width="100%"></p-skeleton>
-          </div>
-        </p-card>
-        <p-card styleClass="border border-border">
-          <div class="space-y-3">
-            <p-skeleton height="1.25rem" width="40%"></p-skeleton>
-            <p-skeleton height="1rem" width="100%"></p-skeleton>
-            <p-skeleton height="1rem" width="100%"></p-skeleton>
-            <p-skeleton height="1rem" width="80%"></p-skeleton>
-            <p-skeleton height="2.5rem" width="100%" class="mt-4"></p-skeleton>
-          </div>
-        </p-card>
+      <div class="flex gap-3 border-b border-border/60 pb-2">
+        <p-skeleton height="2rem" width="5.5rem" borderRadius="0.375rem"></p-skeleton>
+        <p-skeleton height="2rem" width="6rem" borderRadius="0.375rem"></p-skeleton>
+        <p-skeleton height="2rem" width="7rem" borderRadius="0.375rem"></p-skeleton>
       </div>
+      <p-card styleClass="border border-border max-w-3xl">
+        <div class="space-y-3">
+          <p-skeleton height="1.25rem" width="40%"></p-skeleton>
+          <p-skeleton height="1rem" width="100%"></p-skeleton>
+          <p-skeleton height="1rem" width="100%"></p-skeleton>
+          <p-skeleton height="1rem" width="80%"></p-skeleton>
+          <p-skeleton height="2.5rem" width="100%" class="mt-4"></p-skeleton>
+        </div>
+      </p-card>
     </div>
   } @else if (error()) {
     <p-card styleClass="border border-destructive/30">
@@ -95,156 +92,38 @@
       </div>
     </p-card>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-      <p-card styleClass="border border-border lg:col-span-2" header="Line items">
-        @if (po.purchaseOrderItems?.length) {
-          <div class="rounded-xl border border-border/60 overflow-x-auto -mx-1">
-            <p-table
-              [value]="po.purchaseOrderItems!"
-              dataKey="id"
-              styleClass="p-datatable-sm min-w-[760px]"
-            >
-              <ng-template pTemplate="header">
-                <tr>
-                  <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider w-12">#</th>
-                  <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Product</th>
-                  <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Qty</th>
-                  <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Unit price</th>
-                  <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Supplier code</th>
-                  <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Line total</th>
-                  <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Reference</th>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="body" let-row let-index="rowIndex">
-                <tr>
-                  <td class="px-3 py-2 text-sm tabular-nums text-muted-foreground">{{ index + 1 }}</td>
-                  <td class="px-3 py-2 text-sm font-medium text-foreground break-all">{{ productLineLabel(row) }}</td>
-                  <td class="px-3 py-2 text-sm text-right tabular-nums">{{ row.quantity }}</td>
-                  <td class="px-3 py-2 text-sm text-right tabular-nums">
-                    {{ row.unitPrice | currency: currencyCode : 'symbol-narrow' }}
-                  </td>
-                  <td class="px-3 py-2 text-sm">
-                    @if (row.supplierProductCode) {
-                      {{ row.supplierProductCode }}
-                    } @else {
-                      —
-                    }
-                  </td>
-                  <td class="px-3 py-2 text-sm text-right tabular-nums font-medium">
-                    {{ row.lineTotal | currency: currencyCode : 'symbol-narrow' }}
-                  </td>
-                  <td
-                    class="px-3 py-2 text-xs text-muted-foreground font-mono break-all max-w-[10rem]"
-                    [title]="row.id"
-                  >
-                    {{ row.id }}
-                  </td>
-                </tr>
-              </ng-template>
-            </p-table>
-          </div>
-        } @else {
-          <p class="text-sm text-muted-foreground">No line items.</p>
-        }
-      </p-card>
-
-      <p-card styleClass="border border-border h-fit lg:sticky lg:top-4" header="Summary">
-        <div class="flex flex-col gap-5 text-sm">
-          <div class="space-y-2">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Supplier</div>
-            <div class="font-semibold text-foreground break-all">{{ supplierLine(po) }}</div>
-            @if (supplierCodeLine(po); as code) {
-              <div class="text-xs text-muted-foreground">Code: {{ code }}</div>
-            }
-          </div>
-
-          <div class="border-t border-border/60 pt-4 space-y-2.5">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Schedule</div>
-            <div class="flex justify-between gap-3">
-              <span class="text-muted-foreground shrink-0">Order date</span>
-              <span class="text-right font-medium text-foreground">{{ formatDateOrDash(po.orderDate) }}</span>
-            </div>
-            <div class="flex justify-between gap-3">
-              <span class="text-muted-foreground shrink-0">Expected delivery</span>
-              <span class="text-right font-medium text-foreground">{{ formatDateOrDash(po.expectedDeliveryDate) }}</span>
-            </div>
-            <div class="flex justify-between gap-3">
-              <span class="text-muted-foreground shrink-0">Completed</span>
-              <span class="text-right font-medium text-foreground">{{ formatDateOrDash(po.completedDate) }}</span>
-            </div>
-          </div>
-
-          <div class="border-t border-border/60 pt-4 space-y-2">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Amounts</div>
-            <div class="flex justify-between gap-3">
-              <span class="text-muted-foreground">Subtotal</span>
-              <span class="tabular-nums text-foreground">{{ po.subTotal | currency: currencyCode : 'symbol-narrow' }}</span>
-            </div>
-            <div class="flex justify-between gap-3">
-              <span class="text-muted-foreground">Tax</span>
-              <span class="tabular-nums text-foreground">{{ po.taxAmount | currency: currencyCode : 'symbol-narrow' }}</span>
-            </div>
-            <div class="flex justify-between gap-3">
-              <span class="text-muted-foreground">Discount</span>
-              <span class="tabular-nums text-foreground">{{ po.discountAmount | currency: currencyCode : 'symbol-narrow' }}</span>
-            </div>
-            <div class="flex justify-between gap-3 border-t border-border/60 pt-3 mt-1">
-              <span class="font-semibold text-foreground">Total</span>
-              <span class="font-bold tabular-nums text-foreground text-base">
-                {{ po.totalAmount | currency: currencyCode : 'symbol-narrow' }}
-              </span>
-            </div>
-          </div>
-
-          <div class="border-t border-border/60 pt-4 space-y-1.5 text-xs text-muted-foreground">
-            <div class="text-[10px] font-bold uppercase tracking-wider">Reference</div>
-            <div class="break-all font-mono">
-              <span class="text-muted-foreground">PO id:</span>
-              {{ po.id }}
-            </div>
-            <div class="break-all font-mono">
-              <span class="text-muted-foreground">Supplier id:</span>
-              {{ po.supplierId }}
-            </div>
-          </div>
-        </div>
-      </p-card>
-    </div>
-
-    <p-card styleClass="border border-border" header="Status history">
-      @if (stateTimelineEvents().length) {
-        <p-timeline [value]="stateTimelineEvents()" styleClass="w-full">
-          <ng-template pTemplate="marker" let-event>
-            <p-tag
-              [value]="event.toLabel"
-              [severity]="event.severity"
-              styleClass="px-2 py-0.5 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border shrink-0"
+    <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" [lazy]="true">
+      <p-tablist>
+        <p-tab [value]="0">Overview</p-tab>
+        <p-tab [value]="1">Line items</p-tab>
+        <p-tab [value]="2">Status history</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <p-tabpanel [value]="0">
+          <div class="pt-5 w-full">
+            <app-purchase-order-details-overview-tab
+              [po]="po"
+              [currencyCode]="currencyCode"
+              [supplierLine]="supplierLine(po)"
+              [supplierCode]="supplierCodeLine(po)"
             />
-          </ng-template>
-          <ng-template pTemplate="content" let-event>
-            <div class="flex flex-col gap-1.5 mb-6 -mt-0.5">
-              <div class="flex flex-wrap items-center gap-2 text-sm">
-                <span class="font-medium text-muted-foreground">{{ event.fromLabel }}</span>
-                <span class="text-muted-foreground/80" aria-hidden="true">→</span>
-                <span class="font-semibold text-foreground">{{ event.toLabel }}</span>
-              </div>
-              <div class="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-                <span>{{ event.changedAt | date: 'medium' }}</span>
-              </div>
-              @if (event.reason?.trim()) {
-                <div
-                  class="text-xs leading-relaxed italic text-muted-foreground/90 bg-surface-2/80 p-2.5 rounded-lg border border-border/40 relative overflow-hidden mt-1"
-                >
-                  <div class="absolute inset-y-0 left-0 w-0.5 bg-primary/35" aria-hidden="true"></div>
-                  <span class="pl-2">{{ event.reason }}</span>
-                </div>
-              }
-            </div>
-          </ng-template>
-        </p-timeline>
-      } @else {
-        <p class="text-sm text-muted-foreground">No transition history available.</p>
-      }
-    </p-card>
+          </div>
+        </p-tabpanel>
+        <p-tabpanel [value]="1">
+          <div class="pt-5 min-w-0">
+            <app-purchase-order-details-lines-tab
+              [po]="po"
+              [currencyCode]="currencyCode"
+              [lineLabel]="lineLabelFn"
+            />
+          </div>
+        </p-tabpanel>
+        <p-tabpanel [value]="2">
+          <div class="pt-5">
+            <app-purchase-order-details-history-tab [events]="stateTimelineEvents()" />
+          </div>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
   }
 </section>

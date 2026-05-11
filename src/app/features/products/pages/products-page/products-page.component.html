@@ -1,7 +1,14 @@
-<section class="space-y-6">
+<section class="flex flex-col gap-8">
   <app-products-breadcrumb [items]="breadcrumbItems" />
 
   <app-product-header (create)="navigateToCreate()" />
+
+  <app-products-filter-panel
+    [name]="nameSearch()"
+    [loading]="productsResource.isLoading()"
+    (filtersChange)="onFiltersChange($event)"
+    (clearFilters)="onClearFilters()"
+  />
 
   <app-product-list
     [products]="displayProducts()"
@@ -10,9 +17,8 @@
     [pageSize]="pageSize()"
     [isListLoading]="productsResource.isLoading()"
     [pageSizeOptions]="pageSizeOptions"
-    [nameSearch]="nameSearch()"
     (viewProduct)="viewProduct($event)"
     (pageChange)="onPageChange($event)"
-    (nameSearchChange)="onNameSearchChange($event)"
+    (clearFilters)="onClearFilters()"
   />
 </section>

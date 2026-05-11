@@ -110,25 +110,20 @@ describe('ProductListComponent', () => {
     expect(component.skeletonRows.length).toBe(20);
   });
 
-  it('should emit nameSearchChange debounced after typing', async () => {
-    vi.useFakeTimers();
-    const searchSpy = vi.spyOn(component.nameSearchChange, 'emit');
+  it('should emit clearFilters when Clear filters is clicked in empty state', () => {
+    fixture.componentRef.setInput('isListLoading', false);
+    fixture.componentRef.setInput('products', []);
+    fixture.componentRef.setInput('totalRecords', 0);
+    fixture.detectChanges();
 
-    component.onNameSearchInput('widget');
-    expect(searchSpy).not.toHaveBeenCalled();
+    const clearSpy = vi.spyOn(component.clearFilters, 'emit');
+    const clearButton = fixture.debugElement
+      .queryAll(By.css('p-button'))
+      .find((btn) => btn.nativeElement.textContent?.includes('Clear filters'));
 
-    await vi.advanceTimersByTimeAsync(299);
-    expect(searchSpy).not.toHaveBeenCalled();
+    expect(clearButton).toBeTruthy();
+    clearButton?.triggerEventHandler('onClick', {});
 
-    await vi.advanceTimersByTimeAsync(1);
-    expect(searchSpy).toHaveBeenCalledWith('widget');
-  });
-
-  it('should emit nameSearchChange immediately on clearNameSearch', () => {
-    const searchSpy = vi.spyOn(component.nameSearchChange, 'emit');
-
-    component.clearNameSearch();
-
-    expect(searchSpy).toHaveBeenCalledWith('');
+    expect(clearSpy).toHaveBeenCalled();
   });
 });
