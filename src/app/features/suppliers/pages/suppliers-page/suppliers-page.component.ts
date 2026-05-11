@@ -4,13 +4,19 @@ import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, map, of } from 'rxjs';
 
-import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import type { PaginatorState } from 'primeng/paginator';
+import type { TablePageEvent } from 'primeng/table';
 
 import { SuppliersApiService } from '../../services/suppliers-api.service';
 import type { ListSupplierRequest } from '../../models/list-supplier.request';
 import { SupplierListComponent } from '../../components/supplier-list/supplier-list.component';
+import { SupplierHeaderComponent } from '../../components/supplier-header/supplier-header.component';
+import {
+  SuppliersFilterPanelComponent,
+  type SuppliersListFilters
+} from '../../components/suppliers-filter-panel/suppliers-filter-panel.component';
 import type { Supplier } from '../../models/supplier.entity';
 import type { PagingInfo } from '../../../../core/models/paging';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
@@ -23,18 +29,25 @@ const EMPTY_SUPPLIERS_TUPLE: [Supplier[], PagingInfo] = [
 @Component({
   selector: 'app-suppliers-page',
   standalone: true,
-  imports: [CommonModule, ButtonModule, ToastModule, SupplierListComponent],
+  imports: [
+    CommonModule,
+    ToastModule,
+    SupplierHeaderComponent,
+    SuppliersFilterPanelComponent,
+    SupplierListComponent
+  ],
   providers: [MessageService],
   templateUrl: './suppliers-page.component.html'
 })
 export class SuppliersPageComponent {
-  readonly pageSizeOptions = [5, 10, 20];
+  readonly pageSizeOptions = [25, 50, 100, 200];
 
   private readonly suppliersApi = inject(SuppliersApiService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
+  /** 1-based page number from `?page=` (default 1). */
   private readonly pageFromRoute = toSignal(
     this.route.queryParamMap.pipe(
       map((m) => {
@@ -46,17 +59,19 @@ export class SuppliersPageComponent {
     { initialValue: 1 }
   );
 
+  /** Page size from `?pageSize=` (must be in pageSizeOptions; default 25). */
   readonly pageSize = toSignal(
     this.route.queryParamMap.pipe(
       map((m) => {
         const raw = m.get('pageSize');
         const n = raw ? parseInt(raw, 10) : NaN;
-        return this.pageSizeOptions.includes(n) ? n : 10;
+        return this.pageSizeOptions.includes(n) ? n : 25;
       })
     ),
-    { initialValue: 10 }
+    { initialValue: 25 }
   );
 
+  /** Name filter from `?q=` (trimmed; default empty). */
   readonly qFromRoute = toSignal(
     this.route.queryParamMap.pipe(
       map((m) => {
@@ -67,6 +82,7 @@ export class SuppliersPageComponent {
     { initialValue: '' }
   );
 
+  /** 0-based page index derived from the URL. */
   readonly pageIndex = computed(() => Math.max(0, this.pageFromRoute() - 1));
 
   readonly listRequest = computed((): ListSupplierRequest => ({
@@ -106,19 +122,18 @@ export class SuppliersPageComponent {
     computation: (src) => ({ ...src.paging })
   });
 
-  navigateToCreate(): void {
-    void this.router.navigate(['new'], { relativeTo: this.route.parent });
+  goToCreate(): void {
+    void this.router.navigate(['new'], { relativeTo: this.route });
   }
 
   goToDetails(supplier: Supplier): void {
     void this.router.navigate([supplier.id], { relativeTo: this.route });
   }
 
-  onPageChange(event: unknown): void {
-    const evt = event as { rows?: number; page?: number; first?: number };
-    const rows = evt.rows ?? this.pageSize();
-    const firstEvt = evt.first ?? 0;
-    const newPageIndex = evt.page ?? Math.floor(firstEvt / Math.max(rows, 1));
+  onPageChange(event: PaginatorState | TablePageEvent): void {
+    const firstEvt = event.first ?? 0;
+    const rows = event.rows ?? this.pageSize();
+    const newPageIndex = Math.floor(firstEvt / Math.max(rows, 1));
 
     if (this.pageIndex() !== newPageIndex || this.pageSize() !== rows) {
       const isManualPageChange = this.pageIndex() !== newPageIndex;
@@ -135,8 +150,8 @@ export class SuppliersPageComponent {
     }
   }
 
-  onNameFilterChange(q: string): void {
-    const normalized = q.trim();
+  onFiltersChange(filters: SuppliersListFilters): void {
+    const normalized = filters.name.trim();
     if (normalized === this.qFromRoute()) {
       return;
     }
@@ -144,6 +159,18 @@ export class SuppliersPageComponent {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { q: normalized || null, page: 1 },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  onClearFilters(): void {
+    if (!this.qFromRoute()) {
+      return;
+    }
+
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { q: null, page: 1 },
       queryParamsHandling: 'merge'
     });
   }
