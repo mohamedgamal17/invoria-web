@@ -1,0 +1,44 @@
+<app-surface-card tone="neutral">
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div class="flex items-center gap-2 text-foreground">
+        <i class="pi pi-filter text-muted-foreground" aria-hidden="true"></i>
+        <span class="text-sm font-bold uppercase tracking-wider text-muted-foreground"
+          >Filters</span
+        >
+      </div>
+      <p-button
+        label="Clear filters"
+        icon="pi pi-times"
+        [text]="true"
+        severity="secondary"
+        styleClass="text-sm shrink-0 self-start sm:self-auto"
+        [disabled]="loading()"
+        (onClick)="onClear()"
+      />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div class="flex flex-col gap-1.5 col-span-full">
+        <label
+          class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider"
+          for="customers-filter-name"
+          >Customer name</label
+        >
+        <p-iconfield iconPosition="left" class="w-full">
+          <p-inputicon styleClass="pi pi-search" />
+          <input
+            id="customers-filter-name"
+            pInputText
+            type="text"
+            [ngModel]="localName()"
+            (ngModelChange)="onNameInput($event)"
+            [disabled]="loading()"
+            placeholder="Search by name…"
+            class="w-full rounded-lg border-border bg-surface-2 py-2 text-sm focus:ring-2 focus:ring-focus"
+          />
+        </p-iconfield>
+      </div>
+    </div>
+  </div>
+</app-surface-card>
