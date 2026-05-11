@@ -11,6 +11,10 @@ import type { TablePageEvent } from 'primeng/table';
 
 import type { PagingInfo } from '../../../../core/models/paging';
 import { ProductHeaderComponent } from '../../components/product-header/product-header.component';
+import {
+  ProductsFilterPanelComponent,
+  type ProductsListFilters
+} from '../../components/products-filter-panel/products-filter-panel.component';
 import { ProductListComponent } from '../../components/product-list/product-list.component';
 import {
   ProductsBreadcrumbComponent,
@@ -34,6 +38,7 @@ const EMPTY_PRODUCTS_TUPLE: [Product[], PagingInfo] = [
     CommonModule,
     ToastModule,
     ProductHeaderComponent,
+    ProductsFilterPanelComponent,
     ProductListComponent,
     ProductsBreadcrumbComponent
   ],
@@ -130,12 +135,31 @@ export class ProductsPageComponent {
     void this.router.navigate([product.id], { relativeTo: this.route.parent });
   }
 
-  onNameSearchChange(term: string): void {
-    const trimmed = term.trim();
+  onFiltersChange(filters: ProductsListFilters): void {
+    const normalized = filters.name.trim();
+    if (normalized === this.nameSearch()) {
+      return;
+    }
+
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {
-        name: trimmed || null,
+        name: normalized || null,
+        page: 1
+      },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  onClearFilters(): void {
+    if (!this.nameSearch()) {
+      return;
+    }
+
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        name: null,
         page: 1
       },
       queryParamsHandling: 'merge'
