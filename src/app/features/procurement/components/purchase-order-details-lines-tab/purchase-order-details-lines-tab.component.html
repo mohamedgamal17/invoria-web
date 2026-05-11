@@ -1,0 +1,70 @@
+<div class="rounded-xl border border-border bg-surface shadow-sm overflow-x-auto">
+  <p-table
+    [value]="po.purchaseOrderItems ?? []"
+    dataKey="id"
+    [rowHover]="true"
+    [stripedRows]="true"
+    styleClass="p-datatable-sm min-w-[640px]"
+  >
+    <ng-template pTemplate="caption">
+      <div class="flex flex-col sm:flex-row justify-end items-center gap-2 px-2 py-3">
+        <div class="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          Displaying {{ po.purchaseOrderItems?.length ?? 0 }} line items
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th class="px-4 py-5 text-left font-bold uppercase tracking-wider w-14">#</th>
+        <th class="px-4 py-5 text-left font-bold uppercase tracking-wider">Product</th>
+        <th class="px-4 py-5 text-right font-bold uppercase tracking-wider">Qty</th>
+        <th class="px-4 py-5 text-right font-bold uppercase tracking-wider">Unit price</th>
+        <th class="px-4 py-5 text-left font-bold uppercase tracking-wider">Supplier code</th>
+        <th class="px-4 py-5 text-right font-bold uppercase tracking-wider">Line total</th>
+        <th class="px-4 py-5 text-left font-bold uppercase tracking-wider">Reference</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-row let-index="rowIndex">
+      <tr>
+        <td class="px-4 py-5 text-sm tabular-nums text-muted-foreground">{{ index + 1 }}</td>
+        <td class="px-4 py-5">
+          <span class="text-sm font-semibold text-foreground break-all">{{ lineLabel(row) }}</span>
+        </td>
+        <td class="px-4 py-5 text-sm text-right tabular-nums text-foreground">{{ row.quantity }}</td>
+        <td class="px-4 py-5 text-sm text-right tabular-nums text-muted-foreground">
+          {{ row.unitPrice | currency: currencyCode : 'symbol-narrow' }}
+        </td>
+        <td class="px-4 py-5 text-sm text-foreground">
+          @if (row.supplierProductCode) {
+            {{ row.supplierProductCode }}
+          } @else {
+            —
+          }
+        </td>
+        <td class="px-4 py-5 text-right text-sm font-bold tabular-nums text-foreground">
+          {{ row.lineTotal | currency: currencyCode : 'symbol-narrow' }}
+        </td>
+        <td
+          class="px-4 py-5 text-xs text-muted-foreground font-mono break-all max-w-[10rem]"
+          [title]="row.id"
+        >
+          {{ row.id }}
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="px-4 py-12 text-center">
+          <div class="flex flex-col items-center gap-3">
+            <i class="pi pi-inbox text-4xl text-muted-foreground opacity-20"></i>
+            <div class="text-base font-medium text-foreground">No line items</div>
+            <p class="text-sm text-muted-foreground">Add lines when editing this purchase order.</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
