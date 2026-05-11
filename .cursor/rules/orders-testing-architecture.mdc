@@ -1,0 +1,27 @@
+---
+description: Maps backend Ordering test layers to invoria-web Orders specs and checklist for new tests.
+alwaysApply: true
+---
+
+# Orders feature testing (Invoria Architecture alignment)
+
+Canonical backend reference (Ordering bounded context and `Invoria.Ordering.Application.Tests` layout):  
+`c:\Users\Mohamed\source\repos\Invoria\ai\Architecture.md`
+
+That document describes **.NET** test folders (`Domain/Orders`, `Integration`, `Infrastructure/Services`, `Assertions`). In **invoria-web**, map them as follows:
+
+| Backend (Ordering.Application.Tests) | Angular (`src/app/features/orders/`) |
+|--------------------------------------|----------------------------------------|
+| `Domain/Orders/` | `models/*.spec.ts` for domain helpers **where present** (e.g. [`order-actions.spec.ts`](src/app/features/orders/models/order-actions.spec.ts)); no dedicated mapper specs |
+| `Integration/` | **Pages** — `TestBed` + mocked `OrdersApiService` / `Router` / allowed cross-feature API services; Vitest + patterns like [`orders-page.component.spec.ts`](src/app/features/orders/pages/orders-page/orders-page.component.spec.ts) |
+| `Infrastructure/Services/` | [`orders-api.service.spec.ts`](src/app/features/orders/services/orders-api.service.spec.ts) — `HttpClientTestingModule` + `HttpTestingController` |
+| `Assertions/` | Optional shared helpers under `features/orders/testing/` only when duplication appears |
+
+Mapper and facade wiring (`order-ui.mapper`, `OrderActionFacade`) are exercised through page/component flows rather than separate unit spec files.
+
+## Checklist when adding Orders behavior
+
+- **HTTP client** → extend [`orders-api.service.spec.ts`](src/app/features/orders/services/orders-api.service.spec.ts) (URLs, methods, query params, validation errors).
+- **Smart pages** → details / form pages use focused specs; stub **PrimeNG Tabs** environment (`ResizeObserver` in jsdom) and avoid deep-shallow **OrderForm** template issues by overriding the **page** template in tests when only container logic is under test ([`order-form-page.component.spec.ts`](src/app/features/orders/pages/order-form-page/order-form-page.component.spec.ts)).
+
+Run Orders-related tests: `npx ng test --watch=false --include="src/app/features/orders/**/*.spec.ts"` (adjust `--include` as needed).
