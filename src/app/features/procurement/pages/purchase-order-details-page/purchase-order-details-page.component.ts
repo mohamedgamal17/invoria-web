@@ -1,5 +1,5 @@
 import { CommonModule, formatDate } from '@angular/common';
-import { Component, computed, inject, LOCALE_ID, signal } from '@angular/core';
+import { Component, computed, effect, inject, LOCALE_ID, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, finalize, forkJoin, map, Observable, of, take } from 'rxjs';
@@ -10,9 +10,8 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
-import { TableModule } from 'primeng/table';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { TimelineModule } from 'primeng/timeline';
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
 import { presentApiError } from '../../../../core/http/api-error.presenter';
 import type { PurchaseOrder, PurchaseOrderItem, PurchaseOrderStateTransition } from '../../models/purchase-order.entity';
@@ -26,14 +25,25 @@ import { purchaseStateLabel, purchaseStateSeverity } from '../../models/purchase
 import { PurchaseOrdersApiService } from '../../services/purchase-orders-api.service';
 import { ProductsApiService } from '../../../products/services/products-api.service';
 import type { ApiResponse } from '../../../../core/models/api-response';
+import { PurchaseOrderDetailsOverviewTabComponent } from '../../components/purchase-order-details-overview-tab/purchase-order-details-overview-tab.component';
+import { PurchaseOrderDetailsLinesTabComponent } from '../../components/purchase-order-details-lines-tab/purchase-order-details-lines-tab.component';
+import {
+  PurchaseOrderDetailsHistoryTabComponent,
+  type PurchaseOrderStateTimelineRow
+} from '../../components/purchase-order-details-history-tab/purchase-order-details-history-tab.component';
 
-type PurchaseOrderStateTimelineRow = {
-  fromLabel: string;
-  toLabel: string;
-  severity: ReturnType<typeof purchaseStateSeverity>;
-  changedAt: string;
-  reason?: string | null;
-};
+function tabSlugToIndex(tab: string | null): number | null {
+  if (tab === 'history') {
+    return 2;
+  }
+  if (tab === 'lines') {
+    return 1;
+  }
+  if (tab === 'overview' || tab === null || tab === '') {
+    return 0;
+  }
+  return null;
+}
 
 @Component({
   selector: 'app-purchase-order-details-page',
@@ -45,9 +55,15 @@ type PurchaseOrderStateTimelineRow = {
     SkeletonModule,
     ToastModule,
     TagModule,
-    TableModule,
     ConfirmDialogModule,
-    TimelineModule
+    Tabs,
+    TabList,
+    Tab,
+    TabPanels,
+    TabPanel,
+    PurchaseOrderDetailsOverviewTabComponent,
+    PurchaseOrderDetailsLinesTabComponent,
+    PurchaseOrderDetailsHistoryTabComponent
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './purchase-order-details-page.component.html'
@@ -70,6 +86,11 @@ export class PurchaseOrderDetailsPageComponent {
     { initialValue: this.route.snapshot.paramMap.get('id') ?? '' }
   );
 
+  private readonly tabQuery = toSignal(
+    this.route.queryParamMap.pipe(map((m) => m.get('tab'))),
+    { initialValue: this.route.snapshot.queryParamMap.get('tab') }
+  );
+
   readonly loading = signal(true);
   readonly error = signal('');
   readonly purchaseOrder = signal<PurchaseOrder | null>(null);
@@ -77,9 +98,13 @@ export class PurchaseOrderDetailsPageComponent {
   private readonly productNamesById = signal<ReadonlyMap<string, string>>(new Map());
   readonly transitionInProgress = signal(false);
 
+  readonly activeTab = signal(0);
+
   readonly stateLabel = purchaseStateLabel;
   readonly stateSeverity = purchaseStateSeverity;
   readonly actionUi = PURCHASE_ORDER_ACTION_UI;
+
+  readonly lineLabelFn = (line: PurchaseOrderItem): string => this.productLineLabel(line);
 
   readonly availableTransitions = computed(() => {
     const po = this.purchaseOrder();
@@ -105,16 +130,46 @@ export class PurchaseOrderDetailsPageComponent {
       (a, b) => this.transitionInstantMs(a) - this.transitionInstantMs(b)
     );
     return sorted.map((entry) => ({
-        fromLabel: entry?.fromState != null ? purchaseStateLabel(entry.fromState) : '—',
-        toLabel: purchaseStateLabel(entry.toState),
-        severity: purchaseStateSeverity(entry.toState),
-        changedAt: entry.changedAt,
-        reason: entry.reason
-      }));
+      fromLabel: entry?.fromState != null ? purchaseStateLabel(entry.fromState) : '—',
+      toLabel: purchaseStateLabel(entry.toState),
+      severity: purchaseStateSeverity(entry.toState),
+      changedAt: entry.changedAt,
+      reason: entry.reason
+    }));
   });
 
   constructor() {
     this.loadPurchaseOrder();
+
+    effect(() => {
+      const tab = this.tabQuery();
+      const po = this.purchaseOrder();
+      if (!po || this.loading()) {
+        return;
+      }
+      untracked(() => {
+        const idx = tabSlugToIndex(tab);
+        if (idx !== null && this.activeTab() !== idx) {
+          this.activeTab.set(idx);
+        }
+      });
+    });
+  }
+
+  onTabChange(value: string | number | undefined): void {
+    if (value === undefined || value === null) {
+      return;
+    }
+    const n = typeof value === 'number' ? value : Number(value);
+    const next = Number.isFinite(n) ? n : 0;
+    this.activeTab.set(next);
+    const slug: 'overview' | 'lines' | 'history' =
+      next === 2 ? 'history' : next === 1 ? 'lines' : 'overview';
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      replaceUrl: true,
+      queryParams: { tab: slug }
+    });
   }
 
   backToList(): void {
