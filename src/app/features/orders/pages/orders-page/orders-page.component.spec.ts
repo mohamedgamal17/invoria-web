@@ -126,7 +126,7 @@ describe('OrdersPageComponent', () => {
         pageSize: '25',
         status: String(OrderStatus.Accepted),
         paymentStatus: String(PaymentStatus.Paid),
-        paymentType: String(PaymentType.Cash)
+        paymentType: String(PaymentType.Immediate)
       })
     );
     await createFixture(paramMap$);
@@ -134,7 +134,7 @@ describe('OrdersPageComponent', () => {
       expect.objectContaining({
         Status: OrderStatus.Accepted,
         PaymentStatus: PaymentStatus.Paid,
-        PaymentType: PaymentType.Cash
+        PaymentType: PaymentType.Immediate
       })
     );
   });

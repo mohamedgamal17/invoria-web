@@ -15,8 +15,15 @@ import { OrderFullfillmentStatus } from '../../models/order.entity';
 import { OrderStatus } from '../../models/order.entity';
 import {
   friendlyFullfillmentStatusLabel,
-  orderStatusLabel
+  orderStatusLabel,
+  orderStatusUserLabel
 } from '../../models/order-actions';
+import {
+  PaymentStatus,
+  PaymentType,
+  paymentStatusLabel,
+  paymentTypeLabel
+} from '../../models/order-payment.enums';
 
 @Component({
   selector: 'app-order-list',
@@ -37,6 +44,9 @@ import {
   templateUrl: './order-list.component.html'
 })
 export class OrderListComponent {
+  /** Expose enum to templates (e.g. delete button visibility). */
+  readonly OrderStatus = OrderStatus;
+
   orders = input<UiOrder[]>([]);
   totalRecords = input(0);
   first = input(0);
@@ -54,20 +64,38 @@ export class OrderListComponent {
     return Array.from({ length: this.pageSize() }, (_, i) => i);
   }
 
-  getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined {
+  getOrderStatusSeverity(
+    status: OrderStatus
+  ): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined {
     switch (status) {
-      case 'COMPLETED': return 'success';
-      case 'ACCEPTED': return 'info';
-      case 'REOPENED': return 'warn';
-      case 'PENDING': return 'secondary';
-      case 'CANCELLED':
-      case 'REFUSED': return 'danger';
-      default: return 'secondary';
+      case OrderStatus.Completed:
+        return 'success';
+      case OrderStatus.Accepted:
+        return 'info';
+      case OrderStatus.Reopened:
+        return 'warn';
+      case OrderStatus.Pending:
+        return 'secondary';
+      case OrderStatus.Cancelled:
+      case OrderStatus.Refused:
+        return 'danger';
+      default:
+        return 'secondary';
     }
   }
 
   statusLabel(status: OrderStatus): string {
     return orderStatusLabel(status);
+  }
+
+  statusUserLabel(status: OrderStatus): string {
+    return orderStatusUserLabel(status);
+  }
+
+  /** Mobile card: explicit, non-empty line so the customer is never an ambiguous blank. */
+  customerDisplayName(order: UiOrder): string {
+    const name = order.customerName?.trim();
+    return name ? name : 'No customer on file';
   }
 
   shouldShowFulfillment(order: UiOrder): boolean {
@@ -94,6 +122,43 @@ export class OrderListComponent {
       case OrderFullfillmentStatus.Cancelled:
         return 'danger';
       case OrderFullfillmentStatus.Pending:
+      default:
+        return 'secondary';
+    }
+  }
+
+  paymentTypeDisplay(type: PaymentType | undefined): string {
+    return type !== undefined ? paymentTypeLabel(type) : '—';
+  }
+
+  paymentStatusDisplay(status: PaymentStatus | undefined): string {
+    return status !== undefined ? paymentStatusLabel(status) : '—';
+  }
+
+  getPaymentStatusSeverity(
+    status: PaymentStatus | undefined
+  ): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined {
+    if (status === undefined) return 'secondary';
+    switch (status) {
+      case PaymentStatus.Paid:
+        return 'success';
+      case PaymentStatus.Partial:
+        return 'warn';
+      case PaymentStatus.Unpaid:
+      default:
+        return 'secondary';
+    }
+  }
+
+  getPaymentTypeSeverity(
+    type: PaymentType | undefined
+  ): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined {
+    if (type === undefined) return 'secondary';
+    switch (type) {
+      case PaymentType.Immediate:
+        return 'info';
+      case PaymentType.Debt:
+        return 'warn';
       default:
         return 'secondary';
     }

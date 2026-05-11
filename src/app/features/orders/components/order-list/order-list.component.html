@@ -3,51 +3,97 @@
   @if (loading()) {
     @for (_ of skeletonRows; track _) {
       <div class="rounded-xl border border-border bg-surface p-4 shadow-sm">
-        <div class="flex justify-between items-start mb-3">
-          <div class="space-y-2 w-2/3">
-            <p-skeleton height="1.25rem" width="80%"></p-skeleton>
-            <p-skeleton height="0.875rem" width="40%"></p-skeleton>
+        <div class="space-y-2 mb-3">
+          <div class="space-y-1.5">
+            <p-skeleton height="0.65rem" width="4rem"></p-skeleton>
+            <p-skeleton height="1.25rem" width="70%"></p-skeleton>
           </div>
-          <p-skeleton height="1.5rem" width="4rem" shape="rectangle"></p-skeleton>
+          <div class="space-y-1.5">
+            <p-skeleton height="0.65rem" width="4.5rem"></p-skeleton>
+            <p-skeleton height="1rem" width="85%"></p-skeleton>
+          </div>
+          <div class="space-y-1.5">
+            <p-skeleton height="0.65rem" width="3rem"></p-skeleton>
+            <p-skeleton height="0.75rem" width="55%"></p-skeleton>
+          </div>
         </div>
-        <div class="flex justify-between items-center pt-3 border-t border-border/50">
+        <div class="space-y-2.5 pt-3 border-t border-border/50">
+          @for (__ of [1,2,3,4]; track __) {
+            <div class="flex items-center justify-between gap-2">
+              <p-skeleton height="0.65rem" width="4.5rem"></p-skeleton>
+              <p-skeleton height="1.5rem" width="7rem" shape="rectangle"></p-skeleton>
+            </div>
+          }
+        </div>
+        <div class="flex justify-between items-center pt-4 border-t border-border/50 mt-3">
           <div class="space-y-1">
-            <p-skeleton height="0.75rem" width="2rem"></p-skeleton>
+            <p-skeleton height="0.75rem" width="4rem"></p-skeleton>
             <p-skeleton height="1.25rem" width="5rem"></p-skeleton>
           </div>
-          <div class="flex gap-2">
-            <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
-            <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
-          </div>
+          <p-skeleton height="2.25rem" width="7rem" shape="rectangle"></p-skeleton>
         </div>
       </div>
     }
   } @else if (orders().length > 0) {
     @for (order of orders(); track order.id) {
       <div class="rounded-xl border border-border bg-surface p-4 shadow-sm hover:border-primary/30 transition-all active:scale-[0.98]">
-        <div class="flex justify-between items-start mb-4">
-          <div class="flex flex-col min-w-0">
-            <span class="truncate text-base font-bold text-foreground">{{ order.orderNumber }}</span>
-            <span class="text-sm text-muted-foreground mt-0.5">{{ order.customerName }}</span>
-            <span class="text-xs text-muted-foreground mt-0.5">{{ order.orderDate | date:'medium' }}</span>
+        <div class="flex flex-col min-w-0 gap-2">
+          <div class="min-w-0">
+            <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Order ref</span>
+            <span class="block truncate text-base font-bold text-foreground mt-0.5">{{ order.orderNumber }}</span>
           </div>
-          <div class="flex flex-col items-end gap-1 shrink-0">
+          <div class="min-w-0">
+            <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Customer</span>
+            <span class="block text-sm font-medium text-foreground mt-1 leading-snug break-words">{{ customerDisplayName(order) }}</span>
+          </div>
+          <div class="min-w-0">
+            <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Placed</span>
+            <span class="block text-xs text-muted-foreground mt-0.5">{{ order.orderDate | date:'medium' }}</span>
+          </div>
+        </div>
+
+        <div class="mt-3 pt-3 border-t border-border/50 space-y-2.5">
+          <div class="flex items-start justify-between gap-3">
+            <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider pt-1 shrink-0">Order</span>
             <p-tag
-              [value]="statusLabel(order.status)"
-              [severity]="getStatusSeverity(statusLabel(order.status))"
-              styleClass="px-2.5 py-1 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border cursor-help"
+              [value]="statusUserLabel(order.status)"
+              [severity]="getOrderStatusSeverity(order.status)"
+              pTooltip="Whether this order is confirmed by the shop."
+              tooltipPosition="top"
+              styleClass="max-w-[65%] shrink px-2.5 py-1 text-[10px] font-semibold tracking-tight rounded-md border border-border cursor-help text-right"
               (click)="op.toggle($event)"
             />
+          </div>
+          <div class="flex items-start justify-between gap-3">
+            <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider pt-1 shrink-0">Fulfillment</span>
             @if (shouldShowFulfillment(order)) {
               <p-tag
                 [value]="fullfillmentLabel(order.fullfillmentStatus)"
                 [severity]="getFulfillmentSeverity(order.fullfillmentStatus)"
-                styleClass="px-2.5 py-1 text-[10px] font-bold tracking-tight rounded-md border border-border"
+                styleClass="max-w-[65%] shrink px-2.5 py-1 text-[10px] font-semibold tracking-tight rounded-md border border-border text-right"
               />
+            } @else {
+              <span class="text-sm text-muted-foreground pt-0.5">—</span>
             }
           </div>
+          <div class="flex items-start justify-between gap-3">
+            <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider pt-1 shrink-0">Payment type</span>
+            <p-tag
+              [value]="paymentTypeDisplay(order.paymentType)"
+              [severity]="getPaymentTypeSeverity(order.paymentType)"
+              styleClass="max-w-[65%] shrink px-2.5 py-1 text-[10px] font-semibold tracking-tight rounded-md border border-border text-right"
+            />
+          </div>
+          <div class="flex items-start justify-between gap-3">
+            <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider pt-1 shrink-0">Payment</span>
+            <p-tag
+              [value]="paymentStatusDisplay(order.paymentStatus)"
+              [severity]="getPaymentStatusSeverity(order.paymentStatus)"
+              styleClass="max-w-[65%] shrink px-2.5 py-1 text-[10px] font-semibold tracking-tight rounded-md border border-border text-right"
+            />
+          </div>
         </div>
-        
+
         <p-popover #op styleClass="modern-popover">
           <div class="p-4 w-[300px]">
             <h4 class="text-sm font-bold mb-4 uppercase tracking-wider text-muted-foreground border-b pb-2">Order History</h4>
@@ -65,7 +111,7 @@
           </div>
         </p-popover>
         
-        <div class="flex justify-between items-center pt-4 border-t border-border/50">
+        <div class="flex justify-between items-center pt-4 border-t border-border/50 mt-1">
           <div class="flex flex-col">
             <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-0.5">Total Amount</span>
             <span class="text-lg font-black text-foreground tabular-nums">
@@ -151,6 +197,15 @@
         <th class="px-4 py-5 font-bold uppercase tracking-wider">
           Status
         </th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider">
+          Fulfillment
+        </th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider">
+          Payment type
+        </th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider">
+          Payment status
+        </th>
         <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">
           Total Amount
         </th>
@@ -175,17 +230,10 @@
         <td class="px-4 py-5">
           <p-tag
             [value]="statusLabel(order.status)"
-            [severity]="getStatusSeverity(statusLabel(order.status))"
+            [severity]="getOrderStatusSeverity(order.status)"
             styleClass="px-2 py-1 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border cursor-help"
             (click)="op_desktop.toggle($event)"
           />
-          @if (shouldShowFulfillment(order)) {
-            <p-tag
-              [value]="fullfillmentLabel(order.fullfillmentStatus)"
-              [severity]="getFulfillmentSeverity(order.fullfillmentStatus)"
-              styleClass="ml-2 px-2 py-1 text-[10px] font-bold tracking-tight rounded-md border border-border"
-            />
-          }
           <p-popover #op_desktop styleClass="modern-popover">
             <div class="p-4 w-[320px]">
               <h4 class="text-xs font-bold mb-4 uppercase tracking-wider text-muted-foreground border-b pb-2">State Transition Timeline</h4>
@@ -212,6 +260,31 @@
             </div>
           </p-popover>
         </td>
+        <td class="px-4 py-5">
+          @if (shouldShowFulfillment(order)) {
+            <p-tag
+              [value]="fullfillmentLabel(order.fullfillmentStatus)"
+              [severity]="getFulfillmentSeverity(order.fullfillmentStatus)"
+              styleClass="px-2 py-1 text-[10px] font-bold tracking-tight rounded-md border border-border"
+            />
+          } @else {
+            <span class="text-sm text-muted-foreground">—</span>
+          }
+        </td>
+        <td class="px-4 py-5">
+          <p-tag
+            [value]="paymentTypeDisplay(order.paymentType)"
+            [severity]="getPaymentTypeSeverity(order.paymentType)"
+            styleClass="px-2 py-1 text-[10px] font-bold tracking-tight rounded-md border border-border"
+          />
+        </td>
+        <td class="px-4 py-5">
+          <p-tag
+            [value]="paymentStatusDisplay(order.paymentStatus)"
+            [severity]="getPaymentStatusSeverity(order.paymentStatus)"
+            styleClass="px-2 py-1 text-[10px] font-bold tracking-tight rounded-md border border-border"
+          />
+        </td>
         <td class="px-4 py-5 text-right">
           <div class="text-sm font-bold text-foreground tabular-nums">
             {{ order.totalAmount | currency:'EGP':'symbol-narrow' }}
@@ -227,7 +300,7 @@
               (onClick)="view.emit(order)"
             />
 
-            @if (showDelete() && statusLabel(order.status) === 'PENDING') {
+            @if (showDelete() && order.status === OrderStatus.Pending) {
               <p-button
                 icon="pi pi-trash"
                 [text]="true"
@@ -260,6 +333,15 @@
           <td class="px-4 py-5">
             <p-skeleton height="1.5rem" width="5rem" shape="rectangle"></p-skeleton>
           </td>
+          <td class="px-4 py-5">
+            <p-skeleton height="1.5rem" width="5rem" shape="rectangle"></p-skeleton>
+          </td>
+          <td class="px-4 py-5">
+            <p-skeleton height="1.5rem" width="4rem" shape="rectangle"></p-skeleton>
+          </td>
+          <td class="px-4 py-5">
+            <p-skeleton height="1.5rem" width="4rem" shape="rectangle"></p-skeleton>
+          </td>
           <td class="px-4 py-5 text-right">
             <p-skeleton height="1.1rem" width="4rem" styleClass="ml-auto"></p-skeleton>
           </td>
@@ -276,7 +358,7 @@
     <!-- Empty Message -->
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="5" class="px-4 py-12 text-center">
+        <td colspan="8" class="px-4 py-12 text-center">
           <div class="flex flex-col items-center gap-3">
             <i class="pi pi-inbox text-4xl text-muted-foreground opacity-20"></i>
             <div class="text-base font-medium text-foreground">No orders found</div>

@@ -15,6 +15,7 @@ import { productSearchListRequest } from '../../../products/models/list-product.
 import { CustomersApiService } from '../../../customers/services/customers-api.service';
 import { ProductsApiService } from '../../../products/services/products-api.service';
 import type { UiOrderItem } from '../../models/order-ui.model';
+import { PaymentType } from '../../models/order-payment.enums';
 import { draftItemsToLineItems, orderToUiOrder } from '../../models/order-ui.mapper';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
 
@@ -52,6 +53,8 @@ export class OrderFormPageComponent {
   customers = signal<Customer[]>([]);
   selectedCustomer = signal<Customer | null>(null);
   isCustomerLoading = signal(false);
+
+  paymentType = signal<PaymentType>(PaymentType.Immediate);
 
   constructor() {
     if (this.mode() === 'edit' && this.orderId()) {
@@ -92,7 +95,8 @@ export class OrderFormPageComponent {
       this.ordersApi
         .createOrder({
           CustomerId: customerId as string,
-          Items: draftItemsToLineItems(this.draftItems())
+          Items: draftItemsToLineItems(this.draftItems()),
+          PaymentType: this.paymentType()
         })
         .pipe(
           take(1),
@@ -252,6 +256,7 @@ export class OrderFormPageComponent {
           this.orderNumber.set(full.orderNumber);
           this.draftItems.set([...(full.items || [])]);
           this.totalAmount.set(full.totalAmount);
+          this.paymentType.set(full.paymentType ?? PaymentType.Immediate);
           this.selectedCustomer.set(
             full.customerId ? ({ id: full.customerId, name: full.customerName } as Customer) : null
           );

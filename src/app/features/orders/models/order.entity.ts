@@ -1,6 +1,7 @@
 import { Entity } from '../../../core/models/entity';
 import type { Customer } from '../../customers/models/customer.entity';
 import type { Product } from '../../products/models/product.entity';
+import type { OrderPaymentMethod, PaymentStatus, PaymentType } from './order-payment.enums';
 
 /** `InvoriaOrderingContractsOrdersOrderStatus` (Swagger: integer enum). */
 export enum OrderStatus {
@@ -50,6 +51,14 @@ export interface OrderStateTransitionHistory {
   reason?: string | null;
 }
 
+/** `InvoriaOrderingContractsDtosOrderPaymentDto` (GET/POST order responses). */
+export interface OrderPayment extends Entity {
+  orderId: string;
+  paidAmount: number;
+  paymentMethod: OrderPaymentMethod;
+  paidAt: string;
+}
+
 /** `InvoriaOrderingContractsDtosOrderDto` (Swagger-aligned; JSON uses camelCase). */
 export interface Order extends Entity {
   orderNumber: string;
@@ -58,10 +67,15 @@ export interface Order extends Entity {
   status: OrderStatus;
   /** API contract spelling (`FullfillmentStatus` in OpenAPI). */
   fullfillmentStatus: OrderFullfillmentStatus;
+  paymentType?: PaymentType;
+  paymentStatus?: PaymentStatus;
+  amountPaid?: number;
+  amountOutstanding?: number;
   /** Omitted or empty when list is fetched with `IncludeOrderItems: false`. */
   items?: OrderItem[];
   /** Present when order operations fail (e.g. allocation shortage). */
   failureDetails?: OrderFailureDetails[];
   /** Server-side state transition history. */
   stateTransitionHistory?: OrderStateTransitionHistory[];
+  payments?: OrderPayment[];
 }

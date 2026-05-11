@@ -106,14 +106,13 @@ describe('OrderListComponent', () => {
     expect(rows[1].textContent).toContain('ORD-002');
   });
 
-  it('should return correct status severity', () => {
-    expect(component.getStatusSeverity('COMPLETED')).toBe('success');
-    expect(component.getStatusSeverity('ACCEPTED')).toBe('info');
-    expect(component.getStatusSeverity('REOPENED')).toBe('warn');
-    expect(component.getStatusSeverity('PENDING')).toBe('secondary');
-    expect(component.getStatusSeverity('CANCELLED')).toBe('danger');
-    expect(component.getStatusSeverity('REFUSED')).toBe('danger');
-    expect(component.getStatusSeverity('UNKNOWN')).toBe('secondary');
+  it('should return correct order status severity', () => {
+    expect(component.getOrderStatusSeverity(OrderStatus.Completed)).toBe('success');
+    expect(component.getOrderStatusSeverity(OrderStatus.Accepted)).toBe('info');
+    expect(component.getOrderStatusSeverity(OrderStatus.Reopened)).toBe('warn');
+    expect(component.getOrderStatusSeverity(OrderStatus.Pending)).toBe('secondary');
+    expect(component.getOrderStatusSeverity(OrderStatus.Cancelled)).toBe('danger');
+    expect(component.getOrderStatusSeverity(OrderStatus.Refused)).toBe('danger');
   });
 
   it('should hide fulfillment tag when order is cancelled', () => {
@@ -135,6 +134,13 @@ describe('OrderListComponent', () => {
     const tags = statusCell!.querySelectorAll('p-tag');
     expect(tags.length).toBe(1);
     expect(statusCell!.textContent).toContain('CANCELLED');
+
+    const fulfillmentCell = fixture.nativeElement.querySelector(
+      '.p-datatable-tbody tr td:nth-child(4)'
+    ) as HTMLElement | null;
+    expect(fulfillmentCell).toBeTruthy();
+    expect(fulfillmentCell!.querySelectorAll('p-tag').length).toBe(0);
+    expect(fulfillmentCell!.textContent?.trim()).toContain('—');
   });
 
   it('should show fulfillment tag when order is not cancelled', () => {
@@ -146,8 +152,16 @@ describe('OrderListComponent', () => {
     ) as HTMLElement | null;
     expect(statusCell).toBeTruthy();
 
-    const tags = statusCell!.querySelectorAll('p-tag');
-    expect(tags.length).toBe(2);
+    const statusTags = statusCell!.querySelectorAll('p-tag');
+    expect(statusTags.length).toBe(1);
+
+    const fulfillmentCell = fixture.nativeElement.querySelector(
+      '.p-datatable-tbody tr td:nth-child(4)'
+    ) as HTMLElement | null;
+    expect(fulfillmentCell).toBeTruthy();
+    const fulfillmentTags = fulfillmentCell!.querySelectorAll('p-tag');
+    expect(fulfillmentTags.length).toBe(1);
+    expect(fulfillmentCell!.textContent).toContain('Ready to dispatch');
   });
 
   it('should emit view when View Details is clicked', () => {
