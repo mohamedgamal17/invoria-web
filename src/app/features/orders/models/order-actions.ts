@@ -169,6 +169,26 @@ export function orderStatusLabel(status: OrderStatus): string {
   }
 }
 
+/** Short labels for end users (e.g. mobile cards); desktop tables still use `orderStatusLabel`. */
+export function orderStatusUserLabel(status: OrderStatus): string {
+  switch (status) {
+    case OrderStatus.Pending:
+      return 'Awaiting confirmation';
+    case OrderStatus.Accepted:
+      return 'Confirmed';
+    case OrderStatus.Completed:
+      return 'Completed';
+    case OrderStatus.Cancelled:
+      return 'Cancelled';
+    case OrderStatus.Reopened:
+      return 'Reopened for changes';
+    case OrderStatus.Refused:
+      return 'Declined';
+    default:
+      return 'Unknown';
+  }
+}
+
 export function orderFullfillmentStatusLabel(status: OrderFullfillmentStatus): string {
   switch (status) {
     case OrderFullfillmentStatus.Pending:
