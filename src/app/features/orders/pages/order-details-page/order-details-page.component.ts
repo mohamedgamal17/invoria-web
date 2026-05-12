@@ -25,6 +25,7 @@ import { friendlyFullfillmentStatusLabel } from '../../models/order-actions';
 import { orderToUiOrder } from '../../models/order-ui.mapper';
 import { OrderActionFacade, type OrderTransitionAction } from '../../services/order-action.facade';
 import { OrderDetailsHistoryTabComponent } from '../../components/order-details-history-tab/order-details-history-tab.component';
+import { OrderDetailsLineItemsTabComponent } from '../../components/order-details-line-items-tab/order-details-line-items-tab.component';
 import { OrderDetailsOverviewTabComponent } from '../../components/order-details-overview-tab/order-details-overview-tab.component';
 import { OrderDetailsPaymentTabComponent } from '../../components/order-details-payment-tab/order-details-payment-tab.component';
 import { OrderReasonDialogComponent } from '../../components/order-reason-dialog/order-reason-dialog.component';
@@ -49,6 +50,7 @@ import { OrdersApiService } from '../../services/orders-api.service';
     CardModule,
     ConfirmDialogModule,
     OrderDetailsHistoryTabComponent,
+    OrderDetailsLineItemsTabComponent,
     OrderDetailsOverviewTabComponent,
     OrderDetailsPaymentTabComponent,
     OrderReasonDialogComponent,
@@ -89,7 +91,7 @@ export class OrderDetailsPageComponent {
   readonly reasonText = signal('');
   readonly reasonTarget = signal<OrderTransitionAction | null>(null);
 
-  /** Active tab index: 0 Overview, 1 Payment, 2 History. */
+  /** Active tab index: 0 Overview, 1 Line items, 2 Payment, 3 History. */
   readonly activeTab = signal(0);
 
   readonly availableActions = computed(() => {

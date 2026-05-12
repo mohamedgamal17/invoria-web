@@ -242,8 +242,9 @@
     <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" [lazy]="true">
       <p-tablist>
         <p-tab [value]="0">Overview</p-tab>
-        <p-tab [value]="1">Payment</p-tab>
-        <p-tab [value]="2">History</p-tab>
+        <p-tab [value]="1">Line items</p-tab>
+        <p-tab [value]="2">Payment</p-tab>
+        <p-tab [value]="3">History</p-tab>
       </p-tablist>
       <p-tabpanels>
         <p-tabpanel [value]="0">
@@ -253,6 +254,11 @@
         </p-tabpanel>
         <p-tabpanel [value]="1">
           <div class="pt-5">
+            <app-order-details-line-items-tab [order]="order" [currencyCode]="currencyCode" />
+          </div>
+        </p-tabpanel>
+        <p-tabpanel [value]="2">
+          <div class="pt-5">
             <app-order-details-payment-tab
               [order]="order"
               [currencyCode]="currencyCode"
@@ -261,7 +267,7 @@
             />
           </div>
         </p-tabpanel>
-        <p-tabpanel [value]="2">
+        <p-tabpanel [value]="3">
           <div class="pt-5">
             <app-order-details-history-tab [events]="order.stateHistory" />
           </div>

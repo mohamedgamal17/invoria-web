@@ -114,4 +114,9 @@ describe('OrderDetailsPageComponent', () => {
     component.onTabChange('1');
     expect(component.activeTab()).toBe(1);
   });
+
+  it('selects History tab when onTabChange receives 3', () => {
+    component.onTabChange('3');
+    expect(component.activeTab()).toBe(3);
+  });
 });
