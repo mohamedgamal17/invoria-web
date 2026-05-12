@@ -85,7 +85,7 @@ export class ProductDetailsPageComponent {
   readonly breadcrumbItems = computed(() => {
     const p = this.product();
     const label = p ? p.name.trim() || 'Product' : 'Product';
-    return [{ label: 'Products', routerLink: ['/dashboard', 'products'] as string[] }, { label }];
+    return [{ label: 'Products', routerLink: ['/products'] as string[] }, { label }];
   });
 
   constructor() {
@@ -104,7 +104,7 @@ export class ProductDetailsPageComponent {
   }
 
   backToList(): void {
-    void this.router.navigate(['/dashboard', 'products']);
+    void this.router.navigate(['/products']);
   }
 
   goToEdit(): void {
@@ -174,7 +174,7 @@ export class ProductDetailsPageComponent {
                 summary: 'Success',
                 detail: 'Product deleted successfully.',
               });
-              void this.router.navigate(['/dashboard', 'products']);
+              void this.router.navigate(['/products']);
             },
             error: (err: unknown) => {
               const presentation = presentApiError(err);
