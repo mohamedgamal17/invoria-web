@@ -41,7 +41,7 @@
           <a
             [routerLink]="item.path"
             routerLinkActive="bg-primary/10 text-primary font-semibold shadow-glow-sm active"
-            [routerLinkActiveOptions]="{ exact: true }"
+            [routerLinkActiveOptions]="linkActiveOptions(item.path)"
             class="flex items-center rounded-lg px-3 py-2.5 text-sm transition-all duration-200 hover:bg-muted group relative overflow-hidden"
             [class.gap-3]="!collapsed"
             [class.justify-center]="collapsed"

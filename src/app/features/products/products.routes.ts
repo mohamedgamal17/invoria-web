@@ -1,9 +1,8 @@
 import { inject } from '@angular/core';
-import type { CanActivateFn } from '@angular/router';
-import { Router, type Routes } from '@angular/router';
+import { Router, type RedirectFunction, type Routes } from '@angular/router';
 
 /** Legacy `/products/:id/batches` → `/products/:id?tab=batches` (+ optional page / pageSize). */
-export const redirectProductBatchesToDetailsTab: CanActivateFn = (route) => {
+export const redirectProductBatchesToDetailsTab: RedirectFunction = (route) => {
   const router = inject(Router);
   const id = route.paramMap.get('id');
   const page = route.queryParamMap.get('page');
@@ -18,10 +17,10 @@ export const redirectProductBatchesToDetailsTab: CanActivateFn = (route) => {
   }
 
   if (!id) {
-    return router.createUrlTree(['/dashboard', 'products']);
+    return router.createUrlTree(['/products']);
   }
 
-  return router.createUrlTree(['/dashboard', 'products', id], { queryParams });
+  return router.createUrlTree(['/products', id], { queryParams });
 };
 
 export const PRODUCTS_ROUTES: Routes = [
@@ -58,7 +57,7 @@ export const PRODUCTS_ROUTES: Routes = [
       },
       {
         path: ':id/batches',
-        canActivate: [redirectProductBatchesToDetailsTab],
+        redirectTo: redirectProductBatchesToDetailsTab,
       },
       {
         path: ':id',

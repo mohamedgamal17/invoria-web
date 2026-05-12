@@ -6,12 +6,12 @@ import { BehaviorSubject, of } from 'rxjs';
 
 import { MessageService } from 'primeng/api';
 
-import { SupplierDetailsPageComponent } from './supplier-details-page.component';
-import { SuppliersApiService } from '../../services/suppliers-api.service';
-import type { Supplier } from '../../models/supplier.entity';
+import { CustomerDetailsPageComponent } from './customer-details-page.component';
+import { CustomersApiService } from '../../services/customers-api.service';
+import type { Customer } from '../../models/customer.entity';
 
 function createActivatedRouteMock(
-  initialParams: Record<string, string> = { id: 'sup_1' },
+  initialParams: Record<string, string> = { id: 'cust_1' },
   initialQuery: Record<string, string> = {}
 ) {
   const paramMap$ = new BehaviorSubject(convertToParamMap(initialParams));
@@ -32,10 +32,10 @@ function createActivatedRouteMock(
   };
 }
 
-describe('SupplierDetailsPageComponent', () => {
-  let fixture: ComponentFixture<SupplierDetailsPageComponent>;
-  let component: SupplierDetailsPageComponent;
-  let getSupplier: ReturnType<typeof vi.fn>;
+describe('CustomerDetailsPageComponent', () => {
+  let fixture: ComponentFixture<CustomerDetailsPageComponent>;
+  let component: CustomerDetailsPageComponent;
+  let getCustomer: ReturnType<typeof vi.fn>;
   let paramMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
 
   beforeEach(() => {
@@ -48,22 +48,19 @@ describe('SupplierDetailsPageComponent', () => {
     }
   });
 
-  const supplier: Supplier = {
-    id: 'sup_1',
-    supplierCode: 'ACME',
-    name: 'Acme',
-    contactEmail: 'a@b.co',
-    phone: '123',
+  const customer: Customer = {
+    id: 'cust_1',
+    name: 'Acme Retail',
     createdAt: '2026-01-01T00:00:00.000Z'
   };
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
 
-    getSupplier = vi.fn().mockReturnValue(
+    getCustomer = vi.fn().mockReturnValue(
       of({
         isSuccess: true as const,
-        result: supplier
+        result: customer
       })
     );
 
@@ -71,29 +68,29 @@ describe('SupplierDetailsPageComponent', () => {
     paramMap$ = pm;
 
     await TestBed.configureTestingModule({
-      imports: [SupplierDetailsPageComponent, NoopAnimationsModule],
+      imports: [CustomerDetailsPageComponent, NoopAnimationsModule],
       providers: [
         MessageService,
-        { provide: SuppliersApiService, useValue: { getSupplier } },
+        { provide: CustomersApiService, useValue: { getCustomer } },
         { provide: ActivatedRoute, useValue: route },
         { provide: Router, useValue: { navigate: vi.fn().mockResolvedValue(true) } }
       ]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(SupplierDetailsPageComponent);
+    fixture = TestBed.createComponent(CustomerDetailsPageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should load supplier', () => {
-    expect(getSupplier).toHaveBeenCalledWith('sup_1');
-    expect(component.supplier()?.id).toBe('sup_1');
+  it('should load customer', () => {
+    expect(getCustomer).toHaveBeenCalledWith('cust_1');
+    expect(component.customer()?.id).toBe('cust_1');
   });
 
-  it('backToList navigates to suppliers', () => {
+  it('backToList navigates to customers', () => {
     const router = TestBed.inject(Router);
     component.backToList();
-    expect(router.navigate).toHaveBeenCalledWith(['/suppliers']);
+    expect(router.navigate).toHaveBeenCalledWith(['/customers']);
   });
 
   it('onTabChange updates query param tab slug', () => {
@@ -102,65 +99,65 @@ describe('SupplierDetailsPageComponent', () => {
     expect(router.navigate).toHaveBeenCalledWith([], {
       relativeTo: TestBed.inject(ActivatedRoute),
       replaceUrl: true,
-      queryParams: { tab: 'purchase-orders' }
+      queryParams: { tab: 'orders' }
     });
   });
 
   it('reloads when route id param changes', () => {
-    const supplier2: Supplier = { ...supplier, id: 'sup_2', name: 'Beta' };
-    getSupplier.mockImplementation((id: string) => {
-      if (id === 'sup_1') {
-        return of({ isSuccess: true as const, result: supplier });
+    const customer2: Customer = { ...customer, id: 'cust_2', name: 'Beta Co' };
+    getCustomer.mockImplementation((id: string) => {
+      if (id === 'cust_1') {
+        return of({ isSuccess: true as const, result: customer });
       }
-      if (id === 'sup_2') {
-        return of({ isSuccess: true as const, result: supplier2 });
+      if (id === 'cust_2') {
+        return of({ isSuccess: true as const, result: customer2 });
       }
       return of({ isSuccess: false as const, error: { message: 'Not found' } });
     });
 
-    expect(component.supplier()?.id).toBe('sup_1');
+    expect(component.customer()?.id).toBe('cust_1');
 
-    paramMap$.next(convertToParamMap({ id: 'sup_2' }));
+    paramMap$.next(convertToParamMap({ id: 'cust_2' }));
     fixture.detectChanges();
 
-    expect(getSupplier).toHaveBeenCalledWith('sup_2');
-    expect(component.supplier()?.id).toBe('sup_2');
+    expect(getCustomer).toHaveBeenCalledWith('cust_2');
+    expect(component.customer()?.id).toBe('cust_2');
   });
 
-  describe('unsuccessful getSupplier', () => {
+  describe('unsuccessful getCustomer', () => {
     let addSpy: ReturnType<typeof vi.spyOn>;
 
     beforeEach(async () => {
       TestBed.resetTestingModule();
 
-      getSupplier = vi.fn().mockReturnValue(
+      getCustomer = vi.fn().mockReturnValue(
         of({
           isSuccess: false as const,
           error: { message: 'Server error' }
         })
       );
 
-      const { route } = createActivatedRouteMock({ id: 'sup_fail' }, {});
+      const { route } = createActivatedRouteMock({ id: 'cust_fail' }, {});
 
       await TestBed.configureTestingModule({
-        imports: [SupplierDetailsPageComponent, NoopAnimationsModule],
+        imports: [CustomerDetailsPageComponent, NoopAnimationsModule],
         providers: [
           MessageService,
-          { provide: SuppliersApiService, useValue: { getSupplier } },
+          { provide: CustomersApiService, useValue: { getCustomer } },
           { provide: ActivatedRoute, useValue: route },
           { provide: Router, useValue: { navigate: vi.fn().mockResolvedValue(true) } }
         ]
       }).compileComponents();
 
-      fixture = TestBed.createComponent(SupplierDetailsPageComponent);
+      fixture = TestBed.createComponent(CustomerDetailsPageComponent);
       component = fixture.componentInstance;
       addSpy = vi.spyOn(fixture.componentRef.injector.get(MessageService), 'add');
       fixture.detectChanges();
     });
 
-    it('adds toast and clears supplier', () => {
+    it('adds toast and clears customer', () => {
       expect(addSpy).toHaveBeenCalled();
-      expect(component.supplier()).toBeNull();
+      expect(component.customer()).toBeNull();
       expect(component.error()).toBeTruthy();
     });
   });

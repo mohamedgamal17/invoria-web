@@ -1,6 +1,6 @@
 <p-toast />
 
-<section class="space-y-6">
+<section class="flex flex-col gap-10">
   <app-customer-details-toolbar (back)="backToList()" />
 
   @if (loading()) {
@@ -43,7 +43,7 @@
           </div>
         </p-tabpanel>
         <p-tabpanel [value]="1">
-          <div class="pt-5">
+          <div class="pt-6">
             <app-customer-details-orders-tab [customerId]="c.id" />
           </div>
         </p-tabpanel>

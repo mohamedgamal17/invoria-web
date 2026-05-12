@@ -1,0 +1,14 @@
+---
+description: Products catalog list page layout, spacing, and filter panel (orders parity)
+globs: src/app/features/products/**/*.{ts,html}
+alwaysApply: false
+---
+
+# Products list page — spacing and filter
+
+- **`ProductsPageComponent`** owns URL query params (`page`, `pageSize`, `name`) and data loading (`rxResource`, navigation). See `docs/frontend-list-conventions.md` and `ai/ARCHITECTURE.md` (smart vs presentational split).
+- **Vertical rhythm:** the products catalog page root `<section>` uses **`flex flex-col gap-8`** between breadcrumb, header, and list—aligned with `orders-page`.
+- **Filters:** declare **`ProductsFilterPanelComponent`** (**`app-products-filter-panel`**, `components/products-filter-panel/`) between the header and **`ProductListComponent`**, matching **`OrdersFilterPanelComponent`**: exported **`ProductsListFilters`** (`name`), inputs **`[name]`** / **`[loading]`**, outputs **`(filtersChange)`** / **`(clearFilters)`**. Implement with **`SurfaceCard`**, header row + **“Clear filters”**, debounced name field (700 ms, same as orders order-number debounce).
+- **`ProductListComponent`** does not embed filters. It exposes **`clearFilters`** (`output<void>`) for empty-state actions; the page wires **`(clearFilters)`** to **`onClearFilters()`** (same idea as **`OrderListComponent`**).
+
+Backend module boundaries live in the Invoria solution `Invoria/ai/Architecture.md`; Angular conventions for this repo are in `ai/ARCHITECTURE.md` and `docs/frontend-list-conventions.md`.

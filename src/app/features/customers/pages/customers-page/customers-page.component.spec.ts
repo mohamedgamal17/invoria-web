@@ -6,26 +6,25 @@ import { BehaviorSubject, of } from 'rxjs';
 
 import { MessageService } from 'primeng/api';
 
-import { SuppliersPageComponent } from './suppliers-page.component';
-import { SuppliersApiService } from '../../services/suppliers-api.service';
-import type { Supplier } from '../../models/supplier.entity';
+import { CustomersPageComponent } from './customers-page.component';
+import { CustomersApiService } from '../../services/customers-api.service';
+import type { Customer } from '../../models/customer.entity';
 
-describe('SuppliersPageComponent', () => {
-  let component: SuppliersPageComponent;
-  let fixture: ComponentFixture<SuppliersPageComponent>;
-  let mockSuppliersApi: { listSuppliers: ReturnType<typeof vi.fn> };
+describe('CustomersPageComponent', () => {
+  let component: CustomersPageComponent;
+  let fixture: ComponentFixture<CustomersPageComponent>;
+  let mockCustomersApi: { listCustomers: ReturnType<typeof vi.fn> };
 
-  const mockSupplier: Supplier = {
-    id: 'sup_1',
-    supplierCode: 'ACME',
-    name: 'Acme Supplies',
+  const mockCustomer: Customer = {
+    id: 'cust_1',
+    name: 'Acme Corp',
     createdAt: '2026-01-01T00:00:00.000Z'
   };
 
   const listResponse = {
     isSuccess: true as const,
     result: {
-      data: [mockSupplier],
+      data: [mockCustomer],
       info: { length: 25, skip: 0, totalCount: 1 }
     }
   };
@@ -40,15 +39,15 @@ describe('SuppliersPageComponent', () => {
 
   async function createFixture(paramMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>) {
     TestBed.resetTestingModule();
-    mockSuppliersApi = {
-      listSuppliers: vi.fn().mockReturnValue(of(listResponse))
+    mockCustomersApi = {
+      listCustomers: vi.fn().mockReturnValue(of(listResponse))
     };
 
     await TestBed.configureTestingModule({
-      imports: [SuppliersPageComponent, NoopAnimationsModule],
+      imports: [CustomersPageComponent, NoopAnimationsModule],
       providers: [
         MessageService,
-        { provide: SuppliersApiService, useValue: mockSuppliersApi },
+        { provide: CustomersApiService, useValue: mockCustomersApi },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -63,7 +62,7 @@ describe('SuppliersPageComponent', () => {
       ]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(SuppliersPageComponent);
+    fixture = TestBed.createComponent(CustomersPageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }
@@ -72,16 +71,16 @@ describe('SuppliersPageComponent', () => {
     await createFixture(setupWithQueryParams('1'));
   });
 
-  it('should create and load suppliers', () => {
+  it('should create and load customers', () => {
     expect(component).toBeTruthy();
-    expect(mockSuppliersApi.listSuppliers).toHaveBeenCalled();
+    expect(mockCustomersApi.listCustomers).toHaveBeenCalled();
   });
 
   it('should include q from route in list request', async () => {
     const paramMap$ = setupWithQueryParams('1', '25', 'acme');
     await createFixture(paramMap$);
 
-    expect(mockSuppliersApi.listSuppliers).toHaveBeenLastCalledWith({
+    expect(mockCustomersApi.listCustomers).toHaveBeenLastCalledWith({
       Skip: 0,
       Length: 25,
       Name: 'acme'
@@ -95,11 +94,11 @@ describe('SuppliersPageComponent', () => {
     expect(router.navigate).toHaveBeenCalledWith(['new'], { relativeTo: route });
   });
 
-  it('goToDetails should navigate to supplier id', () => {
+  it('goToDetails should navigate to customer id', () => {
     const router = TestBed.inject(Router);
     const route = TestBed.inject(ActivatedRoute);
-    component.goToDetails(mockSupplier);
-    expect(router.navigate).toHaveBeenCalledWith([mockSupplier.id], { relativeTo: route });
+    component.goToDetails(mockCustomer);
+    expect(router.navigate).toHaveBeenCalledWith([mockCustomer.id], { relativeTo: route });
   });
 
   it('onFiltersChange should sync q to route and reset page', () => {

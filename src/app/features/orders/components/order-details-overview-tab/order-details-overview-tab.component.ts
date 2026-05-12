@@ -2,14 +2,13 @@ import { CommonModule, formatDate } from '@angular/common';
 import { Component, inject, input, LOCALE_ID } from '@angular/core';
 
 import { CardModule } from 'primeng/card';
-import { TableModule } from 'primeng/table';
 
 import type { UiOrder, UiOrderItem } from '../../models/order-ui.model';
 
 @Component({
   selector: 'app-order-details-overview-tab',
   standalone: true,
-  imports: [CommonModule, CardModule, TableModule],
+  imports: [CommonModule, CardModule],
   templateUrl: './order-details-overview-tab.component.html'
 })
 export class OrderDetailsOverviewTabComponent {
@@ -24,6 +23,14 @@ export class OrderDetailsOverviewTabComponent {
 
   subtotal(o: UiOrder): number {
     return o.items.reduce((acc, item) => acc + this.lineTotal(item), 0);
+  }
+
+  itemCount(o: UiOrder): number {
+    return o.items.length;
+  }
+
+  subtotalDiffersFromTotal(o: UiOrder): boolean {
+    return Math.abs(this.subtotal(o) - o.totalAmount) > 0.01;
   }
 
   formatDateOrDash(value: string | null | undefined): string {
