@@ -38,6 +38,20 @@ class ProductPickerHostComponent {
   }
 }
 
+@Component({
+  standalone: true,
+  template: `
+    <form [formGroup]="form">
+      <app-product-id-control formControlName="productId" [resolvedProduct]="resolved" />
+    </form>
+  `,
+  imports: [ReactiveFormsModule, ProductIdControlComponent]
+})
+class ResolvedProductHostComponent {
+  readonly form = new FormBuilder().nonNullable.group({ productId: [''] });
+  resolved: { id: string; name: string } | null = null;
+}
+
 describe('ProductIdControlComponent', () => {
   beforeEach(() => {
     TestBed.resetTestingModule();
@@ -79,5 +93,26 @@ describe('ProductIdControlComponent', () => {
 
     picker.clearSelection();
     expect(host.form.get('items')?.value).toEqual([{ productId: '' }]);
+  });
+
+  it('should show resolved product name when resolvedProduct matches control value', async () => {
+    const searchProducts = vi.fn().mockReturnValue(of([]));
+
+    await TestBed.configureTestingModule({
+      imports: [ResolvedProductHostComponent, NoopAnimationsModule],
+      providers: [{ provide: ProductsApiService, useValue: { searchProducts } }]
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(ResolvedProductHostComponent);
+    const host = fixture.componentInstance;
+    host.resolved = { id: 'prod_1', name: 'Acme Widget' };
+    host.form.patchValue({ productId: 'prod_1' });
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const picker = fixture.debugElement.query(By.css('app-product-id-control'))
+      .componentInstance as ProductIdControlComponent;
+    expect(picker.selectedProduct()?.name).toBe('Acme Widget');
+    expect(picker.selectedProduct()?.name).not.toBe('prod_1');
   });
 });
