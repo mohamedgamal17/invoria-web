@@ -4,13 +4,19 @@ import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, map, of } from 'rxjs';
 
-import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import type { PaginatorState } from 'primeng/paginator';
+import type { TablePageEvent } from 'primeng/table';
 
 import { CustomersApiService } from '../../services/customers-api.service';
 import type { ListCustomerRequest } from '../../models/list-customer.request';
 import { CustomerListComponent } from '../../components/customer-list/customer-list.component';
+import { CustomerHeaderComponent } from '../../components/customer-header/customer-header.component';
+import {
+  CustomersFilterPanelComponent,
+  type CustomersListFilters
+} from '../../components/customers-filter-panel/customers-filter-panel.component';
 import type { Customer } from '../../models/customer.entity';
 import type { PagingInfo } from '../../../../core/models/paging';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
@@ -25,15 +31,16 @@ const EMPTY_CUSTOMERS_TUPLE: [Customer[], PagingInfo] = [
   standalone: true,
   imports: [
     CommonModule,
-    ButtonModule,
     ToastModule,
+    CustomerHeaderComponent,
+    CustomersFilterPanelComponent,
     CustomerListComponent
   ],
   providers: [MessageService],
   templateUrl: './customers-page.component.html'
 })
 export class CustomersPageComponent {
-  readonly pageSizeOptions = [5, 10, 20];
+  readonly pageSizeOptions = [25, 50, 100, 200];
 
   private readonly customersApi = inject(CustomersApiService);
   private readonly messageService = inject(MessageService);
@@ -52,16 +59,16 @@ export class CustomersPageComponent {
     { initialValue: 1 }
   );
 
-  /** Page size from `?pageSize=` (must be in pageSizeOptions; default 10). */
+  /** Page size from `?pageSize=` (must be in pageSizeOptions; default 25). */
   readonly pageSize = toSignal(
     this.route.queryParamMap.pipe(
       map((m) => {
         const raw = m.get('pageSize');
         const n = raw ? parseInt(raw, 10) : NaN;
-        return this.pageSizeOptions.includes(n) ? n : 10;
+        return this.pageSizeOptions.includes(n) ? n : 25;
       })
     ),
-    { initialValue: 10 }
+    { initialValue: 25 }
   );
 
   /** Name filter from `?q=` (trimmed; default empty). */
@@ -115,19 +122,18 @@ export class CustomersPageComponent {
     computation: (src) => ({ ...src.paging })
   });
 
-  navigateToCreate(): void {
-    void this.router.navigate(['new'], { relativeTo: this.route.parent });
+  goToCreate(): void {
+    void this.router.navigate(['new'], { relativeTo: this.route });
   }
 
   goToDetails(customer: Customer): void {
     void this.router.navigate([customer.id], { relativeTo: this.route });
   }
 
-  onPageChange(event: unknown): void {
-    const evt = event as { rows?: number; page?: number; first?: number };
-    const rows = evt.rows ?? this.pageSize();
-    const firstEvt = evt.first ?? 0;
-    const newPageIndex = evt.page ?? Math.floor(firstEvt / Math.max(rows, 1));
+  onPageChange(event: PaginatorState | TablePageEvent): void {
+    const firstEvt = event.first ?? 0;
+    const rows = event.rows ?? this.pageSize();
+    const newPageIndex = Math.floor(firstEvt / Math.max(rows, 1));
 
     if (this.pageIndex() !== newPageIndex || this.pageSize() !== rows) {
       const isManualPageChange = this.pageIndex() !== newPageIndex;
@@ -144,8 +150,8 @@ export class CustomersPageComponent {
     }
   }
 
-  onNameFilterChange(q: string): void {
-    const normalized = q.trim();
+  onFiltersChange(filters: CustomersListFilters): void {
+    const normalized = filters.name.trim();
     if (normalized === this.qFromRoute()) {
       return;
     }
@@ -153,6 +159,18 @@ export class CustomersPageComponent {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { q: normalized || null, page: 1 },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  onClearFilters(): void {
+    if (!this.qFromRoute()) {
+      return;
+    }
+
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { q: null, page: 1 },
       queryParamsHandling: 'merge'
     });
   }

@@ -3,9 +3,6 @@ import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { InputTextModule } from 'primeng/inputtext';
 import type { PaginatorState } from 'primeng/paginator';
 import { PaginatorModule } from 'primeng/paginator';
 import type { TablePageEvent } from 'primeng/table';
@@ -21,9 +18,6 @@ import type { Supplier } from '../../models/supplier.entity';
     TableModule,
     ButtonModule,
     TooltipModule,
-    IconFieldModule,
-    InputIconModule,
-    InputTextModule,
     PaginatorModule,
     SupplierListSkeletonComponent
   ],
@@ -35,10 +29,9 @@ export class SupplierListComponent {
   first = input.required<number>();
   pageSize = input.required<number>();
   isListLoading = input.required<boolean>();
-  nameFilter = input<string>('');
-  pageSizeOptions = input<number[]>([5, 10, 20]);
+  pageSizeOptions = input<number[]>([25, 50, 100, 200]);
 
   viewSupplier = output<Supplier>();
   pageChange = output<PaginatorState | TablePageEvent>();
-  nameFilterChange = output<string>();
+  clearFilters = output<void>();
 }

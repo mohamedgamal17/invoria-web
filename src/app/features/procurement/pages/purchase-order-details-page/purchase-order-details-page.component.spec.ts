@@ -13,8 +13,30 @@ import type { PurchaseOrder } from '../../models/purchase-order.entity';
 import { PurchaseState } from '../../enums/purchase-state.enum';
 import { purchaseStateLabel } from '../../models/purchase-state.display';
 
+function activatedRouteMock(query: Record<string, string> = {}) {
+  const queryParamMap = convertToParamMap(query);
+  return {
+    snapshot: {
+      paramMap: convertToParamMap({ id: 'po_1' }),
+      queryParamMap
+    },
+    paramMap: of(convertToParamMap({ id: 'po_1' })),
+    queryParamMap: of(queryParamMap)
+  };
+}
+
 describe('PurchaseOrderDetailsPageComponent', () => {
   let fixture: ComponentFixture<PurchaseOrderDetailsPageComponent>;
+
+  beforeEach(() => {
+    if (typeof globalThis.ResizeObserver === 'undefined') {
+      globalThis.ResizeObserver = class {
+        observe(): void {}
+        unobserve(): void {}
+        disconnect(): void {}
+      };
+    }
+  });
 
   const mockPo: PurchaseOrder = {
     id: 'po_1',
@@ -97,13 +119,7 @@ describe('PurchaseOrderDetailsPageComponent', () => {
         ConfirmationService,
         { provide: PurchaseOrdersApiService, useValue: apiMock },
         { provide: ProductsApiService, useValue: productsApiMock },
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: { paramMap: convertToParamMap({ id: 'po_1' }) },
-            paramMap: of(convertToParamMap({ id: 'po_1' }))
-          }
-        },
+        { provide: ActivatedRoute, useValue: activatedRouteMock() },
         { provide: Router, useValue: { navigate: vi.fn().mockResolvedValue(true) } }
       ]
     }).compileComponents();
@@ -116,7 +132,7 @@ describe('PurchaseOrderDetailsPageComponent', () => {
   it('should create, load full purchase order, and surface rendered fields', () => {
     const api = TestBed.inject(PurchaseOrdersApiService);
     const component = fixture.componentInstance;
-    const text = fixture.nativeElement.textContent as string;
+    let text = fixture.nativeElement.textContent as string;
 
     expect(api.getPurchaseOrder).toHaveBeenCalledWith('po_1');
 
@@ -125,7 +141,6 @@ describe('PurchaseOrderDetailsPageComponent', () => {
     expect(text).toContain(mockPo.purchaseNumber);
     expect(text).toContain(purchaseStateLabel(mockPo.state));
     expect(text).toContain(component.supplierLine(mockPo));
-    expect(text).toContain(mockPo.id);
     expect(text).toMatch(/Tax/i);
     expect(text).toMatch(/Discount/i);
     expect(text).not.toContain('Tax / Discount');
@@ -137,18 +152,31 @@ describe('PurchaseOrderDetailsPageComponent', () => {
     expect(loaded?.discountAmount).toBe(mockPo.discountAmount);
     expect(loaded?.totalAmount).toBe(mockPo.totalAmount);
 
+    expect(text).toContain('Edit');
+    expect(text).toContain('Submit');
+    expect(text).toContain('Cancel');
+
+    expect(text).toContain('Overview');
+    expect(text).toContain('Status history');
+    expect(text).toContain('Line items');
+
+    expect(component.stateTimelineEvents()).toHaveLength(2);
+
+    expect(text).toContain(mockPo.id);
+
+    component.onTabChange(1);
+    fixture.detectChanges();
+    text = fixture.nativeElement.textContent as string;
     const firstLine = mockPo.purchaseOrderItems![0];
     expect(text).toContain(firstLine.id);
     expect(text).toContain('Resolved product name');
     expect(text).toContain(String(firstLine.quantity));
     expect(text).toContain('SKU-1');
+    expect(text).toMatch(/Displaying\s+1\s+line items/i);
 
-    expect(text).toContain('Edit');
-    expect(text).toContain('Submit');
-    expect(text).toContain('Cancel');
-
-    expect(fixture.componentInstance.stateTimelineEvents()).toHaveLength(2);
-    expect(text).toContain('Status history');
+    component.onTabChange(2);
+    fixture.detectChanges();
+    text = fixture.nativeElement.textContent as string;
     expect(text).toContain(purchaseStateLabel(PurchaseState.Draft));
     expect(text).toContain(purchaseStateLabel(PurchaseState.Submitted));
     expect(text).toContain('Ready for review');
@@ -184,13 +212,7 @@ describe('PurchaseOrderDetailsPageComponent', () => {
         ConfirmationService,
         { provide: PurchaseOrdersApiService, useValue: apiMock },
         { provide: ProductsApiService, useValue: productsApiMock },
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: { paramMap: convertToParamMap({ id: 'po_1' }) },
-            paramMap: of(convertToParamMap({ id: 'po_1' }))
-          }
-        },
+        { provide: ActivatedRoute, useValue: activatedRouteMock() },
         { provide: Router, useValue: { navigate: vi.fn().mockResolvedValue(true) } }
       ]
     }).compileComponents();
@@ -208,7 +230,39 @@ describe('PurchaseOrderDetailsPageComponent', () => {
   it('should navigate back to procurement list', () => {
     const router = TestBed.inject(Router);
     fixture.componentInstance.backToList();
-    expect(router.navigate).toHaveBeenCalledWith(['/dashboard', 'procurement']);
+    expect(router.navigate).toHaveBeenCalledWith(['/procurement']);
+  });
+
+  it('should apply tab=lines query param to line items tab', async () => {
+    TestBed.resetTestingModule();
+    const getPurchaseOrder = vi.fn().mockReturnValue(
+      of({ isSuccess: true as const, result: mockPo })
+    );
+
+    await TestBed.configureTestingModule({
+      imports: [PurchaseOrderDetailsPageComponent, NoopAnimationsModule],
+      providers: [
+        MessageService,
+        ConfirmationService,
+        { provide: PurchaseOrdersApiService, useValue: { getPurchaseOrder } },
+        {
+          provide: ProductsApiService,
+          useValue: {
+            getProduct: vi
+              .fn()
+              .mockReturnValue(of({ isSuccess: false as const, result: undefined }))
+          }
+        },
+        { provide: ActivatedRoute, useValue: activatedRouteMock({ tab: 'lines' }) },
+        { provide: Router, useValue: { navigate: vi.fn().mockResolvedValue(true) } }
+      ]
+    }).compileComponents();
+
+    const f = TestBed.createComponent(PurchaseOrderDetailsPageComponent);
+    f.detectChanges();
+    await f.whenStable();
+
+    expect(f.componentInstance.activeTab()).toBe(1);
   });
 
   it('should show empty state when stateHistory is absent', async () => {
@@ -231,13 +285,7 @@ describe('PurchaseOrderDetailsPageComponent', () => {
             getProduct: vi.fn().mockReturnValue(of({ isSuccess: false as const, result: undefined }))
           }
         },
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: { paramMap: convertToParamMap({ id: 'po_1' }) },
-            paramMap: of(convertToParamMap({ id: 'po_1' }))
-          }
-        },
+        { provide: ActivatedRoute, useValue: activatedRouteMock() },
         { provide: Router, useValue: { navigate: vi.fn().mockResolvedValue(true) } }
       ]
     }).compileComponents();
@@ -246,10 +294,12 @@ describe('PurchaseOrderDetailsPageComponent', () => {
     noHistFixture.detectChanges();
     await noHistFixture.whenStable();
 
+    expect(noHistFixture.componentInstance.stateTimelineEvents()).toEqual([]);
+    noHistFixture.componentInstance.onTabChange(2);
+    noHistFixture.detectChanges();
     expect((noHistFixture.nativeElement as HTMLElement).textContent).toContain(
       'No transition history available.'
     );
-    expect(noHistFixture.componentInstance.stateTimelineEvents()).toEqual([]);
   });
 
   it('should show no line items when purchaseOrderItems is empty', async () => {
@@ -263,15 +313,15 @@ describe('PurchaseOrderDetailsPageComponent', () => {
       imports: [PurchaseOrderDetailsPageComponent, NoopAnimationsModule],
       providers: [
         MessageService,
+        ConfirmationService,
         { provide: PurchaseOrdersApiService, useValue: { getPurchaseOrder } },
-        { provide: ProductsApiService, useValue: { getProduct: vi.fn() } },
         {
-          provide: ActivatedRoute,
+          provide: ProductsApiService,
           useValue: {
-            snapshot: { paramMap: convertToParamMap({ id: 'po_1' }) },
-            paramMap: of(convertToParamMap({ id: 'po_1' }))
+            getProduct: vi.fn().mockReturnValue(of({ isSuccess: false as const, result: undefined }))
           }
         },
+        { provide: ActivatedRoute, useValue: activatedRouteMock() },
         { provide: Router, useValue: { navigate: vi.fn().mockResolvedValue(true) } }
       ]
     }).compileComponents();
@@ -280,7 +330,11 @@ describe('PurchaseOrderDetailsPageComponent', () => {
     emptyFixture.detectChanges();
     await emptyFixture.whenStable();
 
-    expect((emptyFixture.nativeElement as HTMLElement).textContent).toContain('No line items.');
+    emptyFixture.componentInstance.onTabChange(1);
+    emptyFixture.detectChanges();
+    const emptyText = (emptyFixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(emptyText).toContain('No line items');
+    expect(emptyText).toContain('Add lines when editing this purchase order.');
   });
 
   it('supplierLine should fall back to supplierId when supplier name is absent', () => {

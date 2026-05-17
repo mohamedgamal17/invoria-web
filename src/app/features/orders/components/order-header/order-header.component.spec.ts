@@ -30,7 +30,9 @@ describe('OrderHeaderComponent', () => {
   it('should display default title and description', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('h1')?.textContent).toContain('Orders');
-    expect(compiled.querySelector('p')?.textContent).toContain('Manage and track your customer orders and status updates.');
+    expect(compiled.querySelector('.text-muted-foreground')?.textContent).toContain(
+      'Manage and track your customer orders and status updates.'
+    );
   });
 
   it('should display custom title and description', () => {
@@ -40,7 +42,7 @@ describe('OrderHeaderComponent', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('h1')?.textContent).toContain('Custom Title');
-    expect(compiled.querySelector('p')?.textContent).toContain('Custom Description');
+    expect(compiled.querySelector('.text-muted-foreground')?.textContent).toContain('Custom Description');
   });
 
   it('should emit create event when button is clicked', () => {

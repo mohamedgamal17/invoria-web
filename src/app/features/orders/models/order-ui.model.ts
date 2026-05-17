@@ -1,5 +1,9 @@
-import type { OrderFullfillmentStatus } from './order.entity';
-import type { OrderStatus } from './order.entity';
+import type {
+  OrderFullfillmentStatus,
+  OrderPayment,
+  OrderStatus
+} from './order.entity';
+import type { PaymentStatus, PaymentType } from './order-payment.enums';
 
 /** Mock/UI line item (includes display name not present on API contract). */
 export interface UiOrderItem {
@@ -39,6 +43,11 @@ export interface UiOrder {
   totalAmount: number;
   status: OrderStatus;
   fullfillmentStatus: OrderFullfillmentStatus;
+  paymentType?: PaymentType;
+  paymentStatus?: PaymentStatus;
+  amountPaid?: number;
+  amountOutstanding?: number;
+  payments?: OrderPayment[];
   orderDate: string;
   items: UiOrderItem[];
   stateHistory: UiOrderStateHistoryEvent[];

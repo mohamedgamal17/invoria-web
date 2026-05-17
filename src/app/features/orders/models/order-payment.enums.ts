@@ -1,35 +1,38 @@
 /**
- * Payment-related enums for order list filters (GET `/orders` query).
- * Reconcile numeric values with OpenAPI when published (`x-enumNames` / `enum`).
+ * `InvoriaOrderingContractsOrdersOrderPaymentStatus` (Swagger: integer enum).
  */
 export enum PaymentStatus {
-  Pending = 5,
-  Paid = 10,
-  PartiallyPaid = 15,
-  Refunded = 20,
-  Failed = 25
+  Unpaid = 0,
+  Partial = 1,
+  Paid = 2
 }
 
+/**
+ * `InvoriaOrderingContractsOrdersOrderPaymentType` (Swagger: integer enum).
+ */
 export enum PaymentType {
-  Unspecified = 5,
-  Cash = 10,
-  Card = 15,
-  BankTransfer = 20,
-  Wallet = 25
+  Immediate = 0,
+  Debt = 1
+}
+
+/**
+ * `InvoriaOrderingContractsOrdersOrderPaymentMethod` (per payment row in `Payments`).
+ */
+export enum OrderPaymentMethod {
+  Cash = 0,
+  BankTransfer = 1,
+  Cheque = 2,
+  Other = 3
 }
 
 export function paymentStatusLabel(status: PaymentStatus): string {
   switch (status) {
-    case PaymentStatus.Pending:
-      return 'Pending';
+    case PaymentStatus.Unpaid:
+      return 'Unpaid';
+    case PaymentStatus.Partial:
+      return 'Partial';
     case PaymentStatus.Paid:
       return 'Paid';
-    case PaymentStatus.PartiallyPaid:
-      return 'Partially paid';
-    case PaymentStatus.Refunded:
-      return 'Refunded';
-    case PaymentStatus.Failed:
-      return 'Failed';
     default:
       return 'Unknown';
   }
@@ -37,16 +40,25 @@ export function paymentStatusLabel(status: PaymentStatus): string {
 
 export function paymentTypeLabel(type: PaymentType): string {
   switch (type) {
-    case PaymentType.Unspecified:
-      return 'Unspecified';
-    case PaymentType.Cash:
+    case PaymentType.Immediate:
+      return 'Immediate';
+    case PaymentType.Debt:
+      return 'Debt';
+    default:
+      return 'Unknown';
+  }
+}
+
+export function paymentMethodLabel(method: OrderPaymentMethod): string {
+  switch (method) {
+    case OrderPaymentMethod.Cash:
       return 'Cash';
-    case PaymentType.Card:
-      return 'Card';
-    case PaymentType.BankTransfer:
+    case OrderPaymentMethod.BankTransfer:
       return 'Bank transfer';
-    case PaymentType.Wallet:
-      return 'Wallet';
+    case OrderPaymentMethod.Cheque:
+      return 'Cheque';
+    case OrderPaymentMethod.Other:
+      return 'Other';
     default:
       return 'Unknown';
   }

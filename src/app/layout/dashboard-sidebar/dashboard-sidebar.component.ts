@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink, RouterLinkActive, type IsActiveMatchOptions } from '@angular/router';
 import {
   ClipboardList,
   LayoutDashboard,
@@ -63,4 +63,16 @@ export class DashboardSidebarComponent {
   readonly logoutIcon = LogOut;
   readonly collapseIcon = ChevronLeft;
   readonly expandIcon = ChevronRight;
+
+  linkActiveOptions(path: string): IsActiveMatchOptions {
+    const ignored = {
+      queryParams: 'ignored' as const,
+      matrixParams: 'ignored' as const,
+      fragment: 'ignored' as const
+    };
+    if (path === '/') {
+      return { paths: 'exact', ...ignored };
+    }
+    return { paths: 'subset', ...ignored };
+  }
 }

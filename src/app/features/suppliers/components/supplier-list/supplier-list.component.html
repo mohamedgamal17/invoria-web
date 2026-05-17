@@ -11,9 +11,9 @@
             <span class="text-xs text-muted-foreground mt-0.5 font-mono">{{ supplier.supplierCode }}</span>
             <span class="text-xs text-muted-foreground mt-0.5">Since {{ supplier.createdAt | date:'shortDate' }}</span>
           </div>
-          <div class="flex gap-2 shrink-0">
+          <div class="flex flex-col items-end gap-2 shrink-0">
             <p-button
-              label="View"
+              label="View Details"
               icon="pi pi-arrow-right"
               size="small"
               styleClass="h-9"
@@ -31,7 +31,7 @@
       <p-button
         label="Clear Search"
         [link]="true"
-        (onClick)="nameFilterChange.emit('')"
+        (onClick)="clearFilters.emit()"
       />
     </div>
   }
@@ -70,17 +70,6 @@
   >
     <ng-template pTemplate="caption">
       <div class="flex flex-col sm:flex-row justify-between items-center gap-4 px-2 py-3">
-        <p-iconfield iconPosition="left" class="w-full sm:w-80">
-          <p-inputicon styleClass="pi pi-search" />
-          <input
-            pInputText
-            type="text"
-            [value]="nameFilter()"
-            (input)="nameFilterChange.emit($any($event.target).value)"
-            placeholder="Search suppliers…"
-            class="w-full rounded-lg border-border bg-surface-2 py-2 text-sm focus:ring-2 focus:ring-focus"
-          />
-        </p-iconfield>
         <div class="text-xs font-medium text-muted-foreground uppercase tracking-wider">
           Displaying {{ suppliers().length }} of {{ totalRecords() }} suppliers
         </div>
@@ -116,14 +105,14 @@
           <span class="text-sm text-muted-foreground">{{ supplier.createdAt | date:'mediumDate' }}</span>
         </td>
         <td class="px-4 py-5 text-right">
-          <div class="flex justify-end gap-1">
+          <div class="flex justify-end items-center gap-1">
             <p-button
               label="View"
               icon="pi pi-arrow-right"
               size="small"
               pTooltip="View supplier"
               tooltipPosition="top"
-              styleClass="h-8 px-3"
+              styleClass="h-8 px-3 mr-1"
               (onClick)="viewSupplier.emit(supplier)"
             />
           </div>
@@ -145,7 +134,7 @@
             <p-button
               label="Clear Search"
               [link]="true"
-              (onClick)="nameFilterChange.emit('')"
+              (onClick)="clearFilters.emit()"
             />
           </div>
         </td>

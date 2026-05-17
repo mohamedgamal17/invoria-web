@@ -26,13 +26,13 @@ describe('SuppliersPageComponent', () => {
     isSuccess: true as const,
     result: {
       data: [mockSupplier],
-      info: { length: 10, skip: 0, totalCount: 1 }
+      info: { length: 25, skip: 0, totalCount: 1 }
     }
   };
 
   function setupWithQueryParams(
     page: string,
-    pageSize = '10',
+    pageSize = '25',
     q = ''
   ): BehaviorSubject<ReturnType<typeof convertToParamMap>> {
     return new BehaviorSubject(convertToParamMap({ page, pageSize, q }));
@@ -78,21 +78,21 @@ describe('SuppliersPageComponent', () => {
   });
 
   it('should include q from route in list request', async () => {
-    const paramMap$ = setupWithQueryParams('1', '10', 'acme');
+    const paramMap$ = setupWithQueryParams('1', '25', 'acme');
     await createFixture(paramMap$);
 
     expect(mockSuppliersApi.listSuppliers).toHaveBeenLastCalledWith({
       Skip: 0,
-      Length: 10,
+      Length: 25,
       Name: 'acme'
     });
   });
 
-  it('navigateToCreate should navigate to new', () => {
+  it('goToCreate should navigate to new relative to route', () => {
     const router = TestBed.inject(Router);
     const route = TestBed.inject(ActivatedRoute);
-    component.navigateToCreate();
-    expect(router.navigate).toHaveBeenCalledWith(['new'], { relativeTo: route.parent });
+    component.goToCreate();
+    expect(router.navigate).toHaveBeenCalledWith(['new'], { relativeTo: route });
   });
 
   it('goToDetails should navigate to supplier id', () => {
@@ -102,16 +102,50 @@ describe('SuppliersPageComponent', () => {
     expect(router.navigate).toHaveBeenCalledWith([mockSupplier.id], { relativeTo: route });
   });
 
-  it('onNameFilterChange should sync q to route and reset page', () => {
+  it('onFiltersChange should sync q to route and reset page', () => {
     const router = TestBed.inject(Router);
     const route = TestBed.inject(ActivatedRoute);
 
-    component.onNameFilterChange('acme');
+    component.onFiltersChange({ name: 'acme' });
 
     expect(router.navigate).toHaveBeenCalledWith([], {
       relativeTo: route,
       queryParams: { q: 'acme', page: 1 },
       queryParamsHandling: 'merge'
     });
+  });
+
+  it('onFiltersChange should no-op when name unchanged', () => {
+    const router = TestBed.inject(Router);
+    vi.mocked(router.navigate).mockClear();
+
+    component.onFiltersChange({ name: '' });
+
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it('onClearFilters should clear q and reset page', async () => {
+    await createFixture(setupWithQueryParams('1', '25', 'acme'));
+    const router = TestBed.inject(Router);
+    const route = TestBed.inject(ActivatedRoute);
+    expect(component.qFromRoute()).toBe('acme');
+    vi.mocked(router.navigate).mockClear();
+
+    component.onClearFilters();
+
+    expect(router.navigate).toHaveBeenCalledWith([], {
+      relativeTo: route,
+      queryParams: { q: null, page: 1 },
+      queryParamsHandling: 'merge'
+    });
+  });
+
+  it('onClearFilters should no-op when q already empty', () => {
+    const router = TestBed.inject(Router);
+    vi.mocked(router.navigate).mockClear();
+
+    component.onClearFilters();
+
+    expect(router.navigate).not.toHaveBeenCalled();
   });
 });

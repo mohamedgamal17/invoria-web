@@ -1,21 +1,14 @@
 <p-toast />
 
-<section class="space-y-6">
-  <!-- Header Section -->
-  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-    <div class="space-y-1">
-      <h1 class="text-3xl font-bold tracking-tight text-foreground">Customers</h1>
-      <p class="text-sm text-muted-foreground">Manage your customer list and contact information.</p>
-    </div>
-    <div class="flex items-center gap-2">
-      <p-button
-        label="Create Customer"
-        icon="pi pi-plus"
-        styleClass="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90 transition-all focus:ring-2 focus:ring-focus"
-        (onClick)="navigateToCreate()"
-      />
-    </div>
-  </div>
+<section class="flex flex-col gap-10">
+  <app-customer-header (create)="goToCreate()" />
+
+  <app-customers-filter-panel
+    [name]="qFromRoute()"
+    [loading]="customersResource.isLoading()"
+    (filtersChange)="onFiltersChange($event)"
+    (clearFilters)="onClearFilters()"
+  />
 
   <app-customer-list
     [customers]="displayCustomers()"
@@ -23,10 +16,9 @@
     [totalRecords]="displayPaging().totalCount"
     [first]="first()"
     [pageSize]="pageSize()"
-    [nameFilter]="qFromRoute()"
     [pageSizeOptions]="pageSizeOptions"
     (pageChange)="onPageChange($event)"
-    (nameFilterChange)="onNameFilterChange($event)"
+    (clearFilters)="onClearFilters()"
     (viewCustomer)="goToDetails($event)"
   />
 </section>
