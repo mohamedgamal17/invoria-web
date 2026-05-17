@@ -1,15 +1,18 @@
 import { CommonModule } from '@angular/common';
 import {
   Component,
+  DestroyRef,
   effect,
   forwardRef,
   inject,
   input,
   signal
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
+import { Subject, catchError, debounceTime, finalize, of, switchMap, tap } from 'rxjs';
 
 import type { Product } from '../../../products/models/product.entity';
 import { productSearchListRequest } from '../../../products/models/list-product.request';
@@ -31,6 +34,9 @@ function productDisplayStub(id: string, name: string): Product {
   };
 }
 
+/** Mirrors filter-panel / order-form autocomplete debounce (e.g. products-filter-panel). */
+const PRODUCT_AUTOCOMPLETE_DEBOUNCE_MS = 300;
+
 @Component({
   selector: 'app-product-id-control',
   standalone: true,
@@ -45,7 +51,9 @@ function productDisplayStub(id: string, name: string): Product {
   templateUrl: './product-id-control.component.html'
 })
 export class ProductIdControlComponent implements ControlValueAccessor {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly productsApi = inject(ProductsApiService);
+  private readonly productQuery$ = new Subject<string>();
 
   readonly resolvedProduct = input<ResolvedProductRef | null>(null);
   readonly saving = input(false);
@@ -54,8 +62,10 @@ export class ProductIdControlComponent implements ControlValueAccessor {
 
   readonly selectedProduct = signal<Product | null>(null);
   readonly suggestions = signal<Product[]>([]);
+  readonly searching = signal(false);
 
   private currentId = '';
+  private readonly searchResultsByQuery = new Map<string, Product[]>();
   private onChange: (value: string) => void = () => {};
   private onTouched: () => void = () => {};
   private disabledFromCva = false;
@@ -68,6 +78,20 @@ export class ProductIdControlComponent implements ControlValueAccessor {
       }
       this.selectedProduct.set(productDisplayStub(ref.id, ref.name));
     });
+
+    this.productQuery$
+      .pipe(
+        debounceTime(PRODUCT_AUTOCOMPLETE_DEBOUNCE_MS),
+        switchMap((query) =>
+          this.productsApi.searchProducts(productSearchListRequest, query).pipe(
+            tap((rows) => this.searchResultsByQuery.set(query, rows)),
+            catchError(() => of([] as Product[])),
+            finalize(() => this.searching.set(false))
+          )
+        ),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((rows) => this.suggestions.set(rows));
   }
 
   isControlDisabled(): boolean {
@@ -101,15 +125,23 @@ export class ProductIdControlComponent implements ControlValueAccessor {
   }
 
   onComplete(event: { query: string }): void {
-    this.productsApi.searchProducts(productSearchListRequest, event.query).subscribe({
-      next: (rows) => this.suggestions.set(rows),
-      error: () => this.suggestions.set([])
-    });
+    this.requestSearch((event.query ?? '').trim());
   }
 
   /** PrimeNG may not run `completeMethod` until the user types; load the first page on first focus/click. */
   onInputFocus(): void {
-    this.onComplete({ query: '' });
+    this.requestSearch('');
+  }
+
+  private requestSearch(query: string): void {
+    const cached = this.searchResultsByQuery.get(query);
+    if (cached !== undefined) {
+      this.suggestions.set([...cached]);
+      this.searching.set(false);
+      return;
+    }
+    this.searching.set(true);
+    this.productQuery$.next(query);
   }
 
   onModelChange(product: Product | null): void {
@@ -128,6 +160,8 @@ export class ProductIdControlComponent implements ControlValueAccessor {
 
   clearSelection(): void {
     this.currentId = '';
+    this.searchResultsByQuery.clear();
+    this.searching.set(false);
     this.selectedProduct.set(null);
     this.suggestions.set([]);
     this.onChange('');
