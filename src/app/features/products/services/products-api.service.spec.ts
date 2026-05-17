@@ -1,41 +1,83 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { TestBed } from '@angular/core/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
 
+import { environment } from '../../../../environments/environment';
 import type { Product } from '../models/product.entity';
-import { filterProductsByName } from './products-api.service';
+import { productSearchListRequest } from '../models/list-product.request';
+import { ProductsApiService } from './products-api.service';
 
-describe('filterProductsByName', () => {
-  const rows: Product[] = [
-    {
-      id: '1',
-      name: 'Alpha Widget',
-      price: 10,
-      stock: {
-        actualQuantity: 0,
-        reservedQuantity: 0
-      },
-      createdAt: ''
-    },
-    {
-      id: '2',
-      name: 'Beta',
-      price: 5,
-      stock: {
-        actualQuantity: 0,
-        reservedQuantity: 0
-      },
-      createdAt: ''
-    }
-  ];
+describe('ProductsApiService', () => {
+  let service: ProductsApiService;
+  let httpMock: HttpTestingController;
+  const baseUrl = `${environment.apiUrl.replace(/\/?$/, '/')}`;
 
-  it('returns all rows when filter is empty or whitespace', () => {
-    expect(filterProductsByName(rows, '')).toEqual(rows);
-    expect(filterProductsByName(rows, '   ')).toEqual(rows);
-    expect(filterProductsByName(rows, undefined)).toEqual(rows);
+  const productRow: Product = {
+    id: '1',
+    name: 'Alpha Widget',
+    price: 10,
+    stock: { actualQuantity: 0, reservedQuantity: 0 },
+    createdAt: ''
+  };
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [ProductsApiService, provideHttpClient(), provideHttpClientTesting()]
+    });
+    service = TestBed.inject(ProductsApiService);
+    httpMock = TestBed.inject(HttpTestingController);
   });
 
-  it('filters case-insensitively on name', () => {
-    expect(filterProductsByName(rows, 'alpha')).toEqual([rows[0]]);
-    expect(filterProductsByName(rows, 'beta')).toEqual([rows[1]]);
-    expect(filterProductsByName(rows, 'widget')).toEqual([rows[0]]);
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  it('searchProducts omits Name when filter is empty or whitespace', () => {
+    let result: Product[] | undefined;
+    service.searchProducts(productSearchListRequest, '   ').subscribe((rows) => {
+      result = rows;
+    });
+
+    const req = httpMock.expectOne(
+      (r) => r.url === `${baseUrl}products` && r.params.get('Name') === null
+    );
+    expect(req.request.params.get('Skip')).toBe('0');
+    expect(req.request.params.get('Length')).toBe('20');
+    req.flush({
+      isSuccess: true,
+      result: { data: [productRow], pagingInfo: { totalCount: 1 } }
+    });
+
+    expect(result).toEqual([productRow]);
+  });
+
+  it('searchProducts sends Name query param when filter is non-empty', () => {
+    let result: Product[] | undefined;
+    service.searchProducts(productSearchListRequest, '  alpha  ').subscribe((rows) => {
+      result = rows;
+    });
+
+    const req = httpMock.expectOne(
+      (r) => r.url === `${baseUrl}products` && r.params.get('Name') === 'alpha'
+    );
+    req.flush({
+      isSuccess: true,
+      result: { data: [productRow], pagingInfo: { totalCount: 1 } }
+    });
+
+    expect(result).toEqual([productRow]);
+  });
+
+  it('searchProducts returns empty array when response is not successful', () => {
+    let result: Product[] | undefined;
+    service.searchProducts(productSearchListRequest).subscribe((rows) => {
+      result = rows;
+    });
+
+    const req = httpMock.expectOne(`${baseUrl}products?Skip=0&Length=20`);
+    req.flush({ isSuccess: false, result: null });
+
+    expect(result).toEqual([]);
   });
 });

@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EMPTY, catchError, finalize, map, take } from 'rxjs';
+import { EMPTY, Subject, catchError, debounceTime, distinctUntilChanged, finalize, map, of, switchMap, take } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { MessageService } from 'primeng/api';
@@ -19,6 +20,9 @@ import { PaymentType } from '../../models/order-payment.enums';
 import { draftItemsToLineItems, orderToUiOrder } from '../../models/order-ui.mapper';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
 
+/** Mirrors filter-panel name debounce (e.g. products-filter-panel). */
+const ORDER_FORM_AUTOCOMPLETE_DEBOUNCE_MS = 700;
+
 @Component({
   selector: 'app-order-form-page',
   standalone: true,
@@ -26,12 +30,16 @@ import { presentApiError } from '../../../../core/http/api-error.presenter';
   templateUrl: './order-form-page.component.html'
 })
 export class OrderFormPageComponent {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly ordersApi = inject(OrdersApiService);
   private readonly productsApi = inject(ProductsApiService);
   private readonly customersApi = inject(CustomersApiService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+
+  private readonly productQuery$ = new Subject<string>();
+  private readonly customerQuery$ = new Subject<string>();
 
   readonly mode = computed<'create' | 'edit'>(() =>
     this.route.snapshot.data['mode'] === 'edit' ? 'edit' : 'create'
@@ -57,6 +65,36 @@ export class OrderFormPageComponent {
   paymentType = signal<PaymentType>(PaymentType.Immediate);
 
   constructor() {
+    this.productQuery$
+      .pipe(
+        debounceTime(ORDER_FORM_AUTOCOMPLETE_DEBOUNCE_MS),
+        distinctUntilChanged(),
+        switchMap((query) => {
+          this.isProductLoading.set(true);
+          return this.productsApi.searchProducts(productSearchListRequest, query).pipe(
+            catchError(() => of([] as Product[])),
+            finalize(() => this.isProductLoading.set(false))
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((products) => this.products.set(products));
+
+    this.customerQuery$
+      .pipe(
+        debounceTime(ORDER_FORM_AUTOCOMPLETE_DEBOUNCE_MS),
+        distinctUntilChanged(),
+        switchMap((query) => {
+          this.isCustomerLoading.set(true);
+          return this.customersApi.searchCustomers(customerSearchListRequest, query).pipe(
+            catchError(() => of([] as Customer[])),
+            finalize(() => this.isCustomerLoading.set(false))
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((customers) => this.customers.set(customers));
+
     if (this.mode() === 'edit' && this.orderId()) {
       this.loadOrder(this.orderId() as string);
     }
@@ -141,37 +179,11 @@ export class OrderFormPageComponent {
   }
 
   searchProducts(event: { query: string }): void {
-    this.isProductLoading.set(true);
-    this.productsApi
-      .searchProducts(productSearchListRequest, event.query)
-      .pipe(take(1))
-      .subscribe({
-        next: (products) => {
-          this.products.set(products);
-          this.isProductLoading.set(false);
-        },
-        error: () => {
-          this.products.set([]);
-          this.isProductLoading.set(false);
-        }
-      });
+    this.productQuery$.next((event.query ?? '').trim());
   }
 
   searchCustomers(event: { query: string }): void {
-    this.isCustomerLoading.set(true);
-    this.customersApi
-      .searchCustomers(customerSearchListRequest, event.query)
-      .pipe(take(1))
-      .subscribe({
-        next: (customers) => {
-          this.customers.set(customers);
-          this.isCustomerLoading.set(false);
-        },
-        error: () => {
-          this.customers.set([]);
-          this.isCustomerLoading.set(false);
-        }
-      });
+    this.customerQuery$.next((event.query ?? '').trim());
   }
 
   onCustomerSelect(event: unknown): void {

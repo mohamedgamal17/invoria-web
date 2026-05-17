@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { CommonModule } from '@angular/common';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -24,6 +24,8 @@ describe('OrderFormPageComponent', () => {
   let updateOrderItems: ReturnType<typeof vi.fn>;
   let messageAdd: ReturnType<typeof vi.fn>;
   let navigate: ReturnType<typeof vi.fn>;
+  let searchProducts: ReturnType<typeof vi.fn>;
+  let searchCustomers: ReturnType<typeof vi.fn>;
 
   const loadedOrder: Order = {
     id: 'ord_edit',
@@ -61,6 +63,8 @@ describe('OrderFormPageComponent', () => {
     );
     messageAdd = vi.fn();
     navigate = vi.fn().mockResolvedValue(true);
+    searchProducts = vi.fn().mockReturnValue(of([]));
+    searchCustomers = vi.fn().mockReturnValue(of([]));
 
     const snapshot =
       opts.mode === 'edit' && opts.id
@@ -95,11 +99,11 @@ describe('OrderFormPageComponent', () => {
         },
         {
           provide: CustomersApiService,
-          useValue: { searchCustomers: vi.fn().mockReturnValue(of([])) }
+          useValue: { searchCustomers }
         },
         {
           provide: ProductsApiService,
-          useValue: { searchProducts: vi.fn().mockReturnValue(of([])) }
+          useValue: { searchProducts }
         },
         {
           provide: ActivatedRoute,
@@ -127,6 +131,34 @@ describe('OrderFormPageComponent', () => {
 
   beforeEach(async () => {
     await setup({ mode: 'create' });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('debounces searchProducts and passes last distinct query', async () => {
+    vi.useFakeTimers();
+
+    component.searchProducts({ query: 'a' });
+    component.searchProducts({ query: 'ab' });
+    expect(searchProducts).not.toHaveBeenCalled();
+
+    await vi.advanceTimersByTimeAsync(700);
+    expect(searchProducts).toHaveBeenCalledTimes(1);
+    expect(searchProducts).toHaveBeenCalledWith(expect.anything(), 'ab');
+  });
+
+  it('debounces searchCustomers and passes last distinct query', async () => {
+    vi.useFakeTimers();
+
+    component.searchCustomers({ query: 'x' });
+    component.searchCustomers({ query: 'xy' });
+    expect(searchCustomers).not.toHaveBeenCalled();
+
+    await vi.advanceTimersByTimeAsync(700);
+    expect(searchCustomers).toHaveBeenCalledTimes(1);
+    expect(searchCustomers).toHaveBeenCalledWith(expect.anything(), 'xy');
   });
 
   it('create mode does not load order by id', () => {
