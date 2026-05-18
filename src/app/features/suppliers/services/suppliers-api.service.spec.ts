@@ -5,6 +5,7 @@ import { provideHttpClient } from '@angular/common/http';
 
 import { environment } from '../../../../environments/environment';
 import type { Supplier } from '../models/supplier.entity';
+import { supplierSearchListRequest } from '../models/list-supplier.request';
 import { filterSuppliersByName, SuppliersApiService } from './suppliers-api.service';
 
 describe('filterSuppliersByName', () => {
@@ -81,5 +82,60 @@ describe('SuppliersApiService', () => {
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toEqual(body);
     req.flush({ isSuccess: true, result: null });
+  });
+
+  const supplierRow: Supplier = {
+    id: '1',
+    name: 'Alpha Supplies',
+    supplierCode: 'A1',
+    createdAt: '2026-01-01T00:00:00.000Z'
+  };
+
+  it('searchSuppliers omits Name when filter is empty or whitespace', () => {
+    let result: Supplier[] | undefined;
+    service.searchSuppliers(supplierSearchListRequest, '   ').subscribe((rows) => {
+      result = rows;
+    });
+
+    const req = httpMock.expectOne(
+      (r) => r.url === `${baseUrl}suppliers` && r.params.get('Name') === null
+    );
+    expect(req.request.params.get('Skip')).toBe('0');
+    expect(req.request.params.get('Length')).toBe('50');
+    req.flush({
+      isSuccess: true,
+      result: { data: [supplierRow], pagingInfo: { totalCount: 1 } }
+    });
+
+    expect(result).toEqual([supplierRow]);
+  });
+
+  it('searchSuppliers sends Name query param when filter is non-empty', () => {
+    let result: Supplier[] | undefined;
+    service.searchSuppliers(supplierSearchListRequest, '  alpha  ').subscribe((rows) => {
+      result = rows;
+    });
+
+    const req = httpMock.expectOne(
+      (r) => r.url === `${baseUrl}suppliers` && r.params.get('Name') === 'alpha'
+    );
+    req.flush({
+      isSuccess: true,
+      result: { data: [supplierRow], pagingInfo: { totalCount: 1 } }
+    });
+
+    expect(result).toEqual([supplierRow]);
+  });
+
+  it('searchSuppliers returns empty array when response is not successful', () => {
+    let result: Supplier[] | undefined;
+    service.searchSuppliers(supplierSearchListRequest).subscribe((rows) => {
+      result = rows;
+    });
+
+    const req = httpMock.expectOne(`${baseUrl}suppliers?Skip=0&Length=50`);
+    req.flush({ isSuccess: false, result: null });
+
+    expect(result).toEqual([]);
   });
 });

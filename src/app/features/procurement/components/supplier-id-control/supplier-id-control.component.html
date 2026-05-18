@@ -18,7 +18,6 @@
       inputStyleClass="w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all text-sm"
       appendTo="body"
       [disabled]="isControlDisabled()"
-      (onFocus)="onInputFocus()"
       (onBlur)="markTouched()"
     />
     @if (selectedSupplier()) {

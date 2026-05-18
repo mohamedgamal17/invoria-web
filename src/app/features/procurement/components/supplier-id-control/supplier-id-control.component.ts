@@ -10,6 +10,7 @@ import {
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
+import { Observable, catchError, finalize, of, shareReplay, tap } from 'rxjs';
 
 import type { PurchaseOrderSupplierRef } from '../../models/purchase-order.entity';
 import type { SupplierChoice } from '../../../suppliers/models/supplier.entity';
@@ -40,6 +41,8 @@ export class SupplierIdControlComponent implements ControlValueAccessor {
   readonly suggestions = signal<SupplierChoice[]>([]);
 
   private currentId = '';
+  private readonly searchResultsByQuery = new Map<string, SupplierChoice[]>();
+  private readonly pendingByKey = new Map<string, Observable<SupplierChoice[]>>();
   private onChange: (value: string) => void = () => {};
   private onTouched: () => void = () => {};
   private disabledFromCva = false;
@@ -85,15 +88,29 @@ export class SupplierIdControlComponent implements ControlValueAccessor {
   }
 
   onComplete(event: { query: string }): void {
-    this.suppliersApi.searchSuppliers(supplierSearchListRequest, event.query).subscribe({
-      next: (rows) => this.suggestions.set(rows),
-      error: () => this.suggestions.set([])
-    });
+    this.requestSearch((event.query ?? '').trim());
   }
 
-  /** PrimeNG may not run `completeMethod` until the user types; load the first page on first focus/click. */
-  onInputFocus(): void {
-    this.onComplete({ query: '' });
+  private requestSearch(query: string): void {
+    const key = query.trim();
+    const cached = this.searchResultsByQuery.get(key);
+    if (cached !== undefined) {
+      this.suggestions.set([...cached]);
+      return;
+    }
+
+    let pending = this.pendingByKey.get(key);
+    if (!pending) {
+      pending = this.suppliersApi.searchSuppliers(supplierSearchListRequest, key).pipe(
+        tap((rows) => this.searchResultsByQuery.set(key, rows)),
+        catchError(() => of([] as SupplierChoice[])),
+        finalize(() => this.pendingByKey.delete(key)),
+        shareReplay(1)
+      );
+      this.pendingByKey.set(key, pending);
+    }
+
+    pending.subscribe((rows) => this.suggestions.set(rows));
   }
 
   onModelChange(supplier: SupplierChoice | null): void {
@@ -112,6 +129,8 @@ export class SupplierIdControlComponent implements ControlValueAccessor {
 
   clearSelection(): void {
     this.currentId = '';
+    this.searchResultsByQuery.clear();
+    this.pendingByKey.clear();
     this.selectedSupplier.set(null);
     this.suggestions.set([]);
     this.onChange('');

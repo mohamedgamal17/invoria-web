@@ -11,7 +11,7 @@ import type { ListSupplierRequest } from '../models/list-supplier.request';
 import type { CreateSupplierRequest } from '../models/create-supplier.request';
 import type { UpdateSupplierRequest } from '../models/update-supplier.request';
 
-/** Client-side name filter for autocomplete until API exposes search query params. */
+/** Client-side name filter helper (retained for unit tests). */
 export function filterSuppliersByName(suppliers: Supplier[], nameFilter: string | undefined): Supplier[] {
   const q = (nameFilter ?? '').trim().toLowerCase();
   if (!q) {
@@ -60,20 +60,25 @@ export class SuppliersApiService {
   }
 
   /**
-   * Loads suppliers for autocomplete from GET /suppliers; optional `nameFilter` filters client-side on `name`.
-   * When OpenAPI adds search query params, extend {@link ListSupplierRequest} and pass the filter through HTTP.
+   * Loads suppliers for autocomplete from GET /suppliers.
+   * Optional `nameFilter` is sent as the `Name` query param when non-empty.
    */
   searchSuppliers(listRequest: ListSupplierRequest, nameFilter?: string): Observable<Supplier[]> {
+    const trimmed = (nameFilter ?? '').trim();
+    const request: ListSupplierRequest = {
+      ...listRequest,
+      Name: trimmed ? trimmed : undefined
+    };
     return this.http
       .get<ApiResponse<Paging<Supplier>>>(`${this.baseUrl}suppliers`, {
-        params: httpParamsFromRequest(listRequest)
+        params: httpParamsFromRequest(request)
       })
       .pipe(
         map((body) => {
           if (!body.isSuccess || !body.result) {
             return [];
           }
-          return filterSuppliersByName(body.result.data, nameFilter);
+          return body.result.data;
         })
       );
   }
