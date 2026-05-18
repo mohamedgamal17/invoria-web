@@ -161,6 +161,30 @@ describe('OrderFormPageComponent', () => {
     expect(searchCustomers).toHaveBeenCalledWith(expect.anything(), 'xy');
   });
 
+  it('reuses cached products when the same query is searched again', async () => {
+    vi.useFakeTimers();
+    const widget = {
+      id: 'p1',
+      name: 'Widget',
+      price: 10,
+      stock: { actualQuantity: 0, reservedQuantity: 0 },
+      createdAt: ''
+    };
+    searchProducts.mockImplementation((_: unknown, query: string) =>
+      of(query === 'ab' ? [widget] : [])
+    );
+
+    component.searchProducts({ query: 'ab' });
+    await vi.advanceTimersByTimeAsync(700);
+    expect(searchProducts).toHaveBeenCalledTimes(1);
+    expect(component.products()).toEqual([widget]);
+
+    component.searchProducts({ query: 'ab' });
+    await vi.advanceTimersByTimeAsync(700);
+    expect(searchProducts).toHaveBeenCalledTimes(1);
+    expect(component.products()).toEqual([widget]);
+  });
+
   it('create mode does not load order by id', () => {
     expect(getOrder).not.toHaveBeenCalled();
   });

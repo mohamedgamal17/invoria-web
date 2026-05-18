@@ -129,8 +129,8 @@ export class PurchaseOrdersApiService {
     if (!Number.isInteger(line.Quantity) || line.Quantity <= 0) {
       throw new Error('Quantity must be a positive integer.');
     }
-    if (!Number.isFinite(line.UnitPrice) || line.UnitPrice < 0) {
-      throw new Error('UnitPrice must be a valid non-negative number.');
+    if (!Number.isFinite(line.UnitPrice) || line.UnitPrice <= 0) {
+      throw new Error('UnitPrice must be greater than zero.');
     }
   }
 }

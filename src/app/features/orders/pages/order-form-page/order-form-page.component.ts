@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EMPTY, Subject, catchError, debounceTime, distinctUntilChanged, finalize, map, of, switchMap, take } from 'rxjs';
+import { EMPTY, Subject, catchError, debounceTime, distinctUntilChanged, finalize, map, of, switchMap, take, tap } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { MessageService } from 'primeng/api';
@@ -39,6 +39,7 @@ export class OrderFormPageComponent {
   private readonly route = inject(ActivatedRoute);
 
   private readonly productQuery$ = new Subject<string>();
+  private readonly productSearchCache = new Map<string, Product[]>();
   private readonly customerQuery$ = new Subject<string>();
 
   readonly mode = computed<'create' | 'edit'>(() =>
@@ -68,10 +69,14 @@ export class OrderFormPageComponent {
     this.productQuery$
       .pipe(
         debounceTime(ORDER_FORM_AUTOCOMPLETE_DEBOUNCE_MS),
-        distinctUntilChanged(),
         switchMap((query) => {
+          const cached = this.productSearchCache.get(query);
+          if (cached !== undefined) {
+            return of(cached);
+          }
           this.isProductLoading.set(true);
           return this.productsApi.searchProducts(productSearchListRequest, query).pipe(
+            tap((rows) => this.productSearchCache.set(query, rows)),
             catchError(() => of([] as Product[])),
             finalize(() => this.isProductLoading.set(false))
           );
@@ -179,7 +184,14 @@ export class OrderFormPageComponent {
   }
 
   searchProducts(event: { query: string }): void {
-    this.productQuery$.next((event.query ?? '').trim());
+    const query = (event.query ?? '').trim();
+    const cached = this.productSearchCache.get(query);
+    if (cached !== undefined) {
+      this.products.set([...cached]);
+      this.isProductLoading.set(false);
+      return;
+    }
+    this.productQuery$.next(query);
   }
 
   searchCustomers(event: { query: string }): void {

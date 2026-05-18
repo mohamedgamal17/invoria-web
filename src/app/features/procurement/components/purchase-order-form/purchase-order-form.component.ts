@@ -4,23 +4,23 @@ import { FormsModule } from '@angular/forms';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { SelectModule } from 'primeng/select';
+import { InputTextModule } from 'primeng/inputtext';
 import { StepperModule } from 'primeng/stepper';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { TableModule } from 'primeng/table';
 
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
-import type { Customer } from '../../../customers/models/customer.entity';
 import type { Product } from '../../../products/models/product.entity';
-import { PaymentType, paymentTypeLabel } from '../../models/order-payment.enums';
-import type { UiOrderItem } from '../../models/order-ui.model';
+import type { PurchaseOrderSupplierRef } from '../../models/purchase-order.entity';
+import type { UiPurchaseOrderItem } from '../../models/purchase-order-ui.model';
+import { SupplierIdControlComponent } from '../supplier-id-control/supplier-id-control.component';
 
 /** PrimeNG stepper uses 1-based step indices: 1 Details, 2 Line items, 3 Review */
-type OrderFormStepperStep = 1 | 2 | 3;
-type OrderFormEditTab = 0 | 1;
+type PurchaseOrderFormStepperStep = 1 | 2 | 3;
+type PurchaseOrderFormEditTab = 0 | 1;
 
 @Component({
-  selector: 'app-order-form',
+  selector: 'app-purchase-order-form',
   standalone: true,
   imports: [
     CommonModule,
@@ -28,51 +28,49 @@ type OrderFormEditTab = 0 | 1;
     AutoCompleteModule,
     ButtonModule,
     InputNumberModule,
-    TableModule,
-    SelectModule,
+    InputTextModule,
     StepperModule,
     Tabs,
     TabList,
     Tab,
     TabPanels,
     TabPanel,
-    SurfaceCardComponent
+    TableModule,
+    SurfaceCardComponent,
+    SupplierIdControlComponent
   ],
-  templateUrl: './order-form.component.html'
+  templateUrl: './purchase-order-form.component.html'
 })
-export class OrderFormComponent {
+export class PurchaseOrderFormComponent {
   mode = input<'create' | 'edit'>('create');
-  orderNumber = input('');
-  totalAmount = input(0);
-  draftItems = input<UiOrderItem[]>([]);
+  purchaseNumber = input('');
+  subTotal = input(0);
+  taxAmount = model(0);
+  discountAmount = model(0);
+  orderDate = model('');
+  expectedDeliveryDate = model('');
+  draftItems = input<UiPurchaseOrderItem[]>([]);
   saving = input(false);
 
-  selectedCustomer = model<Customer | null>(null);
-  customers = input<Customer[]>([]);
-  isCustomerLoading = input(false);
+  supplierId = model('');
+  resolvedSupplier = input<PurchaseOrderSupplierRef | null>(null);
 
   selectedProduct = model<Product | null>(null);
   products = input<Product[]>([]);
   isProductLoading = input(false);
   itemQuantity = model(1);
-  itemPrice = model(0);
+  itemUnitPrice = model(0);
+  itemSupplierProductCode = model('');
 
-  paymentType = model<PaymentType>(PaymentType.Immediate);
-
-  readonly paymentTypeOptions: { label: string; value: PaymentType }[] = [
-    { label: paymentTypeLabel(PaymentType.Immediate), value: PaymentType.Immediate },
-    { label: paymentTypeLabel(PaymentType.Debt), value: PaymentType.Debt }
-  ];
-
-  readonly paymentTypeLabel = paymentTypeLabel;
-
-  readonly activeStep = signal<OrderFormStepperStep>(1);
-  readonly activeTab = signal<OrderFormEditTab>(0);
+  readonly activeStep = signal<PurchaseOrderFormStepperStep>(1);
+  readonly activeTab = signal<PurchaseOrderFormEditTab>(0);
   readonly stepError = signal<string | null>(null);
 
   constructor() {
     effect(() => {
-      this.selectedCustomer();
+      this.supplierId();
+      this.taxAmount();
+      this.discountAmount();
       if (this.activeStep() === 1) {
         untracked(() => this.stepError.set(null));
       }
@@ -88,10 +86,6 @@ export class OrderFormComponent {
   submit = output<void>();
   cancel = output<void>();
 
-  searchCustomers = output<{ query: string }>();
-  customerSelect = output<unknown>();
-  clearCustomer = output<void>();
-
   searchProducts = output<{ query: string }>();
   productSelect = output<unknown>();
   clearProduct = output<void>();
@@ -104,15 +98,47 @@ export class OrderFormComponent {
     return this.draftItems().reduce((acc, item) => acc + item.quantity, 0);
   }
 
-  reviewCustomerDisplay(): string {
-    const name = this.selectedCustomer()?.name?.trim();
-    return name || '—';
+  reviewTotalAmount(): number {
+    return Math.max(0, this.subTotal() + this.taxAmount() - this.discountAmount());
+  }
+
+  reviewSupplierDisplay(): string {
+    const ref = this.resolvedSupplier();
+    if (ref?.name?.trim() && ref.id === this.supplierId()) {
+      return ref.name.trim();
+    }
+    const id = this.supplierId().trim();
+    return id || '—';
   }
 
   onStepperValueChange(value: number | undefined): void {
-    if (value === 1 || value === 2 || value === 3) {
-      this.activeStep.set(value);
+    if (value !== 1 && value !== 2 && value !== 3) {
+      return;
     }
+    const current = this.activeStep();
+    if (value === current) {
+      return;
+    }
+
+    if (value > current) {
+      if (value >= 2) {
+        const detailsError = this.validateDetailsStep();
+        if (detailsError) {
+          this.stepError.set(detailsError);
+          return;
+        }
+      }
+      if (value >= 3) {
+        const itemsError = this.validateItemsStep();
+        if (itemsError) {
+          this.stepError.set(itemsError);
+          return;
+        }
+      }
+    }
+
+    this.stepError.set(null);
+    this.activeStep.set(value);
   }
 
   goToDetailsNext(activateCallback: (step: number) => void): void {
@@ -137,22 +163,21 @@ export class OrderFormComponent {
     activateCallback(3);
   }
 
-  stepBack(activateCallback: (step: number) => void, target: OrderFormStepperStep): void {
+  stepBack(activateCallback: (step: number) => void, target: PurchaseOrderFormStepperStep): void {
     this.stepError.set(null);
     this.activeStep.set(target);
     activateCallback(target);
   }
 
-  onEditTabChange(value: string | number | undefined): void {
-    if (value === 0 || value === 1) {
-      this.activeTab.set(value);
-      this.stepError.set(null);
-    }
-  }
-
   private validateDetailsStep(): string | null {
-    if (this.mode() === 'create' && !this.selectedCustomer()?.id?.trim()) {
-      return 'Please search and select a customer before continuing.';
+    if (this.mode() === 'create' && !this.supplierId().trim()) {
+      return 'Please search and select a supplier before continuing.';
+    }
+    if (this.taxAmount() < 0) {
+      return 'Tax must be zero or greater.';
+    }
+    if (this.discountAmount() < 0) {
+      return 'Discount must be zero or greater.';
     }
     return null;
   }
@@ -161,7 +186,18 @@ export class OrderFormComponent {
     if (!this.draftItems().length) {
       return 'Add at least one line item before continuing.';
     }
+    const invalid = this.draftItems().find((i) => i.quantity <= 0 || i.unitPrice <= 0);
+    if (invalid) {
+      return 'Each line must have quantity and unit price greater than zero.';
+    }
     return null;
+  }
+
+  onEditTabChange(value: string | number | undefined): void {
+    if (value === 0 || value === 1) {
+      this.activeTab.set(value);
+      this.stepError.set(null);
+    }
   }
 
   formSubmit(event: Event): void {
