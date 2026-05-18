@@ -1,0 +1,482 @@
+<form (ngSubmit)="formSubmit($event)" class="space-y-6">
+  @if (stepError()) {
+    <p class="text-sm text-destructive rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2" role="alert">
+      {{ stepError() }}
+    </p>
+  }
+
+  <ng-template #detailsBody>
+    <app-surface-card tone="neutral">
+      <div class="space-y-6">
+        <div class="flex flex-col gap-1.5 sm:col-span-2">
+          <app-supplier-id-control
+            [(ngModel)]="supplierId"
+            [resolvedSupplier]="resolvedSupplier()"
+            [saving]="saving()"
+            name="poFormSupplier"
+          />
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider" for="poFormOrderDate"
+              >Order date</label
+            >
+            <input
+              id="poFormOrderDate"
+              type="date"
+              [ngModel]="orderDate()"
+              (ngModelChange)="orderDate.set($event)"
+              name="poFormOrderDate"
+              class="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm focus:ring-2 focus:ring-focus"
+              [disabled]="saving()"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label
+              class="text-xs font-bold text-muted-foreground uppercase tracking-wider"
+              for="poFormExpectedDelivery"
+              >Expected delivery</label
+            >
+            <input
+              id="poFormExpectedDelivery"
+              type="date"
+              [ngModel]="expectedDeliveryDate()"
+              (ngModelChange)="expectedDeliveryDate.set($event)"
+              name="poFormExpectedDelivery"
+              class="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm focus:ring-2 focus:ring-focus"
+              [disabled]="saving()"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider" for="poFormTax"
+              >Tax amount</label
+            >
+            <p-inputNumber
+              inputId="poFormTax"
+              [ngModel]="taxAmount()"
+              (ngModelChange)="taxAmount.set($event)"
+              name="poFormTax"
+              [disabled]="saving()"
+              mode="decimal"
+              [min]="0"
+              [minFractionDigits]="2"
+              [maxFractionDigits]="2"
+              styleClass="w-full"
+              inputStyleClass="w-full rounded-lg border-border bg-surface-2 tabular-nums"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider" for="poFormDiscount"
+              >Discount amount</label
+            >
+            <p-inputNumber
+              inputId="poFormDiscount"
+              [ngModel]="discountAmount()"
+              (ngModelChange)="discountAmount.set($event)"
+              name="poFormDiscount"
+              [disabled]="saving()"
+              mode="decimal"
+              [min]="0"
+              [minFractionDigits]="2"
+              [maxFractionDigits]="2"
+              styleClass="w-full"
+              inputStyleClass="w-full rounded-lg border-border bg-surface-2 tabular-nums"
+            />
+          </div>
+        </div>
+      </div>
+    </app-surface-card>
+  </ng-template>
+
+  <ng-template #itemsBody>
+    <app-surface-card tone="neutral">
+      <div class="space-y-4">
+        <h3 class="text-sm font-bold text-foreground uppercase tracking-wider">Purchase order items</h3>
+        <div class="space-y-4 bg-surface-2 p-4 rounded-xl border border-border/50">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Search product</label>
+            <div class="flex gap-2">
+              <p-autocomplete
+                [ngModel]="selectedProduct()"
+                (ngModelChange)="selectedProduct.set($event)"
+                [suggestions]="products()"
+                (completeMethod)="searchProducts.emit($event)"
+                (onSelect)="productSelect.emit($event)"
+                field="name"
+                optionLabel="name"
+                dataKey="id"
+                [forceSelection]="true"
+                placeholder="Start typing product name..."
+                [minLength]="0"
+                [dropdown]="true"
+                name="poFormProduct"
+                styleClass="flex-1 min-w-0"
+                inputStyleClass="w-full rounded-lg border-border bg-surface transition-all text-sm"
+                appendTo="body"
+                [disabled]="saving()"
+              />
+              @if (selectedProduct()) {
+                <p-button
+                  icon="pi pi-times"
+                  [text]="true"
+                  [rounded]="true"
+                  severity="secondary"
+                  (onClick)="clearProduct.emit()"
+                  type="button"
+                  [disabled]="saving()"
+                />
+              }
+            </div>
+          </div>
+
+          @if (selectedProduct()) {
+            <div class="space-y-4 p-4 bg-surface rounded-lg border border-border">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="min-w-0 flex flex-col gap-2">
+                  <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Quantity</label>
+                  <p-inputNumber
+                    [ngModel]="itemQuantity()"
+                    (ngModelChange)="itemQuantity.set($event)"
+                    [min]="1"
+                    [showButtons]="true"
+                    buttonLayout="horizontal"
+                    spinnerMode="horizontal"
+                    incrementButtonIcon="pi pi-plus"
+                    decrementButtonIcon="pi pi-minus"
+                    styleClass="w-full block"
+                    inputStyleClass="w-full min-w-0 tabular-nums"
+                    name="poFormItemQty"
+                    [disabled]="saving()"
+                  />
+                </div>
+                <div class="min-w-0 flex flex-col gap-2">
+                  <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Unit price</label>
+                  <p-inputNumber
+                    [ngModel]="itemUnitPrice()"
+                    (ngModelChange)="itemUnitPrice.set($event)"
+                    [min]="0.01"
+                    mode="decimal"
+                    [minFractionDigits]="2"
+                    [maxFractionDigits]="2"
+                    styleClass="w-full block"
+                    inputStyleClass="w-full min-w-0 tabular-nums"
+                    name="poFormItemPrice"
+                    [disabled]="saving()"
+                  />
+                </div>
+              </div>
+              <div class="flex flex-col sm:flex-row sm:items-end gap-4">
+                <div class="min-w-0 flex flex-1 flex-col gap-2">
+                  <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider"
+                    >Supplier code <span class="font-normal normal-case">(optional)</span></label
+                  >
+                  <input
+                    type="text"
+                    pInputText
+                    [ngModel]="itemSupplierProductCode()"
+                    (ngModelChange)="itemSupplierProductCode.set($event)"
+                    name="poFormItemSupplierCode"
+                    class="w-full rounded-lg border-border bg-surface-2 text-sm"
+                    [disabled]="saving()"
+                  />
+                </div>
+                <div class="sm:shrink-0">
+                  <p-button
+                    label="Add item"
+                    icon="pi pi-plus"
+                    styleClass="w-full sm:w-auto"
+                    (onClick)="addItem.emit()"
+                    type="button"
+                    [disabled]="saving()"
+                  />
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="overflow-x-auto -mx-1 px-1 max-w-full">
+          <p-table [value]="draftItems()" styleClass="p-datatable-sm min-w-[40rem] sm:min-w-0">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Product</th>
+                <th class="text-center">Qty</th>
+                <th class="text-right">Unit price</th>
+                <th>Supplier code</th>
+                <th class="text-right">Total</th>
+                <th class="text-right">Action</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-item let-index="rowIndex">
+              <tr>
+                <td>{{ item.productName }}</td>
+                <td class="text-center">
+                  <p-inputNumber
+                    [(ngModel)]="item.quantity"
+                    (onInput)="calculateTotal.emit()"
+                    [min]="1"
+                    [name]="'poFormQty_' + index"
+                    [disabled]="saving()"
+                  />
+                </td>
+                <td class="text-right">
+                  <p-inputNumber
+                    [(ngModel)]="item.unitPrice"
+                    (onInput)="calculateTotal.emit()"
+                    [min]="0.01"
+                    mode="decimal"
+                    [minFractionDigits]="2"
+                    [maxFractionDigits]="2"
+                    [name]="'poFormPrice_' + index"
+                    [disabled]="saving()"
+                  />
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    pInputText
+                    [(ngModel)]="item.supplierProductCode"
+                    [name]="'poFormSupplierCode_' + index"
+                    class="w-full min-w-[6rem] text-sm"
+                    [disabled]="saving()"
+                  />
+                </td>
+                <td class="text-right tabular-nums">
+                  {{ item.unitPrice * item.quantity | currency: 'EGP' : 'symbol-narrow' }}
+                </td>
+                <td class="text-right">
+                  <p-button
+                    icon="pi pi-trash"
+                    [text]="true"
+                    [rounded]="true"
+                    severity="danger"
+                    (onClick)="removeItem.emit(index)"
+                    type="button"
+                    [disabled]="saving()"
+                  />
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr><td colspan="6" class="py-8 text-center text-muted-foreground">No items added yet.</td></tr>
+            </ng-template>
+            <ng-template pTemplate="footer">
+              <tr>
+                <td colspan="4" class="text-right">
+                  Subtotal <span class="text-xs text-muted-foreground">({{ totalItemsCount }} items)</span>
+                </td>
+                <td colspan="2" class="text-right font-bold tabular-nums">
+                  {{ subTotal() | currency: 'EGP' : 'symbol-narrow' }}
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </app-surface-card>
+  </ng-template>
+
+  <ng-template #reviewBody>
+    <app-surface-card tone="neutral">
+      <div class="space-y-6">
+        <h3 class="text-sm font-bold text-foreground uppercase tracking-wider">Review purchase order</h3>
+        @if (purchaseNumber()) {
+          <div class="text-sm">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">PO number</span>
+            <div class="font-semibold text-foreground mt-1">{{ purchaseNumber() }}</div>
+          </div>
+        }
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="text-sm">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Supplier</span>
+            <div class="font-medium text-foreground mt-1">{{ reviewSupplierDisplay() }}</div>
+          </div>
+          <div class="text-sm">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Order date</span>
+            <div class="font-medium text-foreground mt-1">{{ orderDate() || '—' }}</div>
+          </div>
+          <div class="text-sm">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Expected delivery</span>
+            <div class="font-medium text-foreground mt-1">{{ expectedDeliveryDate() || '—' }}</div>
+          </div>
+          <div class="text-sm">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Tax / discount</span>
+            <div class="font-medium text-foreground mt-1 tabular-nums">
+              {{ taxAmount() | currency: 'EGP' : 'symbol-narrow' }} /
+              {{ discountAmount() | currency: 'EGP' : 'symbol-narrow' }}
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-border/60 pt-4">
+          <h4 class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3">Line items</h4>
+          <div class="rounded-lg border border-border overflow-x-auto">
+            <table class="w-full text-sm min-w-[24rem]">
+              <thead class="bg-surface-2 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th class="px-3 py-2">Product</th>
+                  <th class="px-3 py-2 text-center">Qty</th>
+                  <th class="px-3 py-2 text-right">Unit price</th>
+                  <th class="px-3 py-2">Supplier code</th>
+                  <th class="px-3 py-2 text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of draftItems(); track $index) {
+                  <tr class="border-t border-border/60">
+                    <td class="px-3 py-2.5">{{ item.productName }}</td>
+                    <td class="px-3 py-2.5 text-center tabular-nums">{{ item.quantity }}</td>
+                    <td class="px-3 py-2.5 text-right tabular-nums">
+                      {{ item.unitPrice | currency: 'EGP' : 'symbol-narrow' }}
+                    </td>
+                    <td class="px-3 py-2.5 text-muted-foreground">{{ item.supplierProductCode || '—' }}</td>
+                    <td class="px-3 py-2.5 text-right tabular-nums font-medium">
+                      {{ item.unitPrice * item.quantity | currency: 'EGP' : 'symbol-narrow' }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot class="bg-surface-2 border-t border-border">
+                <tr>
+                  <td
+                    colspan="4"
+                    class="px-3 py-3 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground"
+                  >
+                    Total ({{ totalItemsCount }} items)
+                  </td>
+                  <td class="px-3 py-3 text-right font-bold tabular-nums">
+                    {{ reviewTotalAmount() | currency: 'EGP' : 'symbol-narrow' }}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </app-surface-card>
+  </ng-template>
+
+  <ng-template #poDetailsStep let-activateCallback="activateCallback">
+    <ng-container *ngTemplateOutlet="detailsBody" />
+    <div class="flex flex-wrap items-center justify-between gap-3 pt-6">
+      <p-button label="Cancel" type="button" [text]="true" [disabled]="saving()" (onClick)="cancel.emit()" />
+      <p-button
+        label="Next"
+        type="button"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        [disabled]="saving()"
+        (onClick)="goToDetailsNext(activateCallback)"
+      />
+    </div>
+  </ng-template>
+
+  <ng-template #poItemsStep let-activateCallback="activateCallback">
+    <ng-container *ngTemplateOutlet="itemsBody" />
+    <div class="flex flex-wrap items-center justify-between gap-3 pt-6">
+      <p-button
+        label="Back"
+        type="button"
+        [text]="true"
+        [disabled]="saving()"
+        icon="pi pi-arrow-left"
+        (onClick)="stepBack(activateCallback, 1)"
+      />
+      <p-button
+        label="Next"
+        type="button"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        [disabled]="saving()"
+        (onClick)="goToItemsNext(activateCallback)"
+      />
+    </div>
+  </ng-template>
+
+  <ng-template #poReviewStep let-activateCallback="activateCallback">
+    <ng-container *ngTemplateOutlet="reviewBody" />
+    <div class="flex flex-wrap items-center justify-between gap-3 pt-6">
+      <p-button
+        label="Back"
+        type="button"
+        [text]="true"
+        [disabled]="saving()"
+        icon="pi pi-arrow-left"
+        (onClick)="stepBack(activateCallback, 2)"
+      />
+      <p-button
+        label="Create purchase order"
+        type="submit"
+        [disabled]="saving()"
+        [loading]="saving()"
+      />
+    </div>
+  </ng-template>
+
+  @if (mode() === 'edit') {
+    <p-tabs [value]="activeTab()" (valueChange)="onEditTabChange($event)">
+      <p-tablist>
+        <p-tab [value]="0">Details</p-tab>
+        <p-tab [value]="1">Line items</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <p-tabpanel [value]="0">
+          <ng-container *ngTemplateOutlet="detailsBody" />
+        </p-tabpanel>
+        <p-tabpanel [value]="1">
+          <ng-container *ngTemplateOutlet="itemsBody" />
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+    <div
+      class="flex flex-wrap items-center justify-end gap-3 pt-6 border-t border-border mt-6"
+    >
+      <p-button label="Cancel" type="button" [text]="true" [disabled]="saving()" (onClick)="cancel.emit()" />
+      <p-button label="Save changes" type="submit" [disabled]="saving()" [loading]="saving()" />
+    </div>
+  } @else {
+    <div class="w-full min-w-0 overflow-x-auto [scrollbar-width:thin] md:overflow-x-visible">
+      <p-stepper [value]="activeStep()" (valueChange)="onStepperValueChange($event)" class="w-full min-w-0">
+        <p-step-item [value]="1">
+          <p-step>Details</p-step>
+          <p-step-panel>
+            <ng-template #content let-activateCallback="activateCallback">
+              <ng-container
+                [ngTemplateOutlet]="poDetailsStep"
+                [ngTemplateOutletContext]="{ activateCallback: activateCallback }"
+              />
+            </ng-template>
+          </p-step-panel>
+        </p-step-item>
+
+        <p-step-item [value]="2">
+          <p-step>Line items</p-step>
+          <p-step-panel>
+            <ng-template #content let-activateCallback="activateCallback">
+              <ng-container
+                [ngTemplateOutlet]="poItemsStep"
+                [ngTemplateOutletContext]="{ activateCallback: activateCallback }"
+              />
+            </ng-template>
+          </p-step-panel>
+        </p-step-item>
+
+        <p-step-item [value]="3">
+          <p-step>Review</p-step>
+          <p-step-panel>
+            <ng-template #content let-activateCallback="activateCallback">
+              <ng-container
+                [ngTemplateOutlet]="poReviewStep"
+                [ngTemplateOutletContext]="{ activateCallback: activateCallback }"
+              />
+            </ng-template>
+          </p-step-panel>
+        </p-step-item>
+      </p-stepper>
+    </div>
+  }
+</form>

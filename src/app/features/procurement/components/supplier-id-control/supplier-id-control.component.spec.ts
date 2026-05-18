@@ -68,4 +68,63 @@ describe('SupplierIdControlComponent', () => {
     picker.clearSelection();
     expect(host.form.get('supplierId')?.value).toBe('');
   });
+
+  it('does not duplicate API call when completeMethod fires twice with empty query', () => {
+    const acme = { id: 'sup_1', name: 'Acme Supplies' };
+    const searchSuppliers = vi.fn().mockReturnValue(of([acme]));
+    TestBed.configureTestingModule({
+      imports: [SupplierIdControlComponent, NoopAnimationsModule],
+      providers: [{ provide: SuppliersApiService, useValue: { searchSuppliers } }]
+    });
+    const fixture = TestBed.createComponent(SupplierIdControlComponent);
+    const cmp = fixture.componentInstance;
+
+    cmp.onComplete({ query: '' });
+    cmp.onComplete({ query: '' });
+    expect(searchSuppliers).toHaveBeenCalledTimes(1);
+    expect(cmp.suggestions()).toEqual([acme]);
+  });
+
+  it('applies cached first-page results immediately on second open without API call', () => {
+    const acme = { id: 'sup_1', name: 'Acme Supplies' };
+    const searchSuppliers = vi.fn().mockReturnValue(of([acme]));
+    TestBed.configureTestingModule({
+      imports: [SupplierIdControlComponent, NoopAnimationsModule],
+      providers: [{ provide: SuppliersApiService, useValue: { searchSuppliers } }]
+    });
+    const fixture = TestBed.createComponent(SupplierIdControlComponent);
+    const cmp = fixture.componentInstance;
+
+    cmp.onComplete({ query: '' });
+    expect(searchSuppliers).toHaveBeenCalledTimes(1);
+    expect(cmp.suggestions()).toEqual([acme]);
+
+    cmp.onComplete({ query: '' });
+    expect(searchSuppliers).toHaveBeenCalledTimes(1);
+    expect(cmp.suggestions()).toEqual([acme]);
+  });
+
+  it('reuses cached suppliers when the same query is searched again', () => {
+    const acme = { id: 'sup_1', name: 'Acme Supplies' };
+    const searchSuppliers = vi.fn().mockImplementation((_, query: string) =>
+      of(query === 'ac' ? [acme] : [])
+    );
+    TestBed.configureTestingModule({
+      imports: [SupplierIdControlComponent, NoopAnimationsModule],
+      providers: [{ provide: SuppliersApiService, useValue: { searchSuppliers } }]
+    });
+    const fixture = TestBed.createComponent(SupplierIdControlComponent);
+    const cmp = fixture.componentInstance;
+
+    cmp.onComplete({ query: 'ac' });
+    expect(searchSuppliers).toHaveBeenCalledTimes(1);
+    expect(cmp.suggestions()).toEqual([acme]);
+
+    cmp.onComplete({ query: 'xy' });
+    expect(searchSuppliers).toHaveBeenCalledTimes(2);
+
+    cmp.onComplete({ query: '  ac  ' });
+    expect(searchSuppliers).toHaveBeenCalledTimes(2);
+    expect(cmp.suggestions()).toEqual([acme]);
+  });
 });

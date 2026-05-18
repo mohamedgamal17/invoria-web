@@ -11,15 +11,6 @@ import type { ListProductRequest } from '../models/list-product.request';
 import type { UpdateProductRequest } from '../models/update-product.request';
 import { httpParamsFromRequest } from '../../../shared/requests/http-params-from-request';
 
-/** Client-side filter for autocomplete until API exposes search query params. */
-export function filterProductsByName(products: Product[], nameFilter?: string): Product[] {
-  const q = (nameFilter ?? '').trim().toLowerCase();
-  if (!q) {
-    return products;
-  }
-  return products.filter((p) => (p.name || '').toLowerCase().includes(q));
-}
-
 @Injectable({
   providedIn: 'root'
 })
@@ -69,20 +60,25 @@ export class ProductsApiService {
   }
 
   /**
-   * Loads products for autocomplete from GET /products; optional `nameFilter` filters client-side on name.
-   * When OpenAPI adds search query params, extend {@link ListProductRequest} and pass the filter through HTTP.
+   * Loads products for autocomplete from GET /products.
+   * Optional `nameFilter` is sent as the `Name` query param when non-empty.
    */
   searchProducts(listRequest: ListProductRequest, nameFilter?: string): Observable<Product[]> {
+    const trimmed = (nameFilter ?? '').trim();
+    const request: ListProductRequest = {
+      ...listRequest,
+      Name: trimmed ? trimmed : undefined
+    };
     return this.http
       .get<ApiResponse<Paging<Product>>>(`${this.baseUrl}products`, {
-        params: httpParamsFromRequest(listRequest)
+        params: httpParamsFromRequest(request)
       })
       .pipe(
         map((body) => {
           if (!body.isSuccess || !body.result) {
             return [];
           }
-          return filterProductsByName(body.result.data, nameFilter);
+          return body.result.data;
         })
       );
   }

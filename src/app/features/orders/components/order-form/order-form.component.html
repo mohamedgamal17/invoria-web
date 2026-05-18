@@ -5,7 +5,7 @@
     </p>
   }
 
-  <ng-template #orderDetailsStep let-activateCallback="activateCallback">
+  <ng-template #detailsBody>
     <app-surface-card tone="neutral">
       <div class="space-y-6">
         <div class="flex flex-col gap-1.5 min-w-0">
@@ -51,6 +51,7 @@
           @if (mode() === 'create') {
             <p-select
               inputId="order-form-payment-type"
+              name="orderFormPaymentType"
               [options]="paymentTypeOptions"
               optionLabel="label"
               optionValue="value"
@@ -72,20 +73,9 @@
         </div>
       </div>
     </app-surface-card>
-    <div class="flex flex-wrap items-center justify-between gap-3 pt-6">
-      <p-button label="Cancel" type="button" [text]="true" [disabled]="saving()" (onClick)="cancel.emit()" />
-      <p-button
-        label="Next"
-        type="button"
-        icon="pi pi-arrow-right"
-        iconPos="right"
-        [disabled]="saving()"
-        (onClick)="goToDetailsNext(activateCallback)"
-      />
-    </div>
   </ng-template>
 
-  <ng-template #orderItemsStep let-activateCallback="activateCallback">
+  <ng-template #itemsBody>
     <app-surface-card tone="neutral">
       <div class="space-y-4">
         <h3 class="text-sm font-bold text-foreground uppercase tracking-wider">Order items</h3>
@@ -222,27 +212,9 @@
         </div>
       </div>
     </app-surface-card>
-    <div class="flex flex-wrap items-center justify-between gap-3 pt-6">
-      <p-button
-        label="Back"
-        type="button"
-        [text]="true"
-        [disabled]="saving()"
-        icon="pi pi-arrow-left"
-        (onClick)="stepBack(activateCallback, 1)"
-      />
-      <p-button
-        label="Next"
-        type="button"
-        icon="pi pi-arrow-right"
-        iconPos="right"
-        [disabled]="saving()"
-        (onClick)="goToItemsNext(activateCallback)"
-      />
-    </div>
   </ng-template>
 
-  <ng-template #orderReviewStep let-activateCallback="activateCallback">
+  <ng-template #reviewBody>
     <app-surface-card tone="neutral">
       <div class="space-y-6">
         <h3 class="text-sm font-bold text-foreground uppercase tracking-wider">Review order</h3>
@@ -304,6 +276,47 @@
         </div>
       </div>
     </app-surface-card>
+  </ng-template>
+
+  <ng-template #orderDetailsStep let-activateCallback="activateCallback">
+    <ng-container *ngTemplateOutlet="detailsBody" />
+    <div class="flex flex-wrap items-center justify-between gap-3 pt-6">
+      <p-button label="Cancel" type="button" [text]="true" [disabled]="saving()" (onClick)="cancel.emit()" />
+      <p-button
+        label="Next"
+        type="button"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        [disabled]="saving()"
+        (onClick)="goToDetailsNext(activateCallback)"
+      />
+    </div>
+  </ng-template>
+
+  <ng-template #orderItemsStep let-activateCallback="activateCallback">
+    <ng-container *ngTemplateOutlet="itemsBody" />
+    <div class="flex flex-wrap items-center justify-between gap-3 pt-6">
+      <p-button
+        label="Back"
+        type="button"
+        [text]="true"
+        [disabled]="saving()"
+        icon="pi pi-arrow-left"
+        (onClick)="stepBack(activateCallback, 1)"
+      />
+      <p-button
+        label="Next"
+        type="button"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        [disabled]="saving()"
+        (onClick)="goToItemsNext(activateCallback)"
+      />
+    </div>
+  </ng-template>
+
+  <ng-template #orderReviewStep let-activateCallback="activateCallback">
+    <ng-container *ngTemplateOutlet="reviewBody" />
     <div class="flex flex-wrap items-center justify-between gap-3 pt-6">
       <p-button
         label="Back"
@@ -313,52 +326,68 @@
         icon="pi pi-arrow-left"
         (onClick)="stepBack(activateCallback, 2)"
       />
-      <p-button
-        [label]="mode() === 'create' ? 'Create order' : 'Save changes'"
-        type="submit"
-        [disabled]="saving()"
-        [loading]="saving()"
-      />
+      <p-button label="Create order" type="submit" [disabled]="saving()" [loading]="saving()" />
     </div>
   </ng-template>
 
-  <div class="w-full min-w-0 overflow-x-auto [scrollbar-width:thin] md:overflow-x-visible">
-    <p-stepper [value]="activeStep()" (valueChange)="onStepperValueChange($event)" class="w-full min-w-0">
-      <p-step-item [value]="1">
-        <p-step>Details</p-step>
-        <p-step-panel>
-          <ng-template #content let-activateCallback="activateCallback">
-            <ng-container
-              [ngTemplateOutlet]="orderDetailsStep"
-              [ngTemplateOutletContext]="{ activateCallback: activateCallback }"
-            />
-          </ng-template>
-        </p-step-panel>
-      </p-step-item>
+  @if (mode() === 'edit') {
+    <p-tabs [value]="activeTab()" (valueChange)="onEditTabChange($event)">
+      <p-tablist>
+        <p-tab [value]="0">Details</p-tab>
+        <p-tab [value]="1">Line items</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <p-tabpanel [value]="0">
+          <ng-container *ngTemplateOutlet="detailsBody" />
+        </p-tabpanel>
+        <p-tabpanel [value]="1">
+          <ng-container *ngTemplateOutlet="itemsBody" />
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+    <div class="flex flex-wrap items-center justify-end gap-3 pt-6 border-t border-border mt-6">
+      <p-button label="Cancel" type="button" [text]="true" [disabled]="saving()" (onClick)="cancel.emit()" />
+      <p-button label="Save changes" type="submit" [disabled]="saving()" [loading]="saving()" />
+    </div>
+  } @else {
+    <div class="w-full min-w-0 overflow-x-auto [scrollbar-width:thin] md:overflow-x-visible">
+      <p-stepper [value]="activeStep()" (valueChange)="onStepperValueChange($event)" class="w-full min-w-0">
+        <p-step-item [value]="1">
+          <p-step>Details</p-step>
+          <p-step-panel>
+            <ng-template #content let-activateCallback="activateCallback">
+              <ng-container
+                [ngTemplateOutlet]="orderDetailsStep"
+                [ngTemplateOutletContext]="{ activateCallback: activateCallback }"
+              />
+            </ng-template>
+          </p-step-panel>
+        </p-step-item>
 
-      <p-step-item [value]="2">
-        <p-step>Line items</p-step>
-        <p-step-panel>
-          <ng-template #content let-activateCallback="activateCallback">
-            <ng-container
-              [ngTemplateOutlet]="orderItemsStep"
-              [ngTemplateOutletContext]="{ activateCallback: activateCallback }"
-            />
-          </ng-template>
-        </p-step-panel>
-      </p-step-item>
+        <p-step-item [value]="2">
+          <p-step>Line items</p-step>
+          <p-step-panel>
+            <ng-template #content let-activateCallback="activateCallback">
+              <ng-container
+                [ngTemplateOutlet]="orderItemsStep"
+                [ngTemplateOutletContext]="{ activateCallback: activateCallback }"
+              />
+            </ng-template>
+          </p-step-panel>
+        </p-step-item>
 
-      <p-step-item [value]="3">
-        <p-step>Review</p-step>
-        <p-step-panel>
-          <ng-template #content let-activateCallback="activateCallback">
-            <ng-container
-              [ngTemplateOutlet]="orderReviewStep"
-              [ngTemplateOutletContext]="{ activateCallback: activateCallback }"
-            />
-          </ng-template>
-        </p-step-panel>
-      </p-step-item>
-    </p-stepper>
-  </div>
+        <p-step-item [value]="3">
+          <p-step>Review</p-step>
+          <p-step-panel>
+            <ng-template #content let-activateCallback="activateCallback">
+              <ng-container
+                [ngTemplateOutlet]="orderReviewStep"
+                [ngTemplateOutletContext]="{ activateCallback: activateCallback }"
+              />
+            </ng-template>
+          </p-step-panel>
+        </p-step-item>
+      </p-stepper>
+    </div>
+  }
 </form>

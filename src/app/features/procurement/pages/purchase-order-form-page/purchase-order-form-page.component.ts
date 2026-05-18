@@ -1,20 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
-import {
-  FormArray,
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, finalize, forkJoin, map, of, take } from 'rxjs';
-
+import {
+  Subject,
+  catchError,
+  debounceTime,
+  finalize,
+  forkJoin,
+  map,
+  of,
+  switchMap,
+  take,
+  tap
+} from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { InputTextModule } from 'primeng/inputtext';
-import { MessageModule } from 'primeng/message';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 
@@ -26,39 +27,37 @@ import type {
   PurchaseOrderItem,
   PurchaseOrderSupplierRef
 } from '../../models/purchase-order.entity';
-import { PurchaseOrdersApiService } from '../../services/purchase-orders-api.service';
-import { SupplierIdControlComponent } from '../../components/supplier-id-control/supplier-id-control.component';
 import {
-  ProductIdControlComponent,
-  type ResolvedProductRef
-} from '../../components/product-id-control/product-id-control.component';
+  draftItemsToPurchaseOrderLineItems,
+  purchaseOrderItemToUiItem
+} from '../../models/purchase-order-ui.mapper';
+import type { UiPurchaseOrderItem } from '../../models/purchase-order-ui.model';
+import { PurchaseOrdersApiService } from '../../services/purchase-orders-api.service';
+import { PurchaseOrderFormComponent } from '../../components/purchase-order-form/purchase-order-form.component';
+import type { Product } from '../../../products/models/product.entity';
+import { productSearchListRequest } from '../../../products/models/list-product.request';
 import { ProductsApiService } from '../../../products/services/products-api.service';
+
+/** Mirrors order-form-page product autocomplete debounce. */
+const PO_FORM_AUTOCOMPLETE_DEBOUNCE_MS = 700;
 
 @Component({
   selector: 'app-purchase-order-form-page',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    ButtonModule,
-    CardModule,
-    InputTextModule,
-    InputNumberModule,
-    MessageModule,
-    ToastModule,
-    SupplierIdControlComponent,
-    ProductIdControlComponent
-  ],
+  imports: [CommonModule, ButtonModule, CardModule, ToastModule, PurchaseOrderFormComponent],
   providers: [MessageService],
   templateUrl: './purchase-order-form-page.component.html'
 })
 export class PurchaseOrderFormPageComponent {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly api = inject(PurchaseOrdersApiService);
   private readonly productsApi = inject(ProductsApiService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly formBuilder = inject(FormBuilder);
+
+  private readonly productQuery$ = new Subject<string>();
+  private readonly productSearchCache = new Map<string, Product[]>();
 
   readonly mode = computed<'create' | 'edit'>(() =>
     this.route.snapshot.data['mode'] === 'edit' ? 'edit' : 'create'
@@ -68,37 +67,47 @@ export class PurchaseOrderFormPageComponent {
 
   readonly loading = signal(false);
   readonly saving = signal(false);
-  /** Passed to supplier picker in edit mode when API included supplier on the PO. */
+  readonly purchaseNumber = signal('');
+  readonly subTotal = signal(0);
   readonly supplierDisplayRef = signal<PurchaseOrderSupplierRef | null>(null);
-  /** Product id → label for line pickers in edit mode (from line DTO or catalog lookup). */
-  readonly productDisplayRefsById = signal<ReadonlyMap<string, ResolvedProductRef>>(new Map());
 
-  readonly form = this.formBuilder.group({
-    supplierId: this.formBuilder.nonNullable.control('', [Validators.required]),
-    taxAmount: this.formBuilder.nonNullable.control(0, [Validators.required, Validators.min(0)]),
-    discountAmount: this.formBuilder.nonNullable.control(0, [Validators.required, Validators.min(0)]),
-    orderDate: this.formBuilder.nonNullable.control(''),
-    expectedDeliveryDate: this.formBuilder.nonNullable.control(''),
-    items: this.formBuilder.array<FormGroup>([])
-  });
+  readonly supplierId = signal('');
+  readonly taxAmount = signal(0);
+  readonly discountAmount = signal(0);
+  readonly orderDate = signal('');
+  readonly expectedDeliveryDate = signal('');
+
+  readonly draftItems = signal<UiPurchaseOrderItem[]>([]);
+  readonly products = signal<Product[]>([]);
+  readonly selectedProduct = signal<Product | null>(null);
+  readonly itemQuantity = signal(1);
+  readonly itemUnitPrice = signal(0);
+  readonly itemSupplierProductCode = signal('');
+  readonly isProductLoading = signal(false);
 
   constructor() {
-    this.addLine();
+    this.productQuery$
+      .pipe(
+        debounceTime(PO_FORM_AUTOCOMPLETE_DEBOUNCE_MS),
+        switchMap((query) => {
+          const cached = this.productSearchCache.get(query);
+          if (cached !== undefined) {
+            return of(cached);
+          }
+          this.isProductLoading.set(true);
+          return this.productsApi.searchProducts(productSearchListRequest, query).pipe(
+            tap((rows) => this.productSearchCache.set(query, rows)),
+            catchError(() => of([] as Product[])),
+            finalize(() => this.isProductLoading.set(false))
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((products) => this.products.set(products));
+
     if (this.mode() === 'edit' && this.purchaseOrderId()) {
       this.loadPurchaseOrder(this.purchaseOrderId() as string);
     }
-  }
-
-  get items(): FormArray<FormGroup> {
-    return this.form.controls.items;
-  }
-
-  productDisplayRefForRow(index: number): ResolvedProductRef | null {
-    const id = (this.items.at(index)?.get('productId')?.value as string | undefined)?.trim();
-    if (!id) {
-      return null;
-    }
-    return this.productDisplayRefsById().get(id) ?? null;
   }
 
   goBack(): void {
@@ -109,23 +118,37 @@ export class PurchaseOrderFormPageComponent {
     void this.router.navigate(['/procurement']);
   }
 
-  addLine(): void {
-    this.items.push(this.createLineGroup());
-  }
-
-  removeLine(index: number): void {
-    if (this.items.length <= 1) {
-      return;
-    }
-    this.items.removeAt(index);
-  }
-
   submit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
+    if (this.saving()) {
       return;
     }
-    if (this.saving()) {
+
+    const supplierId = this.supplierId().trim();
+    if (!supplierId) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Supplier required',
+        detail: 'Please search and select a supplier.'
+      });
+      return;
+    }
+
+    const itemsError = this.validateDraftItems();
+    if (itemsError) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Validation',
+        detail: itemsError
+      });
+      return;
+    }
+
+    if (this.taxAmount() < 0 || this.discountAmount() < 0) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Validation',
+        detail: 'Tax and discount must be zero or greater.'
+      });
       return;
     }
 
@@ -203,35 +226,119 @@ export class PurchaseOrderFormPageComponent {
       });
   }
 
-  private createLineGroup(): FormGroup {
-    return this.formBuilder.group({
-      productId: this.formBuilder.nonNullable.control('', [Validators.required]),
-      quantity: this.formBuilder.nonNullable.control(1, [Validators.required, Validators.min(1)]),
-      unitPrice: this.formBuilder.nonNullable.control(0, [Validators.required, Validators.min(0)]),
-      supplierProductCode: this.formBuilder.nonNullable.control('')
+  searchProducts(event: { query: string }): void {
+    const query = (event.query ?? '').trim();
+    const cached = this.productSearchCache.get(query);
+    if (cached !== undefined) {
+      this.products.set([...cached]);
+      this.isProductLoading.set(false);
+      return;
+    }
+    this.productQuery$.next(query);
+  }
+
+  onProductSelect(event: unknown): void {
+    const product =
+      event && typeof event === 'object' && 'value' in event
+        ? (event as { value?: Product }).value
+        : (event as Product);
+    if (!product?.id) {
+      return;
+    }
+    this.selectedProduct.set(product);
+    this.itemQuantity.set(1);
+    this.itemUnitPrice.set(product.price > 0 ? product.price : 0.01);
+    this.itemSupplierProductCode.set('');
+  }
+
+  clearProductSelection(): void {
+    this.selectedProduct.set(null);
+    this.itemQuantity.set(1);
+    this.itemUnitPrice.set(0);
+    this.itemSupplierProductCode.set('');
+  }
+
+  addItem(): void {
+    const product = this.selectedProduct();
+    if (!product) {
+      return;
+    }
+
+    const quantity = this.itemQuantity() > 0 ? this.itemQuantity() : 1;
+    const unitPrice = this.itemUnitPrice();
+    if (unitPrice <= 0) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Validation',
+        detail: 'Unit price must be greater than zero.'
+      });
+      return;
+    }
+
+    const supplierCode = this.itemSupplierProductCode().trim() || null;
+
+    this.draftItems.update((items) => {
+      const existingIndex = items.findIndex((i) => i.productId === product.id);
+      if (existingIndex > -1) {
+        const next = [...items];
+        next[existingIndex] = {
+          ...next[existingIndex],
+          quantity: next[existingIndex].quantity + quantity
+        };
+        return next;
+      }
+      return [
+        ...items,
+        {
+          productId: product.id,
+          productName: product.name,
+          quantity,
+          unitPrice,
+          supplierProductCode: supplierCode
+        }
+      ];
     });
+
+    this.selectedProduct.set(null);
+    this.itemQuantity.set(1);
+    this.itemUnitPrice.set(0);
+    this.itemSupplierProductCode.set('');
+    this.calculateSubTotal();
+  }
+
+  removeItem(index: number): void {
+    this.draftItems.update((items) => items.filter((_, i) => i !== index));
+    this.calculateSubTotal();
+  }
+
+  calculateSubTotal(): void {
+    const total = this.draftItems().reduce((acc, item) => acc + item.unitPrice * item.quantity, 0);
+    this.subTotal.set(total);
+  }
+
+  private validateDraftItems(): string | null {
+    if (!this.draftItems().length) {
+      return 'Add at least one line item.';
+    }
+    for (const item of this.draftItems()) {
+      if (item.quantity <= 0) {
+        return 'Quantity must be greater than zero.';
+      }
+      if (item.unitPrice <= 0) {
+        return 'Unit price must be greater than zero.';
+      }
+    }
+    return null;
   }
 
   private buildRequestBody(): CreatePurchaseOrderRequest {
-    const raw = this.form.getRawValue();
-    const orderDate = this.normalizeOptionalDate(raw.orderDate);
-    const expectedDeliveryDate = this.normalizeOptionalDate(raw.expectedDeliveryDate);
-    const PurchaseOrderItems = raw.items.map((line) => {
-      const code = (line['supplierProductCode'] as string)?.trim();
-      return {
-        ProductId: (line['productId'] as string).trim(),
-        Quantity: line['quantity'] as number,
-        UnitPrice: line['unitPrice'] as number,
-        SupplierProductCode: code ? code : null
-      };
-    });
     return {
-      SupplierId: raw.supplierId.trim(),
-      TaxAmount: raw.taxAmount,
-      DiscountAmount: raw.discountAmount,
-      OrderDate: orderDate,
-      ExpectedDeliveryDate: expectedDeliveryDate,
-      PurchaseOrderItems
+      SupplierId: this.supplierId().trim(),
+      TaxAmount: this.taxAmount(),
+      DiscountAmount: this.discountAmount(),
+      OrderDate: this.normalizeOptionalDate(this.orderDate()),
+      ExpectedDeliveryDate: this.normalizeOptionalDate(this.expectedDeliveryDate()),
+      PurchaseOrderItems: draftItemsToPurchaseOrderLineItems(this.draftItems())
     };
   }
 
@@ -247,7 +354,6 @@ export class PurchaseOrderFormPageComponent {
   }
 
   private loadPurchaseOrder(id: string): void {
-    this.productDisplayRefsById.set(new Map());
     this.loading.set(true);
     this.api
       .getPurchaseOrder(id)
@@ -271,7 +377,7 @@ export class PurchaseOrderFormPageComponent {
             void this.router.navigate(['/procurement', id]);
             return;
           }
-          this.patchFormFromPurchaseOrder(po);
+          this.patchFromPurchaseOrder(po);
         },
         error: (err: unknown) => {
           this.messageService.add({ ...presentApiError(err).toast });
@@ -280,59 +386,37 @@ export class PurchaseOrderFormPageComponent {
       });
   }
 
-  private patchFormFromPurchaseOrder(po: PurchaseOrder): void {
-    this.items.clear();
+  private patchFromPurchaseOrder(po: PurchaseOrder): void {
     const lines = po.purchaseOrderItems?.length ? po.purchaseOrderItems : [];
-    if (!lines.length) {
-      this.addLine();
-    } else {
-      for (const line of lines) {
-        const g = this.createLineGroup();
-        g.patchValue({
-          productId: line.productId,
-          quantity: line.quantity,
-          unitPrice: line.unitPrice,
-          supplierProductCode: line.supplierProductCode ?? ''
-        });
-        this.items.push(g);
-      }
-    }
+    const uiItems = lines.map(purchaseOrderItemToUiItem);
+    this.draftItems.set(uiItems);
+    this.calculateSubTotal();
 
+    this.purchaseNumber.set(po.purchaseNumber);
+    this.supplierId.set(po.supplierId);
+    this.taxAmount.set(po.taxAmount);
+    this.discountAmount.set(po.discountAmount);
+    this.orderDate.set(this.toDateInputValue(po.orderDate));
+    this.expectedDeliveryDate.set(this.toDateInputValue(po.expectedDeliveryDate));
     this.supplierDisplayRef.set(
       po.supplier && po.supplier.id === po.supplierId ? po.supplier : null
     );
 
-    this.form.patchValue({
-      supplierId: po.supplierId,
-      taxAmount: po.taxAmount,
-      discountAmount: po.discountAmount,
-      orderDate: this.toDateInputValue(po.orderDate),
-      expectedDeliveryDate: this.toDateInputValue(po.expectedDeliveryDate)
-    });
-
-    this.resolveProductDisplayRefs(lines);
+    this.resolveMissingProductNames(lines, uiItems);
   }
 
-  private resolveProductDisplayRefs(items: PurchaseOrderItem[]): void {
-    const uniqueIds = [...new Set(items.map((i) => i.productId?.trim()).filter(Boolean))] as string[];
-    const fromLines = new Map<string, ResolvedProductRef>();
-    for (const id of uniqueIds) {
-      const line = items.find((x) => x.productId === id);
-      const name = line?.productName?.trim();
-      if (name) {
-        fromLines.set(id, { id, name });
-      }
-    }
-    const toFetch = uniqueIds.filter((id) => !fromLines.has(id));
-    if (toFetch.length === 0) {
-      this.productDisplayRefsById.set(fromLines);
+  private resolveMissingProductNames(
+    lines: PurchaseOrderItem[],
+    uiItems: UiPurchaseOrderItem[]
+  ): void {
+    const needsName = lines.filter((l) => !l.productName?.trim()).map((l) => l.productId);
+    const uniqueIds = [...new Set(needsName.filter(Boolean))];
+    if (uniqueIds.length === 0) {
       return;
     }
 
-    this.productDisplayRefsById.set(fromLines);
-
     forkJoin(
-      toFetch.map((productId) =>
+      uniqueIds.map((productId) =>
         this.productsApi.getProduct(productId).pipe(
           map((res) => {
             const name =
@@ -345,11 +429,16 @@ export class PurchaseOrderFormPageComponent {
     )
       .pipe(take(1))
       .subscribe((rows) => {
-        const merged = new Map(fromLines);
-        for (const { productId, name } of rows) {
-          merged.set(productId, { id: productId, name });
-        }
-        this.productDisplayRefsById.set(merged);
+        const nameById = new Map(rows.map((r) => [r.productId, r.name]));
+        this.draftItems.set(
+          uiItems.map((item) => {
+            const resolved = nameById.get(item.productId);
+            if (!resolved || resolved === item.productId) {
+              return item;
+            }
+            return { ...item, productName: resolved };
+          })
+        );
       });
   }
 
