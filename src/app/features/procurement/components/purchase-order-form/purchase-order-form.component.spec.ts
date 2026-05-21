@@ -161,5 +161,19 @@ describe('PurchaseOrderFormComponent', () => {
       expect(component.activeTab()).toBe(1);
       expect(component.stepError()).toBeNull();
     });
+
+    it('shows audit block in edit mode when audit inputs are set', () => {
+      fixture.componentRef.setInput('mode', 'edit');
+      fixture.componentRef.setInput('createdAt', '2026-01-01T00:00:00.000Z');
+      fixture.componentRef.setInput('createdBy', 'user_creator');
+      fixture.componentRef.setInput('lastModifiedAt', '2026-01-02T00:00:00.000Z');
+      fixture.componentRef.setInput('lastModifiedBy', 'user_editor');
+      fixture.detectChanges();
+
+      const text = fixture.nativeElement.textContent as string;
+      expect(text).toContain('Audit');
+      expect(text).toContain('user_creator');
+      expect(text).toContain('user_editor');
+    });
   });
 });

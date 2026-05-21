@@ -81,13 +81,7 @@
               styleClass="px-2 py-1 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border shrink-0"
             />
           </div>
-          <p class="text-sm text-muted-foreground">
-            {{ supplierLine(po) }}
-            @if (po.createdAt) {
-              <span class="text-muted-foreground/80"> · </span>
-              Created {{ po.createdAt | date: 'medium' }}
-            }
-          </p>
+          <p class="text-sm text-muted-foreground">{{ supplierLine(po) }}</p>
         </div>
       </div>
     </p-card>

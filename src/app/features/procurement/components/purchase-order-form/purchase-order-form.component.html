@@ -56,6 +56,34 @@
             />
           </div>
         </div>
+
+        @if (mode() === 'edit') {
+          <div class="rounded-xl border border-border/60 bg-surface-2/25 p-4 space-y-4">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Audit</div>
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div>
+                <div class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Created at</div>
+                <div class="mt-1 text-sm font-semibold text-foreground">
+                  {{ createdAt() ? (createdAt() | date: 'medium') : 'N/A' }}
+                </div>
+              </div>
+              <div>
+                <div class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Created by</div>
+                <div class="mt-1 text-sm font-semibold text-foreground break-words">{{ createdBy() || 'N/A' }}</div>
+              </div>
+              <div>
+                <div class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Last modified at</div>
+                <div class="mt-1 text-sm font-semibold text-foreground">
+                  {{ lastModifiedAt() ? (lastModifiedAt() | date: 'medium') : 'N/A' }}
+                </div>
+              </div>
+              <div>
+                <div class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Last modified by</div>
+                <div class="mt-1 text-sm font-semibold text-foreground break-words">{{ lastModifiedBy() || 'N/A' }}</div>
+              </div>
+            </div>
+          </div>
+        }
       </div>
     </app-surface-card>
   </ng-template>

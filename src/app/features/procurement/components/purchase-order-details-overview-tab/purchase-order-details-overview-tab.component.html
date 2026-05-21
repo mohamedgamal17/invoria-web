@@ -19,6 +19,28 @@
     </section>
 
     <section class="space-y-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Audit</div>
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-lg border border-border/60 bg-surface-2/20 p-3">
+          <div class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Created at</div>
+          <div class="mt-1 text-sm font-semibold text-foreground">{{ formatDateOrDash(po.createdAt) }}</div>
+        </div>
+        <div class="rounded-lg border border-border/60 bg-surface-2/20 p-3">
+          <div class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Created by</div>
+          <div class="mt-1 text-sm font-semibold text-foreground break-words">{{ po.createdBy || 'N/A' }}</div>
+        </div>
+        <div class="rounded-lg border border-border/60 bg-surface-2/20 p-3">
+          <div class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Last modified at</div>
+          <div class="mt-1 text-sm font-semibold text-foreground">{{ formatDateOrDash(po.lastModifiedAt) }}</div>
+        </div>
+        <div class="rounded-lg border border-border/60 bg-surface-2/20 p-3">
+          <div class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Last modified by</div>
+          <div class="mt-1 text-sm font-semibold text-foreground break-words">{{ po.lastModifiedBy || 'N/A' }}</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="space-y-3">
       <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Financial summary</div>
       <div class="grid gap-3 sm:grid-cols-2">
         <div class="rounded-lg border border-border/60 bg-surface p-3">

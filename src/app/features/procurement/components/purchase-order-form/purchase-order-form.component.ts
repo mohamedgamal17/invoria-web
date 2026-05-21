@@ -47,6 +47,10 @@ export class PurchaseOrderFormComponent {
   subTotal = input(0);
   taxAmount = model(0);
   discountAmount = model(0);
+  createdAt = input('');
+  createdBy = input<string | null | undefined>(undefined);
+  lastModifiedAt = input<string | null | undefined>(undefined);
+  lastModifiedBy = input<string | null | undefined>(undefined);
   draftItems = input<UiPurchaseOrderItem[]>([]);
   saving = input(false);
 

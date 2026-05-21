@@ -145,6 +145,10 @@ describe('PurchaseOrderDetailsPageComponent', () => {
 
     const loaded = component.purchaseOrder();
     expect(loaded?.createdAt).toBe(mockPo.createdAt);
+    expect(text).toContain('Created by');
+    expect(text).toContain('user_creator');
+    expect(text).toContain('Last modified by');
+    expect(text).toContain('user_editor');
     expect(loaded?.subTotal).toBe(mockPo.subTotal);
     expect(loaded?.taxAmount).toBe(mockPo.taxAmount);
     expect(loaded?.discountAmount).toBe(mockPo.discountAmount);

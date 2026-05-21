@@ -74,6 +74,10 @@ export class PurchaseOrderFormPageComponent {
   readonly supplierId = signal('');
   readonly taxAmount = signal(0);
   readonly discountAmount = signal(0);
+  readonly createdAt = signal('');
+  readonly createdBy = signal<string | null | undefined>(undefined);
+  readonly lastModifiedAt = signal<string | null | undefined>(undefined);
+  readonly lastModifiedBy = signal<string | null | undefined>(undefined);
 
   readonly draftItems = signal<UiPurchaseOrderItem[]>([]);
   readonly products = signal<Product[]>([]);
@@ -381,6 +385,10 @@ export class PurchaseOrderFormPageComponent {
     this.supplierId.set(po.supplierId);
     this.taxAmount.set(po.taxAmount);
     this.discountAmount.set(po.discountAmount);
+    this.createdAt.set(po.createdAt);
+    this.createdBy.set(po.createdBy);
+    this.lastModifiedAt.set(po.lastModifiedAt);
+    this.lastModifiedBy.set(po.lastModifiedBy);
     this.supplierDisplayRef.set(
       po.supplier && po.supplier.id === po.supplierId ? po.supplier : null
     );
