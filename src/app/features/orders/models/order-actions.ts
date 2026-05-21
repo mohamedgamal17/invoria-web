@@ -8,6 +8,7 @@ type OrderLike = {
 export type OrderActionKey =
   | 'accept'
   | 'dispatch'
+  | 'ship'
   | 'complete'
   | 'cancel'
   | 'reopen'
@@ -34,6 +35,12 @@ export const ORDER_ACTION_UI: Record<Exclude<OrderActionKey, 'edit'>, OrderActio
     icon: 'pi pi-truck',
     severity: 'info',
     routeSegment: 'dispatch'
+  },
+  ship: {
+    label: 'Ship',
+    icon: 'pi pi-send',
+    severity: 'info',
+    routeSegment: 'ship'
   },
   complete: {
     label: 'Complete',
@@ -91,10 +98,16 @@ export function canReopen(order: OrderLike): boolean {
   return order.status === OrderStatus.Accepted;
 }
 
-export function canComplete(order: OrderLike): boolean {
-  // Completion is allowed only after ACCEPTED + DISPATCHED.
+export function canShip(order: OrderLike): boolean {
   return (
     order.status === OrderStatus.Accepted &&
+    order.fullfillmentStatus === OrderFullfillmentStatus.Dispatched
+  );
+}
+
+export function canComplete(order: OrderLike): boolean {
+  return (
+    order.status === OrderStatus.Shipped &&
     order.fullfillmentStatus === OrderFullfillmentStatus.Dispatched
   );
 }
@@ -128,6 +141,7 @@ export function friendlyFullfillmentStatusLabel(status: OrderFullfillmentStatus)
 
 export function getPrimaryOrderAction(order: OrderLike): OrderActionKey | null {
   if (canDispatch(order)) return 'dispatch';
+  if (canShip(order)) return 'ship';
   if (canComplete(order)) return 'complete';
 
   if (canAccept(order)) return 'accept';
@@ -142,6 +156,7 @@ export function getAvailableOrderActions(order: OrderLike): OrderActionKey[] {
   const actions: OrderActionKey[] = [];
   if (canAccept(order)) actions.push('accept');
   if (canDispatch(order)) actions.push('dispatch');
+  if (canShip(order)) actions.push('ship');
   if (canComplete(order)) actions.push('complete');
   if (canCancel(order)) actions.push('cancel');
   if (canReopen(order)) actions.push('reopen');
@@ -156,6 +171,8 @@ export function orderStatusLabel(status: OrderStatus): string {
       return 'PENDING';
     case OrderStatus.Accepted:
       return 'ACCEPTED';
+    case OrderStatus.Shipped:
+      return 'SHIPPED';
     case OrderStatus.Completed:
       return 'COMPLETED';
     case OrderStatus.Cancelled:
@@ -176,6 +193,8 @@ export function orderStatusUserLabel(status: OrderStatus): string {
       return 'Awaiting confirmation';
     case OrderStatus.Accepted:
       return 'Confirmed';
+    case OrderStatus.Shipped:
+      return 'Shipped to customer';
     case OrderStatus.Completed:
       return 'Completed';
     case OrderStatus.Cancelled:
