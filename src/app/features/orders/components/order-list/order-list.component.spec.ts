@@ -109,6 +109,7 @@ describe('OrderListComponent', () => {
   it('should return correct order status severity', () => {
     expect(component.getOrderStatusSeverity(OrderStatus.Completed)).toBe('success');
     expect(component.getOrderStatusSeverity(OrderStatus.Accepted)).toBe('info');
+    expect(component.getOrderStatusSeverity(OrderStatus.Shipped)).toBe('contrast');
     expect(component.getOrderStatusSeverity(OrderStatus.Reopened)).toBe('warn');
     expect(component.getOrderStatusSeverity(OrderStatus.Pending)).toBe('secondary');
     expect(component.getOrderStatusSeverity(OrderStatus.Cancelled)).toBe('danger');
