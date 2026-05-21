@@ -171,7 +171,6 @@ export function getAvailableOrderActions(order: OrderLike): OrderActionKey[] {
   if (canCancel(order)) actions.push('cancel');
   if (canReopen(order)) actions.push('reopen');
   if (canRefuse(order)) actions.push('refuse');
-  if (canReturnOrderItems(order)) actions.push('returnItems');
   if (canEditOrder(order)) actions.push('edit');
   return actions;
 }

@@ -72,14 +72,8 @@ describe('order-actions', () => {
       fullfillmentStatus: OrderFullfillmentStatus.Dispatched
     };
     expect(getAvailableOrderActions(shipped)).toContain('complete');
-    expect(getAvailableOrderActions(shipped)).toContain('returnItems');
+    expect(getAvailableOrderActions(shipped)).not.toContain('returnItems');
     expect(getAvailableOrderActions(shipped)).not.toContain('ship');
-
-    const accepted = {
-      status: OrderStatus.Accepted,
-      fullfillmentStatus: OrderFullfillmentStatus.Dispatched
-    };
-    expect(getAvailableOrderActions(accepted)).not.toContain('returnItems');
   });
 
   it('orderStatusLabel: includes SHIPPED', () => {
