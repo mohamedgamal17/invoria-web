@@ -21,6 +21,7 @@ import { OrderActionFacade } from '../../services/order-action.facade';
 import type { Order } from '../../models/order.entity';
 import { OrderFullfillmentStatus, OrderStatus } from '../../models/order.entity';
 import { getAvailableOrderActions } from '../../models/order-actions';
+import { canReturnOrderItems } from '../../models/order-return-items';
 import { orderToUiOrder } from '../../models/order-ui.mapper';
 import { PaymentType } from '../../models/order-payment.enums';
 
@@ -112,14 +113,14 @@ describe('OrderDetailsPageComponent', () => {
     expect(getOrder).not.toHaveBeenCalled();
   });
 
-  it('changes tab index via onTabChange', () => {
-    component.onTabChange('1');
-    expect(component.activeTab()).toBe(1);
+  it('changes tab via onTabChange', () => {
+    component.onTabChange('lineItems');
+    expect(component.activeTab()).toBe('lineItems');
   });
 
-  it('selects History tab when onTabChange receives 3', () => {
-    component.onTabChange('3');
-    expect(component.activeTab()).toBe(3);
+  it('selects History tab when onTabChange receives history', () => {
+    component.onTabChange('history');
+    expect(component.activeTab()).toBe('history');
   });
 
   it('statusSeverity returns contrast for SHIPPED', () => {
@@ -165,8 +166,26 @@ describe('OrderDetailsPageComponent', () => {
     expect(getAvailableOrderActions({
       status: OrderStatus.Shipped,
       fullfillmentStatus: OrderFullfillmentStatus.Dispatched
-    })).toContain('returnItems');
-    expect(component.availableActions()).not.toContain('returnItems');
+    })).not.toContain('returnItems');
+    expect(canReturnOrderItems(component.order()!)).toBe(true);
+  });
+
+  it('does not allow recording returns when order is not Shipped', async () => {
+    getOrder.mockReturnValue(
+      of({
+        isSuccess: true as const,
+        result: {
+          ...baseOrder,
+          status: OrderStatus.Accepted,
+          fullfillmentStatus: OrderFullfillmentStatus.Dispatched
+        }
+      })
+    );
+    component.loadOrder();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(canReturnOrderItems(component.order()!)).toBe(false);
   });
 
   it('maps order to UI with SHIPPED status label', async () => {

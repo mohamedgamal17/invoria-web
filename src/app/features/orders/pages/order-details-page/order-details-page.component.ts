@@ -28,9 +28,11 @@ import { OrderDetailsHistoryTabComponent } from '../../components/order-details-
 import { OrderDetailsLineItemsTabComponent } from '../../components/order-details-line-items-tab/order-details-line-items-tab.component';
 import { OrderDetailsOverviewTabComponent } from '../../components/order-details-overview-tab/order-details-overview-tab.component';
 import { OrderDetailsPaymentTabComponent } from '../../components/order-details-payment-tab/order-details-payment-tab.component';
+import { OrderDetailsReturnItemsTabComponent } from '../../components/order-details-return-items-tab/order-details-return-items-tab.component';
 import { OrderReasonDialogComponent } from '../../components/order-reason-dialog/order-reason-dialog.component';
-import { OrderReturnItemsDialogComponent } from '../../components/order-return-items-dialog/order-return-items-dialog.component';
+import { mapReturnItemsRequestToUi } from '../../models/order-return-items';
 import type { AddReturnItemsRequest } from '../../models/add-return-items.request';
+import type { Order } from '../../models/order.entity';
 import { OrderStatus } from '../../models/order.entity';
 import {
   PaymentStatus,
@@ -55,8 +57,8 @@ import { OrdersApiService } from '../../services/orders-api.service';
     OrderDetailsLineItemsTabComponent,
     OrderDetailsOverviewTabComponent,
     OrderDetailsPaymentTabComponent,
+    OrderDetailsReturnItemsTabComponent,
     OrderReasonDialogComponent,
-    OrderReturnItemsDialogComponent,
     TagModule,
     Tabs,
     TabList,
@@ -73,8 +75,6 @@ import { OrdersApiService } from '../../services/orders-api.service';
 export class OrderDetailsPageComponent {
   /** Display currency for monetary fields (aligned with procurement UI). */
   readonly currencyCode = 'EGP' as const;
-  protected readonly OrderStatus = OrderStatus;
-
   private readonly ordersApi = inject(OrdersApiService);
   private readonly orderActionFacade = inject(OrderActionFacade);
   private readonly confirmationService = inject(ConfirmationService);
@@ -94,18 +94,14 @@ export class OrderDetailsPageComponent {
   readonly reasonModalVisible = signal(false);
   readonly reasonText = signal('');
   readonly reasonTarget = signal<OrderTransitionAction | null>(null);
-  readonly returnDialogVisible = signal(false);
-  readonly returnSaving = signal(false);
 
-  /** Active tab index: 0 Overview, 1 Line items, 2 Payment, 3 History. */
-  readonly activeTab = signal(0);
+  /** Tab keys: overview, lineItems, returnItems, payment, history. Recording returns is gated in the tab. */
+  readonly activeTab = signal('overview');
 
   readonly availableActions = computed(() => {
     const order = this.order();
     if (!order) return [];
-    return getAvailableOrderActions(order).filter(
-      (action) => action !== 'edit' && action !== 'returnItems'
-    );
+    return getAvailableOrderActions(order).filter((action) => action !== 'edit');
   });
 
   readonly isFailedOrder = computed(() => {
@@ -144,11 +140,7 @@ export class OrderDetailsPageComponent {
   }
 
   onAction(action: OrderActionKey): void {
-    if (action === 'edit') return;
-    if (action === 'returnItems') {
-      this.returnDialogVisible.set(true);
-      return;
-    }
+    if (action === 'edit' || action === 'returnItems') return;
     const meta = this.orderActionFacade.meta(action as OrderTransitionAction);
 
     if (meta.requiresReason) {
@@ -176,39 +168,13 @@ export class OrderDetailsPageComponent {
     if (value === undefined || value === null) {
       return;
     }
-    const n = typeof value === 'number' ? value : Number(value);
-    this.activeTab.set(Number.isFinite(n) ? n : 0);
+    this.activeTab.set(String(value));
   }
 
-  submitReturnItems(request: AddReturnItemsRequest): void {
-    const id = this.orderId();
-    if (!id) return;
-
-    this.returnSaving.set(true);
-    this.ordersApi
-      .addReturnItems(id, request)
-      .pipe(
-        take(1),
-        finalize(() => this.returnSaving.set(false))
-      )
-      .subscribe({
-        next: (res) => {
-          if (!res.isSuccess || !res.result) {
-            this.messageService.add(presentApiError(res.error).toast);
-            return;
-          }
-          this.returnDialogVisible.set(false);
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Return items recorded successfully.'
-          });
-          this.order.set(orderToUiOrder(res.result));
-        },
-        error: (err: unknown) => {
-          this.messageService.add(presentApiError(err).toast);
-        }
-      });
+  onReturnItemsRecorded(event: { request: AddReturnItemsRequest; result: Order }): void {
+    const ui = orderToUiOrder(event.result);
+    ui.returnItems = mapReturnItemsRequestToUi(event.request, ui.items);
+    this.order.set(ui);
   }
 
   submitReasonAction(): void {

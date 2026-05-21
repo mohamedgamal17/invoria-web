@@ -21,17 +21,6 @@
             (onClick)="goToEdit()"
           />
         }
-        @if (order()!.status === OrderStatus.Shipped) {
-          <p-button
-            [label]="ORDER_ACTION_UI.returnItems.label"
-            [icon]="ORDER_ACTION_UI.returnItems.icon"
-            [severity]="ORDER_ACTION_UI.returnItems.severity"
-            [outlined]="true"
-            [loading]="returnSaving()"
-            [disabled]="actionSaving() || returnSaving()"
-            (onClick)="onAction('returnItems')"
-          />
-        }
         @for (action of availableActions(); track action) {
           <p-button
             [label]="ORDER_ACTION_UI[action].label"
@@ -39,7 +28,7 @@
             [severity]="ORDER_ACTION_UI[action].severity"
             [outlined]="actionOutlined(action)"
             [loading]="actionSaving()"
-            [disabled]="actionSaving() || returnSaving()"
+            [disabled]="actionSaving()"
             (onClick)="onAction(action)"
           />
         }
@@ -252,23 +241,34 @@
 
     <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" [lazy]="true">
       <p-tablist>
-        <p-tab [value]="0">Overview</p-tab>
-        <p-tab [value]="1">Line items</p-tab>
-        <p-tab [value]="2">Payment</p-tab>
-        <p-tab [value]="3">History</p-tab>
+        <p-tab value="overview">Overview</p-tab>
+        <p-tab value="lineItems">Line items</p-tab>
+        <p-tab value="returnItems">Return items</p-tab>
+        <p-tab value="payment">Payment</p-tab>
+        <p-tab value="history">History</p-tab>
       </p-tablist>
       <p-tabpanels>
-        <p-tabpanel [value]="0">
+        <p-tabpanel value="overview">
           <div class="pt-5">
             <app-order-details-overview-tab [order]="order" [currencyCode]="currencyCode" />
           </div>
         </p-tabpanel>
-        <p-tabpanel [value]="1">
+        <p-tabpanel value="lineItems">
           <div class="pt-5">
             <app-order-details-line-items-tab [order]="order" [currencyCode]="currencyCode" />
           </div>
         </p-tabpanel>
-        <p-tabpanel [value]="2">
+        <p-tabpanel value="returnItems">
+          <div class="pt-5">
+            <app-order-details-return-items-tab
+              [order]="order"
+              [currencyCode]="currencyCode"
+              [recordingDisabled]="actionSaving()"
+              (returnItemsRecorded)="onReturnItemsRecorded($event)"
+            />
+          </div>
+        </p-tabpanel>
+        <p-tabpanel value="payment">
           <div class="pt-5">
             <app-order-details-payment-tab
               [order]="order"
@@ -278,7 +278,7 @@
             />
           </div>
         </p-tabpanel>
-        <p-tabpanel [value]="3">
+        <p-tabpanel value="history">
           <div class="pt-5">
             <app-order-details-history-tab [events]="order.stateHistory" />
           </div>
@@ -296,11 +296,4 @@
     (cancel)="reasonModalVisible.set(false)"
   />
 
-  <app-order-return-items-dialog
-    [(visible)]="returnDialogVisible"
-    [orderItems]="order()?.items ?? []"
-    [saving]="returnSaving()"
-    (submitRequest)="submitReturnItems($event)"
-    (cancel)="returnDialogVisible.set(false)"
-  />
 </section>
