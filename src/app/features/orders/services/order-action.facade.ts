@@ -21,6 +21,8 @@ export class OrderActionFacade {
         return this.ordersApi.acceptOrder(orderId);
       case 'dispatch':
         return this.ordersApi.dispatchOrder(orderId);
+      case 'ship':
+        return this.ordersApi.shipOrder(orderId);
       case 'complete':
         return this.ordersApi.completeOrder(orderId);
       case 'cancel':

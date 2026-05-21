@@ -96,6 +96,13 @@ export class OrdersApiService {
     );
   }
 
+  shipOrder(id: string): Observable<ApiResponse<Order>> {
+    return this.http.post<ApiResponse<Order>>(
+      `${this.baseUrl}orders/${encodeURIComponent(id)}/ship`,
+      {}
+    );
+  }
+
   refuseOrder(id: string): Observable<ApiResponse<Order>> {
     return this.http.post<ApiResponse<Order>>(
       `${this.baseUrl}orders/${encodeURIComponent(id)}/refuse`,

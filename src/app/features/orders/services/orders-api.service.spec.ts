@@ -199,6 +199,14 @@ describe('OrdersApiService', () => {
     req.flush({ isSuccess: true, result: null });
   });
 
+  it('shipOrder POSTs to orders/:id/ship', () => {
+    service.shipOrder('ord_x').subscribe();
+    const req = httpMock.expectOne(`${baseUrl}orders/ord_x/ship`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({});
+    req.flush({ isSuccess: true, result: null });
+  });
+
   it('refuseOrder POSTs to orders/:id/refuse', () => {
     service.refuseOrder('ord_x').subscribe();
     const req = httpMock.expectOne(`${baseUrl}orders/ord_x/refuse`);
