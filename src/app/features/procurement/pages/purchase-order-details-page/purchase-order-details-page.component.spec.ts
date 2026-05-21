@@ -48,8 +48,6 @@ describe('PurchaseOrderDetailsPageComponent', () => {
     supplierId: 'sup_1',
     supplier: { id: 'sup_1', name: 'Acme' },
     state: PurchaseState.Draft,
-    orderDate: '2026-01-10T00:00:00.000Z',
-    expectedDeliveryDate: '2026-01-20T00:00:00.000Z',
     completedDate: null,
     subTotal: 200,
     taxAmount: 28,
@@ -146,7 +144,7 @@ describe('PurchaseOrderDetailsPageComponent', () => {
     expect(text).not.toContain('Tax / Discount');
 
     const loaded = component.purchaseOrder();
-    expect(loaded?.orderDate).toBe(mockPo.orderDate);
+    expect(loaded?.createdAt).toBe(mockPo.createdAt);
     expect(loaded?.subTotal).toBe(mockPo.subTotal);
     expect(loaded?.taxAmount).toBe(mockPo.taxAmount);
     expect(loaded?.discountAmount).toBe(mockPo.discountAmount);

@@ -83,9 +83,9 @@
           </div>
           <p class="text-sm text-muted-foreground">
             {{ supplierLine(po) }}
-            @if (po.orderDate) {
+            @if (po.createdAt) {
               <span class="text-muted-foreground/80"> · </span>
-              {{ po.orderDate | date: 'medium' }}
+              Created {{ po.createdAt | date: 'medium' }}
             }
           </p>
         </div>

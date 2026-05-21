@@ -25,7 +25,6 @@ describe('PurchaseListPageComponent', () => {
     supplierId: 'sup_1',
     supplier: { id: 'sup_1', name: 'Acme Supplies' },
     state: PurchaseState.Draft,
-    orderDate: '2026-01-15T00:00:00.000Z',
     subTotal: 100,
     taxAmount: 14,
     discountAmount: 0,

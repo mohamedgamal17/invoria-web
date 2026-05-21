@@ -30,7 +30,7 @@
           <th class="px-4 py-5 font-bold uppercase tracking-wider">Supplier</th>
         }
         <th class="px-4 py-5 font-bold uppercase tracking-wider">State</th>
-        <th class="px-4 py-5 font-bold uppercase tracking-wider">Order date</th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider">Created</th>
         <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">Total</th>
         <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">Actions</th>
       </tr>
@@ -54,8 +54,8 @@
           />
         </td>
         <td class="px-4 py-5 text-sm text-muted-foreground">
-          @if (row.orderDate) {
-            {{ row.orderDate | date: 'mediumDate' }}
+          @if (row.createdAt) {
+            {{ row.createdAt | date: 'mediumDate' }}
           } @else {
             —
           }

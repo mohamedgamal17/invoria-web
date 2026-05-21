@@ -15,7 +15,5 @@ export interface CreatePurchaseOrderRequest {
   SupplierId: string;
   TaxAmount: number;
   DiscountAmount: number;
-  OrderDate?: string | null;
-  ExpectedDeliveryDate?: string | null;
   PurchaseOrderItems: CreatePurchaseOrderLineItemRequest[];
 }

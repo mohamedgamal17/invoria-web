@@ -1440,6 +1440,121 @@
         }
       }
     },
+    "/orders/{id}/return-items": {
+      "put": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Record order return items",
+        "description": "Replaces the full return list for a shipped order.",
+        "operationId": "AddReturnItemsEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "AddReturnItemsRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoriaOrderingEndpointsOrdersRequestsAddReturnItemsRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfOrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/orders/{id}/cancel": {
       "post": {
         "tags": [
@@ -2473,6 +2588,108 @@
         "summary": "Reopen order",
         "description": "Reopens the order from a terminal or closed state when allowed.",
         "operationId": "ReopenOrderEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfOrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{id}/ship": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Mark order as shipped",
+        "description": "Transitions the order to Shipped after dispatch.",
+        "operationId": "ShipOrderEndpoint",
         "parameters": [
           {
             "name": "id",
@@ -4098,6 +4315,566 @@
           }
         }
       }
+    },
+    "/reporting/orders/customer-debt-overview/{customerId}": {
+      "get": {
+        "tags": [
+          "Reporting"
+        ],
+        "summary": "Get customer debt overview",
+        "description": "Returns the materialized debt overview for a single customer from completed reported orders with outstanding balance. Data may lag live orders by about 5 minutes. Returns zeroed defaults when the customer has no debt summary row.",
+        "operationId": "GetCustomerDebtSummaryEndpoint",
+        "parameters": [
+          {
+            "name": "customerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the customer debt overview snapshot, or zeroed defaults when the customer has no debt.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfCustomerDebtOverviewDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reporting/orders/debt-overview": {
+      "get": {
+        "tags": [
+          "Reporting"
+        ],
+        "summary": "Get debt overview",
+        "description": "Returns the materialized global debt overview from completed reported orders with outstanding balance. Values are rebuilt about every 5 minutes and may lag live order data. This endpoint does not apply customer or date filters.",
+        "operationId": "GetDebtOverviewEndpoint",
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the global debt overview snapshot, or zeroed defaults when not yet materialized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfDebtOverviewDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reporting/orders/status-summary": {
+      "get": {
+        "tags": [
+          "Reporting"
+        ],
+        "summary": "Order status summary",
+        "description": "Returns counts of reported orders grouped by current order status. Optional FromUtc and ToUtc: when both are set, only orders whose CreatedAt (UTC calendar day) falls in that inclusive range are included; when both are omitted, all materialized summary data is included (all time). Values come from a materialized table refreshed about every 5 minutes and may lag live data.",
+        "operationId": "GetOrderStatusSummaryEndpoint",
+        "parameters": [
+          {
+            "name": "FromUtc",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            }
+          },
+          {
+            "name": "ToUtc",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns status summary rows.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfIReadOnlyListOfOrderStatusSummaryItemDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reporting/orders/customer-debt-overview": {
+      "get": {
+        "tags": [
+          "Reporting"
+        ],
+        "summary": "List customer debt overview",
+        "description": "Returns a paginated slice of per-customer debt overview rows from the materialized DebtSummary table (completed orders with outstanding balance). Rows are ordered by highest total outstanding first, then customer id. Skip defaults to 0 and Length to 10. Data may lag live orders by about 5 minutes.",
+        "operationId": "ListCustomerDebtOverviewEndpoint",
+        "parameters": [
+          {
+            "name": "Skip",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Length",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns paged customer debt overview rows as data/info.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfCustomerDebtOverviewDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reporting/orders/period-summaries": {
+      "get": {
+        "tags": [
+          "Reporting"
+        ],
+        "summary": "List order period summaries",
+        "description": "Returns a paginated slice of materialized period buckets from OrderPeriodSummary (global all reported orders). Buckets use UTC placed date (CreatedAt) only. From/To are optional: when both omitted, the range is the last 30 UTC calendar days ending today; when only To is omitted, From is required as the start and To defaults to today; when only From is omitted, To is taken from the request and From defaults to To minus 30 days. GroupedBy selects Day (default), Week, or Month. Rows are ordered newest period first. Skip defaults to 0 and Length to 10. This endpoint does not apply customer or status filters.",
+        "operationId": "ListOrderPeriodSummaryEndpoint",
+        "parameters": [
+          {
+            "name": "From",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            }
+          },
+          {
+            "name": "To",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            }
+          },
+          {
+            "name": "GroupedBy",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/InvoriaReportingContractsOrdersReportsOrderPeriodSummaryGranularity"
+                }
+              ]
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Length",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns paged period summaries as data/info (same shape as other list endpoints).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfOrderPeriodSummaryDto"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -4778,6 +5555,7 @@
         "x-enumNames": [
           "Pending",
           "Accepted",
+          "Shipped",
           "Completed",
           "Cancelled",
           "Reopened",
@@ -4789,7 +5567,8 @@
           15,
           20,
           25,
-          30
+          30,
+          35
         ]
       },
       "InvoriaOrderingContractsOrdersFullfillmentStatus": {
@@ -4844,6 +5623,9 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "Id": {
+            "type": "string"
+          },
           "ProductId": {
             "type": "string"
           },
@@ -4996,6 +5778,31 @@
         "type": "object",
         "additionalProperties": false
       },
+      "InvoriaOrderingEndpointsOrdersRequestsAddReturnItemsRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaOrderingEndpointsOrdersRequestsAddReturnLineItemRequest"
+            }
+          }
+        }
+      },
+      "InvoriaOrderingEndpointsOrdersRequestsAddReturnLineItemRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "OrderItemId": {
+            "type": "string"
+          },
+          "Quantity": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "InvoriaOrderingEndpointsOrdersRequestsCancelOrderRequest": {
         "type": "object",
         "additionalProperties": false
@@ -5122,6 +5929,10 @@
         "type": "object",
         "additionalProperties": false
       },
+      "InvoriaOrderingEndpointsOrdersRequestsShipOrderRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
       "InvoriaOrderingEndpointsOrdersRequestsUpdateOrderItemsRequest": {
         "type": "object",
         "additionalProperties": false,
@@ -5199,16 +6010,6 @@
           },
           "State": {
             "$ref": "#/components/schemas/InvoriaProcurementContractsPurchaseOrdersPurchaseState"
-          },
-          "OrderDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "ExpectedDeliveryDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
           },
           "CompletedDate": {
             "type": "string",
@@ -5374,16 +6175,6 @@
             "type": "number",
             "format": "decimal"
           },
-          "OrderDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "ExpectedDeliveryDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
           "PurchaseOrderItems": {
             "type": "array",
             "items": {
@@ -5487,16 +6278,6 @@
           "DiscountAmount": {
             "type": "number",
             "format": "decimal"
-          },
-          "OrderDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "ExpectedDeliveryDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
           },
           "PurchaseOrderItems": {
             "type": "array",
@@ -5658,6 +6439,330 @@
             "nullable": true
           }
         }
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfCustomerDebtOverviewDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaReportingContractsOrdersReportsCustomerDebtOverviewDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaReportingContractsOrdersReportsCustomerDebtOverviewDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CustomerId": {
+            "type": "string"
+          },
+          "TotalOutstanding": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "TotalPaid": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "TotalOrderValue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "DebtOrderCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "PartiallyPaidCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "UnpaidCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "OldestDebtDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "OldestDebtAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "ComputedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "InvoriaReportingEndpointsOrdersRequestsGetCustomerDebtSummaryRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfDebtOverviewDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaReportingContractsOrdersReportsDebtOverviewDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaReportingContractsOrdersReportsDebtOverviewDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "TotalOutstanding": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "TotalPaid": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "TotalOrderValue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "DebtOrderCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "PartiallyPaidCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "UnpaidCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "CollectionRate": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "ComputedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfIReadOnlyListOfOrderStatusSummaryItemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/InvoriaReportingContractsDtosOrderStatusSummaryItemDto"
+            }
+          }
+        }
+      },
+      "InvoriaReportingContractsDtosOrderStatusSummaryItemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Status": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderStatus"
+          },
+          "Count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "InvoriaReportingEndpointsOrdersRequestsGetOrderStatusSummaryRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfCustomerDebtOverviewDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingDtoOfCustomerDebtOverviewDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaBuildingBlocksDomainDtosPagingDtoOfCustomerDebtOverviewDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaReportingContractsOrdersReportsCustomerDebtOverviewDto"
+            }
+          },
+          "Info": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingInfoDto"
+          }
+        }
+      },
+      "InvoriaReportingEndpointsOrdersRequestsListCustomerDebtOverviewRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfOrderPeriodSummaryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingDtoOfOrderPeriodSummaryDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaBuildingBlocksDomainDtosPagingDtoOfOrderPeriodSummaryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaReportingContractsOrdersReportsOrderPeriodSummaryDto"
+            }
+          },
+          "Info": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingInfoDto"
+          }
+        }
+      },
+      "InvoriaReportingContractsOrdersReportsOrderPeriodSummaryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Granularity": {
+            "type": "string"
+          },
+          "PeriodKey": {
+            "type": "string"
+          },
+          "PeriodStart": {
+            "type": "string",
+            "format": "date"
+          },
+          "PeriodEnd": {
+            "type": "string",
+            "format": "date"
+          },
+          "OrderCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "GrossRevenue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "NetRevenue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "DiscountAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "CancelledCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "DeliveredCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "InvoriaReportingEndpointsOrdersRequestsListOrderPeriodSummaryRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaReportingContractsOrdersReportsOrderPeriodSummaryGranularity": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Day",
+          "Week",
+          "Month"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
       }
     },
     "securitySchemes": {

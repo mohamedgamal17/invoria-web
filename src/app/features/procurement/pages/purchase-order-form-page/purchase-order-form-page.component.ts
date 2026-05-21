@@ -74,8 +74,6 @@ export class PurchaseOrderFormPageComponent {
   readonly supplierId = signal('');
   readonly taxAmount = signal(0);
   readonly discountAmount = signal(0);
-  readonly orderDate = signal('');
-  readonly expectedDeliveryDate = signal('');
 
   readonly draftItems = signal<UiPurchaseOrderItem[]>([]);
   readonly products = signal<Product[]>([]);
@@ -336,21 +334,8 @@ export class PurchaseOrderFormPageComponent {
       SupplierId: this.supplierId().trim(),
       TaxAmount: this.taxAmount(),
       DiscountAmount: this.discountAmount(),
-      OrderDate: this.normalizeOptionalDate(this.orderDate()),
-      ExpectedDeliveryDate: this.normalizeOptionalDate(this.expectedDeliveryDate()),
       PurchaseOrderItems: draftItemsToPurchaseOrderLineItems(this.draftItems())
     };
-  }
-
-  private normalizeOptionalDate(value: string): string | null | undefined {
-    const v = (value || '').trim();
-    if (!v) {
-      return undefined;
-    }
-    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
-      return `${v}T00:00:00.000Z`;
-    }
-    return v;
   }
 
   private loadPurchaseOrder(id: string): void {
@@ -396,8 +381,6 @@ export class PurchaseOrderFormPageComponent {
     this.supplierId.set(po.supplierId);
     this.taxAmount.set(po.taxAmount);
     this.discountAmount.set(po.discountAmount);
-    this.orderDate.set(this.toDateInputValue(po.orderDate));
-    this.expectedDeliveryDate.set(this.toDateInputValue(po.expectedDeliveryDate));
     this.supplierDisplayRef.set(
       po.supplier && po.supplier.id === po.supplierId ? po.supplier : null
     );
@@ -440,13 +423,5 @@ export class PurchaseOrderFormPageComponent {
           })
         );
       });
-  }
-
-  private toDateInputValue(iso: string | null | undefined): string {
-    if (!iso) {
-      return '';
-    }
-    const d = iso.slice(0, 10);
-    return /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : '';
   }
 }

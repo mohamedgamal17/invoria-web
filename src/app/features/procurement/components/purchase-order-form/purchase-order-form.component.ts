@@ -47,8 +47,6 @@ export class PurchaseOrderFormComponent {
   subTotal = input(0);
   taxAmount = model(0);
   discountAmount = model(0);
-  orderDate = model('');
-  expectedDeliveryDate = model('');
   draftItems = input<UiPurchaseOrderItem[]>([]);
   saving = input(false);
 

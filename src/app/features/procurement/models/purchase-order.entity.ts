@@ -39,8 +39,6 @@ export interface PurchaseOrder extends Entity {
   supplierId: string;
   supplier?: PurchaseOrderSupplierRef | null;
   state: PurchaseState;
-  orderDate?: string | null;
-  expectedDeliveryDate?: string | null;
   completedDate?: string | null;
   subTotal: number;
   taxAmount: number;
