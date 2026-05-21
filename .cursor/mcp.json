@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+   
+    "primeng": {
+      "command": "node",
+      "args": ["C:/Users/Mohamed/AppData/Roaming/npm/node_modules/@primeng/mcp/dist/index.js"]
+    }
+  }
+}
