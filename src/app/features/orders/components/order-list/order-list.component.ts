@@ -72,6 +72,8 @@ export class OrderListComponent {
         return 'success';
       case OrderStatus.Accepted:
         return 'info';
+      case OrderStatus.Shipped:
+        return 'contrast';
       case OrderStatus.Reopened:
         return 'warn';
       case OrderStatus.Pending:

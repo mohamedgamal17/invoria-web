@@ -70,6 +70,7 @@
       <p-tablist>
         <p-tab [value]="0">Info</p-tab>
         <p-tab [value]="1">Batches</p-tab>
+        <p-tab [value]="2">Orders</p-tab>
       </p-tablist>
       <p-tabpanels>
         <p-tabpanel [value]="0">
@@ -130,6 +131,23 @@
                 [pageSizeOptions]="pageSizeOptions"
                 (pageChange)="onPageChange($event)"
                 (batchesMutated)="onBatchesMutated()"
+              />
+            </p-card>
+          </div>
+        </p-tabpanel>
+
+        <p-tabpanel [value]="2">
+          <div class="pt-6">
+            <p-card styleClass="border border-border">
+              <div class="mb-4 flex flex-col gap-1 border-b border-border pb-4">
+                <span class="text-xs font-bold uppercase tracking-widest text-primary">Orders</span>
+                <p class="m-0 text-sm text-muted-foreground">
+                  Line subtotals, return subtotals, and net amounts for this product across customer orders.
+                </p>
+              </div>
+              <app-product-details-orders-panel
+                [productId]="p.id"
+                [active]="activeTab() === 2"
               />
             </p-card>
           </div>

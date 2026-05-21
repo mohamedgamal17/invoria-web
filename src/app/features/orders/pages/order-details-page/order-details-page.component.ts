@@ -28,7 +28,11 @@ import { OrderDetailsHistoryTabComponent } from '../../components/order-details-
 import { OrderDetailsLineItemsTabComponent } from '../../components/order-details-line-items-tab/order-details-line-items-tab.component';
 import { OrderDetailsOverviewTabComponent } from '../../components/order-details-overview-tab/order-details-overview-tab.component';
 import { OrderDetailsPaymentTabComponent } from '../../components/order-details-payment-tab/order-details-payment-tab.component';
+import { OrderDetailsReturnItemsTabComponent } from '../../components/order-details-return-items-tab/order-details-return-items-tab.component';
 import { OrderReasonDialogComponent } from '../../components/order-reason-dialog/order-reason-dialog.component';
+import { mapReturnItemsRequestToUi } from '../../models/order-return-items';
+import type { AddReturnItemsRequest } from '../../models/add-return-items.request';
+import type { Order } from '../../models/order.entity';
 import { OrderStatus } from '../../models/order.entity';
 import {
   PaymentStatus,
@@ -53,6 +57,7 @@ import { OrdersApiService } from '../../services/orders-api.service';
     OrderDetailsLineItemsTabComponent,
     OrderDetailsOverviewTabComponent,
     OrderDetailsPaymentTabComponent,
+    OrderDetailsReturnItemsTabComponent,
     OrderReasonDialogComponent,
     TagModule,
     Tabs,
@@ -70,7 +75,6 @@ import { OrdersApiService } from '../../services/orders-api.service';
 export class OrderDetailsPageComponent {
   /** Display currency for monetary fields (aligned with procurement UI). */
   readonly currencyCode = 'EGP' as const;
-
   private readonly ordersApi = inject(OrdersApiService);
   private readonly orderActionFacade = inject(OrderActionFacade);
   private readonly confirmationService = inject(ConfirmationService);
@@ -91,8 +95,8 @@ export class OrderDetailsPageComponent {
   readonly reasonText = signal('');
   readonly reasonTarget = signal<OrderTransitionAction | null>(null);
 
-  /** Active tab index: 0 Overview, 1 Line items, 2 Payment, 3 History. */
-  readonly activeTab = signal(0);
+  /** Tab keys: overview, lineItems, returnItems, payment, history. Recording returns is gated in the tab. */
+  readonly activeTab = signal('overview');
 
   readonly availableActions = computed(() => {
     const order = this.order();
@@ -136,8 +140,8 @@ export class OrderDetailsPageComponent {
   }
 
   onAction(action: OrderActionKey): void {
-    if (action === 'edit') return;
-    const meta = this.orderActionFacade.meta(action);
+    if (action === 'edit' || action === 'returnItems') return;
+    const meta = this.orderActionFacade.meta(action as OrderTransitionAction);
 
     if (meta.requiresReason) {
       this.reasonTarget.set(action);
@@ -164,8 +168,13 @@ export class OrderDetailsPageComponent {
     if (value === undefined || value === null) {
       return;
     }
-    const n = typeof value === 'number' ? value : Number(value);
-    this.activeTab.set(Number.isFinite(n) ? n : 0);
+    this.activeTab.set(String(value));
+  }
+
+  onReturnItemsRecorded(event: { request: AddReturnItemsRequest; result: Order }): void {
+    const ui = orderToUiOrder(event.result);
+    ui.returnItems = mapReturnItemsRequestToUi(event.request, ui.items);
+    this.order.set(ui);
   }
 
   submitReasonAction(): void {
@@ -180,12 +189,16 @@ export class OrderDetailsPageComponent {
     return action === 'cancel' || action === 'refuse';
   }
 
-  statusSeverity(status: string): 'success' | 'secondary' | 'info' | 'warn' | 'danger' {
+  statusSeverity(
+    status: string
+  ): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' {
     switch (status) {
       case 'COMPLETED':
         return 'success';
       case 'ACCEPTED':
         return 'info';
+      case 'SHIPPED':
+        return 'contrast';
       case 'REOPENED':
         return 'warn';
       case 'CANCELLED':
@@ -336,6 +349,8 @@ export class OrderDetailsPageComponent {
         return OrderStatus.Accepted;
       case 'dispatch':
         return OrderStatus.Accepted;
+      case 'ship':
+        return OrderStatus.Shipped;
       case 'complete':
         return OrderStatus.Completed;
       case 'cancel':

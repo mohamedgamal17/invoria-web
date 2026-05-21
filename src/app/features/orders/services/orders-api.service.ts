@@ -9,6 +9,7 @@ import type { Order } from '../models/order.entity';
 import type { CreateOrderRequest } from '../models/create-order.request';
 import type { ListOrderRequest } from '../models/list-order.request';
 import type { UpdateOrderItemsRequest } from '../models/update-order-items.request';
+import type { AddReturnItemsRequest } from '../models/add-return-items.request';
 import type { RecordOrderPaymentRequest } from '../models/record-order-payment.request';
 import { OrderPaymentMethod } from '../models/order-payment.enums';
 import { httpParamsFromRequest } from '../../../shared/requests/http-params-from-request';
@@ -96,6 +97,13 @@ export class OrdersApiService {
     );
   }
 
+  shipOrder(id: string): Observable<ApiResponse<Order>> {
+    return this.http.post<ApiResponse<Order>>(
+      `${this.baseUrl}orders/${encodeURIComponent(id)}/ship`,
+      {}
+    );
+  }
+
   refuseOrder(id: string): Observable<ApiResponse<Order>> {
     return this.http.post<ApiResponse<Order>>(
       `${this.baseUrl}orders/${encodeURIComponent(id)}/refuse`,
@@ -107,6 +115,14 @@ export class OrdersApiService {
     return this.http.post<ApiResponse<Order>>(
       `${this.baseUrl}orders/${encodeURIComponent(id)}/reopen`,
       {}
+    );
+  }
+
+  addReturnItems(id: string, request: AddReturnItemsRequest): Observable<ApiResponse<Order>> {
+    this.assertAddReturnItemsBody(request);
+    return this.http.put<ApiResponse<Order>>(
+      `${this.baseUrl}orders/${encodeURIComponent(id)}/return-items`,
+      request
     );
   }
 
@@ -132,6 +148,21 @@ export class OrdersApiService {
     );
     if (!methods.has(request.PaymentMethod)) {
       throw new Error('PaymentMethod is invalid.');
+    }
+  }
+
+  private assertAddReturnItemsBody(request: AddReturnItemsRequest): void {
+    if (!request.Items?.length) {
+      throw new Error('At least one return line is required.');
+    }
+    for (const line of request.Items) {
+      const orderItemId = (line.OrderItemId || '').trim();
+      if (!orderItemId) {
+        throw new Error('OrderItemId is required for each return line.');
+      }
+      if (!Number.isInteger(line.Quantity) || line.Quantity < 1) {
+        throw new Error('Return quantity must be a positive integer.');
+      }
     }
   }
 

@@ -10,6 +10,7 @@ describe('OrderFormComponent', () => {
   let component: OrderFormComponent;
 
   const validItem: UiOrderItem = {
+    id: 'line-1',
     productId: 'prod_1',
     productName: 'Widget',
     quantity: 1,

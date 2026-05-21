@@ -38,7 +38,7 @@ describe('OrderFormPageComponent', () => {
     customer: { id: 'c1', name: 'Alice', createdAt: '2026-01-01T00:00:00.000Z' },
     status: OrderStatus.Reopened,
     fullfillmentStatus: OrderFullfillmentStatus.Pending,
-    items: [{ productId: 'p1', quantity: 2, price: 5 }]
+    items: [{ id: 'line-1', productId: 'p1', quantity: 2, price: 5 }]
   };
 
   async function setup(opts: { mode: 'create' | 'edit'; id?: string }) {
@@ -191,7 +191,7 @@ describe('OrderFormPageComponent', () => {
 
   it('submit warns when customer missing in create mode', () => {
     component.draftItems.set([
-      { productId: 'p1', productName: 'P', quantity: 1, price: 10 }
+      { id: 'line-1', productId: 'p1', productName: 'P', quantity: 1, price: 10 }
     ]);
     component.submit();
     expect(messageAdd).toHaveBeenCalledWith(
@@ -225,7 +225,7 @@ describe('OrderFormPageComponent', () => {
       createdAt: '2026-01-01T00:00:00.000Z'
     });
     component.draftItems.set([
-      { productId: 'p1', productName: 'P', quantity: 1, price: 10 }
+      { id: 'line-1', productId: 'p1', productName: 'P', quantity: 1, price: 10 }
     ]);
     component.submit();
     expect(createOrder).toHaveBeenCalled();

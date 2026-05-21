@@ -199,6 +199,14 @@ describe('OrdersApiService', () => {
     req.flush({ isSuccess: true, result: null });
   });
 
+  it('shipOrder POSTs to orders/:id/ship', () => {
+    service.shipOrder('ord_x').subscribe();
+    const req = httpMock.expectOne(`${baseUrl}orders/ord_x/ship`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({});
+    req.flush({ isSuccess: true, result: null });
+  });
+
   it('refuseOrder POSTs to orders/:id/refuse', () => {
     service.refuseOrder('ord_x').subscribe();
     const req = httpMock.expectOne(`${baseUrl}orders/ord_x/refuse`);
@@ -211,5 +219,38 @@ describe('OrdersApiService', () => {
     const req = httpMock.expectOne(`${baseUrl}orders/ord_x/reopen`);
     expect(req.request.method).toBe('POST');
     req.flush({ isSuccess: true, result: null });
+  });
+
+  describe('addReturnItems', () => {
+    it('rejects when Items missing', () => {
+      expect(() => service.addReturnItems('id1', { Items: [] })).toThrow(
+        'At least one return line is required.'
+      );
+    });
+
+    it('rejects when OrderItemId missing', () => {
+      expect(() =>
+        service.addReturnItems('id1', {
+          Items: [{ OrderItemId: '  ', Quantity: 1 }]
+        })
+      ).toThrow('OrderItemId is required for each return line.');
+    });
+
+    it('rejects when Quantity invalid', () => {
+      expect(() =>
+        service.addReturnItems('id1', {
+          Items: [{ OrderItemId: 'line-1', Quantity: 0 }]
+        })
+      ).toThrow('Return quantity must be a positive integer.');
+    });
+
+    it('PUTs body to orders/:id/return-items', () => {
+      const body = { Items: [{ OrderItemId: 'line-1', Quantity: 2 }] };
+      service.addReturnItems('ord_1', body).subscribe();
+      const req = httpMock.expectOne(`${baseUrl}orders/ord_1/return-items`);
+      expect(req.request.method).toBe('PUT');
+      expect(req.request.body).toEqual(body);
+      req.flush({ isSuccess: true, result: null });
+    });
   });
 });

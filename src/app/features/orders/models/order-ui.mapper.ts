@@ -5,8 +5,9 @@ import type { UiOrder, UiOrderFailureDetailRow, UiOrderItem, UiOrderStateHistory
 
 function orderItemToUiItem(line: OrderItem): UiOrderItem {
   return {
+    id: line.id ?? '',
     productId: line.productId,
-    productName: line.product?.name?.trim() ? line.product.name : `Product ${line.productId}`,
+    productName: line.product?.name?.trim() || line.productId,
     quantity: line.quantity,
     price: line.price
   };
@@ -71,6 +72,7 @@ export function orderToUiOrder(order: Order): UiOrder {
     payments: order.payments,
     orderDate: order.createdAt,
     items,
+    returnItems: [],
     stateHistory: mapStateTransitionHistory(order.stateTransitionHistory),
     failureDetails: mapFailureDetails(order.failureDetails, items)
   };

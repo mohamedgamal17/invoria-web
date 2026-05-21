@@ -7,10 +7,11 @@ import type { OrderPaymentMethod, PaymentStatus, PaymentType } from './order-pay
 export enum OrderStatus {
   Pending = 5,
   Accepted = 10,
-  Completed = 15,
-  Cancelled = 20,
-  Reopened = 25,
-  Refused = 30
+  Shipped = 15,
+  Completed = 20,
+  Cancelled = 25,
+  Reopened = 30,
+  Refused = 35
 }
 
 /** `InvoriaOrderingContractsOrdersFullfillmentStatus` (Swagger spelling). */
@@ -26,6 +27,7 @@ export enum OrderFullfillmentStatus {
 
 /** `InvoriaOrderingContractsDtosOrderItemDto` (GET/POST order responses). */
 export interface OrderItem {
+  id: string;
   productId: string;
   quantity: number;
   price: number;

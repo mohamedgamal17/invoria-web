@@ -45,8 +45,8 @@ describe('OrderDialogComponent', () => {
 
   it('should calculate total items count correctly', () => {
     const mockItems: UiOrderItem[] = [
-      { productId: '1', productName: 'P1', quantity: 2, price: 10 },
-      { productId: '2', productName: 'P2', quantity: 3, price: 20 }
+      { id: 'l1', productId: '1', productName: 'P1', quantity: 2, price: 10 },
+      { id: 'l2', productId: '2', productName: 'P2', quantity: 3, price: 20 }
     ];
     fixture.componentRef.setInput('draftItems', mockItems);
     expect(component.totalItemsCount).toBe(5);
