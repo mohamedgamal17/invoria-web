@@ -180,12 +180,16 @@ export class OrderDetailsPageComponent {
     return action === 'cancel' || action === 'refuse';
   }
 
-  statusSeverity(status: string): 'success' | 'secondary' | 'info' | 'warn' | 'danger' {
+  statusSeverity(
+    status: string
+  ): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' {
     switch (status) {
       case 'COMPLETED':
         return 'success';
       case 'ACCEPTED':
         return 'info';
+      case 'SHIPPED':
+        return 'contrast';
       case 'REOPENED':
         return 'warn';
       case 'CANCELLED':
@@ -336,6 +340,8 @@ export class OrderDetailsPageComponent {
         return OrderStatus.Accepted;
       case 'dispatch':
         return OrderStatus.Accepted;
+      case 'ship':
+        return OrderStatus.Shipped;
       case 'complete':
         return OrderStatus.Completed;
       case 'cancel':
