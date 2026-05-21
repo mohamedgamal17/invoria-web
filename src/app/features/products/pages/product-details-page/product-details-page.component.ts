@@ -11,6 +11,7 @@ import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
+import { ProductDetailsOrdersPanelComponent } from '../../components/product-details-orders-panel/product-details-orders-panel.component';
 import { ProductBatchesPanelComponent } from '../../../inventory/components/product-batches-panel.component';
 import type { BatchesProductRef } from '../../../inventory/models/batches-product.ref';
 import { ProductsBreadcrumbComponent } from '../../components/products-breadcrumb/products-breadcrumb.component';
@@ -32,6 +33,7 @@ import { ProductsApiService } from '../../services/products-api.service';
     TabPanel,
     ProductsBreadcrumbComponent,
     ProductBatchesPanelComponent,
+    ProductDetailsOrdersPanelComponent,
   ],
   templateUrl: './product-details-page.component.html',
 })
@@ -119,8 +121,9 @@ export class ProductDetailsPageComponent {
     const next = Number.isFinite(n) ? n : 0;
     this.activeTab.set(next);
 
-    type TabSlug = 'batches' | 'info';
-    const tabSlug: TabSlug | undefined = next === 1 ? 'batches' : next === 0 ? 'info' : undefined;
+    type TabSlug = 'batches' | 'info' | 'orders';
+    const tabSlug: TabSlug | undefined =
+      next === 1 ? 'batches' : next === 0 ? 'info' : next === 2 ? 'orders' : undefined;
     if (!tabSlug) {
       return;
     }
@@ -135,9 +138,11 @@ export class ProductDetailsPageComponent {
               page: this.pageIndex() + 1,
               pageSize: this.pageSize(),
             }
-          : {
-              tab: 'info',
-            },
+          : tabSlug === 'orders'
+            ? { tab: 'orders' }
+            : {
+                tab: 'info',
+              },
     });
   }
 
@@ -205,7 +210,7 @@ export class ProductDetailsPageComponent {
         relativeTo: this.route,
         replaceUrl: true,
         queryParams: {
-          tab: this.activeTab() === 1 ? 'batches' : 'info',
+          tab: this.activeTab() === 1 ? 'batches' : this.activeTab() === 2 ? 'orders' : 'info',
           page: newPageIndex + 1,
           pageSize: rows,
         },
@@ -229,6 +234,8 @@ export class ProductDetailsPageComponent {
     const tab = qp.tab?.toLowerCase();
     if (tab === 'batches') {
       this.activeTab.set(1);
+    } else if (tab === 'orders') {
+      this.activeTab.set(2);
     } else if (tab === 'info') {
       this.activeTab.set(0);
     }
