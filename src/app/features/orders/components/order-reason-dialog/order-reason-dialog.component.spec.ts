@@ -22,6 +22,7 @@ describe('OrderReasonDialogComponent', () => {
     fullfillmentStatus: OrderFullfillmentStatus.Pending,
     orderDate: new Date().toISOString(),
     items: [],
+    returnItems: [],
     stateHistory: [],
     failureDetails: [],
     createdAt: new Date().toISOString(),
