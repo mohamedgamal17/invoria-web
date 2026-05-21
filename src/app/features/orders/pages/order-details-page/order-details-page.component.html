@@ -21,6 +21,17 @@
             (onClick)="goToEdit()"
           />
         }
+        @if (order()!.status === OrderStatus.Shipped) {
+          <p-button
+            [label]="ORDER_ACTION_UI.returnItems.label"
+            [icon]="ORDER_ACTION_UI.returnItems.icon"
+            [severity]="ORDER_ACTION_UI.returnItems.severity"
+            [outlined]="true"
+            [loading]="returnSaving()"
+            [disabled]="actionSaving() || returnSaving()"
+            (onClick)="onAction('returnItems')"
+          />
+        }
         @for (action of availableActions(); track action) {
           <p-button
             [label]="ORDER_ACTION_UI[action].label"
@@ -28,7 +39,7 @@
             [severity]="ORDER_ACTION_UI[action].severity"
             [outlined]="actionOutlined(action)"
             [loading]="actionSaving()"
-            [disabled]="actionSaving()"
+            [disabled]="actionSaving() || returnSaving()"
             (onClick)="onAction(action)"
           />
         }
@@ -283,5 +294,13 @@
     [saving]="actionSaving()"
     (reasonSubmit)="submitReasonAction()"
     (cancel)="reasonModalVisible.set(false)"
+  />
+
+  <app-order-return-items-dialog
+    [(visible)]="returnDialogVisible"
+    [orderItems]="order()?.items ?? []"
+    [saving]="returnSaving()"
+    (submitRequest)="submitReturnItems($event)"
+    (cancel)="returnDialogVisible.set(false)"
   />
 </section>

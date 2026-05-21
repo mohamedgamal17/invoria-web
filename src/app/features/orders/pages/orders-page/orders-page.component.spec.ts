@@ -49,7 +49,7 @@ describe('OrdersPageComponent', () => {
     customer: { id: 'cust_1', name: 'Alice', createdAt: '2026-01-01T00:00:00.000Z' },
     status: OrderStatus.Pending,
     fullfillmentStatus: OrderFullfillmentStatus.Pending,
-    items: [{ productId: 'prd_1', quantity: 2, price: 10.5 }]
+    items: [{ id: 'line-1', productId: 'prd_1', quantity: 2, price: 10.5 }]
   };
 
   function setupWithQueryParams(page: string, pageSize = '10'): BehaviorSubject<ReturnType<typeof convertToParamMap>> {

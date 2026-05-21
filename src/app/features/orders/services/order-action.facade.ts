@@ -7,7 +7,7 @@ import { OrdersApiService } from './orders-api.service';
 import type { OrderActionKey } from '../models/order-actions';
 import { ORDER_ACTION_UI } from '../models/order-actions';
 
-export type OrderTransitionAction = Exclude<OrderActionKey, 'edit'>;
+export type OrderTransitionAction = Exclude<OrderActionKey, 'edit' | 'returnItems'>;
 
 @Injectable({
   providedIn: 'root'

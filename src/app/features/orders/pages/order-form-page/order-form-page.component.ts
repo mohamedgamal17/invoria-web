@@ -244,7 +244,13 @@ export class OrderFormPageComponent {
       }
       return [
         ...items,
-        { productId: product.id, productName: product.name, quantity, price: this.itemPrice() }
+        {
+          id: '',
+          productId: product.id,
+          productName: product.name,
+          quantity,
+          price: this.itemPrice()
+        }
       ];
     });
     this.selectedProduct.set(null);

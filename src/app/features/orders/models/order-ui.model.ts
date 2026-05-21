@@ -7,6 +7,7 @@ import type { PaymentStatus, PaymentType } from './order-payment.enums';
 
 /** Mock/UI line item (includes display name not present on API contract). */
 export interface UiOrderItem {
+  id: string;
   productId: string;
   productName: string;
   quantity: number;

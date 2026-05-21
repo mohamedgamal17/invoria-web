@@ -20,6 +20,7 @@ import { OrdersApiService } from '../../services/orders-api.service';
 import { OrderActionFacade } from '../../services/order-action.facade';
 import type { Order } from '../../models/order.entity';
 import { OrderFullfillmentStatus, OrderStatus } from '../../models/order.entity';
+import { getAvailableOrderActions } from '../../models/order-actions';
 import { orderToUiOrder } from '../../models/order-ui.mapper';
 import { PaymentType } from '../../models/order-payment.enums';
 
@@ -41,7 +42,7 @@ describe('OrderDetailsPageComponent', () => {
     status: OrderStatus.Pending,
     fullfillmentStatus: OrderFullfillmentStatus.Pending,
     paymentType: PaymentType.Immediate,
-    items: [{ productId: 'p1', quantity: 1, price: 10 }]
+    items: [{ id: 'line-1', productId: 'p1', quantity: 1, price: 10 }]
   };
 
   async function setup(paramMap: Record<string, string>) {
@@ -161,6 +162,11 @@ describe('OrderDetailsPageComponent', () => {
 
     expect(component.availableActions()).toContain('complete');
     expect(component.availableActions()).not.toContain('ship');
+    expect(getAvailableOrderActions({
+      status: OrderStatus.Shipped,
+      fullfillmentStatus: OrderFullfillmentStatus.Dispatched
+    })).toContain('returnItems');
+    expect(component.availableActions()).not.toContain('returnItems');
   });
 
   it('maps order to UI with SHIPPED status label', async () => {

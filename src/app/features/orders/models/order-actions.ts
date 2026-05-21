@@ -1,4 +1,5 @@
 import { OrderFullfillmentStatus, OrderStatus } from './order.entity';
+import { canReturnOrderItems } from './order-return-items';
 
 type OrderLike = {
   status: OrderStatus;
@@ -13,6 +14,7 @@ export type OrderActionKey =
   | 'cancel'
   | 'reopen'
   | 'refuse'
+  | 'returnItems'
   | 'edit';
 
 export type OrderActionUiMeta = {
@@ -67,6 +69,12 @@ export const ORDER_ACTION_UI: Record<Exclude<OrderActionKey, 'edit'>, OrderActio
     severity: 'danger',
     routeSegment: 'refuse',
     requiresReason: true
+  },
+  returnItems: {
+    label: 'Return items',
+    icon: 'pi pi-replay',
+    severity: 'warn',
+    routeSegment: 'return-items'
   }
 };
 
@@ -118,6 +126,8 @@ export function canRefuse(order: OrderLike): boolean {
   return order.status === OrderStatus.Accepted;
 }
 
+export { canReturnOrderItems };
+
 export function friendlyFullfillmentStatusLabel(status: OrderFullfillmentStatus): string {
   switch (status) {
     case OrderFullfillmentStatus.Pending:
@@ -161,6 +171,7 @@ export function getAvailableOrderActions(order: OrderLike): OrderActionKey[] {
   if (canCancel(order)) actions.push('cancel');
   if (canReopen(order)) actions.push('reopen');
   if (canRefuse(order)) actions.push('refuse');
+  if (canReturnOrderItems(order)) actions.push('returnItems');
   if (canEditOrder(order)) actions.push('edit');
   return actions;
 }

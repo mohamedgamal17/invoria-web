@@ -5,8 +5,9 @@ import type { UiOrder, UiOrderFailureDetailRow, UiOrderItem, UiOrderStateHistory
 
 function orderItemToUiItem(line: OrderItem): UiOrderItem {
   return {
+    id: line.id ?? '',
     productId: line.productId,
-    productName: line.product?.name?.trim() ? line.product.name : `Product ${line.productId}`,
+    productName: line.product?.name?.trim() || line.productId,
     quantity: line.quantity,
     price: line.price
   };

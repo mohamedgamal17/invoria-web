@@ -1,0 +1,212 @@
+<p-dialog
+  header="Return order items"
+  [(visible)]="visible"
+  [modal]="true"
+  [dismissableMask]="true"
+  [draggable]="false"
+  [breakpoints]="{ '960px': '90vw', '641px': '95vw' }"
+  (onHide)="onHide()"
+  styleClass="modern-dialog w-full max-w-[720px]"
+>
+  <div class="flex flex-col gap-5 pt-2">
+    <p class="text-sm text-muted-foreground leading-relaxed">
+      Record quantities being returned against shipped line items. Search by product name; each line is tracked
+      separately when the same product appears more than once.
+    </p>
+
+    @if (formError()) {
+      <p class="text-sm text-destructive rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2" role="alert">
+        {{ formError() }}
+      </p>
+    }
+
+    @if (hasOrderLines()) {
+      <div class="space-y-4 rounded-xl border border-border/60 bg-surface-2 p-4">
+        <div class="flex flex-col gap-1.5 min-w-0">
+          <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider" for="return-line-select"
+            >Order line</label
+          >
+          <p-select
+            inputId="return-line-select"
+            [options]="lineOptions()"
+            optionLabel="productName"
+            [(ngModel)]="selectedLine"
+            (ngModelChange)="onLineChange($event)"
+            [filter]="true"
+            filterBy="productName"
+            placeholder="Search product name..."
+            appendTo="body"
+            [showClear]="true"
+            styleClass="w-full rounded-lg border-border bg-surface text-sm min-h-[2.5rem]"
+            [disabled]="saving()"
+          >
+            <ng-template #selecteditem let-option>
+              @if (option) {
+                <span class="text-sm font-medium text-foreground">{{ option.productName }}</span>
+              }
+            </ng-template>
+            <ng-template #item let-option>
+              <div class="flex flex-col gap-0.5 py-0.5 min-w-0">
+                <span class="text-sm font-medium text-foreground truncate">{{ option.productName }}</span>
+                <span class="text-xs text-muted-foreground">Ordered: {{ option.maxQuantity }}</span>
+              </div>
+            </ng-template>
+          </p-select>
+        </div>
+
+        @if (selectedLine()) {
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end p-4 rounded-lg border border-border/50 bg-surface">
+            <div class="flex flex-col gap-1.5 min-w-0">
+              <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider" for="return-qty"
+                >Return quantity</label
+              >
+              <p-inputNumber
+                inputId="return-qty"
+                [ngModel]="lineQuantity()"
+                (ngModelChange)="lineQuantity.set($event ?? 1)"
+                [min]="1"
+                [max]="selectedLineMax()"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                spinnerMode="horizontal"
+                incrementButtonIcon="pi pi-plus"
+                decrementButtonIcon="pi pi-minus"
+                styleClass="w-full"
+                [disabled]="saving()"
+              />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider sm:invisible" aria-hidden="true"
+                >Max</span
+              >
+              <p-button
+                label="Max"
+                type="button"
+                severity="secondary"
+                [outlined]="true"
+                styleClass="w-full min-h-[2.5rem]"
+                [disabled]="saving()"
+                (onClick)="applyMaxQuantity()"
+              />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider sm:invisible" aria-hidden="true"
+                >Add</span
+              >
+              <p-button
+                label="Add line"
+                icon="pi pi-plus"
+                type="button"
+                styleClass="w-full min-h-[2.5rem]"
+                [disabled]="saving()"
+                (onClick)="addLine()"
+              />
+            </div>
+          </div>
+        }
+
+        <div class="flex flex-wrap gap-2 pt-1 border-t border-border/60">
+          <p-button
+            label="Add all lines (max qty)"
+            icon="pi pi-list"
+            type="button"
+            severity="secondary"
+            [outlined]="true"
+            [disabled]="saving()"
+            (onClick)="addAllLines()"
+          />
+        </div>
+      </div>
+    } @else {
+      <p class="text-sm text-muted-foreground">This order has no line items to return.</p>
+    }
+
+    @if (draftLines().length > 0) {
+      <div class="rounded-xl border border-border/60 overflow-hidden">
+        <p-table [value]="draftLines()" styleClass="p-datatable-sm w-full table-fixed">
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="w-[40%] px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Product</th>
+              <th class="w-[15%] px-3 py-2 text-center text-xs font-bold uppercase tracking-wider">Ordered</th>
+              <th class="w-[25%] px-3 py-2 text-center text-xs font-bold uppercase tracking-wider">Return</th>
+              <th class="w-[20%] px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Actions</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-row>
+            <tr>
+              <td class="px-3 py-2 align-middle">
+                <div class="min-w-0">
+                  <div class="text-sm font-medium text-foreground truncate">{{ row.productName }}</div>
+                  @if (showDraftLineHint(row)) {
+                    <div class="text-xs text-muted-foreground mt-0.5">Ordered: {{ row.maxQuantity }}</div>
+                  }
+                </div>
+              </td>
+              <td class="px-3 py-2 text-sm text-center tabular-nums text-muted-foreground align-middle">
+                {{ row.maxQuantity }}
+              </td>
+              <td class="px-3 py-2 text-center align-middle">
+                <p-inputNumber
+                  [ngModel]="row.quantity"
+                  (ngModelChange)="updateDraftQuantity(row.orderItemId, $event)"
+                  [min]="1"
+                  [max]="row.maxQuantity"
+                  [showButtons]="true"
+                  buttonLayout="horizontal"
+                  spinnerMode="horizontal"
+                  incrementButtonIcon="pi pi-plus"
+                  decrementButtonIcon="pi pi-minus"
+                  styleClass="w-full max-w-[8rem] mx-auto"
+                  [disabled]="saving()"
+                />
+              </td>
+              <td class="px-3 py-2 text-right align-middle">
+                <div class="inline-flex items-center justify-end gap-1">
+                  <p-button
+                    label="Max"
+                    type="button"
+                    severity="secondary"
+                    [outlined]="true"
+                    size="small"
+                    [disabled]="saving()"
+                    (onClick)="applyRowMax(row.orderItemId)"
+                  />
+                  <p-button
+                    icon="pi pi-trash"
+                    severity="danger"
+                    [text]="true"
+                    [rounded]="true"
+                    type="button"
+                    [disabled]="saving()"
+                    (onClick)="removeLine(row.orderItemId)"
+                  />
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    }
+
+    <div class="flex items-center justify-end gap-3 pt-2 border-t border-border">
+      <p-button
+        label="Cancel"
+        type="button"
+        [text]="true"
+        styleClass="px-4 py-2 text-sm font-semibold text-muted-foreground"
+        [disabled]="saving()"
+        (onClick)="onCancel()"
+      />
+      <p-button
+        label="Submit returns"
+        icon="pi pi-check"
+        type="button"
+        severity="warn"
+        [loading]="saving()"
+        [disabled]="saving() || !canSubmit()"
+        styleClass="px-6 py-2.5 text-sm font-bold rounded-lg"
+        (onClick)="onSubmit()"
+      />
+    </div>
+  </div>
+</p-dialog>

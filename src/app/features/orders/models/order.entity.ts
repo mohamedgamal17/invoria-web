@@ -27,6 +27,7 @@ export enum OrderFullfillmentStatus {
 
 /** `InvoriaOrderingContractsDtosOrderItemDto` (GET/POST order responses). */
 export interface OrderItem {
+  id: string;
   productId: string;
   quantity: number;
   price: number;
