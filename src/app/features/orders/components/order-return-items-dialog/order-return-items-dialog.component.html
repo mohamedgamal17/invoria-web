@@ -1,17 +1,17 @@
 <p-dialog
-  header="Return order items"
+  [header]="dialogHeader()"
   [(visible)]="visible"
   [modal]="true"
   [dismissableMask]="true"
   [draggable]="false"
   [breakpoints]="{ '960px': '90vw', '641px': '95vw' }"
+  (onShow)="onDialogShow()"
   (onHide)="onHide()"
-  styleClass="modern-dialog w-full max-w-[720px]"
+  styleClass="modern-dialog w-full max-w-[800px]"
 >
   <div class="flex flex-col gap-5 pt-2">
     <p class="text-sm text-muted-foreground leading-relaxed">
-      Record quantities being returned against shipped line items. Search by product name; each line is tracked
-      separately when the same product appears more than once.
+      {{ helperText() }}
     </p>
 
     @if (formError()) {
@@ -55,13 +55,23 @@
         </div>
 
         @if (selectedLine()) {
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end p-4 rounded-lg border border-border/50 bg-surface">
+          <div class="flex flex-col gap-3 p-4 rounded-lg border border-border/50 bg-surface min-w-0">
             <div class="flex flex-col gap-1.5 min-w-0">
-              <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider" for="return-qty"
-                >Return quantity</label
-              >
+              <div class="flex items-center justify-between gap-2">
+                <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider" for="return-qty"
+                  >Return quantity</label
+                >
+                <p-button
+                  label="Max"
+                  [link]="true"
+                  type="button"
+                  [disabled]="saving()"
+                  (onClick)="applyMaxQuantity()"
+                />
+              </div>
               <p-inputNumber
                 inputId="return-qty"
+                class="w-full"
                 [ngModel]="lineQuantity()"
                 (ngModelChange)="lineQuantity.set($event ?? 1)"
                 [min]="1"
@@ -71,37 +81,18 @@
                 spinnerMode="horizontal"
                 incrementButtonIcon="pi pi-plus"
                 decrementButtonIcon="pi pi-minus"
-                styleClass="w-full"
+                styleClass="w-full return-dialog-qty-input"
                 [disabled]="saving()"
               />
             </div>
-            <div class="flex flex-col gap-1.5">
-              <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider sm:invisible" aria-hidden="true"
-                >Max</span
-              >
-              <p-button
-                label="Max"
-                type="button"
-                severity="secondary"
-                [outlined]="true"
-                styleClass="w-full min-h-[2.5rem]"
-                [disabled]="saving()"
-                (onClick)="applyMaxQuantity()"
-              />
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider sm:invisible" aria-hidden="true"
-                >Add</span
-              >
-              <p-button
-                label="Add line"
-                icon="pi pi-plus"
-                type="button"
-                styleClass="w-full min-h-[2.5rem]"
-                [disabled]="saving()"
-                (onClick)="addLine()"
-              />
-            </div>
+            <p-button
+              label="Add line"
+              icon="pi pi-plus"
+              type="button"
+              styleClass="w-full min-h-[2.5rem]"
+              [disabled]="saving()"
+              (onClick)="addLine()"
+            />
           </div>
         }
 
@@ -122,19 +113,19 @@
     }
 
     @if (draftLines().length > 0) {
-      <div class="rounded-xl border border-border/60 overflow-hidden">
-        <p-table [value]="draftLines()" styleClass="p-datatable-sm w-full table-fixed">
+      <div class="rounded-xl border border-border/60 overflow-x-auto -mx-1">
+        <p-table [value]="draftLines()" styleClass="p-datatable-sm min-w-[36rem] w-full">
           <ng-template pTemplate="header">
             <tr>
-              <th class="w-[40%] px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Product</th>
-              <th class="w-[15%] px-3 py-2 text-center text-xs font-bold uppercase tracking-wider">Ordered</th>
-              <th class="w-[25%] px-3 py-2 text-center text-xs font-bold uppercase tracking-wider">Return</th>
-              <th class="w-[20%] px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Actions</th>
+              <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Product</th>
+              <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider w-24">Ordered</th>
+              <th class="px-3 py-2 text-center text-xs font-bold uppercase tracking-wider w-32">Return qty</th>
+              <th class="px-3 py-2 text-center text-xs font-bold uppercase tracking-wider w-14">Remove</th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-row>
             <tr>
-              <td class="px-3 py-2 align-middle">
+              <td class="px-3 py-2 align-middle min-w-0">
                 <div class="min-w-0">
                   <div class="text-sm font-medium text-foreground truncate">{{ row.productName }}</div>
                   @if (showDraftLineHint(row)) {
@@ -142,45 +133,41 @@
                   }
                 </div>
               </td>
-              <td class="px-3 py-2 text-sm text-center tabular-nums text-muted-foreground align-middle">
+              <td class="px-3 py-2 text-sm text-right tabular-nums text-muted-foreground align-middle whitespace-nowrap">
                 {{ row.maxQuantity }}
               </td>
-              <td class="px-3 py-2 text-center align-middle">
-                <p-inputNumber
-                  [ngModel]="row.quantity"
-                  (ngModelChange)="updateDraftQuantity(row.orderItemId, $event)"
-                  [min]="1"
-                  [max]="row.maxQuantity"
-                  [showButtons]="true"
-                  buttonLayout="horizontal"
-                  spinnerMode="horizontal"
-                  incrementButtonIcon="pi pi-plus"
-                  decrementButtonIcon="pi pi-minus"
-                  styleClass="w-full max-w-[8rem] mx-auto"
-                  [disabled]="saving()"
-                />
-              </td>
-              <td class="px-3 py-2 text-right align-middle">
-                <div class="inline-flex items-center justify-end gap-1">
+              <td class="px-3 py-2 text-center align-middle whitespace-nowrap">
+                <div class="inline-flex items-center justify-center gap-1">
+                  <p-inputNumber
+                    [ngModel]="row.quantity"
+                    (ngModelChange)="updateDraftQuantity(row.orderItemId, $event)"
+                    [min]="1"
+                    [max]="row.maxQuantity"
+                    [showButtons]="false"
+                    styleClass="return-dialog-qty-input return-dialog-qty-input--compact"
+                    inputStyleClass="w-[4.5rem] text-center"
+                    [disabled]="saving()"
+                  />
                   <p-button
                     label="Max"
+                    [link]="true"
                     type="button"
-                    severity="secondary"
-                    [outlined]="true"
-                    size="small"
+                    styleClass="return-dialog-max-link shrink-0"
                     [disabled]="saving()"
                     (onClick)="applyRowMax(row.orderItemId)"
                   />
-                  <p-button
-                    icon="pi pi-trash"
-                    severity="danger"
-                    [text]="true"
-                    [rounded]="true"
-                    type="button"
-                    [disabled]="saving()"
-                    (onClick)="removeLine(row.orderItemId)"
-                  />
                 </div>
+              </td>
+              <td class="px-3 py-2 text-center align-middle whitespace-nowrap">
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  [text]="true"
+                  [rounded]="true"
+                  type="button"
+                  [disabled]="saving()"
+                  (onClick)="removeLine(row.orderItemId)"
+                />
               </td>
             </tr>
           </ng-template>
@@ -198,7 +185,7 @@
         (onClick)="onCancel()"
       />
       <p-button
-        label="Submit returns"
+        [label]="submitLabel()"
         icon="pi pi-check"
         type="button"
         severity="warn"

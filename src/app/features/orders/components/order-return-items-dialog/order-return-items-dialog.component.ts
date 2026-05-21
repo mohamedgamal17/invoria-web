@@ -19,7 +19,8 @@ import {
   type ReturnDraftLine,
   type ReturnOrderLineOption
 } from '../../models/order-return-items';
-import type { UiOrderItem } from '../../models/order-ui.model';
+import { mapReturnItemsToDraft } from '../../models/order-return-items';
+import type { UiOrderItem, UiReturnItem } from '../../models/order-ui.model';
 
 @Component({
   selector: 'app-order-return-items-dialog',
@@ -33,11 +34,13 @@ import type { UiOrderItem } from '../../models/order-ui.model';
     SelectModule,
     TableModule
   ],
-  templateUrl: './order-return-items-dialog.component.html'
+  templateUrl: './order-return-items-dialog.component.html',
+  styleUrl: './order-return-items-dialog.component.css'
 })
 export class OrderReturnItemsDialogComponent {
   visible = model(false);
   orderItems = input<UiOrderItem[]>([]);
+  existingReturnItems = input<UiReturnItem[]>([]);
   saving = input(false);
 
   submitRequest = output<AddReturnItemsRequest>();
@@ -56,11 +59,37 @@ export class OrderReturnItemsDialogComponent {
 
   readonly hasOrderLines = computed(() => this.orderItems().length > 0);
 
+  readonly isEditMode = computed(() => this.existingReturnItems().length > 0);
+
+  readonly dialogHeader = computed(() =>
+    this.isEditMode() ? 'Edit return items' : 'Return order items'
+  );
+
+  readonly helperText = computed(() =>
+    this.isEditMode()
+      ? 'Update quantities returned against shipped line items. The full return list is replaced when you save.'
+      : 'Record quantities being returned against shipped line items. Search by product name; each line is tracked separately when the same product appears more than once.'
+  );
+
+  readonly submitLabel = computed(() => (this.isEditMode() ? 'Save changes' : 'Submit returns'));
+
   showDraftLineHint(row: ReturnDraftLine): boolean {
     if (!hasDuplicateProductNamesInDraft(this.draftLines())) {
       return false;
     }
     return this.draftLines().filter((d) => d.productName === row.productName).length > 1;
+  }
+
+  onDialogShow(): void {
+    const existing = this.existingReturnItems();
+    if (existing.length > 0) {
+      this.draftLines.set(mapReturnItemsToDraft(existing));
+      this.selectedLine.set(null);
+      this.lineQuantity.set(1);
+      this.formError.set(null);
+      return;
+    }
+    this.resetForm();
   }
 
   onHide(): void {
