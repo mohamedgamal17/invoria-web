@@ -5,6 +5,16 @@ import type {
 } from './order.entity';
 import type { PaymentStatus, PaymentType } from './order-payment.enums';
 
+/** Recorded return line for order details UI. */
+export interface UiReturnItem {
+  orderItemId: string;
+  productName: string;
+  quantity: number;
+  orderedQuantity: number;
+  unitPrice: number;
+  lineTotal: number;
+}
+
 /** Mock/UI line item (includes display name not present on API contract). */
 export interface UiOrderItem {
   id: string;
@@ -51,6 +61,7 @@ export interface UiOrder {
   payments?: OrderPayment[];
   orderDate: string;
   items: UiOrderItem[];
+  returnItems: UiReturnItem[];
   stateHistory: UiOrderStateHistoryEvent[];
   failureDetails: UiOrderFailureDetailRow[];
 }

@@ -1,6 +1,6 @@
 import { OrderStatus } from './order.entity';
 import type { AddReturnItemsRequest } from './add-return-items.request';
-import type { UiOrderItem } from './order-ui.model';
+import type { UiOrderItem, UiReturnItem } from './order-ui.model';
 
 type OrderLike = { status: OrderStatus };
 
@@ -17,6 +17,15 @@ export type ReturnDraftLine = {
   quantity: number;
   maxQuantity: number;
 };
+
+export function mapReturnItemsToDraft(returnItems: UiReturnItem[]): ReturnDraftLine[] {
+  return returnItems.map((row) => ({
+    orderItemId: row.orderItemId,
+    productName: row.productName,
+    quantity: row.quantity,
+    maxQuantity: row.orderedQuantity
+  }));
+}
 
 export function canReturnOrderItems(order: OrderLike): boolean {
   return order.status === OrderStatus.Shipped;
@@ -96,6 +105,31 @@ export function normalizeReturnDraftForSubmit(draft: ReturnDraftLine[]): AddRetu
 
 export function isReturnDraftValid(draft: ReturnDraftLine[]): boolean {
   return draft.length > 0 && draft.every((row) => validateReturnDraftLine(row.quantity, row.maxQuantity));
+}
+
+export function mapReturnItemsRequestToUi(
+  request: AddReturnItemsRequest,
+  orderItems: UiOrderItem[]
+): UiReturnItem[] {
+  const byLineId = new Map(orderItems.map((item) => [item.id, item]));
+
+  return (request.Items ?? []).map((line) => {
+    const orderLine = byLineId.get(line.OrderItemId);
+    const unitPrice = orderLine?.price ?? 0;
+    const orderedQuantity = orderLine?.quantity ?? 0;
+    const productName = orderLine
+      ? resolveLineProductName(orderLine)
+      : `Line ${line.OrderItemId}`;
+
+    return {
+      orderItemId: line.OrderItemId,
+      productName,
+      quantity: line.Quantity,
+      orderedQuantity,
+      unitPrice,
+      lineTotal: unitPrice * line.Quantity
+    };
+  });
 }
 
 export function addAllOrderLinesToReturnDraft(

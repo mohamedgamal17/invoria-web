@@ -72,6 +72,7 @@ export function orderToUiOrder(order: Order): UiOrder {
     payments: order.payments,
     orderDate: order.createdAt,
     items,
+    returnItems: [],
     stateHistory: mapStateTransitionHistory(order.stateTransitionHistory),
     failureDetails: mapFailureDetails(order.failureDetails, items)
   };

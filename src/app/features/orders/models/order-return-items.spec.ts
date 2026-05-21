@@ -4,6 +4,8 @@ import { OrderStatus } from './order.entity';
 import {
   addAllOrderLinesToReturnDraft,
   canReturnOrderItems,
+  mapReturnItemsRequestToUi,
+  mapReturnItemsToDraft,
   clampReturnQuantity,
   isReturnDraftValid,
   mergeReturnDraftLine,
@@ -11,7 +13,7 @@ import {
   orderLineSelectOptions,
   validateReturnDraftLine
 } from './order-return-items';
-import type { UiOrderItem } from './order-ui.model';
+import type { UiOrderItem, UiReturnItem } from './order-ui.model';
 
 const line = (id: string, productId: string, name: string, quantity: number): UiOrderItem => ({
   id,
@@ -95,6 +97,36 @@ describe('order-return-items', () => {
     expect(draft.find((d) => d.orderItemId === 'l1')?.quantity).toBe(2);
     expect(draft.find((d) => d.orderItemId === 'l2')?.quantity).toBe(1);
     expect(isReturnDraftValid(draft)).toBe(true);
+  });
+
+  it('mapReturnItemsToDraft: maps recorded returns for dialog edit', () => {
+    const returns: UiReturnItem[] = [
+      {
+        orderItemId: 'l1',
+        productName: 'Widget',
+        quantity: 2,
+        orderedQuantity: 3,
+        unitPrice: 10,
+        lineTotal: 20
+      }
+    ];
+    const draft = mapReturnItemsToDraft(returns);
+    expect(draft).toEqual([
+      { orderItemId: 'l1', productName: 'Widget', quantity: 2, maxQuantity: 3 }
+    ]);
+  });
+
+  it('mapReturnItemsRequestToUi: joins order lines for display', () => {
+    const rows = mapReturnItemsRequestToUi(
+      { Items: [{ OrderItemId: 'l1', Quantity: 2 }] },
+      [line('l1', 'p1', 'Widget', 3)]
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows[0].productName).toBe('Widget');
+    expect(rows[0].quantity).toBe(2);
+    expect(rows[0].orderedQuantity).toBe(3);
+    expect(rows[0].unitPrice).toBe(10);
+    expect(rows[0].lineTotal).toBe(20);
   });
 
   it('clampReturnQuantity: bounds to [1, max]', () => {
