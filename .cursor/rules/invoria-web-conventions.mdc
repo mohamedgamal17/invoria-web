@@ -1,0 +1,80 @@
+---
+description: Invoria Web stack, architecture, UI/API conventions, and links to canonical ai/ docs.
+alwaysApply: true
+---
+
+# Invoria Web — project conventions
+
+This rule summarizes how **invoria-web** is built. For full detail, follow the linked `ai/` and `docs/` files (single source of truth — do not duplicate them in PRs).
+
+## Stack
+
+- **Angular 21** — standalone components (do not set `standalone: true`; default in v20+), signals, `rxResource`, lazy routes, native control flow (`@if`, `@for`)
+- **PrimeNG 21** + **@primeuix/themes** (`AuraInvoria` preset in `src/styles/primeng/aura.preset.ts`) — interactive UI
+- **Tailwind CSS v4** — layout/spacing/semantic utilities from `src/styles/tokens.css` + `@theme` in `src/styles.css`
+- **RxJS 7.8** — services return `Observable`; pages use `toSignal` / `rxResource` / `linkedSignal`
+- **Vitest** — `ng test`; specs as `*.spec.ts`
+- **Prettier** — 100 cols, single quotes (`.prettierrc`)
+- **TypeScript strict** — `strictTemplates`, no implicit returns
+- API base: `environment.apiUrl` (prod via `API_URL` — see `README.md`)
+
+## App layout (`src/app/`)
+
+| Area | Role |
+|------|------|
+| `features/<name>/` | Domain: `pages/` (smart), `components/` (dumb), `services/*-api.service.ts`, `models/` |
+| `layout/` | `DashboardShell`, navbar, sidebar |
+| `core/` | `ApiResponse`, `Paging`, `Entity`, HTTP interceptors, error presenters |
+| `shared/` | `ui/` (`EmptyState`, `SurfaceCard`, `PageHeader`), `requests/` (e.g. `PagingQueryRequest`) |
+
+**Selector prefix:** `app`. **Routing:** lazy `loadChildren` / `loadComponent` in `app.routes.ts` under dashboard shell.
+
+## Feature rules
+
+- **Smart pages** (`pages/`): `inject()` services, router, route; URL/query state; `rxResource` + optional `linkedSignal` for lists; scoped `MessageService` + `p-toast`.
+- **Presentational** (`components/`): `input()` / `output()` / `model()` only — **no** `*-api.service` or router.
+- **Services:** `providedIn: 'root'`, `HttpClient`, `Observable<ApiResponse<T>>`, `environment.apiUrl`.
+- **Models:** `*.entity.ts` (extends `Entity`), `*-*.request.ts` for HTTP bodies/queries; **no** feature-level barrel re-exports in `models/`.
+- **Cross-feature imports:** forbidden except documented exceptions — see [ai/ARCHITECTURE.md](../../ai/ARCHITECTURE.md) §7 (orders↔customers/products, customers↔orders, products↔inventory, suppliers↔procurement).
+
+**Reference implementation:** Customers — [ai/component-design-rules.md](../../ai/component-design-rules.md), `src/app/features/customers/`.
+
+## UI & styling
+
+- **PrimeNG first** for interactive controls (`p-table`, `p-dialog`, `p-button`, `p-paginator`, `p-toast`, `p-tag`, etc.).
+- **Tailwind** for layout, spacing, typography; use semantic classes (`bg-surface`, `text-foreground`, `border-border`, `text-danger`) — not raw hex.
+- **Avoid** large `styles: []` / component CSS unless PrimeNG + Tailwind cannot express it (document why).
+- **Dark mode:** `.dark` on `html` or `body`; PrimeNG uses `darkModeSelector: '.dark'`.
+- **Forms:** Reactive Forms + PrimeNG controls for non-trivial flows.
+
+## List pages
+
+- Query params: `page` (1-based), `pageSize` (default **25**, options `[25, 50, 100, 200]` unless feature documents otherwise).
+- Filters on **pages** (debounced ~700ms); list components stay dumb and emit `pageChange` / `clearFilters`.
+- Row actions: match **View** / **View Details** pattern in `order-list` — see [docs/frontend-list-conventions.md](../../docs/frontend-list-conventions.md).
+- Products list spacing/filters: [.cursor/rules/products-list-layout.mdc](./products-list-layout.mdc).
+
+## Angular practices
+
+- `ChangeDetectionStrategy.OnPush` where used; `class` bindings (not `ngClass`); signals `update`/`set` (not `mutate`).
+- Import order: Angular → RxJS → PrimeNG → app (`core`, `shared`, feature).
+- Use `presentApiError` / `ApiResponse` handling from `core/http`; request literals with `satisfies` where appropriate.
+
+## Testing
+
+- **Vitest** via `ng test`; mock API services in page specs; stub PrimeNG/jsdom needs (e.g. `ResizeObserver` for Tabs).
+- **Orders** layer mapping: [.cursor/rules/orders-testing-architecture.mdc](./orders-testing-architecture.mdc)
+- Orders only: `npx ng test --watch=false --include="src/app/features/orders/**/*.spec.ts"`
+
+## Canonical documentation (read before large changes)
+
+| Doc | Topic |
+|-----|--------|
+| [ai/ARCHITECTURE.md](../../ai/ARCHITECTURE.md) | Structure, dependencies, routing, design system |
+| [ai/component-design-rules.md](../../ai/component-design-rules.md) | Smart/dumb, `rxResource`, `linkedSignal`, URL state |
+| [ai/api-services-and-models.md](../../ai/api-services-and-models.md) | Entities, requests, API services |
+| [ai/design-consistency-rules.md](../../ai/design-consistency-rules.md) | PrimeNG/Tailwind rules, PR checklist |
+| [ai/ui-library.md](../../ai/ui-library.md) | Feature-based UI codegen prompt |
+| [docs/frontend-list-conventions.md](../../docs/frontend-list-conventions.md) | Tables, paging, row actions |
+
+When introducing a new cross-cutting pattern, update the relevant `ai/` doc in the same PR rather than expanding this rule.
