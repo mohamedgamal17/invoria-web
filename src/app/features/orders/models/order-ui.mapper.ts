@@ -1,6 +1,6 @@
 import type { CreateOrderLineItemRequest } from './create-order-line-item.request';
 import type { Order, OrderFailureDetails, OrderItem, OrderStateTransitionHistory } from './order.entity';
-import { friendlyFullfillmentStatusLabel, orderStatusLabel } from './order-actions';
+import { orderStatusLabel } from './order-actions';
 import type { UiOrder, UiOrderFailureDetailRow, UiOrderItem, UiOrderStateHistoryEvent } from './order-ui.model';
 
 function orderItemToUiItem(line: OrderItem): UiOrderItem {
@@ -17,11 +17,10 @@ function mapStateTransitionHistory(items: OrderStateTransitionHistory[] | undefi
   return (items ?? []).map((h) => {
     const to = orderStatusLabel(h.toStatus);
     const from = orderStatusLabel(h.fromStatus);
-    const toFulfillment = friendlyFullfillmentStatusLabel(h.toFullfillmentStatus);
 
     return {
       from,
-      to: `${to} · ${toFulfillment}`,
+      to,
       timestamp: h.changedAt,
       reason: h.reason
     };
@@ -64,7 +63,6 @@ export function orderToUiOrder(order: Order): UiOrder {
     customerName: order.customer?.name ?? '',
     totalAmount,
     status: order.status,
-    fullfillmentStatus: order.fullfillmentStatus,
     paymentType: order.paymentType,
     paymentStatus: order.paymentStatus,
     amountPaid: order.amountPaid,

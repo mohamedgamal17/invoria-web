@@ -24,10 +24,10 @@ const line = (id: string, productId: string, name: string, quantity: number): Ui
 });
 
 describe('order-return-items', () => {
-  it('canReturnOrderItems: true only when Shipped', () => {
-    expect(canReturnOrderItems({ status: OrderStatus.Shipped })).toBe(true);
-    expect(canReturnOrderItems({ status: OrderStatus.Accepted })).toBe(false);
-    expect(canReturnOrderItems({ status: OrderStatus.Completed })).toBe(false);
+  it('canReturnOrderItems: true only when Completed', () => {
+    expect(canReturnOrderItems({ status: OrderStatus.Completed })).toBe(true);
+    expect(canReturnOrderItems({ status: OrderStatus.Processing })).toBe(false);
+    expect(canReturnOrderItems({ status: OrderStatus.Pending })).toBe(false);
   });
 
   it('orderLineSelectOptions: disambiguates duplicate product names by ordered qty', () => {

@@ -28,7 +28,7 @@ export function mapReturnItemsToDraft(returnItems: UiReturnItem[]): ReturnDraftL
 }
 
 export function canReturnOrderItems(order: OrderLike): boolean {
-  return order.status === OrderStatus.Shipped;
+  return order.status === OrderStatus.Completed;
 }
 
 function resolveLineProductName(item: UiOrderItem): string {

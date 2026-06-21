@@ -1,5 +1,4 @@
 import type {
-  OrderFullfillmentStatus,
   OrderPayment,
   OrderStatus
 } from './order.entity';
@@ -15,7 +14,6 @@ export interface UiReturnItem {
   lineTotal: number;
 }
 
-/** Mock/UI line item (includes display name not present on API contract). */
 export interface UiOrderItem {
   id: string;
   productId: string;
@@ -40,7 +38,6 @@ export interface UiOrderFailureDetailRow {
   shortage: number;
 }
 
-/** UI order used by Orders pages. */
 export interface UiOrder {
   id: string;
   createdAt: string;
@@ -48,12 +45,10 @@ export interface UiOrder {
   lastModifiedAt?: string;
   lastModifiedBy?: string;
   orderNumber: string;
-  /** Set when row comes from the API (`Order.customerId`). */
   customerId?: string;
   customerName: string;
   totalAmount: number;
   status: OrderStatus;
-  fullfillmentStatus: OrderFullfillmentStatus;
   paymentType?: PaymentType;
   paymentStatus?: PaymentStatus;
   amountPaid?: number;
