@@ -12,8 +12,10 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
+import { TooltipModule } from 'primeng/tooltip';
 
 import { presentApiError } from '../../../../core/http/api-error.presenter';
+import { OrderStatus } from '../../models/order.entity';
 import {
   canEditOrder,
   getAvailableOrderActions,
@@ -21,7 +23,6 @@ import {
   orderStatusLabel,
   type OrderActionKey
 } from '../../models/order-actions';
-import { friendlyFullfillmentStatusLabel } from '../../models/order-actions';
 import { orderToUiOrder } from '../../models/order-ui.mapper';
 import { OrderActionFacade, type OrderTransitionAction } from '../../services/order-action.facade';
 import { OrderDetailsHistoryTabComponent } from '../../components/order-details-history-tab/order-details-history-tab.component';
@@ -29,11 +30,9 @@ import { OrderDetailsLineItemsTabComponent } from '../../components/order-detail
 import { OrderDetailsOverviewTabComponent } from '../../components/order-details-overview-tab/order-details-overview-tab.component';
 import { OrderDetailsPaymentTabComponent } from '../../components/order-details-payment-tab/order-details-payment-tab.component';
 import { OrderDetailsReturnItemsTabComponent } from '../../components/order-details-return-items-tab/order-details-return-items-tab.component';
-import { OrderReasonDialogComponent } from '../../components/order-reason-dialog/order-reason-dialog.component';
 import { mapReturnItemsRequestToUi } from '../../models/order-return-items';
 import type { AddReturnItemsRequest } from '../../models/add-return-items.request';
 import type { Order } from '../../models/order.entity';
-import { OrderStatus } from '../../models/order.entity';
 import {
   PaymentStatus,
   PaymentType,
@@ -58,8 +57,8 @@ import { OrdersApiService } from '../../services/orders-api.service';
     OrderDetailsOverviewTabComponent,
     OrderDetailsPaymentTabComponent,
     OrderDetailsReturnItemsTabComponent,
-    OrderReasonDialogComponent,
     TagModule,
+    TooltipModule,
     Tabs,
     TabList,
     Tab,
@@ -91,9 +90,6 @@ export class OrderDetailsPageComponent {
   readonly error = signal('');
   readonly order = signal<UiOrder | null>(null);
   readonly actionSaving = signal(false);
-  readonly reasonModalVisible = signal(false);
-  readonly reasonText = signal('');
-  readonly reasonTarget = signal<OrderTransitionAction | null>(null);
 
   /** Tab keys: overview, lineItems, returnItems, payment, history. Recording returns is gated in the tab. */
   readonly activeTab = signal('overview');
@@ -107,22 +103,12 @@ export class OrderDetailsPageComponent {
   readonly isFailedOrder = computed(() => {
     const order = this.order();
     if (!order) return false;
-    return order.status === OrderStatus.Cancelled || order.status === OrderStatus.Refused;
+    return order.status === OrderStatus.Cancelled;
   });
 
   readonly failureDetails = computed((): UiOrderFailureDetailRow[] => {
     const order = this.order();
     return order?.failureDetails ?? [];
-  });
-
-  readonly reasonTransitionTarget = computed(() => {
-    const order = this.order();
-    const action = this.reasonTarget();
-    if (!order || !action) return null;
-    return {
-      order,
-      state: this.actionToOrderStatus(action)
-    };
   });
 
   constructor() {
@@ -142,13 +128,6 @@ export class OrderDetailsPageComponent {
   onAction(action: OrderActionKey): void {
     if (action === 'edit' || action === 'returnItems') return;
     const meta = this.orderActionFacade.meta(action as OrderTransitionAction);
-
-    if (meta.requiresReason) {
-      this.reasonTarget.set(action);
-      this.reasonText.set('');
-      this.reasonModalVisible.set(true);
-      return;
-    }
 
     this.confirmationService.confirm({
       header: 'Confirm Action',
@@ -177,32 +156,18 @@ export class OrderDetailsPageComponent {
     this.order.set(ui);
   }
 
-  submitReasonAction(): void {
-    const action = this.reasonTarget();
-    if (!action || !this.reasonText().trim()) return;
-    this.reasonModalVisible.set(false);
-    this.executeAction(action);
-  }
-
-  /** Outlined destructive actions (parity with purchase order reject/cancel). */
-  actionOutlined(action: OrderActionKey): boolean {
-    return action === 'cancel' || action === 'refuse';
-  }
-
   statusSeverity(
     status: string
   ): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' {
     switch (status) {
       case 'COMPLETED':
         return 'success';
-      case 'ACCEPTED':
+      case 'PROCESSING':
         return 'info';
-      case 'SHIPPED':
-        return 'contrast';
-      case 'REOPENED':
+      case 'REVISION':
+      case 'REVISION_PENDING':
         return 'warn';
       case 'CANCELLED':
-      case 'REFUSED':
         return 'danger';
       default:
         return 'secondary';
@@ -264,7 +229,6 @@ export class OrderDetailsPageComponent {
   }
 
   orderStatusLabel = orderStatusLabel;
-  friendlyFullfillmentStatusLabel = friendlyFullfillmentStatusLabel;
   ORDER_ACTION_UI = ORDER_ACTION_UI;
   canEditOrder = canEditOrder;
 
@@ -346,19 +310,13 @@ export class OrderDetailsPageComponent {
   private actionToOrderStatus(action: OrderTransitionAction): OrderStatus {
     switch (action) {
       case 'accept':
-        return OrderStatus.Accepted;
-      case 'dispatch':
-        return OrderStatus.Accepted;
-      case 'ship':
-        return OrderStatus.Shipped;
+        return OrderStatus.Processing;
+      case 'requestRevision':
+        return OrderStatus.Revision;
       case 'complete':
         return OrderStatus.Completed;
       case 'cancel':
         return OrderStatus.Cancelled;
-      case 'reopen':
-        return OrderStatus.Reopened;
-      case 'refuse':
-        return OrderStatus.Refused;
       default:
         return OrderStatus.Pending;
     }

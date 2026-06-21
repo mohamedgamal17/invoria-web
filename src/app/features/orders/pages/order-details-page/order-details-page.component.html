@@ -26,7 +26,6 @@
             [label]="ORDER_ACTION_UI[action].label"
             [icon]="ORDER_ACTION_UI[action].icon"
             [severity]="ORDER_ACTION_UI[action].severity"
-            [outlined]="actionOutlined(action)"
             [loading]="actionSaving()"
             [disabled]="actionSaving()"
             (onClick)="onAction(action)"
@@ -83,11 +82,7 @@
               [severity]="statusSeverity(orderStatusLabel(order.status))"
               styleClass="px-2 py-1 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border shrink-0"
             />
-            <p-tag
-              [value]="friendlyFullfillmentStatusLabel(order.fullfillmentStatus)"
-              severity="secondary"
-              styleClass="px-2 py-1 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border shrink-0"
-            />
+
           </div>
           <p class="text-sm text-muted-foreground">
             @if (order.customerName.trim()) {
@@ -286,14 +281,5 @@
       </p-tabpanels>
     </p-tabs>
   }
-
-  <app-order-reason-dialog
-    [(visible)]="reasonModalVisible"
-    [transitionTarget]="reasonTransitionTarget()"
-    [(reasonText)]="reasonText"
-    [saving]="actionSaving()"
-    (reasonSubmit)="submitReasonAction()"
-    (cancel)="reasonModalVisible.set(false)"
-  />
 
 </section>
