@@ -76,9 +76,9 @@ export class OrdersApiService {
     );
   }
 
-  cancelOrder(id: string): Observable<ApiResponse<Order>> {
+  requestRevisionOrder(id: string): Observable<ApiResponse<Order>> {
     return this.http.post<ApiResponse<Order>>(
-      `${this.baseUrl}orders/${encodeURIComponent(id)}/cancel`,
+      `${this.baseUrl}orders/${encodeURIComponent(id)}/request-revision`,
       {}
     );
   }
@@ -90,31 +90,10 @@ export class OrdersApiService {
     );
   }
 
-  dispatchOrder(id: string): Observable<ApiResponse<Order>> {
+  cancelOrder(id: string): Observable<ApiResponse<Order>> {
     return this.http.post<ApiResponse<Order>>(
-      `${this.baseUrl}orders/${encodeURIComponent(id)}/dispatch`,
-      {}
-    );
-  }
-
-  shipOrder(id: string): Observable<ApiResponse<Order>> {
-    return this.http.post<ApiResponse<Order>>(
-      `${this.baseUrl}orders/${encodeURIComponent(id)}/ship`,
-      {}
-    );
-  }
-
-  refuseOrder(id: string): Observable<ApiResponse<Order>> {
-    return this.http.post<ApiResponse<Order>>(
-      `${this.baseUrl}orders/${encodeURIComponent(id)}/refuse`,
-      {}
-    );
-  }
-
-  reopenOrder(id: string): Observable<ApiResponse<Order>> {
-    return this.http.post<ApiResponse<Order>>(
-      `${this.baseUrl}orders/${encodeURIComponent(id)}/reopen`,
-      {}
+      `${this.baseUrl}orders/${encodeURIComponent(id)}/cancel`,
+      null
     );
   }
 

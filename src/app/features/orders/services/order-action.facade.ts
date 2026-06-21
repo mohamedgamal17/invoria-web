@@ -19,18 +19,12 @@ export class OrderActionFacade {
     switch (action) {
       case 'accept':
         return this.ordersApi.acceptOrder(orderId);
-      case 'dispatch':
-        return this.ordersApi.dispatchOrder(orderId);
-      case 'ship':
-        return this.ordersApi.shipOrder(orderId);
+      case 'requestRevision':
+        return this.ordersApi.requestRevisionOrder(orderId);
       case 'complete':
         return this.ordersApi.completeOrder(orderId);
       case 'cancel':
         return this.ordersApi.cancelOrder(orderId);
-      case 'reopen':
-        return this.ordersApi.reopenOrder(orderId);
-      case 'refuse':
-        return this.ordersApi.refuseOrder(orderId);
       default:
         return throwError(() => new Error(`Unsupported order action: ${String(action)}`));
     }
