@@ -7,7 +7,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { FormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import type { UiOrder } from '../../models/order-ui.model';
-import { OrderFullfillmentStatus, OrderStatus } from '../../models/order.entity';
+import { OrderStatus } from '../../models/order.entity';
 
 describe('OrderReasonDialogComponent', () => {
   let component: OrderReasonDialogComponent;
@@ -19,7 +19,6 @@ describe('OrderReasonDialogComponent', () => {
     customerName: 'Customer 1',
     totalAmount: 100,
     status: OrderStatus.Pending,
-    fullfillmentStatus: OrderFullfillmentStatus.Pending,
     orderDate: new Date().toISOString(),
     items: [],
     returnItems: [],

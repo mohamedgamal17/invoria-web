@@ -19,10 +19,9 @@ import { OrderDetailsPageComponent } from './order-details-page.component';
 import { OrdersApiService } from '../../services/orders-api.service';
 import { OrderActionFacade } from '../../services/order-action.facade';
 import type { Order } from '../../models/order.entity';
-import { OrderFullfillmentStatus, OrderStatus } from '../../models/order.entity';
+import { OrderStatus } from '../../models/order.entity';
 import { getAvailableOrderActions } from '../../models/order-actions';
 import { canReturnOrderItems } from '../../models/order-return-items';
-import { orderToUiOrder } from '../../models/order-ui.mapper';
 import { PaymentType } from '../../models/order-payment.enums';
 
 describe('OrderDetailsPageComponent', () => {
@@ -41,7 +40,6 @@ describe('OrderDetailsPageComponent', () => {
     customerId: 'c1',
     customer: { id: 'c1', name: 'Alice', createdAt: '2026-01-01T00:00:00.000Z' },
     status: OrderStatus.Pending,
-    fullfillmentStatus: OrderFullfillmentStatus.Pending,
     paymentType: PaymentType.Immediate,
     items: [{ id: 'line-1', productId: 'p1', quantity: 1, price: 10 }]
   };
@@ -58,13 +56,13 @@ describe('OrderDetailsPageComponent', () => {
       execute: vi.fn().mockReturnValue(
         of({
           isSuccess: true as const,
-          result: { ...baseOrder, status: OrderStatus.Accepted }
+          result: { ...baseOrder, status: OrderStatus.Processing }
         })
       ),
       meta: vi.fn().mockReturnValue({
         label: 'Accept',
         icon: 'pi pi-check',
-        severity: 'success' as const,
+        severity: 'info' as const,
         routeSegment: 'accept'
       })
     };
@@ -123,18 +121,13 @@ describe('OrderDetailsPageComponent', () => {
     expect(component.activeTab()).toBe('history');
   });
 
-  it('statusSeverity returns contrast for SHIPPED', () => {
-    expect(component.statusSeverity('SHIPPED')).toBe('contrast');
-  });
-
-  it('availableActions includes ship when Accepted and Dispatched', async () => {
+  it('availableActions includes requestRevision when Processing', async () => {
     getOrder.mockReturnValue(
       of({
         isSuccess: true as const,
         result: {
           ...baseOrder,
-          status: OrderStatus.Accepted,
-          fullfillmentStatus: OrderFullfillmentStatus.Dispatched
+          status: OrderStatus.Processing
         }
       })
     );
@@ -142,18 +135,18 @@ describe('OrderDetailsPageComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(component.availableActions()).toContain('ship');
-    expect(component.availableActions()).not.toContain('complete');
+    expect(component.availableActions()).toContain('requestRevision');
+    expect(component.availableActions()).toContain('complete');
+    expect(component.availableActions()).toContain('cancel');
   });
 
-  it('availableActions includes complete when Shipped and Dispatched', async () => {
+  it('availableActions includes complete when Revision', async () => {
     getOrder.mockReturnValue(
       of({
         isSuccess: true as const,
         result: {
           ...baseOrder,
-          status: OrderStatus.Shipped,
-          fullfillmentStatus: OrderFullfillmentStatus.Dispatched
+          status: OrderStatus.Revision
         }
       })
     );
@@ -162,22 +155,17 @@ describe('OrderDetailsPageComponent', () => {
     await fixture.whenStable();
 
     expect(component.availableActions()).toContain('complete');
-    expect(component.availableActions()).not.toContain('ship');
-    expect(getAvailableOrderActions({
-      status: OrderStatus.Shipped,
-      fullfillmentStatus: OrderFullfillmentStatus.Dispatched
-    })).not.toContain('returnItems');
-    expect(canReturnOrderItems(component.order()!)).toBe(true);
+    expect(component.availableActions()).toContain('cancel');
+    expect(component.availableActions()).not.toContain('accept');
   });
 
-  it('does not allow recording returns when order is not Shipped', async () => {
+  it('does not allow recording returns when order is not Completed', async () => {
     getOrder.mockReturnValue(
       of({
         isSuccess: true as const,
         result: {
           ...baseOrder,
-          status: OrderStatus.Accepted,
-          fullfillmentStatus: OrderFullfillmentStatus.Dispatched
+          status: OrderStatus.Processing
         }
       })
     );
@@ -188,14 +176,13 @@ describe('OrderDetailsPageComponent', () => {
     expect(canReturnOrderItems(component.order()!)).toBe(false);
   });
 
-  it('maps order to UI with SHIPPED status label', async () => {
+  it('allows recording returns when order is Completed', async () => {
     getOrder.mockReturnValue(
       of({
         isSuccess: true as const,
         result: {
           ...baseOrder,
-          status: OrderStatus.Shipped,
-          fullfillmentStatus: OrderFullfillmentStatus.Dispatched
+          status: OrderStatus.Completed
         }
       })
     );
@@ -203,12 +190,6 @@ describe('OrderDetailsPageComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    const ui = orderToUiOrder({
-      ...baseOrder,
-      status: OrderStatus.Shipped,
-      fullfillmentStatus: OrderFullfillmentStatus.Dispatched
-    });
-    expect(component.order()?.status).toBe(ui.status);
-    expect(component.statusSeverity('SHIPPED')).toBe('contrast');
+    expect(canReturnOrderItems(component.order()!)).toBe(true);
   });
 });

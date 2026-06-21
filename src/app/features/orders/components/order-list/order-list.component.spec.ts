@@ -12,7 +12,7 @@ import { TimelineModule } from 'primeng/timeline';
 import { CommonModule } from '@angular/common';
 import { By } from '@angular/platform-browser';
 import type { UiOrder } from '../../models/order-ui.model';
-import { OrderFullfillmentStatus, OrderStatus } from '../../models/order.entity';
+import { OrderStatus } from '../../models/order.entity';
 
 describe('OrderListComponent', () => {
   let component: OrderListComponent;
@@ -25,7 +25,6 @@ describe('OrderListComponent', () => {
       customerName: 'Customer 1',
       totalAmount: 100,
       status: OrderStatus.Pending,
-      fullfillmentStatus: OrderFullfillmentStatus.Pending,
       orderDate: new Date().toISOString(),
       items: [],
       returnItems: [],
@@ -41,8 +40,7 @@ describe('OrderListComponent', () => {
       orderNumber: 'ORD-002',
       customerName: 'Customer 2',
       totalAmount: 200,
-      status: OrderStatus.Accepted,
-      fullfillmentStatus: OrderFullfillmentStatus.Allocated,
+      status: OrderStatus.Processing,
       orderDate: new Date().toISOString(),
       items: [],
       returnItems: [],
@@ -110,61 +108,11 @@ describe('OrderListComponent', () => {
 
   it('should return correct order status severity', () => {
     expect(component.getOrderStatusSeverity(OrderStatus.Completed)).toBe('success');
-    expect(component.getOrderStatusSeverity(OrderStatus.Accepted)).toBe('info');
-    expect(component.getOrderStatusSeverity(OrderStatus.Shipped)).toBe('contrast');
-    expect(component.getOrderStatusSeverity(OrderStatus.Reopened)).toBe('warn');
+    expect(component.getOrderStatusSeverity(OrderStatus.Processing)).toBe('info');
+    expect(component.getOrderStatusSeverity(OrderStatus.Revision)).toBe('warn');
+    expect(component.getOrderStatusSeverity(OrderStatus.RevisionPending)).toBe('warn');
     expect(component.getOrderStatusSeverity(OrderStatus.Pending)).toBe('secondary');
     expect(component.getOrderStatusSeverity(OrderStatus.Cancelled)).toBe('danger');
-    expect(component.getOrderStatusSeverity(OrderStatus.Refused)).toBe('danger');
-  });
-
-  it('should hide fulfillment tag when order is cancelled', () => {
-    const cancelled: UiOrder = {
-      ...mockOrders[0],
-      id: 'cancelled-1',
-      status: OrderStatus.Cancelled,
-      fullfillmentStatus: OrderFullfillmentStatus.Allocated
-    };
-
-    fixture.componentRef.setInput('orders', [cancelled]);
-    fixture.detectChanges();
-
-    const statusCell = fixture.nativeElement.querySelector(
-      '.p-datatable-tbody tr td:nth-child(3)'
-    ) as HTMLElement | null;
-    expect(statusCell).toBeTruthy();
-
-    const tags = statusCell!.querySelectorAll('p-tag');
-    expect(tags.length).toBe(1);
-    expect(statusCell!.textContent).toContain('CANCELLED');
-
-    const fulfillmentCell = fixture.nativeElement.querySelector(
-      '.p-datatable-tbody tr td:nth-child(4)'
-    ) as HTMLElement | null;
-    expect(fulfillmentCell).toBeTruthy();
-    expect(fulfillmentCell!.querySelectorAll('p-tag').length).toBe(0);
-    expect(fulfillmentCell!.textContent?.trim()).toContain('—');
-  });
-
-  it('should show fulfillment tag when order is not cancelled', () => {
-    fixture.componentRef.setInput('orders', [mockOrders[1]]);
-    fixture.detectChanges();
-
-    const statusCell = fixture.nativeElement.querySelector(
-      '.p-datatable-tbody tr td:nth-child(3)'
-    ) as HTMLElement | null;
-    expect(statusCell).toBeTruthy();
-
-    const statusTags = statusCell!.querySelectorAll('p-tag');
-    expect(statusTags.length).toBe(1);
-
-    const fulfillmentCell = fixture.nativeElement.querySelector(
-      '.p-datatable-tbody tr td:nth-child(4)'
-    ) as HTMLElement | null;
-    expect(fulfillmentCell).toBeTruthy();
-    const fulfillmentTags = fulfillmentCell!.querySelectorAll('p-tag');
-    expect(fulfillmentTags.length).toBe(1);
-    expect(fulfillmentCell!.textContent).toContain('Ready to dispatch');
   });
 
   it('should emit view when View Details is clicked', () => {

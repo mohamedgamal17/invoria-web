@@ -14,7 +14,7 @@ import { OrdersApiService } from '../../services/orders-api.service';
 import { CustomersApiService } from '../../../customers/services/customers-api.service';
 import { ProductsApiService } from '../../../products/services/products-api.service';
 import type { Order } from '../../models/order.entity';
-import { OrderFullfillmentStatus, OrderStatus } from '../../models/order.entity';
+import { OrderStatus } from '../../models/order.entity';
 
 describe('OrderFormPageComponent', () => {
   let fixture: ComponentFixture<OrderFormPageComponent>;
@@ -36,8 +36,7 @@ describe('OrderFormPageComponent', () => {
     orderNumber: 'ORD-E',
     customerId: 'c1',
     customer: { id: 'c1', name: 'Alice', createdAt: '2026-01-01T00:00:00.000Z' },
-    status: OrderStatus.Reopened,
-    fullfillmentStatus: OrderFullfillmentStatus.Pending,
+    status: OrderStatus.Pending,
     items: [{ id: 'line-1', productId: 'p1', quantity: 2, price: 5 }]
   };
 
@@ -88,11 +87,9 @@ describe('OrderFormPageComponent', () => {
             getOrder,
             updateOrderItems,
             acceptOrder: vi.fn(),
-            cancelOrder: vi.fn(),
+            requestRevisionOrder: vi.fn(),
             completeOrder: vi.fn(),
-            dispatchOrder: vi.fn(),
-            refuseOrder: vi.fn(),
-            reopenOrder: vi.fn(),
+            cancelOrder: vi.fn(),
             listOrders: vi.fn(),
             recordOrderPayment: vi.fn()
           }

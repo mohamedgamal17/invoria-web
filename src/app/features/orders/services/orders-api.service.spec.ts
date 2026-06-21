@@ -178,6 +178,14 @@ describe('OrdersApiService', () => {
     req.flush({ isSuccess: true, result: null });
   });
 
+  it('requestRevisionOrder POSTs to orders/:id/request-revision', () => {
+    service.requestRevisionOrder('ord_x').subscribe();
+    const req = httpMock.expectOne(`${baseUrl}orders/ord_x/request-revision`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({});
+    req.flush({ isSuccess: true, result: null });
+  });
+
   it('cancelOrder POSTs to orders/:id/cancel', () => {
     service.cancelOrder('ord_x').subscribe();
     const req = httpMock.expectOne(`${baseUrl}orders/ord_x/cancel`);
@@ -188,35 +196,6 @@ describe('OrdersApiService', () => {
   it('completeOrder POSTs to orders/:id/complete', () => {
     service.completeOrder('ord_x').subscribe();
     const req = httpMock.expectOne(`${baseUrl}orders/ord_x/complete`);
-    expect(req.request.method).toBe('POST');
-    req.flush({ isSuccess: true, result: null });
-  });
-
-  it('dispatchOrder POSTs to orders/:id/dispatch', () => {
-    service.dispatchOrder('ord_x').subscribe();
-    const req = httpMock.expectOne(`${baseUrl}orders/ord_x/dispatch`);
-    expect(req.request.method).toBe('POST');
-    req.flush({ isSuccess: true, result: null });
-  });
-
-  it('shipOrder POSTs to orders/:id/ship', () => {
-    service.shipOrder('ord_x').subscribe();
-    const req = httpMock.expectOne(`${baseUrl}orders/ord_x/ship`);
-    expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({});
-    req.flush({ isSuccess: true, result: null });
-  });
-
-  it('refuseOrder POSTs to orders/:id/refuse', () => {
-    service.refuseOrder('ord_x').subscribe();
-    const req = httpMock.expectOne(`${baseUrl}orders/ord_x/refuse`);
-    expect(req.request.method).toBe('POST');
-    req.flush({ isSuccess: true, result: null });
-  });
-
-  it('reopenOrder POSTs to orders/:id/reopen', () => {
-    service.reopenOrder('ord_x').subscribe();
-    const req = httpMock.expectOne(`${baseUrl}orders/ord_x/reopen`);
     expect(req.request.method).toBe('POST');
     req.flush({ isSuccess: true, result: null });
   });
