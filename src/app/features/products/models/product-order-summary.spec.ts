@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { UiOrder } from '../../orders/models/order-ui.model';
-import { OrderFullfillmentStatus, OrderStatus } from '../../orders/models/order.entity';
+import { OrderStatus } from '../../orders/models/order.entity';
 import {
   buildProductOrderRowSummary,
   orderReturnSubtotal,
@@ -15,8 +15,7 @@ const baseOrder = (overrides: Partial<UiOrder> = {}): UiOrder => ({
   orderNumber: 'ORD-1',
   customerName: 'Alice',
   totalAmount: 100,
-  status: OrderStatus.Shipped,
-  fullfillmentStatus: OrderFullfillmentStatus.Dispatched,
+  status: OrderStatus.Completed,
   orderDate: '2026-01-01T00:00:00.000Z',
   items: [
     { id: 'line-a', productId: 'prod-1', productName: 'Widget', quantity: 2, price: 10 },
@@ -68,12 +67,12 @@ describe('product-order-summary', () => {
           lineTotal: 10
         }
       ]
-    }), 'prod-1', 'Shipped');
+    }), 'prod-1', 'Completed');
 
     expect(row).toEqual({
       orderId: 'ord-1',
       orderNumber: 'ORD-1',
-      orderStatusLabel: 'Shipped',
+      orderStatusLabel: 'Completed',
       productLineSubtotal: 20,
       productReturnSubtotal: 10,
       productNetSubtotal: 10,
@@ -87,7 +86,7 @@ describe('product-order-summary', () => {
     const { rows, aggregate } = summarizeProductOrders(
       [baseOrder(), baseOrder({ id: 'ord-2', orderNumber: 'ORD-2', items: [] })],
       'prod-1',
-      () => 'Shipped'
+      () => 'Completed'
     );
 
     expect(rows).toHaveLength(1);
