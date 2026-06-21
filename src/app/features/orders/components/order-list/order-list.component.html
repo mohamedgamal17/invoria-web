@@ -65,18 +65,6 @@
             />
           </div>
           <div class="flex items-start justify-between gap-3">
-            <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider pt-1 shrink-0">Fulfillment</span>
-            @if (shouldShowFulfillment(order)) {
-              <p-tag
-                [value]="fullfillmentLabel(order.fullfillmentStatus)"
-                [severity]="getFulfillmentSeverity(order.fullfillmentStatus)"
-                styleClass="max-w-[65%] shrink px-2.5 py-1 text-[10px] font-semibold tracking-tight rounded-md border border-border text-right"
-              />
-            } @else {
-              <span class="text-sm text-muted-foreground pt-0.5">—</span>
-            }
-          </div>
-          <div class="flex items-start justify-between gap-3">
             <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider pt-1 shrink-0">Payment type</span>
             <p-tag
               [value]="paymentTypeDisplay(order.paymentType)"
@@ -198,9 +186,6 @@
           Status
         </th>
         <th class="px-4 py-5 font-bold uppercase tracking-wider">
-          Fulfillment
-        </th>
-        <th class="px-4 py-5 font-bold uppercase tracking-wider">
           Payment type
         </th>
         <th class="px-4 py-5 font-bold uppercase tracking-wider">
@@ -259,17 +244,6 @@
               </p-timeline>
             </div>
           </p-popover>
-        </td>
-        <td class="px-4 py-5">
-          @if (shouldShowFulfillment(order)) {
-            <p-tag
-              [value]="fullfillmentLabel(order.fullfillmentStatus)"
-              [severity]="getFulfillmentSeverity(order.fullfillmentStatus)"
-              styleClass="px-2 py-1 text-[10px] font-bold tracking-tight rounded-md border border-border"
-            />
-          } @else {
-            <span class="text-sm text-muted-foreground">—</span>
-          }
         </td>
         <td class="px-4 py-5">
           <p-tag
@@ -358,7 +332,7 @@
     <!-- Empty Message -->
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="8" class="px-4 py-12 text-center">
+        <td colspan="7" class="px-4 py-12 text-center">
           <div class="flex flex-col items-center gap-3">
             <i class="pi pi-inbox text-4xl text-muted-foreground opacity-20"></i>
             <div class="text-base font-medium text-foreground">No orders found</div>
