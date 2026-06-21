@@ -1344,7 +1344,7 @@
           "Orders"
         ],
         "summary": "Accept order",
-        "description": "Transitions the order to accepted when business rules allow.",
+        "description": "Transitions the order to processing when business rules allow.",
         "operationId": "AcceptOrderEndpoint",
         "parameters": [
           {
@@ -1931,14 +1931,14 @@
         }
       }
     },
-    "/orders/{id}/dispatch": {
+    "/orders/{id}/request-revision": {
       "post": {
         "tags": [
           "Orders"
         ],
-        "summary": "Dispatch order",
-        "description": "Transitions the order to dispatched for fulfillment.",
-        "operationId": "DispatchOrderEndpoint",
+        "summary": "Request order revision",
+        "description": "Requests a revision of the order when allowed.",
+        "operationId": "RequestRevisionOrderEndpoint",
         "parameters": [
           {
             "name": "id",
@@ -2279,210 +2279,6 @@
           "required": true,
           "x-position": 1
         },
-        "responses": {
-          "400": {
-            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found. HTTP 404. The requested resource does not exist.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Server error. HTTP 500. An unexpected error occurred.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated order.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfOrderDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/orders/{id}/refuse": {
-      "post": {
-        "tags": [
-          "Orders"
-        ],
-        "summary": "Refuse order",
-        "description": "Refuses the order when allowed by workflow rules.",
-        "operationId": "RefuseOrderEndpoint",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "400": {
-            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found. HTTP 404. The requested resource does not exist.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Server error. HTTP 500. An unexpected error occurred.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated order.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfOrderDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/orders/{id}/reopen": {
-      "post": {
-        "tags": [
-          "Orders"
-        ],
-        "summary": "Reopen order",
-        "description": "Reopens the order from a terminal or closed state when allowed.",
-        "operationId": "ReopenOrderEndpoint",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "400": {
             "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
@@ -4729,9 +4525,6 @@
           "Status": {
             "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderStatus"
           },
-          "FullfillmentStatus": {
-            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersFullfillmentStatus"
-          },
           "PaymentType": {
             "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderPaymentType"
           },
@@ -4777,11 +4570,11 @@
         "description": "",
         "x-enumNames": [
           "Pending",
-          "Accepted",
+          "Processing",
+          "Revision",
           "Completed",
           "Cancelled",
-          "Reopened",
-          "Refused"
+          "RevisionPending"
         ],
         "enum": [
           5,
@@ -4792,26 +4585,20 @@
           30
         ]
       },
-      "InvoriaOrderingContractsOrdersFullfillmentStatus": {
+      "InvoriaOrderingContractsOrdersAllocationStatus": {
         "type": "integer",
         "description": "",
         "x-enumNames": [
           "Pending",
-          "Allocating",
           "Allocated",
-          "OnHold",
-          "Releasing",
-          "Dispatched",
-          "Cancelled"
+          "Released",
+          "Failed"
         ],
         "enum": [
           5,
           10,
           15,
-          20,
-          25,
-          30,
-          35
+          20
         ]
       },
       "InvoriaOrderingContractsOrdersOrderPaymentType": {
@@ -4920,11 +4707,11 @@
           "ToStatus": {
             "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderStatus"
           },
-          "FromFullfillmentStatus": {
-            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersFullfillmentStatus"
+          "FromAllocationStatus": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersAllocationStatus"
           },
-          "ToFullfillmentStatus": {
-            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersFullfillmentStatus"
+          "ToAllocationStatus": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersAllocationStatus"
           },
           "ChangedAt": {
             "type": "string",
