@@ -1,21 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, effect, inject, linkedSignal, signal, untracked } from '@angular/core';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { finalize, map, take } from 'rxjs';
+import { catchError, finalize, map, of, take } from 'rxjs';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { SkeletonModule } from 'primeng/skeleton';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
-import { TooltipModule } from 'primeng/tooltip';
 
 import { presentApiError } from '../../../../core/http/api-error.presenter';
-import { OrderStatus } from '../../models/order.entity';
 import {
   canEditOrder,
   getAvailableOrderActions,
@@ -29,17 +25,25 @@ import { OrderDetailsLineItemsTabComponent } from '../../components/order-detail
 import { OrderDetailsOverviewTabComponent } from '../../components/order-details-overview-tab/order-details-overview-tab.component';
 import { OrderDetailsPaymentTabComponent } from '../../components/order-details-payment-tab/order-details-payment-tab.component';
 import { OrderDetailsReturnItemsTabComponent } from '../../components/order-details-return-items-tab/order-details-return-items-tab.component';
+import { OrderSummaryCardComponent } from '../../components/order-summary-card/order-summary-card.component';
+import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
 import type { Order } from '../../models/order.entity';
-import {
-  PaymentStatus,
-  PaymentType,
-  paymentStatusLabel,
-  paymentTypeLabel
-} from '../../models/order-payment.enums';
 import type { UiOrder } from '../../models/order-ui.model';
-
-const PAYMENT_SUMMARY_EPS = 0.02;
 import { OrdersApiService } from '../../services/orders-api.service';
+
+const TAB_SLUGS = ['overview', 'lineItems', 'returnItems', 'payment'] as const;
+
+function tabSlugToIndex(tab: string | null): number | null {
+  if (tab === 'lineItems') return 1;
+  if (tab === 'returnItems') return 2;
+  if (tab === 'payment') return 3;
+  if (tab === 'overview' || tab === null || tab === '') return 0;
+  return null;
+}
+
+function indexToTabSlug(index: number): string {
+  return TAB_SLUGS[index] ?? 'overview';
+}
 
 @Component({
   selector: 'app-order-details-page',
@@ -53,15 +57,14 @@ import { OrdersApiService } from '../../services/orders-api.service';
     OrderDetailsOverviewTabComponent,
     OrderDetailsPaymentTabComponent,
     OrderDetailsReturnItemsTabComponent,
-    TagModule,
-    TooltipModule,
+    OrderSummaryCardComponent,
+    PageHeaderComponent,
     Tabs,
     TabList,
     Tab,
     TabPanels,
     TabPanel,
     SkeletonModule,
-    TableModule,
     ToastModule
   ],
   providers: [ConfirmationService, MessageService],
@@ -82,30 +85,84 @@ export class OrderDetailsPageComponent {
     { initialValue: this.route.snapshot.paramMap.get('id') ?? '' }
   );
 
-  readonly loading = signal(true);
-  readonly error = signal('');
-  readonly order = signal<UiOrder | null>(null);
+  private readonly tabQuery = toSignal(
+    this.route.queryParamMap.pipe(map((m) => m.get('tab'))),
+    { initialValue: this.route.snapshot.queryParamMap.get('tab') }
+  );
+
   readonly actionSaving = signal(false);
 
-  /** Tab keys: overview, lineItems, returnItems, payment, history. Recording returns is gated in the tab. */
-  readonly activeTab = signal('overview');
+  /** Tab index: 0 = overview, 1 = lineItems, 2 = returnItems, 3 = payment. */
+  readonly activeTab = signal(0);
+
+  readonly orderResource = rxResource<UiOrder | null, string>({
+    params: () => this.orderId(),
+    defaultValue: null,
+    stream: ({ params: id }) => {
+      if (!id) {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Missing order id.' });
+        return of(null);
+      }
+      return this.ordersApi.getOrder(id).pipe(
+        map((res) => {
+          if (!res.isSuccess || !res.result) {
+            this.showApiError(res.error);
+            return null;
+          }
+          return orderToUiOrder(res.result);
+        }),
+        catchError((err: unknown) => {
+          this.showApiError(err);
+          return of(null);
+        })
+      );
+    }
+  });
+
+  readonly displayOrder = linkedSignal({
+    source: () => this.orderResource.value(),
+    computation: (order) => (order ? { ...order } : null)
+  });
+
+  readonly error = computed<string>(() => {
+    if (!this.orderId()) return 'Missing order id.';
+    if (this.orderResource.isLoading()) return '';
+    if (!this.displayOrder()) return 'Failed to load order.';
+    return '';
+  });
 
   readonly availableActions = computed(() => {
-    const order = this.order();
+    const order = this.displayOrder();
     if (!order) return [];
     return getAvailableOrderActions(order).filter((action) => action !== 'edit');
   });
 
+  readonly ORDER_ACTION_UI = ORDER_ACTION_UI;
+  readonly canEditOrder = canEditOrder;
+  readonly orderStatusLabel = orderStatusLabel;
+
   constructor() {
-    this.loadOrder();
+    effect(() => {
+      const tab = this.tabQuery();
+      const loaded = this.displayOrder();
+      if (!loaded || this.orderResource.isLoading()) {
+        return;
+      }
+      untracked(() => {
+        const idx = tabSlugToIndex(tab);
+        if (idx !== null && this.activeTab() !== idx) {
+          this.activeTab.set(idx);
+        }
+      });
+    });
   }
 
   backToList(): void {
-    void this.router.navigate(['../'], { relativeTo: this.route });
+    void this.router.navigate(['/orders']);
   }
 
   goToEdit(): void {
-    const order = this.order();
+    const order = this.displayOrder();
     if (!order || !canEditOrder(order)) return;
     void this.router.navigate(['edit'], { relativeTo: this.route });
   }
@@ -125,139 +182,29 @@ export class OrderDetailsPageComponent {
   }
 
   retry(): void {
-    this.loadOrder();
+    this.orderResource.reload();
   }
 
   onTabChange(value: string | number | undefined): void {
     if (value === undefined || value === null) {
       return;
     }
-    this.activeTab.set(String(value));
+    const n = typeof value === 'number' ? value : Number(value);
+    const next = Number.isFinite(n) ? n : 0;
+    this.activeTab.set(next);
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      replaceUrl: true,
+      queryParams: { tab: indexToTabSlug(next) }
+    });
   }
 
   onReturnItemsRecorded(event: { result: Order }): void {
-    this.order.set(orderToUiOrder(event.result));
+    this.displayOrder.set(orderToUiOrder(event.result));
   }
-
-  statusSeverity(
-    status: string
-  ): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' {
-    switch (status) {
-      case 'COMPLETED':
-        return 'success';
-      case 'PROCESSING':
-        return 'info';
-      case 'REVISION':
-      case 'REVISION_PENDING':
-        return 'warn';
-      case 'CANCELLED':
-        return 'danger';
-      default:
-        return 'secondary';
-    }
-  }
-
-  paymentTypeDisplay(type: PaymentType | undefined): string {
-    return type !== undefined ? paymentTypeLabel(type) : '—';
-  }
-
-  paymentStatusDisplay(status: PaymentStatus | undefined): string {
-    return status !== undefined ? paymentStatusLabel(status) : '—';
-  }
-
-  getPaymentStatusSeverity(
-    status: PaymentStatus | undefined
-  ): 'success' | 'secondary' | 'info' | 'warn' | 'danger' {
-    if (status === undefined) return 'secondary';
-    switch (status) {
-      case PaymentStatus.Paid:
-        return 'success';
-      case PaymentStatus.Partial:
-        return 'warn';
-      case PaymentStatus.Unpaid:
-      default:
-        return 'secondary';
-    }
-  }
-
-  getPaymentTypeSeverity(type: PaymentType | undefined): 'success' | 'secondary' | 'info' | 'warn' | 'danger' {
-    if (type === undefined) return 'secondary';
-    switch (type) {
-      case PaymentType.Immediate:
-        return 'info';
-      case PaymentType.Debt:
-        return 'warn';
-      default:
-        return 'secondary';
-    }
-  }
-
-  paidPercentOfTotal(order: UiOrder): number | null {
-    if (
-      order.amountPaid === undefined ||
-      order.amountPaid === null ||
-      !Number.isFinite(order.totalAmount) ||
-      order.totalAmount <= 0
-    ) {
-      return null;
-    }
-    return (order.amountPaid / order.totalAmount) * 100;
-  }
-
-  paymentTotalsAligned(order: UiOrder): boolean {
-    if (order.amountPaid == null || order.amountOutstanding == null) {
-      return true;
-    }
-    return Math.abs(order.amountPaid + order.amountOutstanding - order.totalAmount) <= PAYMENT_SUMMARY_EPS;
-  }
-
-  orderStatusLabel = orderStatusLabel;
-  ORDER_ACTION_UI = ORDER_ACTION_UI;
-  canEditOrder = canEditOrder;
 
   loadOrder(): void {
-    const id = this.orderId();
-    if (!id) {
-      this.loading.set(false);
-      this.error.set('Missing order id.');
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: this.error() });
-      return;
-    }
-
-    this.loading.set(true);
-    this.error.set('');
-    this.ordersApi
-      .getOrder(id)
-      .pipe(
-        take(1),
-        finalize(() => this.loading.set(false))
-      )
-      .subscribe({
-        next: (res) => {
-          if (!res.isSuccess || !res.result) {
-            const presentation = presentApiError(res.error);
-            const detail = presentation.toast.detail ?? 'Failed to load order.';
-            this.error.set(detail);
-            this.order.set(null);
-            this.messageService.add(presentation.toast);
-            if (presentation.routeTarget) {
-              void this.router.navigate([presentation.routeTarget]);
-            }
-            return;
-          }
-          this.order.set(orderToUiOrder(res.result));
-        },
-        error: (err: unknown) => {
-          const presentation = presentApiError(err);
-          const detail = presentation.toast.detail ?? 'Failed to load order.';
-          this.error.set(detail);
-          this.order.set(null);
-          this.messageService.add(presentation.toast);
-          if (presentation.routeTarget) {
-            void this.router.navigate([presentation.routeTarget]);
-          }
-        }
-      });
+    this.orderResource.reload();
   }
 
   private executeAction(action: OrderTransitionAction): void {
@@ -282,7 +229,7 @@ export class OrderDetailsPageComponent {
             summary: 'Success',
             detail: `${this.orderActionFacade.meta(action).label} action completed successfully.`
           });
-          this.order.set(orderToUiOrder(res.result));
+          this.displayOrder.set(orderToUiOrder(res.result));
         },
         error: (err: unknown) => {
           this.messageService.add(presentApiError(err).toast);
@@ -290,18 +237,11 @@ export class OrderDetailsPageComponent {
       });
   }
 
-  private actionToOrderStatus(action: OrderTransitionAction): OrderStatus {
-    switch (action) {
-      case 'accept':
-        return OrderStatus.Processing;
-      case 'requestRevision':
-        return OrderStatus.Revision;
-      case 'complete':
-        return OrderStatus.Completed;
-      case 'cancel':
-        return OrderStatus.Cancelled;
-      default:
-        return OrderStatus.Pending;
+  private showApiError(error: unknown): void {
+    const presentation = presentApiError(error);
+    this.messageService.add(presentation.toast);
+    if (presentation.routeTarget) {
+      void this.router.navigate([presentation.routeTarget]);
     }
   }
 }

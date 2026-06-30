@@ -11,7 +11,7 @@ if (!globalThis.ResizeObserver) {
   } as unknown as typeof ResizeObserver;
 }
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
-import { of } from 'rxjs';
+import { of, EMPTY } from 'rxjs';
 
 import { ConfirmationService, MessageService } from 'primeng/api';
 
@@ -87,7 +87,11 @@ describe('OrderDetailsPageComponent', () => {
           provide: ActivatedRoute,
           useValue: {
             paramMap: of(convertToParamMap(paramMap)),
-            snapshot: { paramMap: convertToParamMap(paramMap) }
+            queryParamMap: EMPTY,
+            snapshot: {
+              paramMap: convertToParamMap(paramMap),
+              queryParamMap: convertToParamMap({})
+            }
           }
         },
         {
@@ -110,8 +114,8 @@ describe('OrderDetailsPageComponent', () => {
 
   it('loads order from route id', () => {
     expect(getOrder).toHaveBeenCalledWith('ord_1');
-    expect(component.order()?.orderNumber).toBe('ORD-42');
-    expect(component.loading()).toBe(false);
+    expect(component.displayOrder()?.orderNumber).toBe('ORD-42');
+    expect(component.orderResource.isLoading()).toBe(false);
   });
 
   it('sets error when order id missing', async () => {
@@ -121,13 +125,13 @@ describe('OrderDetailsPageComponent', () => {
   });
 
   it('changes tab via onTabChange', () => {
-    component.onTabChange('lineItems');
-    expect(component.activeTab()).toBe('lineItems');
+    component.onTabChange(1);
+    expect(component.activeTab()).toBe(1);
   });
 
-  it('selects History tab when onTabChange receives history', () => {
-    component.onTabChange('history');
-    expect(component.activeTab()).toBe('history');
+  it('falls back to tab 0 for unknown tab string', () => {
+    component.onTabChange('unknown');
+    expect(component.activeTab()).toBe(0);
   });
 
   it('availableActions includes requestRevision when Processing', async () => {
@@ -182,7 +186,7 @@ describe('OrderDetailsPageComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(canReturnOrderItems(component.order()!)).toBe(false);
+    expect(canReturnOrderItems(component.displayOrder()!)).toBe(false);
   });
 
   it('allows recording returns when order is Completed', async () => {
@@ -199,6 +203,6 @@ describe('OrderDetailsPageComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(canReturnOrderItems(component.order()!)).toBe(true);
+    expect(canReturnOrderItems(component.displayOrder()!)).toBe(true);
   });
 });

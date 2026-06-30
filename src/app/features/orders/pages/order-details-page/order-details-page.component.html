@@ -1,227 +1,90 @@
 <p-toast />
 <p-confirmDialog />
 
-<section class="space-y-6">
-  <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-    <p-button
-      icon="pi pi-arrow-left"
-      label="Back to orders"
-      [text]="true"
-      (onClick)="backToList()"
-    />
-    @if (order()) {
-      <div class="flex flex-wrap items-center gap-2 justify-end">
-        @if (canEditOrder(order()!)) {
-          <p-button
-            icon="pi pi-pencil"
-            label="Edit"
-            severity="secondary"
-            [outlined]="true"
-            [disabled]="actionSaving()"
-            (onClick)="goToEdit()"
-          />
-        }
-        @for (action of availableActions(); track action) {
-          <p-button
-            [label]="ORDER_ACTION_UI[action].label"
-            [icon]="ORDER_ACTION_UI[action].icon"
-            [severity]="ORDER_ACTION_UI[action].severity"
-            [loading]="actionSaving()"
-            [disabled]="actionSaving()"
-            (onClick)="onAction(action)"
-          />
-        }
-      </div>
-    }
-  </div>
+<section class="flex flex-col gap-10">
+  <p-button
+    icon="pi pi-arrow-left"
+    label="Back to orders"
+    [text]="true"
+    styleClass="px-0 text-sm text-muted-foreground hover:text-foreground self-start"
+    (onClick)="backToList()"
+  />
 
-  @if (loading()) {
-    <div class="space-y-6">
-      <p-card styleClass="border border-border">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div class="space-y-2 min-w-0 flex-1">
-            <p-skeleton height="2rem" width="min(280px, 100%)"></p-skeleton>
-            <p-skeleton height="1rem" width="min(360px, 100%)"></p-skeleton>
-          </div>
-          <p-skeleton height="2rem" width="5rem" borderRadius="9999px"></p-skeleton>
+  @if (orderResource.isLoading()) {
+    <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
+      <div class="space-y-5 p-1">
+        <p-skeleton height="2rem" width="45%"></p-skeleton>
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <p-skeleton height="5.5rem"></p-skeleton>
+          <p-skeleton height="5.5rem"></p-skeleton>
+          <p-skeleton height="5.5rem"></p-skeleton>
         </div>
-      </p-card>
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <p-card styleClass="border border-border lg:col-span-2">
-          <div class="space-y-6">
-            <p-skeleton height="1.25rem" width="30%"></p-skeleton>
-            <p-skeleton height="12rem" width="100%"></p-skeleton>
-          </div>
-        </p-card>
-        <p-card styleClass="border border-border">
-          <div class="space-y-3">
-            <p-skeleton height="1.25rem" width="40%"></p-skeleton>
-            <p-skeleton height="1rem" width="100%"></p-skeleton>
-            <p-skeleton height="1rem" width="100%"></p-skeleton>
-            <p-skeleton height="1rem" width="80%"></p-skeleton>
-            <p-skeleton height="2.5rem" width="100%" class="mt-4"></p-skeleton>
-          </div>
-        </p-card>
+        <p-skeleton height="1rem" width="80%"></p-skeleton>
       </div>
-    </div>
+    </p-card>
   } @else if (error()) {
-    <p-card styleClass="border border-destructive/30">
-      <div class="flex flex-col gap-3">
-        <p class="text-sm text-destructive">{{ error() }}</p>
-        <p-button label="Retry" icon="pi pi-refresh" (onClick)="retry()" />
-      </div>
-    </p-card>
-  } @else if (order(); as order) {
-    <p-card styleClass="border border-border">
-      <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-        <div class="min-w-0 space-y-1">
-          <div class="flex flex-wrap items-center gap-3">
-            <h1 class="text-2xl font-bold text-foreground truncate">{{ order.orderNumber }}</h1>
-            <p-tag
-              [value]="orderStatusLabel(order.status)"
-              [severity]="statusSeverity(orderStatusLabel(order.status))"
-              styleClass="px-2 py-1 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border shrink-0"
-            />
-
-          </div>
-          <p class="text-sm text-muted-foreground">
-            @if (order.customerName.trim()) {
-              {{ order.customerName }}
-            } @else {
-              —
-            }
-            @if (order.orderDate) {
-              <span class="text-muted-foreground/80"> · </span>
-              {{ order.orderDate | date: 'medium' }}
-            }
-          </p>
-
-          <div class="mt-4 pt-4 border-t border-border/60 space-y-4">
-            <div class="flex flex-wrap items-center gap-2">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground shrink-0"
-                >Payment terms</span
-              >
-              <p-tag
-                [value]="paymentTypeDisplay(order.paymentType)"
-                [severity]="getPaymentTypeSeverity(order.paymentType)"
-                styleClass="px-2 py-1 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border shrink-0"
-              />
-              <p-tag
-                [value]="paymentStatusDisplay(order.paymentStatus)"
-                [severity]="getPaymentStatusSeverity(order.paymentStatus)"
-                styleClass="px-2 py-1 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border shrink-0"
-              />
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-              <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
-                <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Order total</div>
-                <div class="text-base font-semibold tabular-nums text-foreground">
-                  {{ order.totalAmount | currency: currencyCode : 'symbol-narrow' }}
-                </div>
-                <p class="text-xs text-muted-foreground">Total order value as computed by the server.</p>
-              </div>
-              <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
-                <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Net total</div>
-                <div class="text-base font-semibold tabular-nums text-foreground">
-                  {{ order.netOfTotalOrderAmount | currency: currencyCode : 'symbol-narrow' }}
-                </div>
-                <p class="text-xs text-muted-foreground">Total after returns.</p>
-              </div>
-              <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
-                <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Returns</div>
-                <div class="text-base font-semibold tabular-nums text-foreground">
-                  {{ order.returnsTotal | currency: currencyCode : 'symbol-narrow' }}
-                </div>
-                <p class="text-xs text-muted-foreground">Total value of returned items.</p>
-              </div>
-              <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
-                <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Amount paid</div>
-                <div class="text-base font-semibold tabular-nums text-foreground">
-                  {{ order.amountPaid | currency: currencyCode : 'symbol-narrow' }}
-                </div>
-                @if (paidPercentOfTotal(order) !== null) {
-                  <p class="text-xs text-muted-foreground">
-                    {{ paidPercentOfTotal(order)! | number: '1.0-1' }}% of net total collected.
-                  </p>
-                } @else {
-                  <p class="text-xs text-muted-foreground">Cumulative payments posted to this order.</p>
-                }
-              </div>
-              <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
-                <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Outstanding</div>
-                <div class="text-base font-semibold tabular-nums text-foreground">
-                  {{ order.amountOutstanding | currency: currencyCode : 'symbol-narrow' }}
-                </div>
-                <p class="text-xs text-muted-foreground">Balance still due.</p>
-              </div>
-              <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
-                <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Allocated</div>
-                <div class="flex items-center gap-2">
-                  @if (order.orderAllocated) {
-                    <i class="pi pi-check-circle text-success text-lg"></i>
-                    <span class="text-sm font-semibold text-success">Yes</span>
-                  } @else {
-                    <i class="pi pi-clock text-warn text-lg"></i>
-                    <span class="text-sm font-semibold text-warn">Pending</span>
-                  }
-                </div>
-                <p class="text-xs text-muted-foreground">
-                  @if (order.invoiceId) {
-                    Invoice ref: <span class="font-mono">{{ order.invoiceId }}</span>
-                  } @else {
-                    No invoice linked.
-                  }
-                </p>
-              </div>
-            </div>
-
-            @if (order.amountPaid !== undefined && order.amountPaid !== null && order.amountOutstanding !== undefined && order.amountOutstanding !== null) {
-              <p class="text-xs text-muted-foreground leading-relaxed">
-                <span class="font-semibold text-foreground">Balance check:</span>
-                paid
-                <span class="tabular-nums text-foreground">{{
-                  order.amountPaid | currency: currencyCode : 'symbol-narrow'
-                }}</span>
-                + outstanding
-                <span class="tabular-nums text-foreground">{{
-                  order.amountOutstanding | currency: currencyCode : 'symbol-narrow'
-                }}</span>
-                should equal order total
-                <span class="tabular-nums text-foreground">{{
-                  order.totalAmount | currency: currencyCode : 'symbol-narrow'
-                }}</span>.
-                @if (!paymentTotalsAligned(order)) {
-                  <span class="text-destructive font-medium">
-                    These three figures are not reconciled to the penny—confirm with finance if needed.</span
-                  >
-                }
-              </p>
-            }
-          </div>
+    <p-card styleClass="border border-destructive/30 rounded-2xl shadow-sm">
+      <div class="flex flex-col gap-4 p-1 sm:flex-row sm:items-center sm:justify-between">
+        <div class="space-y-1">
+          <h2 class="text-base font-semibold text-foreground">Unable to load order</h2>
+          <p class="text-sm text-destructive">{{ error() }}</p>
         </div>
+        <p-button
+          label="Retry"
+          icon="pi pi-refresh"
+          styleClass="rounded-xl px-4 py-2.5 text-sm font-semibold"
+          (onClick)="retry()"
+        />
       </div>
     </p-card>
+  } @else if (displayOrder(); as order) {
+    <app-page-header
+      [title]="order.orderNumber"
+      [description]="order.customerName + ' · ' + (order.orderDate | date: 'medium') + ' · ' + orderStatusLabel(order.status)"
+    >
+      @if (canEditOrder(order)) {
+        <p-button
+          icon="pi pi-pencil"
+          label="Edit"
+          severity="secondary"
+          [outlined]="true"
+          [disabled]="actionSaving()"
+          (onClick)="goToEdit()"
+        />
+      }
+      @for (action of availableActions(); track action) {
+        <p-button
+          [label]="ORDER_ACTION_UI[action].label"
+          [icon]="ORDER_ACTION_UI[action].icon"
+          [severity]="ORDER_ACTION_UI[action].severity"
+          [loading]="actionSaving()"
+          [disabled]="actionSaving()"
+          (onClick)="onAction(action)"
+        />
+      }
+    </app-page-header>
+
+    <app-order-summary-card [order]="order" [currencyCode]="currencyCode" />
 
     <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" [lazy]="true">
       <p-tablist>
-        <p-tab value="overview">Overview</p-tab>
-        <p-tab value="lineItems">Line items</p-tab>
-        <p-tab value="returnItems">Return items</p-tab>
-        <p-tab value="payment">Payment</p-tab>
+        <p-tab [value]="0">Overview</p-tab>
+        <p-tab [value]="1">Line items</p-tab>
+        <p-tab [value]="2">Return items</p-tab>
+        <p-tab [value]="3">Payment</p-tab>
       </p-tablist>
       <p-tabpanels>
-        <p-tabpanel value="overview">
+        <p-tabpanel [value]="0">
           <div class="pt-5">
             <app-order-details-overview-tab [order]="order" [currencyCode]="currencyCode" />
           </div>
         </p-tabpanel>
-        <p-tabpanel value="lineItems">
+        <p-tabpanel [value]="1">
           <div class="pt-5">
             <app-order-details-line-items-tab [order]="order" [currencyCode]="currencyCode" />
           </div>
         </p-tabpanel>
-        <p-tabpanel value="returnItems">
+        <p-tabpanel [value]="2">
           <div class="pt-5">
             <app-order-details-return-items-tab
               [order]="order"
@@ -231,7 +94,7 @@
             />
           </div>
         </p-tabpanel>
-        <p-tabpanel value="payment">
+        <p-tabpanel [value]="3">
           <div class="pt-5">
             <app-order-details-payment-tab
               [order]="order"
@@ -244,5 +107,4 @@
       </p-tabpanels>
     </p-tabs>
   }
-
 </section>
