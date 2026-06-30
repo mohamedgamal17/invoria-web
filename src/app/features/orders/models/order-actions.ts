@@ -3,6 +3,7 @@ import { canReturnOrderItems } from './order-return-items';
 
 type OrderLike = {
   status: OrderStatus;
+  orderAllocated: boolean;
 };
 
 export type OrderActionKey =
@@ -54,11 +55,11 @@ export const ORDER_ACTION_UI: Record<Exclude<OrderActionKey, 'edit'>, OrderActio
 };
 
 export function canEditOrder(order: OrderLike): boolean {
-  return order.status === OrderStatus.Pending;
+  return order.status === OrderStatus.Pending || order.status === OrderStatus.Revision;
 }
 
 export function canAccept(order: OrderLike): boolean {
-  return order.status === OrderStatus.Pending;
+  return order.status === OrderStatus.Pending || order.status === OrderStatus.Revision;
 }
 
 export function canRequestRevision(order: OrderLike): boolean {
@@ -66,7 +67,8 @@ export function canRequestRevision(order: OrderLike): boolean {
 }
 
 export function canComplete(order: OrderLike): boolean {
-  return order.status === OrderStatus.Processing || order.status === OrderStatus.Revision;
+  return (order.status === OrderStatus.Processing || order.status === OrderStatus.Revision)
+    && order.orderAllocated;
 }
 
 export function canCancel(order: OrderLike): boolean {
