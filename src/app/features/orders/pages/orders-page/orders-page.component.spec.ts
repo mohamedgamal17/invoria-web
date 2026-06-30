@@ -47,6 +47,16 @@ describe('OrdersPageComponent', () => {
     customerId: 'cust_1',
     customer: { id: 'cust_1', name: 'Alice', createdAt: '2026-01-01T00:00:00.000Z' },
     status: OrderStatus.Pending,
+    paymentType: PaymentType.Immediate,
+    paymentStatus: PaymentStatus.Paid,
+    amountPaid: 21,
+    amountOutstanding: 0,
+    returnItems: [],
+    totalOrderAmount: 21,
+    netOfTotalOrderAmount: 21,
+    returnsTotal: 0,
+    payments: [],
+    orderAllocated: true,
     items: [{ id: 'line-1', productId: 'prd_1', quantity: 2, price: 10.5 }]
   };
 

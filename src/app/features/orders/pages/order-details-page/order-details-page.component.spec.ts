@@ -22,7 +22,7 @@ import type { Order } from '../../models/order.entity';
 import { OrderStatus } from '../../models/order.entity';
 import { getAvailableOrderActions } from '../../models/order-actions';
 import { canReturnOrderItems } from '../../models/order-return-items';
-import { PaymentType } from '../../models/order-payment.enums';
+import { PaymentStatus, PaymentType } from '../../models/order-payment.enums';
 
 describe('OrderDetailsPageComponent', () => {
   let fixture: ComponentFixture<OrderDetailsPageComponent>;
@@ -41,6 +41,15 @@ describe('OrderDetailsPageComponent', () => {
     customer: { id: 'c1', name: 'Alice', createdAt: '2026-01-01T00:00:00.000Z' },
     status: OrderStatus.Pending,
     paymentType: PaymentType.Immediate,
+    paymentStatus: PaymentStatus.Paid,
+    amountPaid: 10,
+    amountOutstanding: 0,
+    returnItems: [],
+    totalOrderAmount: 10,
+    netOfTotalOrderAmount: 10,
+    returnsTotal: 0,
+    payments: [],
+    orderAllocated: true,
     items: [{ id: 'line-1', productId: 'p1', quantity: 1, price: 10 }]
   };
 

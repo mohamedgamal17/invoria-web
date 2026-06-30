@@ -124,10 +124,11 @@ export function mapReturnItemsRequestToUi(
     return {
       orderItemId: line.OrderItemId,
       productName,
+      productId: orderLine?.productId ?? '',
       quantity: line.Quantity,
       orderedQuantity,
       unitPrice,
-      lineTotal: unitPrice * line.Quantity
+      lineReturnTotal: unitPrice * line.Quantity
     };
   });
 }

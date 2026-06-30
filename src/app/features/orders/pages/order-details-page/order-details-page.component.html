@@ -113,26 +113,36 @@
               />
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
               <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
                 <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Order total</div>
                 <div class="text-base font-semibold tabular-nums text-foreground">
                   {{ order.totalAmount | currency: currencyCode : 'symbol-narrow' }}
                 </div>
-                <p class="text-xs text-muted-foreground">Subtotal from line items before further adjustments.</p>
+                <p class="text-xs text-muted-foreground">Total order value as computed by the server.</p>
+              </div>
+              <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Net total</div>
+                <div class="text-base font-semibold tabular-nums text-foreground">
+                  {{ order.netOfTotalOrderAmount | currency: currencyCode : 'symbol-narrow' }}
+                </div>
+                <p class="text-xs text-muted-foreground">Total after returns.</p>
+              </div>
+              <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Returns</div>
+                <div class="text-base font-semibold tabular-nums text-foreground">
+                  {{ order.returnsTotal | currency: currencyCode : 'symbol-narrow' }}
+                </div>
+                <p class="text-xs text-muted-foreground">Total value of returned items.</p>
               </div>
               <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
                 <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Amount paid</div>
                 <div class="text-base font-semibold tabular-nums text-foreground">
-                  @if (order.amountPaid !== undefined && order.amountPaid !== null) {
-                    {{ order.amountPaid | currency: currencyCode : 'symbol-narrow' }}
-                  } @else {
-                    —
-                  }
+                  {{ order.amountPaid | currency: currencyCode : 'symbol-narrow' }}
                 </div>
                 @if (paidPercentOfTotal(order) !== null) {
                   <p class="text-xs text-muted-foreground">
-                    {{ paidPercentOfTotal(order)! | number: '1.0-1' }}% of order total collected so far.
+                    {{ paidPercentOfTotal(order)! | number: '1.0-1' }}% of net total collected.
                   </p>
                 } @else {
                   <p class="text-xs text-muted-foreground">Cumulative payments posted to this order.</p>
@@ -141,13 +151,28 @@
               <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
                 <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Outstanding</div>
                 <div class="text-base font-semibold tabular-nums text-foreground">
-                  @if (order.amountOutstanding !== undefined && order.amountOutstanding !== null) {
-                    {{ order.amountOutstanding | currency: currencyCode : 'symbol-narrow' }}
+                  {{ order.amountOutstanding | currency: currencyCode : 'symbol-narrow' }}
+                </div>
+                <p class="text-xs text-muted-foreground">Balance still due.</p>
+              </div>
+              <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Allocated</div>
+                <div class="flex items-center gap-2">
+                  @if (order.orderAllocated) {
+                    <i class="pi pi-check-circle text-success text-lg"></i>
+                    <span class="text-sm font-semibold text-success">Yes</span>
                   } @else {
-                    —
+                    <i class="pi pi-clock text-warn text-lg"></i>
+                    <span class="text-sm font-semibold text-warn">Pending</span>
                   }
                 </div>
-                <p class="text-xs text-muted-foreground">Balance still due according to the server.</p>
+                <p class="text-xs text-muted-foreground">
+                  @if (order.invoiceId) {
+                    Invoice ref: <span class="font-mono">{{ order.invoiceId }}</span>
+                  } @else {
+                    No invoice linked.
+                  }
+                </p>
               </div>
             </div>
 
@@ -178,69 +203,12 @@
       </div>
     </p-card>
 
-    @if (isFailedOrder()) {
-      <p-card styleClass="border border-border/60 bg-destructive/5" header="Order failed">
-        @if (failureDetails().length) {
-          <div class="space-y-3">
-            <p class="text-sm text-muted-foreground">
-              This order could not be completed because some items could not be fulfilled.
-            </p>
-
-            <div class="rounded-xl border border-border/60 overflow-x-auto -mx-1">
-              <p-table [value]="failureDetails()" styleClass="p-datatable-sm min-w-[720px]">
-                <ng-template pTemplate="header">
-                  <tr>
-                    <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Item</th>
-                    <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Message</th>
-                    <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Requested</th>
-                    <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Available</th>
-                    <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Shortage</th>
-                    <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Reference</th>
-                  </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-row>
-                  <tr>
-                    <td class="px-3 py-2 text-sm font-medium text-foreground break-all">
-                      {{ row.itemDisplayName }}
-                    </td>
-                    <td class="px-3 py-2 text-sm text-muted-foreground break-all">
-                      @if (row.quantityAvailable === 0) {
-                        No stock available — requested {{ row.quantityRequested }} (shortage {{ row.shortage }}).
-                      } @else if (row.shortage > 0) {
-                        Requested {{ row.quantityRequested }}, available {{ row.quantityAvailable }} (shortage {{ row.shortage }}).
-                      } @else {
-                        Requested {{ row.quantityRequested }}, available {{ row.quantityAvailable }}.
-                      }
-                    </td>
-                    <td class="px-3 py-2 text-sm text-right tabular-nums">{{ row.quantityRequested }}</td>
-                    <td class="px-3 py-2 text-sm text-right tabular-nums">{{ row.quantityAvailable }}</td>
-                    <td class="px-3 py-2 text-sm text-right tabular-nums font-semibold text-destructive">
-                      {{ row.shortage }}
-                    </td>
-                    <td
-                      class="px-3 py-2 text-xs text-muted-foreground font-mono break-all max-w-[12rem]"
-                      [title]="row.itemId"
-                    >
-                      {{ row.itemId }}
-                    </td>
-                  </tr>
-                </ng-template>
-              </p-table>
-            </div>
-          </div>
-        } @else {
-          <p class="text-sm text-muted-foreground">No failure details are available for this order.</p>
-        }
-      </p-card>
-    }
-
     <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" [lazy]="true">
       <p-tablist>
         <p-tab value="overview">Overview</p-tab>
         <p-tab value="lineItems">Line items</p-tab>
         <p-tab value="returnItems">Return items</p-tab>
         <p-tab value="payment">Payment</p-tab>
-        <p-tab value="history">History</p-tab>
       </p-tablist>
       <p-tabpanels>
         <p-tabpanel value="overview">
@@ -271,11 +239,6 @@
               [recordingDisabled]="actionSaving()"
               (refreshRequested)="loadOrder()"
             />
-          </div>
-        </p-tabpanel>
-        <p-tabpanel value="history">
-          <div class="pt-5">
-            <app-order-details-history-tab [events]="order.stateHistory" />
           </div>
         </p-tabpanel>
       </p-tabpanels>

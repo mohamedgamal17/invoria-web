@@ -4,14 +4,14 @@ import type {
 } from './order.entity';
 import type { PaymentStatus, PaymentType } from './order-payment.enums';
 
-/** Recorded return line for order details UI. */
 export interface UiReturnItem {
   orderItemId: string;
   productName: string;
+  productId: string;
   quantity: number;
   orderedQuantity: number;
   unitPrice: number;
-  lineTotal: number;
+  lineReturnTotal: number;
 }
 
 export interface UiOrderItem {
@@ -20,22 +20,6 @@ export interface UiOrderItem {
   productName: string;
   quantity: number;
   price: number;
-}
-
-export interface UiOrderStateHistoryEvent {
-  from?: string;
-  to: string;
-  timestamp: string;
-  reason?: string | null;
-}
-
-export interface UiOrderFailureDetailRow {
-  itemId: string;
-  itemName?: string | null;
-  itemDisplayName: string;
-  quantityRequested: number;
-  quantityAvailable: number;
-  shortage: number;
 }
 
 export interface UiOrder {
@@ -48,6 +32,8 @@ export interface UiOrder {
   customerId?: string;
   customerName: string;
   totalAmount: number;
+  netOfTotalOrderAmount: number;
+  returnsTotal: number;
   status: OrderStatus;
   paymentType?: PaymentType;
   paymentStatus?: PaymentStatus;
@@ -57,8 +43,10 @@ export interface UiOrder {
   orderDate: string;
   items: UiOrderItem[];
   returnItems: UiReturnItem[];
-  stateHistory: UiOrderStateHistoryEvent[];
-  failureDetails: UiOrderFailureDetailRow[];
+  allocationId?: string;
+  returnId?: string;
+  invoiceId?: string;
+  orderAllocated: boolean;
 }
 
 export type OrderCreateInput = Pick<

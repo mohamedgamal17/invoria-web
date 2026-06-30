@@ -25,13 +25,10 @@ import {
 } from '../../models/order-actions';
 import { orderToUiOrder } from '../../models/order-ui.mapper';
 import { OrderActionFacade, type OrderTransitionAction } from '../../services/order-action.facade';
-import { OrderDetailsHistoryTabComponent } from '../../components/order-details-history-tab/order-details-history-tab.component';
 import { OrderDetailsLineItemsTabComponent } from '../../components/order-details-line-items-tab/order-details-line-items-tab.component';
 import { OrderDetailsOverviewTabComponent } from '../../components/order-details-overview-tab/order-details-overview-tab.component';
 import { OrderDetailsPaymentTabComponent } from '../../components/order-details-payment-tab/order-details-payment-tab.component';
 import { OrderDetailsReturnItemsTabComponent } from '../../components/order-details-return-items-tab/order-details-return-items-tab.component';
-import { mapReturnItemsRequestToUi } from '../../models/order-return-items';
-import type { AddReturnItemsRequest } from '../../models/add-return-items.request';
 import type { Order } from '../../models/order.entity';
 import {
   PaymentStatus,
@@ -39,7 +36,7 @@ import {
   paymentStatusLabel,
   paymentTypeLabel
 } from '../../models/order-payment.enums';
-import type { UiOrder, UiOrderFailureDetailRow } from '../../models/order-ui.model';
+import type { UiOrder } from '../../models/order-ui.model';
 
 const PAYMENT_SUMMARY_EPS = 0.02;
 import { OrdersApiService } from '../../services/orders-api.service';
@@ -52,7 +49,6 @@ import { OrdersApiService } from '../../services/orders-api.service';
     ButtonModule,
     CardModule,
     ConfirmDialogModule,
-    OrderDetailsHistoryTabComponent,
     OrderDetailsLineItemsTabComponent,
     OrderDetailsOverviewTabComponent,
     OrderDetailsPaymentTabComponent,
@@ -100,17 +96,6 @@ export class OrderDetailsPageComponent {
     return getAvailableOrderActions(order).filter((action) => action !== 'edit');
   });
 
-  readonly isFailedOrder = computed(() => {
-    const order = this.order();
-    if (!order) return false;
-    return order.status === OrderStatus.Cancelled;
-  });
-
-  readonly failureDetails = computed((): UiOrderFailureDetailRow[] => {
-    const order = this.order();
-    return order?.failureDetails ?? [];
-  });
-
   constructor() {
     this.loadOrder();
   }
@@ -150,10 +135,8 @@ export class OrderDetailsPageComponent {
     this.activeTab.set(String(value));
   }
 
-  onReturnItemsRecorded(event: { request: AddReturnItemsRequest; result: Order }): void {
-    const ui = orderToUiOrder(event.result);
-    ui.returnItems = mapReturnItemsRequestToUi(event.request, ui.items);
-    this.order.set(ui);
+  onReturnItemsRecorded(event: { result: Order }): void {
+    this.order.set(orderToUiOrder(event.result));
   }
 
   statusSeverity(

@@ -31,7 +31,6 @@ export class OrderDetailsReturnItemsTabComponent {
   readonly recordingDisabled = input(false);
 
   readonly returnItemsRecorded = output<{
-    request: AddReturnItemsRequest;
     result: Order;
   }>();
 
@@ -79,7 +78,7 @@ export class OrderDetailsReturnItemsTabComponent {
               ? 'Return items updated successfully.'
               : 'Return items recorded successfully.'
           });
-          this.returnItemsRecorded.emit({ request, result: res.result });
+          this.returnItemsRecorded.emit({ result: res.result });
         },
         error: (err: unknown) => {
           this.messageService.add(presentApiError(err).toast);

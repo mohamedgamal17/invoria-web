@@ -20,19 +20,14 @@ export interface OrderItem {
   product?: Product | null;
 }
 
-export interface OrderFailureDetails extends Entity {
-  itemId: string;
-  itemName?: string | null;
-  quantityRequested: number;
-  quantityAvailable: number;
-  shortage: number;
-}
-
-export interface OrderStateTransitionHistory {
-  fromStatus: OrderStatus;
-  toStatus: OrderStatus;
-  changedAt: string;
-  reason?: string | null;
+export interface OrderReturnItem {
+  orderItemId: string;
+  quantity: number;
+  productId: string;
+  orderedQuantity: number;
+  unitPrice: number;
+  lineReturnTotal: number;
+  product?: Product | null;
 }
 
 export interface OrderPayment extends Entity {
@@ -47,12 +42,18 @@ export interface Order extends Entity {
   customerId: string;
   customer?: Customer | null;
   status: OrderStatus;
-  paymentType?: PaymentType;
-  paymentStatus?: PaymentStatus;
-  amountPaid?: number;
-  amountOutstanding?: number;
-  items?: OrderItem[];
-  failureDetails?: OrderFailureDetails[];
-  stateTransitionHistory?: OrderStateTransitionHistory[];
-  payments?: OrderPayment[];
+  paymentType: PaymentType;
+  paymentStatus: PaymentStatus;
+  amountPaid: number;
+  amountOutstanding: number;
+  items: OrderItem[];
+  returnItems: OrderReturnItem[];
+  totalOrderAmount: number;
+  netOfTotalOrderAmount: number;
+  returnsTotal: number;
+  payments: OrderPayment[];
+  allocationId?: string | null;
+  returnId?: string | null;
+  invoiceId?: string | null;
+  orderAllocated: boolean;
 }

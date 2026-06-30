@@ -6,8 +6,6 @@ import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { PaginatorModule } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
-import { PopoverModule } from 'primeng/popover';
-import { TimelineModule } from 'primeng/timeline';
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
 import type { UiOrder } from '../../models/order-ui.model';
@@ -34,8 +32,6 @@ import {
     TooltipModule,
     PaginatorModule,
     SkeletonModule,
-    PopoverModule,
-    TimelineModule,
     EmptyStateComponent,
     SurfaceCardComponent
   ],

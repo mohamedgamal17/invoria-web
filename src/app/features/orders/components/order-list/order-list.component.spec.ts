@@ -7,8 +7,6 @@ import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { PaginatorModule } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
-import { PopoverModule } from 'primeng/popover';
-import { TimelineModule } from 'primeng/timeline';
 import { CommonModule } from '@angular/common';
 import { By } from '@angular/platform-browser';
 import type { UiOrder } from '../../models/order-ui.model';
@@ -24,12 +22,13 @@ describe('OrderListComponent', () => {
       orderNumber: 'ORD-001',
       customerName: 'Customer 1',
       totalAmount: 100,
+      netOfTotalOrderAmount: 100,
+      returnsTotal: 0,
       status: OrderStatus.Pending,
       orderDate: new Date().toISOString(),
       items: [],
       returnItems: [],
-      stateHistory: [],
-      failureDetails: [],
+      orderAllocated: false,
       createdAt: new Date().toISOString(),
       createdBy: 'system',
       lastModifiedAt: new Date().toISOString(),
@@ -40,12 +39,13 @@ describe('OrderListComponent', () => {
       orderNumber: 'ORD-002',
       customerName: 'Customer 2',
       totalAmount: 200,
+      netOfTotalOrderAmount: 200,
+      returnsTotal: 0,
       status: OrderStatus.Processing,
       orderDate: new Date().toISOString(),
       items: [],
       returnItems: [],
-      stateHistory: [],
-      failureDetails: [],
+      orderAllocated: false,
       createdAt: new Date().toISOString(),
       createdBy: 'system',
       lastModifiedAt: new Date().toISOString(),
@@ -63,9 +63,7 @@ describe('OrderListComponent', () => {
         TagModule,
         TooltipModule,
         PaginatorModule,
-        SkeletonModule,
-        PopoverModule,
-        TimelineModule
+        SkeletonModule
       ]
     }).compileComponents();
 

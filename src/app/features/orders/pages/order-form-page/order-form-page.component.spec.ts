@@ -15,6 +15,7 @@ import { CustomersApiService } from '../../../customers/services/customers-api.s
 import { ProductsApiService } from '../../../products/services/products-api.service';
 import type { Order } from '../../models/order.entity';
 import { OrderStatus } from '../../models/order.entity';
+import { PaymentStatus, PaymentType } from '../../models/order-payment.enums';
 
 describe('OrderFormPageComponent', () => {
   let fixture: ComponentFixture<OrderFormPageComponent>;
@@ -37,6 +38,16 @@ describe('OrderFormPageComponent', () => {
     customerId: 'c1',
     customer: { id: 'c1', name: 'Alice', createdAt: '2026-01-01T00:00:00.000Z' },
     status: OrderStatus.Pending,
+    paymentType: PaymentType.Immediate,
+    paymentStatus: PaymentStatus.Paid,
+    amountPaid: 10,
+    amountOutstanding: 0,
+    returnItems: [],
+    totalOrderAmount: 10,
+    netOfTotalOrderAmount: 10,
+    returnsTotal: 0,
+    payments: [],
+    orderAllocated: false,
     items: [{ id: 'line-1', productId: 'p1', quantity: 2, price: 5 }]
   };
 
