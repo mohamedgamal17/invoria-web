@@ -15,6 +15,8 @@ const baseOrder = (overrides: Partial<UiOrder> = {}): UiOrder => ({
   orderNumber: 'ORD-1',
   customerName: 'Alice',
   totalAmount: 100,
+  netOfTotalOrderAmount: 100,
+  returnsTotal: 0,
   status: OrderStatus.Completed,
   orderDate: '2026-01-01T00:00:00.000Z',
   items: [
@@ -22,8 +24,7 @@ const baseOrder = (overrides: Partial<UiOrder> = {}): UiOrder => ({
     { id: 'line-b', productId: 'prod-2', productName: 'Other', quantity: 1, price: 80 }
   ],
   returnItems: [],
-  stateHistory: [],
-  failureDetails: [],
+  orderAllocated: false,
   ...overrides
 });
 
@@ -34,18 +35,20 @@ describe('product-order-summary', () => {
         {
           orderItemId: 'line-a',
           productName: 'Widget',
+          productId: 'prod-1',
           quantity: 1,
           orderedQuantity: 2,
           unitPrice: 10,
-          lineTotal: 10
+          lineReturnTotal: 10
         },
         {
           orderItemId: 'line-b',
           productName: 'Other',
+          productId: 'prod-2',
           quantity: 1,
           orderedQuantity: 1,
           unitPrice: 80,
-          lineTotal: 80
+          lineReturnTotal: 80
         }
       ]
     });
@@ -61,10 +64,11 @@ describe('product-order-summary', () => {
         {
           orderItemId: 'line-a',
           productName: 'Widget',
+          productId: 'prod-1',
           quantity: 1,
           orderedQuantity: 2,
           unitPrice: 10,
-          lineTotal: 10
+          lineReturnTotal: 10
         }
       ]
     }), 'prod-1', 'Completed');
