@@ -10,6 +10,9 @@ import { Component, input } from '@angular/core';
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div class="space-y-1">
           <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent/90">
+            @if (eyebrowIcon(); as icon) {
+              <i [class]="icon" class="mr-1.5"></i>
+            }
             {{ eyebrow() }}
           </p>
           <h1 class="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
@@ -28,4 +31,5 @@ export class PageHeaderComponent {
   title = input.required<string>();
   description = input.required<string>();
   eyebrow = input('Operations');
+  eyebrowIcon = input('');
 }
