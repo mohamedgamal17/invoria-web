@@ -23,31 +23,31 @@ export type OrderActionUiMeta = {
 
 export const ORDER_ACTION_UI: Record<Exclude<OrderActionKey, 'edit'>, OrderActionUiMeta> = {
   accept: {
-    label: 'Accept',
+    label: 'Confirm Order',
     icon: 'pi pi-check',
     severity: 'info',
     routeSegment: 'accept'
   },
   requestRevision: {
-    label: 'Request revision',
+    label: 'Request Changes',
     icon: 'pi pi-pencil',
     severity: 'warn',
     routeSegment: 'request-revision'
   },
   complete: {
-    label: 'Complete',
+    label: 'Complete Order',
     icon: 'pi pi-check-circle',
     severity: 'success',
     routeSegment: 'complete'
   },
   cancel: {
-    label: 'Cancel',
+    label: 'Cancel Order',
     icon: 'pi pi-times',
     severity: 'danger',
     routeSegment: 'cancel'
   },
   returnItems: {
-    label: 'Record return items',
+    label: 'Return Items',
     icon: 'pi pi-undo',
     severity: 'info',
     routeSegment: 'return-items'
@@ -63,7 +63,7 @@ export function canAccept(order: OrderLike): boolean {
 }
 
 export function canRequestRevision(order: OrderLike): boolean {
-  return order.status === OrderStatus.Processing;
+  return order.status === OrderStatus.Processing && order.orderAllocated;
 }
 
 export function canComplete(order: OrderLike): boolean {
@@ -80,10 +80,17 @@ export function canCancel(order: OrderLike): boolean {
 export { canReturnOrderItems };
 
 export function getPrimaryOrderAction(order: OrderLike): OrderActionKey | null {
+  if (canComplete(order)) return 'complete';
   if (canAccept(order)) return 'accept';
   if (canRequestRevision(order)) return 'requestRevision';
-  if (canComplete(order)) return 'complete';
   if (canCancel(order)) return 'cancel';
+  return null;
+}
+
+export function getBeatingAction(order: OrderLike): OrderActionKey | null {
+  if (canComplete(order)) return 'complete';
+  if (canAccept(order)) return 'accept';
+  if (canRequestRevision(order)) return 'requestRevision';
   return null;
 }
 
@@ -117,22 +124,44 @@ export function orderStatusLabel(status: OrderStatus): string {
   }
 }
 
+export function orderStatusEmoji(status: OrderStatus): string {
+  return '';
+}
+
 export function orderStatusUserLabel(status: OrderStatus): string {
   switch (status) {
     case OrderStatus.Pending:
-      return 'Awaiting processing';
+      return 'Awaiting confirmation';
     case OrderStatus.Processing:
-      return 'Processing order';
+      return 'Order in progress';
     case OrderStatus.Revision:
       return 'Revision requested';
     case OrderStatus.Completed:
-      return 'Completed';
+      return 'Delivered & complete';
     case OrderStatus.Cancelled:
       return 'Cancelled';
     case OrderStatus.RevisionPending:
       return 'Revision pending';
     default:
       return 'Unknown';
+  }
+}
+
+export function orderStatusSeverity(
+  status: OrderStatus
+): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' {
+  switch (status) {
+    case OrderStatus.Completed:
+      return 'success';
+    case OrderStatus.Processing:
+      return 'info';
+    case OrderStatus.Revision:
+    case OrderStatus.RevisionPending:
+      return 'warn';
+    case OrderStatus.Cancelled:
+      return 'danger';
+    default:
+      return 'secondary';
   }
 }
 

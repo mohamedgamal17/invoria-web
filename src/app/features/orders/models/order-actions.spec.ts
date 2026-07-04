@@ -21,8 +21,9 @@ describe('order-actions', () => {
     expect(canAccept({ status: OrderStatus.RevisionPending, orderAllocated: false })).toBe(false);
   });
 
-  it('canRequestRevision: true only for Processing', () => {
-    expect(canRequestRevision({ status: OrderStatus.Processing, orderAllocated: false })).toBe(true);
+  it('canRequestRevision: true only for Processing when allocated', () => {
+    expect(canRequestRevision({ status: OrderStatus.Processing, orderAllocated: true })).toBe(true);
+    expect(canRequestRevision({ status: OrderStatus.Processing, orderAllocated: false })).toBe(false);
     expect(canRequestRevision({ status: OrderStatus.Pending, orderAllocated: false })).toBe(false);
     expect(canRequestRevision({ status: OrderStatus.Revision, orderAllocated: false })).toBe(false);
   });
@@ -55,9 +56,9 @@ describe('order-actions', () => {
 
   it('getPrimaryOrderAction: returns the next logical action per status', () => {
     expect(getPrimaryOrderAction({ status: OrderStatus.Pending, orderAllocated: false })).toBe('accept');
-    expect(getPrimaryOrderAction({ status: OrderStatus.Processing, orderAllocated: false })).toBe('requestRevision');
+    expect(getPrimaryOrderAction({ status: OrderStatus.Processing, orderAllocated: true })).toBe('complete');
     expect(getPrimaryOrderAction({ status: OrderStatus.Revision, orderAllocated: false })).toBe('accept');
-    expect(getPrimaryOrderAction({ status: OrderStatus.Revision, orderAllocated: true })).toBe('accept');
+    expect(getPrimaryOrderAction({ status: OrderStatus.Revision, orderAllocated: true })).toBe('complete');
     expect(getPrimaryOrderAction({ status: OrderStatus.Completed, orderAllocated: true })).toBeNull();
     expect(getPrimaryOrderAction({ status: OrderStatus.Cancelled, orderAllocated: false })).toBeNull();
   });
