@@ -22,6 +22,6 @@ import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-head
 })
 export class OrderHeaderComponent {
   title = input('Orders');
-  description = input('Manage and track your customer orders and status updates.');
+  description = input('Manage and track your customer orders from creation to delivery.');
   create = output<void>();
 }
