@@ -26,7 +26,6 @@ import { OrderStatus } from '../../models/order.entity';
 import { orderToUiOrder } from '../../models/order-ui.mapper';
 import { OrderActionFacade, type OrderTransitionAction } from '../../services/order-action.facade';
 import { OrderDetailsLineItemsTabComponent } from '../../components/order-details-line-items-tab/order-details-line-items-tab.component';
-import { OrderDetailsOverviewTabComponent } from '../../components/order-details-overview-tab/order-details-overview-tab.component';
 import { OrderDetailsPaymentTabComponent } from '../../components/order-details-payment-tab/order-details-payment-tab.component';
 import { OrderSummaryCardComponent } from '../../components/order-summary-card/order-summary-card.component';
 import { OrderProgressComponent } from '../../components/order-progress/order-progress.component';
@@ -39,17 +38,17 @@ import { OrderReturnItemsDialogComponent } from '../../components/order-return-i
 import { OrdersApiService } from '../../services/orders-api.service';
 import { DialogModule } from 'primeng/dialog';
 
-const TAB_SLUGS = ['overview', 'lineItems', 'payment'] as const;
+const TAB_SLUGS = ['summary', 'lineItems', 'payment'] as const;
 
 function tabSlugToIndex(tab: string | null): number | null {
   if (tab === 'lineItems') return 1;
   if (tab === 'payment') return 2;
-  if (tab === 'overview' || tab === null || tab === '') return 0;
+  if (tab === 'summary' || tab === 'overview' || tab === null || tab === '') return 0;
   return null;
 }
 
 function indexToTabSlug(index: number): string {
-  return TAB_SLUGS[index] ?? 'overview';
+  return TAB_SLUGS[index] ?? 'summary';
 }
 
 @Component({
@@ -62,7 +61,6 @@ function indexToTabSlug(index: number): string {
     ConfirmDialogModule,
     DialogModule,
     OrderDetailsLineItemsTabComponent,
-    OrderDetailsOverviewTabComponent,
     OrderDetailsPaymentTabComponent,
     OrderReturnItemsDialogComponent,
     OrderSummaryCardComponent,

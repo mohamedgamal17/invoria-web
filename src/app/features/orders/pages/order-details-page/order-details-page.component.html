@@ -83,18 +83,16 @@
       }
     </app-page-header>
 
-    <app-order-summary-card [order]="order" [currencyCode]="currencyCode" />
-
     <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" [lazy]="true">
       <p-tablist>
-        <p-tab [value]="0">Overview</p-tab>
+        <p-tab [value]="0">Summary</p-tab>
         <p-tab [value]="1">Line items</p-tab>
         <p-tab [value]="2">Payment & Returns</p-tab>
       </p-tablist>
       <p-tabpanels>
         <p-tabpanel [value]="0">
           <div class="pt-5">
-            <app-order-details-overview-tab [order]="order" [currencyCode]="currencyCode" />
+            <app-order-summary-card [order]="order" [currencyCode]="currencyCode" />
           </div>
         </p-tabpanel>
         <p-tabpanel [value]="1">
