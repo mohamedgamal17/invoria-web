@@ -3,15 +3,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-import { DatePickerModule } from 'primeng/datepicker';
+import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import type { UiOrderItem } from '../../models/order-ui.model';
 import type { Product } from '../../../products/models/product.entity';
 import type { Customer } from '../../../customers/models/customer.entity';
+import { PaymentType, paymentTypeLabel } from '../../models/order-payment.enums';
 
 @Component({
   selector: 'app-order-dialog',
@@ -21,10 +21,9 @@ import type { Customer } from '../../../customers/models/customer.entity';
     FormsModule,
     DialogModule,
     ButtonModule,
-    InputTextModule,
     InputNumberModule,
     AutoCompleteModule,
-    DatePickerModule,
+    SelectModule,
     TableModule,
     TooltipModule
   ],
@@ -33,10 +32,10 @@ import type { Customer } from '../../../customers/models/customer.entity';
 export class OrderDialogComponent {
   visible = model(false);
   mode = input<'create' | 'edit'>('create');
-  draft = input<any>({});
   draftItems = input<UiOrderItem[]>([]);
   saving = input(false);
-  
+  totalAmount = input(0);
+
   selectedCustomer = model<Customer | null>(null);
   customers = input<Customer[]>([]);
   isCustomerLoading = input(false);
@@ -46,11 +45,16 @@ export class OrderDialogComponent {
   isProductLoading = input(false);
   itemQuantity = model(1);
   itemPrice = model(0);
+  paymentType = model<PaymentType>(PaymentType.Immediate);
+
+  readonly paymentTypeOptions = [
+    { label: paymentTypeLabel(PaymentType.Immediate), value: PaymentType.Immediate },
+    { label: paymentTypeLabel(PaymentType.Debt), value: PaymentType.Debt }
+  ];
 
   orderSubmit = output<void>();
   cancel = output<void>();
   hide = output<void>();
-  itemPriceChange = output<number>(); // Kept for compatibility, but model() handles it
 
   searchCustomers = output<any>();
   customerSelect = output<any>();
