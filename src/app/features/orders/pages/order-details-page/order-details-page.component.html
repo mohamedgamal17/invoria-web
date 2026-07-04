@@ -71,6 +71,16 @@
           (onClick)="onAction(action)"
         />
       }
+      @if (returnSummary(); as summary) {
+        <div
+          class="flex items-center gap-2 rounded-xl border border-border/60 bg-surface-2 px-3 py-2 text-sm"
+        >
+          <i class="pi pi-undo text-accent text-xs"></i>
+          <span class="font-medium">{{ summary.count }} {{ summary.count === 1 ? 'item' : 'items' }} returned</span>
+          <span class="text-muted-foreground">·</span>
+          <span class="font-semibold tabular-nums">{{ summary.total | currency: currencyCode }}</span>
+        </div>
+      }
     </app-page-header>
 
     <app-order-summary-card [order]="order" [currencyCode]="currencyCode" />
@@ -107,3 +117,41 @@
     </p-tabs>
   }
 </section>
+
+<p-dialog
+  header="Complete Order"
+  [(visible)]="showCompleteOptionDialog"
+  [modal]="true"
+  [closable]="true"
+  styleClass="w-96"
+>
+  <p class="mb-6 text-sm text-muted-foreground">
+    How would you like to proceed with completing this order?
+  </p>
+  <div class="flex flex-col gap-3">
+    <p-button
+      label="Include Return Items"
+      icon="pi pi-undo"
+      styleClass="w-full justify-start"
+      [disabled]="actionSaving()"
+      (onClick)="onCompleteIncludeReturns()"
+    />
+    <p-button
+      label="Complete without returns"
+      icon="pi pi-check-circle"
+      severity="success"
+      styleClass="w-full justify-start"
+      [disabled]="actionSaving()"
+      (onClick)="onCompleteWithoutReturns()"
+    />
+  </div>
+</p-dialog>
+
+<app-order-return-items-dialog
+  [(visible)]="showReturnDialogOnComplete"
+  [orderItems]="(displayOrder()?.items ?? [])"
+  [existingReturnItems]="[]"
+  [saving]="returnSaving()"
+  (submitRequest)="onReturnSubmitComplete($event)"
+  (cancel)="onReturnDialogCancel()"
+/>

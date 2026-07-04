@@ -31,9 +31,13 @@ import { OrderDetailsPaymentTabComponent } from '../../components/order-details-
 import { OrderSummaryCardComponent } from '../../components/order-summary-card/order-summary-card.component';
 import { OrderProgressComponent } from '../../components/order-progress/order-progress.component';
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
+import type { CompleteOrderRequest } from '../../models/complete-order.request';
+import type { AddReturnItemsRequest } from '../../models/add-return-items.request';
 import type { Order } from '../../models/order.entity';
 import type { UiOrder } from '../../models/order-ui.model';
+import { OrderReturnItemsDialogComponent } from '../../components/order-return-items-dialog/order-return-items-dialog.component';
 import { OrdersApiService } from '../../services/orders-api.service';
+import { DialogModule } from 'primeng/dialog';
 
 const TAB_SLUGS = ['overview', 'lineItems', 'payment'] as const;
 
@@ -56,9 +60,11 @@ function indexToTabSlug(index: number): string {
     ButtonModule,
     CardModule,
     ConfirmDialogModule,
+    DialogModule,
     OrderDetailsLineItemsTabComponent,
     OrderDetailsOverviewTabComponent,
     OrderDetailsPaymentTabComponent,
+    OrderReturnItemsDialogComponent,
     OrderSummaryCardComponent,
     OrderProgressComponent,
     PageHeaderComponent,
@@ -156,7 +162,7 @@ export class OrderDetailsPageComponent {
   readonly availableActions = computed(() => {
     const order = this.displayOrder();
     if (!order) return [];
-    return getAvailableOrderActions(order).filter((action) => action !== 'edit');
+    return getAvailableOrderActions(order).filter((action) => action !== 'edit' && action !== 'returnItems');
   });
 
   private readonly revisionSnapshotKey = computed(
@@ -184,6 +190,19 @@ export class OrderDetailsPageComponent {
       return false;
     }
   });
+
+  readonly returnSummary = computed(() => {
+    const order = this.displayOrder();
+    if (!order || order.status !== OrderStatus.Completed || !order.returnItems?.length) return null;
+    return {
+      count: order.returnItems.length,
+      total: order.returnsTotal
+    };
+  });
+
+  readonly showCompleteOptionDialog = signal(false);
+  readonly showReturnDialogOnComplete = signal(false);
+  readonly returnSaving = signal(false);
 
   readonly pulseTarget = computed(() => {
     const order = this.displayOrder();
@@ -247,8 +266,13 @@ export class OrderDetailsPageComponent {
 
   onAction(action: OrderActionKey): void {
     if (action === 'edit' || action === 'returnItems') return;
-    const meta = this.orderActionFacade.meta(action as OrderTransitionAction);
 
+    if (action === 'complete') {
+      this.showCompleteOptionDialog.set(true);
+      return;
+    }
+
+    const meta = this.orderActionFacade.meta(action as OrderTransitionAction);
     this.confirmationService.confirm({
       header: 'Confirm Action',
       message: `Are you sure you want to ${meta.label.replace(/[^a-zA-Z ]/g, '').trim().toLowerCase()} this order?`,
@@ -257,6 +281,16 @@ export class OrderDetailsPageComponent {
       rejectButtonProps: { label: 'Cancel', severity: 'secondary', outlined: true },
       accept: () => this.executeAction(action)
     });
+  }
+
+  onCompleteIncludeReturns(): void {
+    this.showCompleteOptionDialog.set(false);
+    this.showReturnDialogOnComplete.set(true);
+  }
+
+  onCompleteWithoutReturns(): void {
+    this.showCompleteOptionDialog.set(false);
+    this.executeAction('complete');
   }
 
   retry(): void {
@@ -285,13 +319,31 @@ export class OrderDetailsPageComponent {
     this.orderResource.reload();
   }
 
-  private executeAction(action: OrderTransitionAction): void {
+  onReturnSubmitComplete(request: AddReturnItemsRequest): void {
+    this.showReturnDialogOnComplete.set(false);
+    this.executeAction('complete', { ReturnItems: request.Items });
+  }
+
+  onReturnDialogCancel(): void {
+    this.showReturnDialogOnComplete.set(false);
+  }
+
+  private showCompleteSuccess(): void {
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Order Completed!',
+      detail: 'The order has been delivered successfully!'
+    });
+    this.spawnConfetti();
+  }
+
+  private executeAction(action: OrderTransitionAction, body?: CompleteOrderRequest): void {
     const id = this.orderId();
     if (!id) return;
 
     this.actionSaving.set(true);
     this.orderActionFacade
-      .execute(action, id)
+      .execute(action, id, body)
       .pipe(
         take(1),
         finalize(() => this.actionSaving.set(false))
@@ -302,17 +354,16 @@ export class OrderDetailsPageComponent {
             this.messageService.add(presentApiError(res.error).toast);
             return;
           }
-          const completed = action === 'complete';
-          this.messageService.add({
-            severity: 'success',
-            summary: completed ? 'Order Completed!' : 'Success',
-            detail: completed
-              ? 'The order has been delivered successfully!'
-              : `${this.orderActionFacade.meta(action).label} action completed.`
-          });
           this.displayOrder.set(orderToUiOrder(res.result));
-          if (completed) {
-            this.spawnConfetti();
+
+          if (action === 'complete') {
+            this.showCompleteSuccess();
+          } else {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: `${this.orderActionFacade.meta(action).label} action completed.`
+            });
           }
         },
         error: (err: unknown) => {
