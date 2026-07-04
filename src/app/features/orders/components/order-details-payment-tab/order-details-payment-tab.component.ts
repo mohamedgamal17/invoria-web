@@ -24,6 +24,10 @@ import {
 import { OrderStatus } from '../../models/order.entity';
 import type { UiOrder } from '../../models/order-ui.model';
 import { OrdersApiService } from '../../services/orders-api.service';
+import { OrderReturnItemsDialogComponent } from '../order-return-items-dialog/order-return-items-dialog.component';
+import { canReturnOrderItems } from '../../models/order-return-items';
+import type { AddReturnItemsRequest } from '../../models/add-return-items.request';
+import type { Order } from '../../models/order.entity';
 
 const MONEY_EPS = 0.005;
 
@@ -39,7 +43,8 @@ const MONEY_EPS = 0.005;
     InputNumberModule,
     SelectModule,
     TableModule,
-    TagModule
+    TagModule,
+    OrderReturnItemsDialogComponent
   ],
   templateUrl: './order-details-payment-tab.component.html'
 })
@@ -49,8 +54,10 @@ export class OrderDetailsPaymentTabComponent {
   readonly recordingDisabled = input(false);
 
   readonly refreshRequested = output<void>();
+  readonly returnItemsRecorded = output<{ result: Order }>();
 
   readonly paymentMethodLabel = paymentMethodLabel;
+  readonly canReturnOrderItems = canReturnOrderItems;
 
   /** Record payment only after the order is completed and payment type is known. */
   readonly canRecordPayment = computed(() => {
@@ -100,8 +107,46 @@ export class OrderDetailsPaymentTabComponent {
   private readonly ordersApi = inject(OrdersApiService);
   private readonly messageService = inject(MessageService);
 
+  openReturnDialog(): void {
+    this.returnDialogVisible.set(true);
+  }
+
+  submitReturnItems(request: AddReturnItemsRequest): void {
+    const id = this.order().id;
+    const isEdit = this.order().returnItems.length > 0;
+
+    this.returnSaving.set(true);
+    this.ordersApi
+      .addReturnItems(id, request)
+      .pipe(
+        take(1),
+        finalize(() => this.returnSaving.set(false))
+      )
+      .subscribe({
+        next: (res) => {
+          if (!res.isSuccess || !res.result) {
+            this.messageService.add(presentApiError(res.error).toast);
+            return;
+          }
+          this.returnDialogVisible.set(false);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: isEdit ? 'Return items updated.' : 'Return items recorded.'
+          });
+          this.returnItemsRecorded.emit({ result: res.result });
+        },
+        error: (err: unknown) => {
+          this.messageService.add(presentApiError(err).toast);
+        }
+      });
+  }
+
   readonly dialogVisible = model(false);
   readonly paymentSaving = signal(false);
+
+  readonly returnDialogVisible = model(false);
+  readonly returnSaving = signal(false);
 
   /** Dialog form state (avoid mixing signals with PrimeNG ngModel quirks). */
   recordPaidAmount: number | null = null;

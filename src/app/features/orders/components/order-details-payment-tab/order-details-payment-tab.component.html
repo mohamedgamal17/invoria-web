@@ -30,55 +30,24 @@
         <div class="font-semibold tabular-nums text-foreground">
           {{ order().totalAmount | currency: currencyCode() : 'symbol-narrow' }}
         </div>
-        <p class="text-xs text-muted-foreground">Sum of line items (subtotal).</p>
       </div>
       <div class="space-y-1">
         <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Amount paid</div>
         <div class="font-semibold tabular-nums text-foreground">
           @if (order().amountPaid !== undefined && order().amountPaid !== null) {
             {{ order().amountPaid | currency: currencyCode() : 'symbol-narrow' }}
-          } @else {
-            —
-          }
+          } @else { — }
         </div>
-        @if (order().amountPaid !== undefined && order().amountPaid !== null && order().totalAmount > 0) {
-          <p class="text-xs text-muted-foreground">
-            {{ (order().amountPaid! / order().totalAmount) * 100 | number: '1.0-1' }}% of order total
-          </p>
-        }
-        <p class="text-xs text-muted-foreground">Total recorded across all payment entries.</p>
       </div>
       <div class="space-y-1">
         <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Outstanding</div>
         <div class="font-semibold tabular-nums text-foreground">
           @if (order().amountOutstanding !== undefined && order().amountOutstanding !== null) {
             {{ order().amountOutstanding | currency: currencyCode() : 'symbol-narrow' }}
-          } @else {
-            —
-          }
+          } @else { — }
         </div>
-        <p class="text-xs text-muted-foreground">Remaining balance due on this order.</p>
       </div>
     </div>
-    @if (
-      order().amountPaid !== undefined &&
-      order().amountPaid !== null &&
-      order().amountOutstanding !== undefined &&
-      order().amountOutstanding !== null
-    ) {
-      <p class="mt-4 text-xs text-muted-foreground border-t border-border/60 pt-4">
-        <span class="font-medium text-foreground">Check:</span>
-        paid
-        <span class="tabular-nums">{{ order().amountPaid! | currency: currencyCode() : 'symbol-narrow' }}</span>
-        + outstanding
-        <span class="tabular-nums">{{ order().amountOutstanding! | currency: currencyCode() : 'symbol-narrow' }}</span>
-        = order total
-        <span class="tabular-nums">{{ order().totalAmount | currency: currencyCode() : 'symbol-narrow' }}</span>
-        @if (!paymentFiguresAligned()) {
-          <span class="text-destructive font-medium"> (paid + outstanding does not match total; verify with your ledger.)</span>
-        }
-      </p>
-    }
   </p-card>
 
   <p-card styleClass="border border-border" header="Payment history">
@@ -104,10 +73,69 @@
         </p-table>
       </div>
     } @else {
-      <p class="text-sm text-muted-foreground">No payments recorded for this order.</p>
+      <p class="text-sm text-muted-foreground">No payments recorded yet.</p>
+    }
+  </p-card>
+
+  <!-- Return Items Section (merged from return-items-tab) -->
+  <p-card styleClass="border border-border" header="Return items">
+    <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+      <p class="text-sm text-muted-foreground m-0">
+        {{ canReturnOrderItems(order()) ? 'Quantities returned for this order.' : 'View return quantities.' }}
+      </p>
+      @if (canReturnOrderItems(order())) {
+        <p-button
+          [label]="order().returnItems.length ? 'Edit return items' : 'Record return items'"
+          [icon]="order().returnItems.length ? 'pi pi-pencil' : 'pi pi-undo'"
+          severity="info"
+          [disabled]="recordingDisabled() || returnSaving()"
+          [loading]="returnSaving()"
+          (onClick)="openReturnDialog()"
+        />
+      }
+    </div>
+
+    @if (order().returnItems.length) {
+      <div class="mt-5 rounded-xl border border-border/60 overflow-x-auto -mx-1">
+        <p-table [value]="order().returnItems" styleClass="p-datatable-sm min-w-[640px]">
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Product</th>
+              <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Ordered</th>
+              <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Return qty</th>
+              <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Unit price</th>
+              <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Line total</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-row>
+            <tr>
+              <td class="px-3 py-2 text-sm font-medium text-foreground break-all">{{ row.productName }}</td>
+              <td class="px-3 py-2 text-sm text-right tabular-nums text-muted-foreground">{{ row.orderedQuantity }}</td>
+              <td class="px-3 py-2 text-sm text-right tabular-nums">{{ row.quantity }}</td>
+              <td class="px-3 py-2 text-sm text-right tabular-nums">
+                {{ row.unitPrice | currency: currencyCode() : 'symbol-narrow' }}
+              </td>
+              <td class="px-3 py-2 text-sm text-right tabular-nums font-medium">
+                {{ row.lineReturnTotal | currency: currencyCode() : 'symbol-narrow' }}
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    } @else {
+      <p class="mt-5 text-sm text-muted-foreground">No return items recorded yet.</p>
     }
   </p-card>
 </div>
+
+<app-order-return-items-dialog
+  [(visible)]="returnDialogVisible"
+  [orderItems]="order().items"
+  [existingReturnItems]="order().returnItems"
+  [saving]="returnSaving()"
+  (submitRequest)="submitReturnItems($event)"
+  (cancel)="returnDialogVisible.set(false)"
+/>
 
 <p-dialog
   header="Record payment"
@@ -122,59 +150,36 @@
   <div class="flex flex-col gap-5 pt-2">
     @if (isImmediatePayment()) {
       <p class="text-sm text-muted-foreground">
-        Immediate payment: the full order total is due in one payment. Amount is fixed and cannot be changed.
+        Immediate payment: the full order total is due in one payment.
       </p>
     } @else if (isDebtPayment()) {
       <p class="text-sm text-muted-foreground">
+        Enter an amount up to
         @if ((order().amountOutstanding ?? 0) > 0.005) {
-          Enter an amount up to the outstanding balance ({{
-            recordPaidAmountMax() | currency: currencyCode() : 'symbol-narrow'
-          }}).
+          the outstanding balance ({{ recordPaidAmountMax() | currency: currencyCode() : 'symbol-narrow' }}).
         } @else {
-          Enter an amount up to the order total ({{
-            recordPaidAmountMax() | currency: currencyCode() : 'symbol-narrow'
-          }}).
+          the order total ({{ recordPaidAmountMax() | currency: currencyCode() : 'symbol-narrow' }}).
         }
       </p>
     }
     <div class="flex flex-col gap-1.5">
-      <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider" for="record-pay-amount"
-        >Amount</label
-      >
-      @if (isImmediatePayment()) {
-        <p-inputNumber
-          inputId="record-pay-amount"
-          [(ngModel)]="recordPaidAmount"
-          mode="decimal"
-          [minFractionDigits]="2"
-          [maxFractionDigits]="2"
-          [min]="recordPaidAmountMin()"
-          [max]="recordPaidAmountMax()"
-          styleClass="w-full"
-          class="w-full"
-          [readonly]="true"
-          [disabled]="paymentSaving()"
-        />
-      } @else {
-        <p-inputNumber
-          inputId="record-pay-amount"
-          [(ngModel)]="recordPaidAmount"
-          mode="decimal"
-          [minFractionDigits]="2"
-          [maxFractionDigits]="2"
-          [min]="recordPaidAmountMin()"
-          [max]="recordPaidAmountMax()"
-          placeholder="0.00"
-          styleClass="w-full"
-          class="w-full"
-          [disabled]="paymentSaving()"
-        />
-      }
+      <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider" for="record-pay-amount">Amount</label>
+      <p-inputNumber
+        inputId="record-pay-amount"
+        [(ngModel)]="recordPaidAmount"
+        mode="decimal"
+        [minFractionDigits]="2"
+        [maxFractionDigits]="2"
+        [min]="recordPaidAmountMin()"
+        [max]="recordPaidAmountMax()"
+        [placeholder]="isImmediatePayment() ? '' : '0.00'"
+        styleClass="w-full"
+        [readonly]="isImmediatePayment()"
+        [disabled]="paymentSaving()"
+      />
     </div>
     <div class="flex flex-col gap-1.5">
-      <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider" for="record-pay-method"
-        >Method</label
-      >
+      <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider" for="record-pay-method">Method</label>
       <p-select
         inputId="record-pay-method"
         [options]="paymentMethodOptions"
@@ -187,22 +192,8 @@
       />
     </div>
     <div class="flex justify-end gap-2 pt-2">
-      <p-button
-        label="Cancel"
-        severity="secondary"
-        [outlined]="true"
-        type="button"
-        [disabled]="paymentSaving()"
-        (onClick)="closeDialog()"
-      />
-      <p-button
-        label="Submit"
-        icon="pi pi-check"
-        type="button"
-        [loading]="paymentSaving()"
-        [disabled]="paymentSaving()"
-        (onClick)="submitPayment()"
-      />
+      <p-button label="Cancel" severity="secondary" [outlined]="true" type="button" [disabled]="paymentSaving()" (onClick)="closeDialog()" />
+      <p-button label="Submit" icon="pi pi-check" type="button" [loading]="paymentSaving()" [disabled]="paymentSaving()" (onClick)="submitPayment()" />
     </div>
   </div>
 </p-dialog>
