@@ -44,6 +44,11 @@
       eyebrow="Order"
       eyebrowIcon="pi pi-receipt"
     >
+      <app-order-progress
+        slot="headerTop"
+        [status]="order.status"
+        [orderAllocated]="order.orderAllocated"
+      />
       @if (canEditOrder(order)) {
         <p-button
           icon="pi pi-pencil"
@@ -51,6 +56,7 @@
           severity="secondary"
           [outlined]="true"
           [disabled]="actionSaving()"
+          [class.pulse-beat]="pulseTarget() === 'edit'"
           (onClick)="goToEdit()"
         />
       }
@@ -61,13 +67,11 @@
           [severity]="ORDER_ACTION_UI[action].severity"
           [loading]="actionSaving()"
           [disabled]="actionSaving()"
-          [class.pulse-beat]="beatingAction() === action"
+          [class.pulse-beat]="pulseTarget() === action"
           (onClick)="onAction(action)"
         />
       }
     </app-page-header>
-
-    <app-order-progress [status]="order.status" [orderAllocated]="order.orderAllocated" />
 
     <app-order-summary-card [order]="order" [currencyCode]="currencyCode" />
 

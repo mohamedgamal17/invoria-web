@@ -22,6 +22,7 @@ import {
   orderStatusUserLabel,
   type OrderActionKey
 } from '../../models/order-actions';
+import { OrderStatus } from '../../models/order.entity';
 import { orderToUiOrder } from '../../models/order-ui.mapper';
 import { OrderActionFacade, type OrderTransitionAction } from '../../services/order-action.facade';
 import { OrderDetailsLineItemsTabComponent } from '../../components/order-details-line-items-tab/order-details-line-items-tab.component';
@@ -158,9 +159,38 @@ export class OrderDetailsPageComponent {
     return getAvailableOrderActions(order).filter((action) => action !== 'edit');
   });
 
-  readonly beatingAction = computed(() => {
+  private readonly revisionSnapshotKey = computed(
+    () => `order_revision_snapshot_${this.orderId()}`
+  );
+
+  readonly hasBeenEdited = computed(() => {
+    const order = this.displayOrder();
+    if (!order || order.status !== OrderStatus.Revision) return false;
+
+    try {
+      const raw = sessionStorage.getItem(this.revisionSnapshotKey());
+      if (!raw) return false;
+      const snapshot = JSON.parse(raw);
+
+      if (order.totalAmount !== snapshot.totalAmount) return true;
+      if (order.netOfTotalOrderAmount !== snapshot.netOfTotalOrderAmount) return true;
+      if (order.customerName !== snapshot.customerName) return true;
+      if (order.items.length !== snapshot.items.length) return true;
+      return order.items.some((item, i) => {
+        const s = snapshot.items[i];
+        return !s || item.quantity !== s.quantity || item.price !== s.price;
+      });
+    } catch {
+      return false;
+    }
+  });
+
+  readonly pulseTarget = computed(() => {
     const order = this.displayOrder();
     if (!order) return null;
+    if (order.status === OrderStatus.Revision) {
+      return this.hasBeenEdited() ? 'accept' : 'edit';
+    }
     return getBeatingAction(order);
   });
 
@@ -183,6 +213,25 @@ export class OrderDetailsPageComponent {
           this.activeTab.set(idx);
         }
       });
+    });
+
+    effect(() => {
+      const order = this.displayOrder();
+      const key = this.revisionSnapshotKey();
+      if (!order || !key) return;
+
+      if (order.status === OrderStatus.Revision) {
+        if (!sessionStorage.getItem(key)) {
+          sessionStorage.setItem(key, JSON.stringify({
+            items: order.items.map(i => ({ id: i.id, quantity: i.quantity, price: i.price })),
+            totalAmount: order.totalAmount,
+            netOfTotalOrderAmount: order.netOfTotalOrderAmount,
+            customerName: order.customerName
+          }));
+        }
+      } else {
+        sessionStorage.removeItem(key);
+      }
     });
   }
 
