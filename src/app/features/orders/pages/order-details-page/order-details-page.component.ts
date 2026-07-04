@@ -15,8 +15,11 @@ import { presentApiError } from '../../../../core/http/api-error.presenter';
 import {
   canEditOrder,
   getAvailableOrderActions,
+  getBeatingAction,
   ORDER_ACTION_UI,
   orderStatusLabel,
+  orderStatusEmoji,
+  orderStatusUserLabel,
   type OrderActionKey
 } from '../../models/order-actions';
 import { orderToUiOrder } from '../../models/order-ui.mapper';
@@ -24,19 +27,18 @@ import { OrderActionFacade, type OrderTransitionAction } from '../../services/or
 import { OrderDetailsLineItemsTabComponent } from '../../components/order-details-line-items-tab/order-details-line-items-tab.component';
 import { OrderDetailsOverviewTabComponent } from '../../components/order-details-overview-tab/order-details-overview-tab.component';
 import { OrderDetailsPaymentTabComponent } from '../../components/order-details-payment-tab/order-details-payment-tab.component';
-import { OrderDetailsReturnItemsTabComponent } from '../../components/order-details-return-items-tab/order-details-return-items-tab.component';
 import { OrderSummaryCardComponent } from '../../components/order-summary-card/order-summary-card.component';
+import { OrderProgressComponent } from '../../components/order-progress/order-progress.component';
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
 import type { Order } from '../../models/order.entity';
 import type { UiOrder } from '../../models/order-ui.model';
 import { OrdersApiService } from '../../services/orders-api.service';
 
-const TAB_SLUGS = ['overview', 'lineItems', 'returnItems', 'payment'] as const;
+const TAB_SLUGS = ['overview', 'lineItems', 'payment'] as const;
 
 function tabSlugToIndex(tab: string | null): number | null {
   if (tab === 'lineItems') return 1;
-  if (tab === 'returnItems') return 2;
-  if (tab === 'payment') return 3;
+  if (tab === 'payment') return 2;
   if (tab === 'overview' || tab === null || tab === '') return 0;
   return null;
 }
@@ -56,8 +58,8 @@ function indexToTabSlug(index: number): string {
     OrderDetailsLineItemsTabComponent,
     OrderDetailsOverviewTabComponent,
     OrderDetailsPaymentTabComponent,
-    OrderDetailsReturnItemsTabComponent,
     OrderSummaryCardComponent,
+    OrderProgressComponent,
     PageHeaderComponent,
     Tabs,
     TabList,
@@ -68,10 +70,31 @@ function indexToTabSlug(index: number): string {
     ToastModule
   ],
   providers: [ConfirmationService, MessageService],
-  templateUrl: './order-details-page.component.html'
+  templateUrl: './order-details-page.component.html',
+  styles: [`
+    @keyframes pulse-beat {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--p-primary-400), 0.4); }
+      50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(var(--p-primary-400), 0); }
+    }
+    .pulse-beat {
+      animation: pulse-beat 1.5s ease-in-out infinite;
+    }
+    @keyframes confetti-fall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100px) rotate(720deg); opacity: 0; }
+    }
+    .confetti-piece {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      animation: confetti-fall 1.5s ease-out forwards;
+      z-index: 9999;
+      pointer-events: none;
+    }
+  `]
 })
 export class OrderDetailsPageComponent {
-  /** Display currency for monetary fields (aligned with procurement UI). */
   readonly currencyCode = 'EGP' as const;
   private readonly ordersApi = inject(OrdersApiService);
   private readonly orderActionFacade = inject(OrderActionFacade);
@@ -91,8 +114,6 @@ export class OrderDetailsPageComponent {
   );
 
   readonly actionSaving = signal(false);
-
-  /** Tab index: 0 = overview, 1 = lineItems, 2 = returnItems, 3 = payment. */
   readonly activeTab = signal(0);
 
   readonly orderResource = rxResource<UiOrder | null, string>({
@@ -137,9 +158,17 @@ export class OrderDetailsPageComponent {
     return getAvailableOrderActions(order).filter((action) => action !== 'edit');
   });
 
+  readonly beatingAction = computed(() => {
+    const order = this.displayOrder();
+    if (!order) return null;
+    return getBeatingAction(order);
+  });
+
   readonly ORDER_ACTION_UI = ORDER_ACTION_UI;
   readonly canEditOrder = canEditOrder;
   readonly orderStatusLabel = orderStatusLabel;
+  readonly orderStatusEmoji = orderStatusEmoji;
+  readonly orderStatusUserLabel = orderStatusUserLabel;
 
   constructor() {
     effect(() => {
@@ -173,9 +202,9 @@ export class OrderDetailsPageComponent {
 
     this.confirmationService.confirm({
       header: 'Confirm Action',
-      message: `Are you sure you want to ${meta.label.toLowerCase()} this order?`,
+      message: `Are you sure you want to ${meta.label.replace(/[^a-zA-Z ]/g, '').trim().toLowerCase()} this order?`,
       icon: 'pi pi-exclamation-triangle',
-      acceptButtonProps: { label: `Confirm ${meta.label}`, severity: meta.severity },
+      acceptButtonProps: { label: meta.label, severity: meta.severity },
       rejectButtonProps: { label: 'Cancel', severity: 'secondary', outlined: true },
       accept: () => this.executeAction(action)
     });
@@ -224,17 +253,40 @@ export class OrderDetailsPageComponent {
             this.messageService.add(presentApiError(res.error).toast);
             return;
           }
+          const completed = action === 'complete';
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: `${this.orderActionFacade.meta(action).label} action completed successfully.`
+            summary: completed ? 'Order Completed!' : 'Success',
+            detail: completed
+              ? 'The order has been delivered successfully!'
+              : `${this.orderActionFacade.meta(action).label} action completed.`
           });
           this.displayOrder.set(orderToUiOrder(res.result));
+          if (completed) {
+            this.spawnConfetti();
+          }
         },
         error: (err: unknown) => {
           this.messageService.add(presentApiError(err).toast);
         }
       });
+  }
+
+  private spawnConfetti(): void {
+    const colors = ['#f44336', '#e91e63', '#9c27b0', '#3f51b5', '#03a9f4', '#009688', '#8bc34a', '#ffeb3b', '#ff9800'];
+    for (let i = 0; i < 40; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.top = '40vh';
+      el.style.background = colors[Math.floor(Math.random() * colors.length)];
+      el.style.animationDuration = (1 + Math.random() * 1) + 's';
+      el.style.animationDelay = (Math.random() * 0.5) + 's';
+      el.style.width = (4 + Math.random() * 8) + 'px';
+      el.style.height = (4 + Math.random() * 8) + 'px';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2500);
+    }
   }
 
   private showApiError(error: unknown): void {
