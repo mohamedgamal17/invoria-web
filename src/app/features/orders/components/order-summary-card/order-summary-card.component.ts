@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 
 import { PaymentStatus, PaymentType, paymentStatusLabel, paymentTypeLabel } from '../../models/order-payment.enums';
-import { orderStatusLabel } from '../../models/order-actions';
+import { orderStatusEmoji, orderStatusUserLabel, orderStatusSeverity } from '../../models/order-actions';
+import { OrderStatus } from '../../models/order.entity';
 import type { UiOrder } from '../../models/order-ui.model';
 
 const PAYMENT_SUMMARY_EPS = 0.02;
@@ -20,25 +21,21 @@ export class OrderSummaryCardComponent {
   readonly order = input.required<UiOrder>();
   readonly currencyCode = input<string>('EGP');
 
-  readonly orderStatusLabel = orderStatusLabel;
+  readonly orderStatusEmoji = orderStatusEmoji;
+  readonly orderStatusUserLabel = orderStatusUserLabel;
+  readonly orderStatusSeverity = orderStatusSeverity;
 
-  statusSeverity(
-    status: string
-  ): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' {
-    switch (status) {
-      case 'COMPLETED':
-        return 'success';
-      case 'PROCESSING':
-        return 'info';
-      case 'REVISION':
-      case 'REVISION_PENDING':
-        return 'warn';
-      case 'CANCELLED':
-        return 'danger';
-      default:
-        return 'secondary';
+  readonly progressPercent = computed(() => {
+    switch (this.order().status) {
+      case OrderStatus.Pending: return 25;
+      case OrderStatus.Processing: return 50;
+      case OrderStatus.Revision: return 50;
+      case OrderStatus.Completed: return 100;
+      case OrderStatus.Cancelled: return 100;
+      case OrderStatus.RevisionPending: return 50;
+      default: return 0;
     }
-  }
+  });
 
   paymentTypeDisplay(type: PaymentType | undefined): string {
     return type !== undefined ? paymentTypeLabel(type) : '—';

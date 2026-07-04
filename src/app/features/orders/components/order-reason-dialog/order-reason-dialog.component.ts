@@ -31,7 +31,7 @@ import { OrderStatus as OrderStatusEnum } from '../../models/order.entity';
     >
       <div class="space-y-4 pt-2">
         <div class="flex flex-col gap-2">
-          <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider" for="reason">Reason / Comments</label>
+          <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider" for="reason">Reason</label>
           <textarea
             id="reason"
             name="reason"
@@ -41,7 +41,7 @@ import { OrderStatus as OrderStatusEnum } from '../../models/order.entity';
             rows="4"
             class="w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all p-3 text-sm resize-none"
             [disabled]="saving()"
-            [placeholder]="'Please provide a reason for this action'"
+            [placeholder]="'Please provide a reason...'"
           ></textarea>
           @if (!reasonText().trim() && !saving()) {
             <small class="text-danger text-[10px] font-medium">* Reason is required to proceed</small>
