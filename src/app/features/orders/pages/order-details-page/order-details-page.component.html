@@ -1,10 +1,10 @@
 <p-toast />
 <p-confirmDialog />
 
-<section class="flex flex-col gap-10">
+<section class="flex flex-col gap-8">
   <p-button
     icon="pi pi-arrow-left"
-    label="Back to orders"
+    label="← Back to orders"
     [text]="true"
     styleClass="px-0 text-sm text-muted-foreground hover:text-foreground self-start"
     (onClick)="backToList()"
@@ -40,7 +40,9 @@
   } @else if (displayOrder(); as order) {
     <app-page-header
       [title]="order.orderNumber"
-      [description]="order.customerName + ' · ' + (order.orderDate | date: 'medium') + ' · ' + orderStatusLabel(order.status)"
+      [description]="order.customerName + ' · ' + (order.orderDate | date: 'medium')"
+      eyebrow="Order"
+      eyebrowIcon="pi pi-receipt"
     >
       @if (canEditOrder(order)) {
         <p-button
@@ -59,10 +61,13 @@
           [severity]="ORDER_ACTION_UI[action].severity"
           [loading]="actionSaving()"
           [disabled]="actionSaving()"
+          [class.pulse-beat]="beatingAction() === action"
           (onClick)="onAction(action)"
         />
       }
     </app-page-header>
+
+    <app-order-progress [status]="order.status" [orderAllocated]="order.orderAllocated" />
 
     <app-order-summary-card [order]="order" [currencyCode]="currencyCode" />
 
@@ -70,8 +75,7 @@
       <p-tablist>
         <p-tab [value]="0">Overview</p-tab>
         <p-tab [value]="1">Line items</p-tab>
-        <p-tab [value]="2">Return items</p-tab>
-        <p-tab [value]="3">Payment</p-tab>
+        <p-tab [value]="2">Payment & Returns</p-tab>
       </p-tablist>
       <p-tabpanels>
         <p-tabpanel [value]="0">
@@ -86,21 +90,12 @@
         </p-tabpanel>
         <p-tabpanel [value]="2">
           <div class="pt-5">
-            <app-order-details-return-items-tab
-              [order]="order"
-              [currencyCode]="currencyCode"
-              [recordingDisabled]="actionSaving()"
-              (returnItemsRecorded)="onReturnItemsRecorded($event)"
-            />
-          </div>
-        </p-tabpanel>
-        <p-tabpanel [value]="3">
-          <div class="pt-5">
             <app-order-details-payment-tab
               [order]="order"
               [currencyCode]="currencyCode"
               [recordingDisabled]="actionSaving()"
               (refreshRequested)="loadOrder()"
+              (returnItemsRecorded)="onReturnItemsRecorded($event)"
             />
           </div>
         </p-tabpanel>
