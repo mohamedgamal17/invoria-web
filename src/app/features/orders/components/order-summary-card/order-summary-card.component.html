@@ -1,129 +1,60 @@
 <p-card styleClass="border border-border">
-  <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-    <div class="min-w-0 space-y-1">
-      <div class="flex flex-wrap items-center gap-3">
-        <h1 class="text-2xl font-bold text-foreground truncate">{{ order().orderNumber }}</h1>
-        <p-tag
-          [value]="orderStatusLabel(order().status)"
-          [severity]="statusSeverity(orderStatusLabel(order().status))"
-          styleClass="px-2 py-1 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border shrink-0"
-        />
-      </div>
-      <p class="text-sm text-muted-foreground">
-        @if (order().customerName.trim()) {
-          {{ order().customerName }}
-        } @else {
-          —
-        }
-        @if (order().orderDate) {
-          <span class="text-muted-foreground/80"> · </span>
-          {{ order().orderDate | date: 'medium' }}
-        }
-      </p>
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-wrap items-center gap-3">
+      <p-tag
+        [value]="orderStatusUserLabel(order().status)"
+        [severity]="orderStatusSeverity(order().status)"
+        styleClass="px-3 py-1.5 text-xs font-bold tracking-tight rounded-md border border-border shrink-0"
+      />
+    </div>
 
-      <div class="mt-4 pt-4 border-t border-border/60 space-y-4">
-        <div class="flex flex-wrap items-center gap-2">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground shrink-0"
-            >Payment terms</span
-          >
-          <p-tag
-            [value]="paymentTypeDisplay(order().paymentType)"
-            [severity]="getPaymentTypeSeverity(order().paymentType)"
-            styleClass="px-2 py-1 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border shrink-0"
-          />
-          <p-tag
-            [value]="paymentStatusDisplay(order().paymentStatus)"
-            [severity]="getPaymentStatusSeverity(order().paymentStatus)"
-            styleClass="px-2 py-1 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border shrink-0"
-          />
+    <!-- Progress bar -->
+    <div class="w-full bg-surface-2 rounded-full h-2 overflow-hidden">
+      <div
+        class="h-full rounded-full transition-all duration-700 ease-out"
+        [class.bg-success]="progressPercent() === 100"
+        [class.bg-primary]="progressPercent() < 100"
+        [style.width.%]="progressPercent()"
+      ></div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+      <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total</div>
+        <div class="text-lg font-bold tabular-nums text-foreground">
+          {{ order().totalAmount | currency: currencyCode() : 'symbol-narrow' }}
         </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-          <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Order total</div>
-            <div class="text-base font-semibold tabular-nums text-foreground">
-              {{ order().totalAmount | currency: currencyCode() : 'symbol-narrow' }}
-            </div>
-            <p class="text-xs text-muted-foreground">Total order value as computed by the server.</p>
-          </div>
-          <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Net total</div>
-            <div class="text-base font-semibold tabular-nums text-foreground">
-              {{ order().netOfTotalOrderAmount | currency: currencyCode() : 'symbol-narrow' }}
-            </div>
-            <p class="text-xs text-muted-foreground">Total after returns.</p>
-          </div>
-          <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Returns</div>
-            <div class="text-base font-semibold tabular-nums text-foreground">
-              {{ order().returnsTotal | currency: currencyCode() : 'symbol-narrow' }}
-            </div>
-            <p class="text-xs text-muted-foreground">Total value of returned items.</p>
-          </div>
-          <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Amount paid</div>
-            <div class="text-base font-semibold tabular-nums text-foreground">
-              {{ order().amountPaid | currency: currencyCode() : 'symbol-narrow' }}
-            </div>
-            @if (paidPercentOfTotal(order()) !== null) {
-              <p class="text-xs text-muted-foreground">
-                {{ paidPercentOfTotal(order())! | number: '1.0-1' }}% of net total collected.
-              </p>
-            } @else {
-              <p class="text-xs text-muted-foreground">Cumulative payments posted to this order.</p>
-            }
-          </div>
-          <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Outstanding</div>
-            <div class="text-base font-semibold tabular-nums text-foreground">
-              {{ order().amountOutstanding | currency: currencyCode() : 'symbol-narrow' }}
-            </div>
-            <p class="text-xs text-muted-foreground">Balance still due.</p>
-          </div>
-          <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Allocated</div>
-            <div class="flex items-center gap-2">
-              @if (order().orderAllocated) {
-                <i class="pi pi-check-circle text-success text-lg"></i>
-                <span class="text-sm font-semibold text-success">Yes</span>
-              } @else {
-                <i class="pi pi-clock text-warn text-lg"></i>
-                <span class="text-sm font-semibold text-warn">Pending</span>
-              }
-            </div>
-            <p class="text-xs text-muted-foreground">
-              @if (order().invoiceId) {
-                Invoice ref: <span class="font-mono">{{ order().invoiceId }}</span>
-              } @else {
-                No invoice linked.
-              }
-            </p>
-          </div>
-        </div>
-
-        @if (order().amountPaid !== undefined && order().amountPaid !== null && order().amountOutstanding !== undefined && order().amountOutstanding !== null) {
-          <p class="text-xs text-muted-foreground leading-relaxed">
-            <span class="font-semibold text-foreground">Balance check:</span>
-            paid
-            <span class="tabular-nums text-foreground">{{
-              order().amountPaid | currency: currencyCode() : 'symbol-narrow'
-            }}</span>
-            + outstanding
-            <span class="tabular-nums text-foreground">{{
-              order().amountOutstanding | currency: currencyCode() : 'symbol-narrow'
-            }}</span>
-            should equal order total
-            <span class="tabular-nums text-foreground">{{
-              order().totalAmount | currency: currencyCode() : 'symbol-narrow'
-            }}</span>.
-            @if (!paymentTotalsAligned(order())) {
-              <span class="text-destructive font-medium">
-                These three figures are not reconciled to the penny—confirm with finance if needed.</span
-              >
-            }
-          </p>
-        }
       </div>
+      <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Paid</div>
+        <div class="text-lg font-bold tabular-nums text-foreground">
+          {{ order().amountPaid ?? '—' | currency: currencyCode() : 'symbol-narrow' }}
+        </div>
+      </div>
+      <div class="space-y-1 rounded-lg border border-border/60 bg-muted/20 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Outstanding</div>
+        <div class="text-lg font-bold tabular-nums text-foreground">
+          {{ order().amountOutstanding ?? '—' | currency: currencyCode() : 'symbol-narrow' }}
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2 text-xs text-muted-foreground border-t border-border/60 pt-3">
+      <p-tag
+        [value]="paymentTypeDisplay(order().paymentType)"
+        [severity]="getPaymentTypeSeverity(order().paymentType)"
+        styleClass="px-2 py-0.5 text-[10px] uppercase font-bold tracking-tight rounded-md"
+      />
+      <p-tag
+        [value]="paymentStatusDisplay(order().paymentStatus)"
+        [severity]="getPaymentStatusSeverity(order().paymentStatus)"
+        styleClass="px-2 py-0.5 text-[10px] uppercase font-bold tracking-tight rounded-md"
+      />
+      @if (order().orderAllocated) {
+        <span class="text-success flex items-center gap-1"><i class="pi pi-check-circle text-xs"></i> Allocated</span>
+      } @else {
+        <span class="text-warn flex items-center gap-1"><i class="pi pi-clock text-xs"></i> Not allocated</span>
+      }
     </div>
   </div>
 </p-card>
