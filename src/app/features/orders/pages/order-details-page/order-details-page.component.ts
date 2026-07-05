@@ -32,7 +32,6 @@ import { OrderProgressComponent } from '../../components/order-progress/order-pr
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
 import type { CompleteOrderRequest } from '../../models/complete-order.request';
 import type { AddReturnItemsRequest } from '../../models/add-return-items.request';
-import type { Order } from '../../models/order.entity';
 import type { UiOrder } from '../../models/order-ui.model';
 import { OrderReturnItemsDialogComponent } from '../../components/order-return-items-dialog/order-return-items-dialog.component';
 import { OrdersApiService } from '../../services/orders-api.service';
@@ -307,10 +306,6 @@ export class OrderDetailsPageComponent {
       replaceUrl: true,
       queryParams: { tab: indexToTabSlug(next) }
     });
-  }
-
-  onReturnItemsRecorded(event: { result: Order }): void {
-    this.displayOrder.set(orderToUiOrder(event.result));
   }
 
   loadOrder(): void {
