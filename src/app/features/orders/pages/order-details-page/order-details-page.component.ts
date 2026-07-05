@@ -23,6 +23,7 @@ import {
   type OrderActionKey
 } from '../../models/order-actions';
 import { OrderStatus } from '../../models/order.entity';
+import { PaymentType } from '../../models/order-payment.enums';
 import { orderToUiOrder } from '../../models/order-ui.mapper';
 import { OrderActionFacade, type OrderTransitionAction } from '../../services/order-action.facade';
 import { OrderDetailsLineItemsTabComponent } from '../../components/order-details-line-items-tab/order-details-line-items-tab.component';
@@ -119,6 +120,7 @@ export class OrderDetailsPageComponent {
 
   readonly actionSaving = signal(false);
   readonly activeTab = signal(0);
+  readonly paymentDialogVisible = signal(false);
 
   readonly orderResource = rxResource<UiOrder | null, string>({
     params: () => this.orderId(),
@@ -160,6 +162,11 @@ export class OrderDetailsPageComponent {
     const order = this.displayOrder();
     if (!order) return [];
     return getAvailableOrderActions(order).filter((action) => action !== 'edit' && action !== 'returnItems');
+  });
+
+  readonly canRecordPayment = computed(() => {
+    const o = this.displayOrder();
+    return !!o && o.status === OrderStatus.Completed && o.paymentType !== undefined && o.paymentType !== null;
   });
 
   private readonly revisionSnapshotKey = computed(
