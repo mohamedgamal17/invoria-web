@@ -21,9 +21,10 @@ import {
   paymentStatusLabel,
   paymentTypeLabel
 } from '../../models/order-payment.enums';
-import { OrderStatus } from '../../models/order.entity';
 import type { UiOrder } from '../../models/order-ui.model';
 import { OrdersApiService } from '../../services/orders-api.service';
+
+
 
 const MONEY_EPS = 0.005;
 
@@ -46,17 +47,9 @@ const MONEY_EPS = 0.005;
 export class OrderDetailsPaymentTabComponent {
   readonly order = input.required<UiOrder>();
   readonly currencyCode = input<string>('EGP');
-  readonly recordingDisabled = input(false);
-
   readonly refreshRequested = output<void>();
 
   readonly paymentMethodLabel = paymentMethodLabel;
-
-  /** Record payment only after the order is completed and payment type is known. */
-  readonly canRecordPayment = computed(() => {
-    const o = this.order();
-    return o.status === OrderStatus.Completed && o.paymentType !== undefined && o.paymentType !== null;
-  });
 
   readonly isImmediatePayment = computed(() => this.order().paymentType === PaymentType.Immediate);
 

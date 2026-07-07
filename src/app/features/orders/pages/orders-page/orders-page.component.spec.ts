@@ -12,7 +12,7 @@ import { OrdersApiService } from '../../services/orders-api.service';
 import { ProductsApiService } from '../../../products/services/products-api.service';
 import { CustomersApiService } from '../../../customers/services/customers-api.service';
 import type { Order } from '../../models/order.entity';
-import { OrderFullfillmentStatus, OrderStatus } from '../../models/order.entity';
+import { OrderStatus } from '../../models/order.entity';
 import { PaymentStatus, PaymentType } from '../../models/order-payment.enums';
 
 describe('OrdersPageComponent', () => {
@@ -24,10 +24,9 @@ describe('OrdersPageComponent', () => {
     getOrder: ReturnType<typeof vi.fn>;
     updateOrderItems: ReturnType<typeof vi.fn>;
     acceptOrder: ReturnType<typeof vi.fn>;
-    cancelOrder: ReturnType<typeof vi.fn>;
+    requestRevisionOrder: ReturnType<typeof vi.fn>;
     completeOrder: ReturnType<typeof vi.fn>;
-    refuseOrder: ReturnType<typeof vi.fn>;
-    reopenOrder: ReturnType<typeof vi.fn>;
+    cancelOrder: ReturnType<typeof vi.fn>;
   };
 
   const emptyListResponse = {
@@ -48,7 +47,16 @@ describe('OrdersPageComponent', () => {
     customerId: 'cust_1',
     customer: { id: 'cust_1', name: 'Alice', createdAt: '2026-01-01T00:00:00.000Z' },
     status: OrderStatus.Pending,
-    fullfillmentStatus: OrderFullfillmentStatus.Pending,
+    paymentType: PaymentType.Immediate,
+    paymentStatus: PaymentStatus.Paid,
+    amountPaid: 21,
+    amountOutstanding: 0,
+    returnItems: [],
+    totalOrderAmount: 21,
+    netOfTotalOrderAmount: 21,
+    returnsTotal: 0,
+    payments: [],
+    orderAllocated: true,
     items: [{ id: 'line-1', productId: 'prd_1', quantity: 2, price: 10.5 }]
   };
 
@@ -69,10 +77,9 @@ describe('OrdersPageComponent', () => {
       getOrder: vi.fn(),
       updateOrderItems: vi.fn(),
       acceptOrder: vi.fn(),
-      cancelOrder: vi.fn(),
+      requestRevisionOrder: vi.fn(),
       completeOrder: vi.fn(),
-      refuseOrder: vi.fn(),
-      reopenOrder: vi.fn()
+      cancelOrder: vi.fn()
     };
 
     await TestBed.configureTestingModule({
@@ -124,7 +131,7 @@ describe('OrdersPageComponent', () => {
       convertToParamMap({
         page: '1',
         pageSize: '25',
-        status: String(OrderStatus.Accepted),
+        status: String(OrderStatus.Processing),
         paymentStatus: String(PaymentStatus.Paid),
         paymentType: String(PaymentType.Immediate)
       })
@@ -132,7 +139,7 @@ describe('OrdersPageComponent', () => {
     await createFixture(paramMap$);
     expect(mockOrdersApi.listOrders).toHaveBeenCalledWith(
       expect.objectContaining({
-        Status: OrderStatus.Accepted,
+        Status: OrderStatus.Processing,
         PaymentStatus: PaymentStatus.Paid,
         PaymentType: PaymentType.Immediate
       })

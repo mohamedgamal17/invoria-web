@@ -15,8 +15,8 @@ import type { Product } from '../../../products/models/product.entity';
 import { PaymentType, paymentTypeLabel } from '../../models/order-payment.enums';
 import type { UiOrderItem } from '../../models/order-ui.model';
 
-/** PrimeNG stepper uses 1-based step indices: 1 Details, 2 Line items, 3 Review */
-type OrderFormStepperStep = 1 | 2 | 3;
+/** PrimeNG stepper uses 1-based step indices: 1 Details, 2 Line items */
+type OrderFormStepperStep = 1 | 2;
 type OrderFormEditTab = 0 | 1;
 
 @Component({
@@ -104,14 +104,9 @@ export class OrderFormComponent {
     return this.draftItems().reduce((acc, item) => acc + item.quantity, 0);
   }
 
-  reviewCustomerDisplay(): string {
-    const name = this.selectedCustomer()?.name?.trim();
-    return name || '—';
-  }
-
   onStepperValueChange(value: number | undefined): void {
-    if (value === 1 || value === 2 || value === 3) {
-      this.activeStep.set(value);
+    if (value === 1 || value === 2) {
+      this.activeStep.set(value as OrderFormStepperStep);
     }
   }
 
@@ -133,8 +128,9 @@ export class OrderFormComponent {
       return;
     }
     this.stepError.set(null);
-    this.activeStep.set(3);
-    activateCallback(3);
+    if (this.mode() === 'create') {
+      this.submit.emit();
+    }
   }
 
   stepBack(activateCallback: (step: number) => void, target: OrderFormStepperStep): void {
@@ -152,36 +148,34 @@ export class OrderFormComponent {
 
   private validateDetailsStep(): string | null {
     if (this.mode() === 'create' && !this.selectedCustomer()?.id?.trim()) {
-      return 'Please search and select a customer before continuing.';
+      return 'Please select a customer before continuing.';
     }
     return null;
   }
 
   private validateItemsStep(): string | null {
     if (!this.draftItems().length) {
-      return 'Add at least one line item before continuing.';
+      return 'Add at least one product before continuing.';
     }
     return null;
   }
 
   formSubmit(event: Event): void {
     event.preventDefault();
-    if (this.mode() === 'edit') {
-      const detailsError = this.validateDetailsStep();
-      if (detailsError) {
-        this.stepError.set(detailsError);
-        return;
-      }
-      const itemsError = this.validateItemsStep();
-      if (itemsError) {
-        this.stepError.set(itemsError);
-        return;
-      }
-      this.stepError.set(null);
-      this.submit.emit();
+    const detailsError = this.validateDetailsStep();
+    if (detailsError) {
+      this.stepError.set(detailsError);
       return;
     }
-    if (this.activeStep() !== 3) return;
+    const itemsError = this.validateItemsStep();
+    if (itemsError) {
+      this.stepError.set(itemsError);
+      return;
+    }
+    this.stepError.set(null);
+    if (this.mode() === 'create') {
+      if (this.activeStep() !== 2) return;
+    }
     this.submit.emit();
   }
 }

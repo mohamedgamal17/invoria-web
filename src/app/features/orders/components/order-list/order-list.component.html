@@ -60,21 +60,8 @@
               [severity]="getOrderStatusSeverity(order.status)"
               pTooltip="Whether this order is confirmed by the shop."
               tooltipPosition="top"
-              styleClass="max-w-[65%] shrink px-2.5 py-1 text-[10px] font-semibold tracking-tight rounded-md border border-border cursor-help text-right"
-              (click)="op.toggle($event)"
+              styleClass="max-w-[65%] shrink px-2.5 py-1 text-[10px] font-semibold tracking-tight rounded-md border border-border text-right"
             />
-          </div>
-          <div class="flex items-start justify-between gap-3">
-            <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider pt-1 shrink-0">Fulfillment</span>
-            @if (shouldShowFulfillment(order)) {
-              <p-tag
-                [value]="fullfillmentLabel(order.fullfillmentStatus)"
-                [severity]="getFulfillmentSeverity(order.fullfillmentStatus)"
-                styleClass="max-w-[65%] shrink px-2.5 py-1 text-[10px] font-semibold tracking-tight rounded-md border border-border text-right"
-              />
-            } @else {
-              <span class="text-sm text-muted-foreground pt-0.5">—</span>
-            }
           </div>
           <div class="flex items-start justify-between gap-3">
             <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider pt-1 shrink-0">Payment type</span>
@@ -94,22 +81,6 @@
           </div>
         </div>
 
-        <p-popover #op styleClass="modern-popover">
-          <div class="p-4 w-[300px]">
-            <h4 class="text-sm font-bold mb-4 uppercase tracking-wider text-muted-foreground border-b pb-2">Order History</h4>
-            <p-timeline [value]="order.stateHistory" styleClass="w-full">
-              <ng-template pTemplate="content" let-event>
-                <div class="flex flex-col gap-0.5 mb-4">
-                  <span class="text-xs font-bold text-foreground">{{ event.to }}</span>
-                  <span class="text-[10px] text-muted-foreground">{{ event.timestamp | date:'short' }}</span>
-                  @if (event.reason) {
-                    <span class="text-[10px] italic text-muted-foreground bg-muted/30 px-2 py-1 rounded mt-1 border border-border/20">{{ event.reason }}</span>
-                  }
-                </div>
-              </ng-template>
-            </p-timeline>
-          </div>
-        </p-popover>
         
         <div class="flex justify-between items-center pt-4 border-t border-border/50 mt-1">
           <div class="flex flex-col">
@@ -198,9 +169,6 @@
           Status
         </th>
         <th class="px-4 py-5 font-bold uppercase tracking-wider">
-          Fulfillment
-        </th>
-        <th class="px-4 py-5 font-bold uppercase tracking-wider">
           Payment type
         </th>
         <th class="px-4 py-5 font-bold uppercase tracking-wider">
@@ -231,45 +199,9 @@
           <p-tag
             [value]="statusLabel(order.status)"
             [severity]="getOrderStatusSeverity(order.status)"
-            styleClass="px-2 py-1 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border cursor-help"
-            (click)="op_desktop.toggle($event)"
+            styleClass="px-2 py-1 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border"
           />
-          <p-popover #op_desktop styleClass="modern-popover">
-            <div class="p-4 w-[320px]">
-              <h4 class="text-xs font-bold mb-4 uppercase tracking-wider text-muted-foreground border-b pb-2">State Transition Timeline</h4>
-              <p-timeline [value]="order.stateHistory" styleClass="w-full custom-timeline">
-                <ng-template pTemplate="marker" let-event>
-                  <div class="flex items-center justify-center w-3 h-3 rounded-full border-2 border-primary bg-surface shadow-sm"></div>
-                </ng-template>
-                <ng-template pTemplate="content" let-event>
-                  <div class="flex flex-col gap-1 mb-6">
-                    <div class="flex items-center justify-between">
-                      <span class="text-[11px] font-bold text-foreground bg-primary/5 px-1.5 py-0.5 rounded border border-primary/20">{{ event.to }}</span>
-                      <span class="text-[10px] font-medium text-muted-foreground">{{ event.timestamp | date:'shortTime' }}</span>
-                    </div>
-                    <span class="text-[10px] text-muted-foreground/70">{{ event.timestamp | date:'MMM d, y' }}</span>
-                    @if (event.reason) {
-                      <div class="text-[10px] leading-relaxed italic text-muted-foreground/80 bg-surface-2 p-2 rounded border border-border/30 mt-1 relative overflow-hidden">
-                        <div class="absolute inset-y-0 left-0 w-0.5 bg-primary/30"></div>
-                        {{ event.reason }}
-                      </div>
-                    }
-                  </div>
-                </ng-template>
-              </p-timeline>
-            </div>
-          </p-popover>
-        </td>
-        <td class="px-4 py-5">
-          @if (shouldShowFulfillment(order)) {
-            <p-tag
-              [value]="fullfillmentLabel(order.fullfillmentStatus)"
-              [severity]="getFulfillmentSeverity(order.fullfillmentStatus)"
-              styleClass="px-2 py-1 text-[10px] font-bold tracking-tight rounded-md border border-border"
-            />
-          } @else {
-            <span class="text-sm text-muted-foreground">—</span>
-          }
+        
         </td>
         <td class="px-4 py-5">
           <p-tag
@@ -358,7 +290,7 @@
     <!-- Empty Message -->
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="8" class="px-4 py-12 text-center">
+        <td colspan="7" class="px-4 py-12 text-center">
           <div class="flex flex-col items-center gap-3">
             <i class="pi pi-inbox text-4xl text-muted-foreground opacity-20"></i>
             <div class="text-base font-medium text-foreground">No orders found</div>

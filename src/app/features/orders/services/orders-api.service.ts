@@ -10,6 +10,7 @@ import type { CreateOrderRequest } from '../models/create-order.request';
 import type { ListOrderRequest } from '../models/list-order.request';
 import type { UpdateOrderItemsRequest } from '../models/update-order-items.request';
 import type { AddReturnItemsRequest } from '../models/add-return-items.request';
+import type { CompleteOrderRequest } from '../models/complete-order.request';
 import type { RecordOrderPaymentRequest } from '../models/record-order-payment.request';
 import { OrderPaymentMethod } from '../models/order-payment.enums';
 import { httpParamsFromRequest } from '../../../shared/requests/http-params-from-request';
@@ -76,45 +77,24 @@ export class OrdersApiService {
     );
   }
 
+  requestRevisionOrder(id: string): Observable<ApiResponse<Order>> {
+    return this.http.post<ApiResponse<Order>>(
+      `${this.baseUrl}orders/${encodeURIComponent(id)}/request-revision`,
+      {}
+    );
+  }
+
+  completeOrder(id: string, request?: CompleteOrderRequest): Observable<ApiResponse<Order>> {
+    return this.http.post<ApiResponse<Order>>(
+      `${this.baseUrl}orders/${encodeURIComponent(id)}/complete`,
+      request ?? {}
+    );
+  }
+
   cancelOrder(id: string): Observable<ApiResponse<Order>> {
     return this.http.post<ApiResponse<Order>>(
       `${this.baseUrl}orders/${encodeURIComponent(id)}/cancel`,
-      {}
-    );
-  }
-
-  completeOrder(id: string): Observable<ApiResponse<Order>> {
-    return this.http.post<ApiResponse<Order>>(
-      `${this.baseUrl}orders/${encodeURIComponent(id)}/complete`,
-      {}
-    );
-  }
-
-  dispatchOrder(id: string): Observable<ApiResponse<Order>> {
-    return this.http.post<ApiResponse<Order>>(
-      `${this.baseUrl}orders/${encodeURIComponent(id)}/dispatch`,
-      {}
-    );
-  }
-
-  shipOrder(id: string): Observable<ApiResponse<Order>> {
-    return this.http.post<ApiResponse<Order>>(
-      `${this.baseUrl}orders/${encodeURIComponent(id)}/ship`,
-      {}
-    );
-  }
-
-  refuseOrder(id: string): Observable<ApiResponse<Order>> {
-    return this.http.post<ApiResponse<Order>>(
-      `${this.baseUrl}orders/${encodeURIComponent(id)}/refuse`,
-      {}
-    );
-  }
-
-  reopenOrder(id: string): Observable<ApiResponse<Order>> {
-    return this.http.post<ApiResponse<Order>>(
-      `${this.baseUrl}orders/${encodeURIComponent(id)}/reopen`,
-      {}
+      null
     );
   }
 

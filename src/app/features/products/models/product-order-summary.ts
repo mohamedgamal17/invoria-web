@@ -40,11 +40,11 @@ export function productReturnSubtotal(order: UiOrder, productId: string): number
   );
   return order.returnItems
     .filter((row) => lineIds.has(row.orderItemId))
-    .reduce((sum, row) => sum + row.lineTotal, 0);
+    .reduce((sum, row) => sum + row.lineReturnTotal, 0);
 }
 
 export function orderReturnSubtotal(order: UiOrder): number {
-  return order.returnItems.reduce((sum, row) => sum + row.lineTotal, 0);
+  return order.returnItems.reduce((sum, row) => sum + row.lineReturnTotal, 0);
 }
 
 export function buildProductOrderRowSummary(

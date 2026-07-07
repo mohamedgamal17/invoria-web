@@ -6,15 +6,11 @@ import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { PaginatorModule } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
-import { PopoverModule } from 'primeng/popover';
-import { TimelineModule } from 'primeng/timeline';
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
 import type { UiOrder } from '../../models/order-ui.model';
-import { OrderFullfillmentStatus } from '../../models/order.entity';
 import { OrderStatus } from '../../models/order.entity';
 import {
-  friendlyFullfillmentStatusLabel,
   orderStatusLabel,
   orderStatusUserLabel
 } from '../../models/order-actions';
@@ -36,8 +32,6 @@ import {
     TooltipModule,
     PaginatorModule,
     SkeletonModule,
-    PopoverModule,
-    TimelineModule,
     EmptyStateComponent,
     SurfaceCardComponent
   ],
@@ -70,16 +64,14 @@ export class OrderListComponent {
     switch (status) {
       case OrderStatus.Completed:
         return 'success';
-      case OrderStatus.Accepted:
+      case OrderStatus.Processing:
         return 'info';
-      case OrderStatus.Shipped:
-        return 'contrast';
-      case OrderStatus.Reopened:
+      case OrderStatus.Revision:
+      case OrderStatus.RevisionPending:
         return 'warn';
       case OrderStatus.Pending:
         return 'secondary';
       case OrderStatus.Cancelled:
-      case OrderStatus.Refused:
         return 'danger';
       default:
         return 'secondary';
@@ -94,39 +86,9 @@ export class OrderListComponent {
     return orderStatusUserLabel(status);
   }
 
-  /** Mobile card: explicit, non-empty line so the customer is never an ambiguous blank. */
   customerDisplayName(order: UiOrder): string {
     const name = order.customerName?.trim();
     return name ? name : 'No customer on file';
-  }
-
-  shouldShowFulfillment(order: UiOrder): boolean {
-    return order.status !== OrderStatus.Cancelled;
-  }
-
-  fullfillmentLabel(status: OrderFullfillmentStatus): string {
-    return friendlyFullfillmentStatusLabel(status);
-  }
-
-  getFulfillmentSeverity(
-    status: OrderFullfillmentStatus
-  ): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined {
-    switch (status) {
-      case OrderFullfillmentStatus.Allocated:
-        return 'success';
-      case OrderFullfillmentStatus.Allocating:
-      case OrderFullfillmentStatus.Releasing:
-        return 'info';
-      case OrderFullfillmentStatus.OnHold:
-        return 'warn';
-      case OrderFullfillmentStatus.Dispatched:
-        return 'contrast';
-      case OrderFullfillmentStatus.Cancelled:
-        return 'danger';
-      case OrderFullfillmentStatus.Pending:
-      default:
-        return 'secondary';
-    }
   }
 
   paymentTypeDisplay(type: PaymentType | undefined): string {

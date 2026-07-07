@@ -1,15 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, effect, inject, linkedSignal, signal, untracked } from '@angular/core';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { finalize, map, take } from 'rxjs';
+import { catchError, finalize, map, of, take } from 'rxjs';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { SkeletonModule } from 'primeng/skeleton';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
@@ -17,33 +15,41 @@ import { presentApiError } from '../../../../core/http/api-error.presenter';
 import {
   canEditOrder,
   getAvailableOrderActions,
+  getBeatingAction,
   ORDER_ACTION_UI,
   orderStatusLabel,
+  orderStatusEmoji,
+  orderStatusUserLabel,
   type OrderActionKey
 } from '../../models/order-actions';
-import { friendlyFullfillmentStatusLabel } from '../../models/order-actions';
+import { OrderStatus } from '../../models/order.entity';
+import { PaymentType } from '../../models/order-payment.enums';
 import { orderToUiOrder } from '../../models/order-ui.mapper';
 import { OrderActionFacade, type OrderTransitionAction } from '../../services/order-action.facade';
-import { OrderDetailsHistoryTabComponent } from '../../components/order-details-history-tab/order-details-history-tab.component';
 import { OrderDetailsLineItemsTabComponent } from '../../components/order-details-line-items-tab/order-details-line-items-tab.component';
-import { OrderDetailsOverviewTabComponent } from '../../components/order-details-overview-tab/order-details-overview-tab.component';
 import { OrderDetailsPaymentTabComponent } from '../../components/order-details-payment-tab/order-details-payment-tab.component';
-import { OrderDetailsReturnItemsTabComponent } from '../../components/order-details-return-items-tab/order-details-return-items-tab.component';
-import { OrderReasonDialogComponent } from '../../components/order-reason-dialog/order-reason-dialog.component';
-import { mapReturnItemsRequestToUi } from '../../models/order-return-items';
+import { OrderSummaryCardComponent } from '../../components/order-summary-card/order-summary-card.component';
+import { OrderProgressComponent } from '../../components/order-progress/order-progress.component';
+import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
+import type { CompleteOrderRequest } from '../../models/complete-order.request';
 import type { AddReturnItemsRequest } from '../../models/add-return-items.request';
-import type { Order } from '../../models/order.entity';
-import { OrderStatus } from '../../models/order.entity';
-import {
-  PaymentStatus,
-  PaymentType,
-  paymentStatusLabel,
-  paymentTypeLabel
-} from '../../models/order-payment.enums';
-import type { UiOrder, UiOrderFailureDetailRow } from '../../models/order-ui.model';
-
-const PAYMENT_SUMMARY_EPS = 0.02;
+import type { UiOrder } from '../../models/order-ui.model';
+import { OrderReturnItemsDialogComponent } from '../../components/order-return-items-dialog/order-return-items-dialog.component';
 import { OrdersApiService } from '../../services/orders-api.service';
+import { DialogModule } from 'primeng/dialog';
+
+const TAB_SLUGS = ['summary', 'lineItems', 'payment'] as const;
+
+function tabSlugToIndex(tab: string | null): number | null {
+  if (tab === 'lineItems') return 1;
+  if (tab === 'payment') return 2;
+  if (tab === 'summary' || tab === 'overview' || tab === null || tab === '') return 0;
+  return null;
+}
+
+function indexToTabSlug(index: number): string {
+  return TAB_SLUGS[index] ?? 'summary';
+}
 
 @Component({
   selector: 'app-order-details-page',
@@ -53,27 +59,47 @@ import { OrdersApiService } from '../../services/orders-api.service';
     ButtonModule,
     CardModule,
     ConfirmDialogModule,
-    OrderDetailsHistoryTabComponent,
+    DialogModule,
     OrderDetailsLineItemsTabComponent,
-    OrderDetailsOverviewTabComponent,
     OrderDetailsPaymentTabComponent,
-    OrderDetailsReturnItemsTabComponent,
-    OrderReasonDialogComponent,
-    TagModule,
+    OrderReturnItemsDialogComponent,
+    OrderSummaryCardComponent,
+    OrderProgressComponent,
+    PageHeaderComponent,
     Tabs,
     TabList,
     Tab,
     TabPanels,
     TabPanel,
     SkeletonModule,
-    TableModule,
     ToastModule
   ],
   providers: [ConfirmationService, MessageService],
-  templateUrl: './order-details-page.component.html'
+  templateUrl: './order-details-page.component.html',
+  styles: [`
+    @keyframes pulse-beat {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--p-primary-400), 0.4); }
+      50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(var(--p-primary-400), 0); }
+    }
+    .pulse-beat {
+      animation: pulse-beat 1.5s ease-in-out infinite;
+    }
+    @keyframes confetti-fall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100px) rotate(720deg); opacity: 0; }
+    }
+    .confetti-piece {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      animation: confetti-fall 1.5s ease-out forwards;
+      z-index: 9999;
+      pointer-events: none;
+    }
+  `]
 })
 export class OrderDetailsPageComponent {
-  /** Display currency for monetary fields (aligned with procurement UI). */
   readonly currencyCode = 'EGP' as const;
   private readonly ordersApi = inject(OrdersApiService);
   private readonly orderActionFacade = inject(OrderActionFacade);
@@ -87,239 +113,237 @@ export class OrderDetailsPageComponent {
     { initialValue: this.route.snapshot.paramMap.get('id') ?? '' }
   );
 
-  readonly loading = signal(true);
-  readonly error = signal('');
-  readonly order = signal<UiOrder | null>(null);
-  readonly actionSaving = signal(false);
-  readonly reasonModalVisible = signal(false);
-  readonly reasonText = signal('');
-  readonly reasonTarget = signal<OrderTransitionAction | null>(null);
+  private readonly tabQuery = toSignal(
+    this.route.queryParamMap.pipe(map((m) => m.get('tab'))),
+    { initialValue: this.route.snapshot.queryParamMap.get('tab') }
+  );
 
-  /** Tab keys: overview, lineItems, returnItems, payment, history. Recording returns is gated in the tab. */
-  readonly activeTab = signal('overview');
+  readonly actionSaving = signal(false);
+  readonly activeTab = signal(0);
+  readonly paymentDialogVisible = signal(false);
+
+  readonly orderResource = rxResource<UiOrder | null, string>({
+    params: () => this.orderId(),
+    defaultValue: null,
+    stream: ({ params: id }) => {
+      if (!id) {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Missing order id.' });
+        return of(null);
+      }
+      return this.ordersApi.getOrder(id).pipe(
+        map((res) => {
+          if (!res.isSuccess || !res.result) {
+            this.showApiError(res.error);
+            return null;
+          }
+          return orderToUiOrder(res.result);
+        }),
+        catchError((err: unknown) => {
+          this.showApiError(err);
+          return of(null);
+        })
+      );
+    }
+  });
+
+  readonly displayOrder = linkedSignal({
+    source: () => this.orderResource.value(),
+    computation: (order) => (order ? { ...order } : null)
+  });
+
+  readonly error = computed<string>(() => {
+    if (!this.orderId()) return 'Missing order id.';
+    if (this.orderResource.isLoading()) return '';
+    if (!this.displayOrder()) return 'Failed to load order.';
+    return '';
+  });
 
   readonly availableActions = computed(() => {
-    const order = this.order();
+    const order = this.displayOrder();
     if (!order) return [];
-    return getAvailableOrderActions(order).filter((action) => action !== 'edit');
+    return getAvailableOrderActions(order).filter((action) => action !== 'edit' && action !== 'returnItems');
   });
 
-  readonly isFailedOrder = computed(() => {
-    const order = this.order();
-    if (!order) return false;
-    return order.status === OrderStatus.Cancelled || order.status === OrderStatus.Refused;
+  readonly canRecordPayment = computed(() => {
+    const o = this.displayOrder();
+    return !!o && o.status === OrderStatus.Completed && o.paymentType !== undefined && o.paymentType !== null;
   });
 
-  readonly failureDetails = computed((): UiOrderFailureDetailRow[] => {
-    const order = this.order();
-    return order?.failureDetails ?? [];
+  private readonly revisionSnapshotKey = computed(
+    () => `order_revision_snapshot_${this.orderId()}`
+  );
+
+  readonly hasBeenEdited = computed(() => {
+    const order = this.displayOrder();
+    if (!order || order.status !== OrderStatus.Revision) return false;
+
+    try {
+      const raw = sessionStorage.getItem(this.revisionSnapshotKey());
+      if (!raw) return false;
+      const snapshot = JSON.parse(raw);
+
+      if (order.totalAmount !== snapshot.totalAmount) return true;
+      if (order.netOfTotalOrderAmount !== snapshot.netOfTotalOrderAmount) return true;
+      if (order.customerName !== snapshot.customerName) return true;
+      if (order.items.length !== snapshot.items.length) return true;
+      return order.items.some((item, i) => {
+        const s = snapshot.items[i];
+        return !s || item.quantity !== s.quantity || item.price !== s.price;
+      });
+    } catch {
+      return false;
+    }
   });
 
-  readonly reasonTransitionTarget = computed(() => {
-    const order = this.order();
-    const action = this.reasonTarget();
-    if (!order || !action) return null;
+  readonly returnSummary = computed(() => {
+    const order = this.displayOrder();
+    if (!order || order.status !== OrderStatus.Completed || !order.returnItems?.length) return null;
     return {
-      order,
-      state: this.actionToOrderStatus(action)
+      count: order.returnItems.length,
+      total: order.returnsTotal
     };
   });
 
+  readonly showCompleteOptionDialog = signal(false);
+  readonly showReturnDialogOnComplete = signal(false);
+  readonly returnSaving = signal(false);
+
+  readonly pulseTarget = computed(() => {
+    const order = this.displayOrder();
+    if (!order) return null;
+    if (order.status === OrderStatus.Revision) {
+      return this.hasBeenEdited() ? 'accept' : 'edit';
+    }
+    return getBeatingAction(order);
+  });
+
+  readonly ORDER_ACTION_UI = ORDER_ACTION_UI;
+  readonly canEditOrder = canEditOrder;
+  readonly orderStatusLabel = orderStatusLabel;
+  readonly orderStatusEmoji = orderStatusEmoji;
+  readonly orderStatusUserLabel = orderStatusUserLabel;
+
   constructor() {
-    this.loadOrder();
+    effect(() => {
+      const tab = this.tabQuery();
+      const loaded = this.displayOrder();
+      if (!loaded || this.orderResource.isLoading()) {
+        return;
+      }
+      untracked(() => {
+        const idx = tabSlugToIndex(tab);
+        if (idx !== null && this.activeTab() !== idx) {
+          this.activeTab.set(idx);
+        }
+      });
+    });
+
+    effect(() => {
+      const order = this.displayOrder();
+      const key = this.revisionSnapshotKey();
+      if (!order || !key) return;
+
+      if (order.status === OrderStatus.Revision) {
+        if (!sessionStorage.getItem(key)) {
+          sessionStorage.setItem(key, JSON.stringify({
+            items: order.items.map(i => ({ id: i.id, quantity: i.quantity, price: i.price })),
+            totalAmount: order.totalAmount,
+            netOfTotalOrderAmount: order.netOfTotalOrderAmount,
+            customerName: order.customerName
+          }));
+        }
+      } else {
+        sessionStorage.removeItem(key);
+      }
+    });
   }
 
   backToList(): void {
-    void this.router.navigate(['../'], { relativeTo: this.route });
+    void this.router.navigate(['/orders']);
   }
 
   goToEdit(): void {
-    const order = this.order();
+    const order = this.displayOrder();
     if (!order || !canEditOrder(order)) return;
     void this.router.navigate(['edit'], { relativeTo: this.route });
   }
 
   onAction(action: OrderActionKey): void {
     if (action === 'edit' || action === 'returnItems') return;
-    const meta = this.orderActionFacade.meta(action as OrderTransitionAction);
 
-    if (meta.requiresReason) {
-      this.reasonTarget.set(action);
-      this.reasonText.set('');
-      this.reasonModalVisible.set(true);
+    if (action === 'complete') {
+      this.showCompleteOptionDialog.set(true);
       return;
     }
 
+    const meta = this.orderActionFacade.meta(action as OrderTransitionAction);
     this.confirmationService.confirm({
       header: 'Confirm Action',
-      message: `Are you sure you want to ${meta.label.toLowerCase()} this order?`,
+      message: `Are you sure you want to ${meta.label.replace(/[^a-zA-Z ]/g, '').trim().toLowerCase()} this order?`,
       icon: 'pi pi-exclamation-triangle',
-      acceptButtonProps: { label: `Confirm ${meta.label}`, severity: meta.severity },
+      acceptButtonProps: { label: meta.label, severity: meta.severity },
       rejectButtonProps: { label: 'Cancel', severity: 'secondary', outlined: true },
       accept: () => this.executeAction(action)
     });
   }
 
+  onCompleteIncludeReturns(): void {
+    this.showCompleteOptionDialog.set(false);
+    this.showReturnDialogOnComplete.set(true);
+  }
+
+  onCompleteWithoutReturns(): void {
+    this.showCompleteOptionDialog.set(false);
+    this.executeAction('complete');
+  }
+
   retry(): void {
-    this.loadOrder();
+    this.orderResource.reload();
   }
 
   onTabChange(value: string | number | undefined): void {
     if (value === undefined || value === null) {
       return;
     }
-    this.activeTab.set(String(value));
+    const n = typeof value === 'number' ? value : Number(value);
+    const next = Number.isFinite(n) ? n : 0;
+    this.activeTab.set(next);
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      replaceUrl: true,
+      queryParams: { tab: indexToTabSlug(next) }
+    });
   }
-
-  onReturnItemsRecorded(event: { request: AddReturnItemsRequest; result: Order }): void {
-    const ui = orderToUiOrder(event.result);
-    ui.returnItems = mapReturnItemsRequestToUi(event.request, ui.items);
-    this.order.set(ui);
-  }
-
-  submitReasonAction(): void {
-    const action = this.reasonTarget();
-    if (!action || !this.reasonText().trim()) return;
-    this.reasonModalVisible.set(false);
-    this.executeAction(action);
-  }
-
-  /** Outlined destructive actions (parity with purchase order reject/cancel). */
-  actionOutlined(action: OrderActionKey): boolean {
-    return action === 'cancel' || action === 'refuse';
-  }
-
-  statusSeverity(
-    status: string
-  ): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' {
-    switch (status) {
-      case 'COMPLETED':
-        return 'success';
-      case 'ACCEPTED':
-        return 'info';
-      case 'SHIPPED':
-        return 'contrast';
-      case 'REOPENED':
-        return 'warn';
-      case 'CANCELLED':
-      case 'REFUSED':
-        return 'danger';
-      default:
-        return 'secondary';
-    }
-  }
-
-  paymentTypeDisplay(type: PaymentType | undefined): string {
-    return type !== undefined ? paymentTypeLabel(type) : '—';
-  }
-
-  paymentStatusDisplay(status: PaymentStatus | undefined): string {
-    return status !== undefined ? paymentStatusLabel(status) : '—';
-  }
-
-  getPaymentStatusSeverity(
-    status: PaymentStatus | undefined
-  ): 'success' | 'secondary' | 'info' | 'warn' | 'danger' {
-    if (status === undefined) return 'secondary';
-    switch (status) {
-      case PaymentStatus.Paid:
-        return 'success';
-      case PaymentStatus.Partial:
-        return 'warn';
-      case PaymentStatus.Unpaid:
-      default:
-        return 'secondary';
-    }
-  }
-
-  getPaymentTypeSeverity(type: PaymentType | undefined): 'success' | 'secondary' | 'info' | 'warn' | 'danger' {
-    if (type === undefined) return 'secondary';
-    switch (type) {
-      case PaymentType.Immediate:
-        return 'info';
-      case PaymentType.Debt:
-        return 'warn';
-      default:
-        return 'secondary';
-    }
-  }
-
-  paidPercentOfTotal(order: UiOrder): number | null {
-    if (
-      order.amountPaid === undefined ||
-      order.amountPaid === null ||
-      !Number.isFinite(order.totalAmount) ||
-      order.totalAmount <= 0
-    ) {
-      return null;
-    }
-    return (order.amountPaid / order.totalAmount) * 100;
-  }
-
-  paymentTotalsAligned(order: UiOrder): boolean {
-    if (order.amountPaid == null || order.amountOutstanding == null) {
-      return true;
-    }
-    return Math.abs(order.amountPaid + order.amountOutstanding - order.totalAmount) <= PAYMENT_SUMMARY_EPS;
-  }
-
-  orderStatusLabel = orderStatusLabel;
-  friendlyFullfillmentStatusLabel = friendlyFullfillmentStatusLabel;
-  ORDER_ACTION_UI = ORDER_ACTION_UI;
-  canEditOrder = canEditOrder;
 
   loadOrder(): void {
-    const id = this.orderId();
-    if (!id) {
-      this.loading.set(false);
-      this.error.set('Missing order id.');
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: this.error() });
-      return;
-    }
-
-    this.loading.set(true);
-    this.error.set('');
-    this.ordersApi
-      .getOrder(id)
-      .pipe(
-        take(1),
-        finalize(() => this.loading.set(false))
-      )
-      .subscribe({
-        next: (res) => {
-          if (!res.isSuccess || !res.result) {
-            const presentation = presentApiError(res.error);
-            const detail = presentation.toast.detail ?? 'Failed to load order.';
-            this.error.set(detail);
-            this.order.set(null);
-            this.messageService.add(presentation.toast);
-            if (presentation.routeTarget) {
-              void this.router.navigate([presentation.routeTarget]);
-            }
-            return;
-          }
-          this.order.set(orderToUiOrder(res.result));
-        },
-        error: (err: unknown) => {
-          const presentation = presentApiError(err);
-          const detail = presentation.toast.detail ?? 'Failed to load order.';
-          this.error.set(detail);
-          this.order.set(null);
-          this.messageService.add(presentation.toast);
-          if (presentation.routeTarget) {
-            void this.router.navigate([presentation.routeTarget]);
-          }
-        }
-      });
+    this.orderResource.reload();
   }
 
-  private executeAction(action: OrderTransitionAction): void {
+  onReturnSubmitComplete(request: AddReturnItemsRequest): void {
+    this.showReturnDialogOnComplete.set(false);
+    this.executeAction('complete', { ReturnItems: request.Items });
+  }
+
+  onReturnDialogCancel(): void {
+    this.showReturnDialogOnComplete.set(false);
+  }
+
+  private showCompleteSuccess(): void {
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Order Completed!',
+      detail: 'The order has been delivered successfully!'
+    });
+    this.spawnConfetti();
+  }
+
+  private executeAction(action: OrderTransitionAction, body?: CompleteOrderRequest): void {
     const id = this.orderId();
     if (!id) return;
 
     this.actionSaving.set(true);
     this.orderActionFacade
-      .execute(action, id)
+      .execute(action, id, body)
       .pipe(
         take(1),
         finalize(() => this.actionSaving.set(false))
@@ -330,12 +354,17 @@ export class OrderDetailsPageComponent {
             this.messageService.add(presentApiError(res.error).toast);
             return;
           }
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: `${this.orderActionFacade.meta(action).label} action completed successfully.`
-          });
-          this.order.set(orderToUiOrder(res.result));
+          this.displayOrder.set(orderToUiOrder(res.result));
+
+          if (action === 'complete') {
+            this.showCompleteSuccess();
+          } else {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: `${this.orderActionFacade.meta(action).label} action completed.`
+            });
+          }
         },
         error: (err: unknown) => {
           this.messageService.add(presentApiError(err).toast);
@@ -343,24 +372,28 @@ export class OrderDetailsPageComponent {
       });
   }
 
-  private actionToOrderStatus(action: OrderTransitionAction): OrderStatus {
-    switch (action) {
-      case 'accept':
-        return OrderStatus.Accepted;
-      case 'dispatch':
-        return OrderStatus.Accepted;
-      case 'ship':
-        return OrderStatus.Shipped;
-      case 'complete':
-        return OrderStatus.Completed;
-      case 'cancel':
-        return OrderStatus.Cancelled;
-      case 'reopen':
-        return OrderStatus.Reopened;
-      case 'refuse':
-        return OrderStatus.Refused;
-      default:
-        return OrderStatus.Pending;
+  private spawnConfetti(): void {
+    const colors = ['#f44336', '#e91e63', '#9c27b0', '#3f51b5', '#03a9f4', '#009688', '#8bc34a', '#ffeb3b', '#ff9800'];
+    for (let i = 0; i < 40; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.top = '40vh';
+      el.style.background = colors[Math.floor(Math.random() * colors.length)];
+      el.style.animationDuration = (1 + Math.random() * 1) + 's';
+      el.style.animationDelay = (Math.random() * 0.5) + 's';
+      el.style.width = (4 + Math.random() * 8) + 'px';
+      el.style.height = (4 + Math.random() * 8) + 'px';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2500);
+    }
+  }
+
+  private showApiError(error: unknown): void {
+    const presentation = presentApiError(error);
+    this.messageService.add(presentation.toast);
+    if (presentation.routeTarget) {
+      void this.router.navigate([presentation.routeTarget]);
     }
   }
 }

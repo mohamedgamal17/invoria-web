@@ -1,21 +1,19 @@
 import type {
-  OrderFullfillmentStatus,
   OrderPayment,
   OrderStatus
 } from './order.entity';
 import type { PaymentStatus, PaymentType } from './order-payment.enums';
 
-/** Recorded return line for order details UI. */
 export interface UiReturnItem {
   orderItemId: string;
   productName: string;
+  productId: string;
   quantity: number;
   orderedQuantity: number;
   unitPrice: number;
-  lineTotal: number;
+  lineReturnTotal: number;
 }
 
-/** Mock/UI line item (includes display name not present on API contract). */
 export interface UiOrderItem {
   id: string;
   productId: string;
@@ -24,23 +22,6 @@ export interface UiOrderItem {
   price: number;
 }
 
-export interface UiOrderStateHistoryEvent {
-  from?: string;
-  to: string;
-  timestamp: string;
-  reason?: string | null;
-}
-
-export interface UiOrderFailureDetailRow {
-  itemId: string;
-  itemName?: string | null;
-  itemDisplayName: string;
-  quantityRequested: number;
-  quantityAvailable: number;
-  shortage: number;
-}
-
-/** UI order used by Orders pages. */
 export interface UiOrder {
   id: string;
   createdAt: string;
@@ -48,12 +29,12 @@ export interface UiOrder {
   lastModifiedAt?: string;
   lastModifiedBy?: string;
   orderNumber: string;
-  /** Set when row comes from the API (`Order.customerId`). */
   customerId?: string;
   customerName: string;
   totalAmount: number;
+  netOfTotalOrderAmount: number;
+  returnsTotal: number;
   status: OrderStatus;
-  fullfillmentStatus: OrderFullfillmentStatus;
   paymentType?: PaymentType;
   paymentStatus?: PaymentStatus;
   amountPaid?: number;
@@ -62,8 +43,10 @@ export interface UiOrder {
   orderDate: string;
   items: UiOrderItem[];
   returnItems: UiReturnItem[];
-  stateHistory: UiOrderStateHistoryEvent[];
-  failureDetails: UiOrderFailureDetailRow[];
+  allocationId?: string;
+  returnId?: string;
+  invoiceId?: string;
+  orderAllocated: boolean;
 }
 
 export type OrderCreateInput = Pick<

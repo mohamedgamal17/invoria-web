@@ -1,7 +1,6 @@
 import type { CreateOrderLineItemRequest } from './create-order-line-item.request';
-import type { Order, OrderFailureDetails, OrderItem, OrderStateTransitionHistory } from './order.entity';
-import { friendlyFullfillmentStatusLabel, orderStatusLabel } from './order-actions';
-import type { UiOrder, UiOrderFailureDetailRow, UiOrderItem, UiOrderStateHistoryEvent } from './order-ui.model';
+import type { Order, OrderItem, OrderReturnItem } from './order.entity';
+import type { UiOrder, UiOrderItem, UiReturnItem } from './order-ui.model';
 
 function orderItemToUiItem(line: OrderItem): UiOrderItem {
   return {
@@ -13,45 +12,20 @@ function orderItemToUiItem(line: OrderItem): UiOrderItem {
   };
 }
 
-function mapStateTransitionHistory(items: OrderStateTransitionHistory[] | undefined): UiOrderStateHistoryEvent[] {
-  return (items ?? []).map((h) => {
-    const to = orderStatusLabel(h.toStatus);
-    const from = orderStatusLabel(h.fromStatus);
-    const toFulfillment = friendlyFullfillmentStatusLabel(h.toFullfillmentStatus);
-
-    return {
-      from,
-      to: `${to} · ${toFulfillment}`,
-      timestamp: h.changedAt,
-      reason: h.reason
-    };
-  });
-}
-
-function resolveFailureItemDisplayName(detail: OrderFailureDetails, orderItems: UiOrderItem[]): string {
-  const apiProvided = detail.itemName?.trim();
-  if (apiProvided) return apiProvided;
-
-  const byProductId = orderItems.find((i) => i.productId === detail.itemId);
-  if (byProductId?.productName?.trim()) return byProductId.productName;
-
-  return `Item ${detail.itemId}`;
-}
-
-function mapFailureDetails(details: OrderFailureDetails[] | undefined, orderItems: UiOrderItem[]): UiOrderFailureDetailRow[] {
-  return (details ?? []).map((d) => ({
-    itemId: d.itemId,
-    itemName: d.itemName,
-    itemDisplayName: resolveFailureItemDisplayName(d, orderItems),
-    quantityRequested: d.quantityRequested,
-    quantityAvailable: d.quantityAvailable,
-    shortage: d.shortage
+function mapReturnItems(items: OrderReturnItem[]): UiReturnItem[] {
+  return items.map((r) => ({
+    orderItemId: r.orderItemId,
+    productName: r.product?.name?.trim() || r.productId,
+    productId: r.productId,
+    quantity: r.quantity,
+    orderedQuantity: r.orderedQuantity,
+    unitPrice: r.unitPrice,
+    lineReturnTotal: r.lineReturnTotal
   }));
 }
 
 export function orderToUiOrder(order: Order): UiOrder {
-  const items = (order.items ?? []).map(orderItemToUiItem);
-  const totalAmount = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const items = order.items.map(orderItemToUiItem);
 
   return {
     id: order.id,
@@ -62,9 +36,10 @@ export function orderToUiOrder(order: Order): UiOrder {
     orderNumber: order.orderNumber,
     customerId: order.customerId,
     customerName: order.customer?.name ?? '',
-    totalAmount,
+    totalAmount: order.totalOrderAmount,
+    netOfTotalOrderAmount: order.netOfTotalOrderAmount,
+    returnsTotal: order.returnsTotal,
     status: order.status,
-    fullfillmentStatus: order.fullfillmentStatus,
     paymentType: order.paymentType,
     paymentStatus: order.paymentStatus,
     amountPaid: order.amountPaid,
@@ -72,9 +47,11 @@ export function orderToUiOrder(order: Order): UiOrder {
     payments: order.payments,
     orderDate: order.createdAt,
     items,
-    returnItems: [],
-    stateHistory: mapStateTransitionHistory(order.stateTransitionHistory),
-    failureDetails: mapFailureDetails(order.failureDetails, items)
+    returnItems: mapReturnItems(order.returnItems),
+    allocationId: order.allocationId ?? undefined,
+    returnId: order.returnId ?? undefined,
+    invoiceId: order.invoiceId ?? undefined,
+    orderAllocated: order.orderAllocated
   };
 }
 

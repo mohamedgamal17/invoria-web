@@ -3,6 +3,7 @@ import { Observable, throwError } from 'rxjs';
 
 import type { ApiResponse } from '../../../core/models/api-response';
 import type { Order } from '../models/order.entity';
+import type { CompleteOrderRequest } from '../models/complete-order.request';
 import { OrdersApiService } from './orders-api.service';
 import type { OrderActionKey } from '../models/order-actions';
 import { ORDER_ACTION_UI } from '../models/order-actions';
@@ -15,22 +16,20 @@ export type OrderTransitionAction = Exclude<OrderActionKey, 'edit' | 'returnItem
 export class OrderActionFacade {
   private readonly ordersApi = inject(OrdersApiService);
 
-  execute(action: OrderTransitionAction, orderId: string): Observable<ApiResponse<Order>> {
+  execute(
+    action: OrderTransitionAction,
+    orderId: string,
+    body?: CompleteOrderRequest
+  ): Observable<ApiResponse<Order>> {
     switch (action) {
       case 'accept':
         return this.ordersApi.acceptOrder(orderId);
-      case 'dispatch':
-        return this.ordersApi.dispatchOrder(orderId);
-      case 'ship':
-        return this.ordersApi.shipOrder(orderId);
+      case 'requestRevision':
+        return this.ordersApi.requestRevisionOrder(orderId);
       case 'complete':
-        return this.ordersApi.completeOrder(orderId);
+        return this.ordersApi.completeOrder(orderId, body);
       case 'cancel':
         return this.ordersApi.cancelOrder(orderId);
-      case 'reopen':
-        return this.ordersApi.reopenOrder(orderId);
-      case 'refuse':
-        return this.ordersApi.refuseOrder(orderId);
       default:
         return throwError(() => new Error(`Unsupported order action: ${String(action)}`));
     }

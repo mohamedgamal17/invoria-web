@@ -1,0 +1,61 @@
+<p-card styleClass="border border-border">
+  <div class="flex flex-col gap-5">
+
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div class="space-y-1">
+        <div class="text-xs text-muted-foreground">{{ order().orderDate | date: 'medium' }}</div>
+        <h2 class="text-2xl font-bold tracking-tight text-foreground">{{ order().orderNumber }}</h2>
+      </div>
+      @if (order().status; as status) {
+        <span
+          class="px-3 py-1 rounded-md text-xs font-bold tracking-tight shrink-0"
+          [class.bg-success/10]="orderStatusSeverity(status) === 'success'"
+          [class.text-success]="orderStatusSeverity(status) === 'success'"
+          [class.bg-info/10]="orderStatusSeverity(status) === 'info'"
+          [class.text-info]="orderStatusSeverity(status) === 'info'"
+          [class.bg-warn/10]="orderStatusSeverity(status) === 'warn'"
+          [class.text-warn]="orderStatusSeverity(status) === 'warn'"
+          [class.bg-danger/10]="orderStatusSeverity(status) === 'danger'"
+          [class.text-danger]="orderStatusSeverity(status) === 'danger'"
+          [class.bg-surface-2]="orderStatusSeverity(status) === 'secondary'"
+          [class.text-muted-foreground]="orderStatusSeverity(status) === 'secondary'"
+        >
+          {{ orderStatusUserLabel(status) }}
+        </span>
+      }
+    </div>
+
+    <div class="border-t border-border/60 pt-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Customer</div>
+      <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+        @if (order().customerId) {
+          <a
+            [routerLink]="['/customers', order().customerId]"
+            class="text-sm font-semibold text-primary hover:text-primary-emphasis hover:underline transition-colors inline-flex items-center gap-1"
+          >
+            {{ order().customerName }}
+            <i class="pi pi-external-link text-xs"></i>
+          </a>
+        } @else {
+          <span class="text-sm font-semibold text-foreground">{{ order().customerName || '—' }}</span>
+        }
+        @if (order().customerId) {
+          <span class="text-xs font-mono text-muted-foreground">ID: {{ order().customerId }}</span>
+        }
+      </div>
+    </div>
+
+    <div class="border-t border-border/60 pt-4">
+      <app-order-summary-prices [order]="order()" [currencyCode]="currencyCode()" />
+    </div>
+
+    <div class="border-t border-border/60 pt-4">
+      <app-order-summary-payment [order]="order()" [currencyCode]="currencyCode()" />
+    </div>
+
+    <div class="border-t border-border/60 pt-4">
+      <app-order-summary-references [order]="order()" />
+    </div>
+
+  </div>
+</p-card>

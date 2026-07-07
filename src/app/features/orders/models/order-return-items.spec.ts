@@ -24,10 +24,10 @@ const line = (id: string, productId: string, name: string, quantity: number): Ui
 });
 
 describe('order-return-items', () => {
-  it('canReturnOrderItems: true only when Shipped', () => {
-    expect(canReturnOrderItems({ status: OrderStatus.Shipped })).toBe(true);
-    expect(canReturnOrderItems({ status: OrderStatus.Accepted })).toBe(false);
-    expect(canReturnOrderItems({ status: OrderStatus.Completed })).toBe(false);
+  it('canReturnOrderItems: true only when Completed', () => {
+    expect(canReturnOrderItems({ status: OrderStatus.Completed })).toBe(true);
+    expect(canReturnOrderItems({ status: OrderStatus.Processing })).toBe(false);
+    expect(canReturnOrderItems({ status: OrderStatus.Pending })).toBe(false);
   });
 
   it('orderLineSelectOptions: disambiguates duplicate product names by ordered qty', () => {
@@ -103,11 +103,12 @@ describe('order-return-items', () => {
     const returns: UiReturnItem[] = [
       {
         orderItemId: 'l1',
+        productId: 'p1',
         productName: 'Widget',
         quantity: 2,
         orderedQuantity: 3,
         unitPrice: 10,
-        lineTotal: 20
+        lineReturnTotal: 20
       }
     ];
     const draft = mapReturnItemsToDraft(returns);
@@ -126,7 +127,7 @@ describe('order-return-items', () => {
     expect(rows[0].quantity).toBe(2);
     expect(rows[0].orderedQuantity).toBe(3);
     expect(rows[0].unitPrice).toBe(10);
-    expect(rows[0].lineTotal).toBe(20);
+    expect(rows[0].lineReturnTotal).toBe(20);
   });
 
   it('clampReturnQuantity: bounds to [1, max]', () => {
