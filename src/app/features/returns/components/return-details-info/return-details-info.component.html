@@ -1,0 +1,51 @@
+﻿<p-card styleClass="border border-border/70">
+  <div class="flex flex-col gap-6">
+    <div class="min-w-0 space-y-1">
+      <div class="flex items-center gap-3">
+        <h1 class="text-2xl font-bold text-foreground font-mono">{{ return().id | slice:-8 }}</h1>
+        <p-tag
+          [value]="returnStatusUserLabel(return().status)"
+          [severity]="returnStatusSeverity(return().status)"
+          styleClass="text-[11px] font-bold px-2 py-0.5 rounded-md"
+        />
+      </div>
+      <p class="text-sm text-muted-foreground">Created {{ return().createdAt | date:'medium' }}</p>
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Type</div>
+        <div class="mt-1 text-lg font-semibold text-foreground">{{ returnTypeLabel(return().type) }}</div>
+      </div>
+
+      <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Return Lines</div>
+        <div class="mt-1 text-lg font-semibold text-foreground">{{ return().returnLines.length }}</div>
+      </div>
+
+      <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Order</div>
+        <div class="mt-1 text-lg font-semibold text-foreground font-mono">
+          {{ return().orderId ? (return().orderId! | slice:-8) : '—' }}
+        </div>
+      </div>
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div class="rounded-xl border border-border/60 bg-surface-2/20 p-4 space-y-1">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Created</div>
+        <div class="text-sm text-foreground">{{ return().createdAt | date:'medium' }}</div>
+        @if (return().createdBy) {
+          <div class="text-xs text-muted-foreground">by {{ return().createdBy }}</div>
+        }
+      </div>
+      <div class="rounded-xl border border-border/60 bg-surface-2/20 p-4 space-y-1">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Last Modified</div>
+        <div class="text-sm text-foreground">{{ return().lastModifiedAt | date:'medium' }}</div>
+        @if (return().lastModifiedBy) {
+          <div class="text-xs text-muted-foreground">by {{ return().lastModifiedBy }}</div>
+        }
+      </div>
+    </div>
+  </div>
+</p-card>
