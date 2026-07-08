@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+﻿import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink, RouterLinkActive, type IsActiveMatchOptions } from '@angular/router';
 import {
   ClipboardList,
@@ -6,6 +6,7 @@ import {
   LucideAngularModule,
   Package,
   ShoppingBag,
+  Undo2,
   User,
   Users,
   LogOut,
@@ -57,7 +58,8 @@ export class DashboardSidebarComponent {
     { label: 'Orders', path: '/orders', icon: ShoppingBag },
     { label: 'Procurement', path: '/procurement', icon: ClipboardList },
     { label: 'Suppliers', path: '/suppliers', icon: Users },
-    { label: 'Customers', path: '/customers', icon: User }
+    { label: 'Customers', path: '/customers', icon: User },
+    { label: 'Returns', path: '/returns', icon: Undo2 }
   ];
 
   readonly logoutIcon = LogOut;
@@ -76,3 +78,5 @@ export class DashboardSidebarComponent {
     return { paths: 'subset', ...ignored };
   }
 }
+
+
