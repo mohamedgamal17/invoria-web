@@ -1,0 +1,65 @@
+<app-surface-card tone="neutral">
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div class="flex items-center gap-2 text-foreground">
+        <i class="pi pi-filter text-muted-foreground" aria-hidden="true"></i>
+        <span class="text-sm font-bold uppercase tracking-wider text-muted-foreground"
+          >Filters</span
+        >
+      </div>
+      <p-button
+        label="Clear filters"
+        icon="pi pi-times"
+        [text]="true"
+        severity="secondary"
+        styleClass="text-sm shrink-0 self-start sm:self-auto"
+        [disabled]="loading()"
+        (onClick)="onClear()"
+      />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="flex flex-col gap-1.5">
+        <label
+          class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider"
+          for="invoices-filter-customer"
+          >Customer ID</label
+        >
+        <p-iconfield iconPosition="left" class="w-full">
+          <p-inputicon styleClass="pi pi-users" />
+          <input
+            id="invoices-filter-customer"
+            pInputText
+            type="text"
+            [ngModel]="localCustomerId()"
+            (ngModelChange)="onCustomerIdInput($event)"
+            [disabled]="loading()"
+            placeholder="Search by customer ID…"
+            class="w-full rounded-lg border-border bg-surface-2 py-2 text-sm focus:ring-2 focus:ring-focus"
+          />
+        </p-iconfield>
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label
+          class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider"
+          for="invoices-filter-order"
+          >Order ID</label
+        >
+        <p-iconfield iconPosition="left" class="w-full">
+          <p-inputicon styleClass="pi pi-receipt" />
+          <input
+            id="invoices-filter-order"
+            pInputText
+            type="text"
+            [ngModel]="localOrderId()"
+            (ngModelChange)="onOrderIdInput($event)"
+            [disabled]="loading()"
+            placeholder="Search by order ID…"
+            class="w-full rounded-lg border-border bg-surface-2 py-2 text-sm focus:ring-2 focus:ring-focus"
+          />
+        </p-iconfield>
+      </div>
+    </div>
+  </div>
+</app-surface-card>

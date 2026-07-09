@@ -1,0 +1,79 @@
+<app-surface-card tone="neutral">
+  @if (hasItems()) {
+    <p-table
+      [value]="items()"
+      dataKey="orderItemId"
+      [rowHover]="true"
+      [stripedRows]="true"
+      styleClass="p-datatable-sm"
+    >
+      <ng-template pTemplate="caption">
+        <div class="flex items-center gap-2 px-2 py-3">
+          <i class="pi pi-list text-accent text-xs"></i>
+          <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            Line Items ({{ items().length }})
+          </span>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th class="px-4 py-5 font-bold uppercase tracking-wider">Order Item ID</th>
+          <th class="px-4 py-5 font-bold uppercase tracking-wider">Product ID</th>
+          <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">Quantity</th>
+          <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">Unit Price</th>
+          <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">Line Total</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td class="px-4 py-5">
+            <span class="text-sm font-mono text-foreground">{{ item.orderItemId }}</span>
+          </td>
+          <td class="px-4 py-5">
+            <a
+              [routerLink]="['/products', item.productId]"
+              class="text-sm font-mono text-primary hover:text-primary-emphasis hover:underline transition-colors inline-flex items-center gap-1"
+            >
+              {{ item.productId }}
+              <i class="pi pi-external-link text-xs"></i>
+            </a>
+          </td>
+          <td class="px-4 py-5 text-right">
+            <span class="text-sm font-semibold tabular-nums">{{ item.quantity }}</span>
+          </td>
+          <td class="px-4 py-5 text-right">
+            <span class="text-sm tabular-nums">{{ currencyCode() }} {{ item.price | number:'1.2-2' }}</span>
+          </td>
+          <td class="px-4 py-5 text-right">
+            <span class="text-sm font-semibold tabular-nums">{{ currencyCode() }} {{ item.lineTotal | number:'1.2-2' }}</span>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="summary">
+        <div class="flex items-center justify-end gap-8 px-2 py-3 border-t border-border/40">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Total Items</span>
+            <span class="text-sm font-bold tabular-nums text-foreground">{{ items().length }}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Total Quantity</span>
+            <span class="text-sm font-bold tabular-nums text-foreground">{{ totalQuantity() }}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Grand Total</span>
+            <span class="text-sm font-bold tabular-nums text-accent">{{ currencyCode() }} {{ totalAmount() | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </ng-template>
+    </p-table>
+  } @else {
+    <div class="flex flex-col items-center gap-3 py-12">
+      <i class="pi pi-inbox text-4xl text-muted-foreground opacity-20"></i>
+      <div class="text-base font-medium text-foreground">No line items</div>
+      <p class="text-sm text-muted-foreground">This invoice has no items.</p>
+    </div>
+  }
+</app-surface-card>

@@ -1,0 +1,122 @@
+<div class="grid gap-6 lg:grid-cols-2">
+  <!-- Invoice Information -->
+  <app-surface-card tone="neutral">
+    <div class="flex flex-col gap-4">
+      <div class="flex items-center gap-2">
+        <i class="pi pi-info-circle text-accent text-sm"></i>
+        <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Invoice Information</span>
+      </div>
+      <div class="grid gap-3">
+        <div class="flex items-center justify-between border-b border-border/40 pb-2">
+          <span class="text-xs font-medium text-muted-foreground">Invoice Number</span>
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-semibold text-foreground">{{ invoice().invoiceNumber || '—' }}</span>
+            <p-button
+              (click)="copy(invoice().invoiceNumber || invoice().id, 'invoiceNumber')"
+              [icon]="copiedKey() === 'invoiceNumber' ? 'pi pi-check' : 'pi pi-copy'"
+              severity="secondary"
+              size="small"
+              [text]="true"
+              pTooltip="Copy invoice number"
+              tooltipPosition="left"
+            />
+          </div>
+        </div>
+        <div class="flex items-center justify-between border-b border-border/40 pb-2">
+          <span class="text-xs font-medium text-muted-foreground">Customer ID</span>
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2">
+            <a
+              [routerLink]="['/customers', invoice().customerId]"
+              class="text-sm font-mono text-primary hover:text-primary-emphasis hover:underline transition-colors inline-flex items-center gap-1"
+            >
+              {{ invoice().customerId }}
+              <i class="pi pi-external-link text-xs"></i>
+            </a>
+            <p-button
+              (click)="copy(invoice().customerId, 'customerId')"
+              [icon]="copiedKey() === 'customerId' ? 'pi pi-check' : 'pi pi-copy'"
+              severity="secondary"
+              size="small"
+              [text]="true"
+              pTooltip="Copy customer ID"
+              tooltipPosition="left"
+            />
+          </div>
+          </div>
+        </div>
+        <div class="flex items-center justify-between border-b border-border/40 pb-2">
+          <span class="text-xs font-medium text-muted-foreground">Order ID</span>
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2">
+            <a
+              [routerLink]="['/orders', invoice().orderId]"
+              class="text-sm font-mono text-primary hover:text-primary-emphasis hover:underline transition-colors inline-flex items-center gap-1"
+            >
+              {{ invoice().orderId }}
+              <i class="pi pi-external-link text-xs"></i>
+            </a>
+            <p-button
+              (click)="copy(invoice().orderId, 'orderId')"
+              [icon]="copiedKey() === 'orderId' ? 'pi pi-check' : 'pi pi-copy'"
+              severity="secondary"
+              size="small"
+              [text]="true"
+              pTooltip="Copy order ID"
+              tooltipPosition="left"
+            />
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </app-surface-card>
+
+  <!-- Financial Summary -->
+  <app-surface-card tone="accent">
+    <div class="flex flex-col gap-4">
+      <div class="flex items-center gap-2">
+        <i class="pi pi-wallet text-accent text-sm"></i>
+        <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Financial Summary</span>
+      </div>
+      <div class="grid gap-3">
+        <div class="flex items-center justify-between border-b border-border/40 pb-2">
+          <span class="text-xs font-medium text-muted-foreground">Subtotal</span>
+           <span class="text-sm font-semibold tabular-nums text-foreground">{{ currencyCode() }} {{ invoice().subtotal | number:'1.2-2' }}</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-foreground">Total Price</span>
+           <span class="text-lg font-bold tabular-nums text-accent">{{ currencyCode() }} {{ invoice().totalPrice | number:'1.2-2' }}</span>
+        </div>
+      </div>
+    </div>
+  </app-surface-card>
+
+  <!-- Audit Trail (spans full width) -->
+  <app-surface-card tone="neutral" class="lg:col-span-2">
+    <div class="flex flex-col gap-4">
+      <div class="flex items-center gap-2">
+        <i class="pi pi-history text-accent text-sm"></i>
+        <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Audit Trail</span>
+      </div>
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <span class="block text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Created By</span>
+          <span class="text-sm font-medium text-foreground">{{ invoice().createdBy || '—' }}</span>
+        </div>
+        <div>
+          <span class="block text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Created At</span>
+          <span class="text-sm text-foreground">{{ invoice().createdAt | date:'medium' }}</span>
+        </div>
+        <div>
+          <span class="block text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Last Modified By</span>
+          <span class="text-sm text-foreground">{{ invoice().lastModifiedBy || '—' }}</span>
+        </div>
+        <div>
+          <span class="block text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Last Modified At</span>
+          <span class="text-sm text-foreground">{{ invoice().lastModifiedAt | date:'medium' }}</span>
+        </div>
+      </div>
+    </div>
+  </app-surface-card>
+</div>
