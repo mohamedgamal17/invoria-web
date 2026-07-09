@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   LucideAngularModule,
   Package,
+  Receipt,
   ShoppingBag,
   Undo2,
   User,
@@ -59,7 +60,8 @@ export class DashboardSidebarComponent {
     { label: 'Procurement', path: '/procurement', icon: ClipboardList },
     { label: 'Suppliers', path: '/suppliers', icon: Users },
     { label: 'Customers', path: '/customers', icon: User },
-    { label: 'Returns', path: '/returns', icon: Undo2 }
+    { label: 'Returns', path: '/returns', icon: Undo2 },
+    { label: 'Invoices', path: '/invoices', icon: Receipt }
   ];
 
   readonly logoutIcon = LogOut;
