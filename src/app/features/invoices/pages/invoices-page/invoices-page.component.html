@@ -1,0 +1,25 @@
+<p-toast />
+
+<section class="flex flex-col gap-10">
+  <app-invoice-header />
+
+  <app-invoices-filter-panel
+    [customerId]="customerIdFromRoute()"
+    [orderId]="orderIdFromRoute()"
+    [loading]="invoicesResource.isLoading()"
+    (filtersChange)="onFiltersChange($event)"
+    (clearFilters)="onClearFilters()"
+  />
+
+  <app-invoice-list
+    [invoices]="displayInvoices()"
+    [isListLoading]="invoicesResource.isLoading()"
+    [totalRecords]="displayPaging().totalCount"
+    [first]="first()"
+    [pageSize]="pageSize()"
+    [pageSizeOptions]="pageSizeOptions"
+    (pageChange)="onPageChange($event)"
+    (clearFilters)="onClearFilters()"
+    (viewInvoice)="goToDetails($event)"
+  />
+</section>

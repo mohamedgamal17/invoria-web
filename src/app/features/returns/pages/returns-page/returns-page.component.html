@@ -1,0 +1,23 @@
+﻿<section class="flex flex-col gap-8">
+  <app-return-header />
+
+  <app-returns-filter-panel
+    [type]="typeFilterFromRoute()"
+    [loading]="returnsResource.isLoading()"
+    (filtersChange)="onFiltersChange($event)"
+    (clearFilters)="onClearFilters()"
+  />
+
+  <app-return-list
+    [returns]="displayReturns()"
+    [totalRecords]="displayPaging().totalCount"
+    [first]="first()"
+    [pageSize]="pageSize()"
+    [isListLoading]="returnsResource.isLoading()"
+    [pageSizeOptions]="pageSizeOptions"
+    (viewReturn)="goToDetails($event)"
+    (pageChange)="onPageChange($event)"
+    (clearFilters)="onClearFilters()"
+  />
+</section>
+

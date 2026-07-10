@@ -1,0 +1,182 @@
+﻿<!-- Mobile View (Cards) -->
+<div class="block md:hidden space-y-4">
+  @if (isListLoading()) {
+    @for (_ of skeletonRows; track _) {
+      <div class="rounded-xl border border-border bg-surface p-4 shadow-sm">
+        <div class="flex justify-between items-start mb-3">
+          <div class="space-y-2 w-2/3">
+            <p-skeleton height="1.25rem" width="80%"></p-skeleton>
+            <p-skeleton height="0.875rem" width="40%"></p-skeleton>
+          </div>
+          <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
+        </div>
+        <div class="flex justify-between items-center pt-3 border-t border-border/50">
+          <div class="space-y-1">
+            <p-skeleton height="0.75rem" width="2rem"></p-skeleton>
+            <p-skeleton height="1.25rem" width="5rem"></p-skeleton>
+          </div>
+          <div class="flex flex-col items-end gap-2">
+            <p-skeleton height="2.25rem" width="7.5rem" borderRadius="8px"></p-skeleton>
+          </div>
+        </div>
+      </div>
+    }
+  } @else if (returns().length > 0) {
+    @for (ret of returns(); track ret.id) {
+      <div class="rounded-xl border border-border bg-surface p-4 shadow-sm hover:border-primary/30 transition-all active:scale-[0.98]">
+        <div class="flex justify-between items-start mb-4">
+          <div class="flex flex-col min-w-0">
+            <span class="truncate text-base font-bold text-foreground">{{ ret.id | slice:-8 }}</span>
+            <span class="text-xs text-muted-foreground mt-0.5">{{ ret.createdAt | date:'shortDate' }}</span>
+          </div>
+          <p-tag
+            [value]="returnStatusUserLabel(ret.status)"
+            [severity]="returnStatusSeverity(ret.status)"
+            styleClass="text-[11px] font-bold px-2 py-0.5 rounded-md shrink-0"
+          />
+        </div>
+        <div class="flex justify-between items-center pt-4 border-t border-border/50">
+          <div class="flex flex-col">
+            <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-0.5">Type</span>
+            <span class="text-sm font-semibold text-foreground">{{ returnTypeLabel(ret.type) }}</span>
+          </div>
+          <div class="flex flex-col items-end gap-2">
+            <p-button
+              label="View Details"
+              icon="pi pi-arrow-right"
+              size="small"
+              styleClass="h-9"
+              (onClick)="viewReturn.emit(ret)"
+            />
+          </div>
+        </div>
+      </div>
+    }
+  } @else {
+    <app-empty-state
+      icon="pi pi-undo"
+      title="No returns found"
+      description="Try adjusting your search or filters."
+    >
+      <p-button label="Clear filters" [link]="true" (onClick)="clearFilters.emit()" />
+    </app-empty-state>
+  }
+
+  <!-- Mobile Pagination -->
+  <div class="mt-8 pb-4 flex flex-col items-center gap-4">
+    <div class="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] bg-muted/30 px-3 py-1 rounded-full border border-border/50">
+      Displaying {{ returns().length }} of {{ totalRecords() }} returns
+    </div>
+    <p-paginator
+      [first]="first()"
+      [rows]="pageSize()"
+      [totalRecords]="totalRecords()"
+      [rowsPerPageOptions]="pageSizeOptions()"
+      (onPageChange)="pageChange.emit($event)"
+      styleClass="bg-transparent border-none"
+      dropdownAppendTo="body"
+      template="FirstPageLink PreviousPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+    />
+  </div>
+</div>
+
+<!-- Desktop Table View -->
+<app-surface-card tone="accent" class="hidden md:block overflow-visible">
+  <p-table
+    [value]="returns()"
+    dataKey="id"
+    [lazy]="true"
+    [paginator]="true"
+    [rows]="pageSize()"
+    [first]="first()"
+    [totalRecords]="totalRecords()"
+    [rowsPerPageOptions]="pageSizeOptions()"
+    (onPage)="pageChange.emit($event)"
+    [loading]="isListLoading()"
+    [showLoader]="false"
+    [rowHover]="true"
+    [stripedRows]="true"
+    styleClass="p-datatable-sm"
+  >
+    <ng-template pTemplate="caption">
+      <div class="flex justify-end items-center px-2 py-3">
+        <div class="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          Displaying {{ returns().length }} of {{ totalRecords() }} returns
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider">Return ID</th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider">Type</th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider">Status</th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider">Lines</th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider">Created</th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-ret>
+      <tr>
+        <td class="px-4 py-5">
+          <span class="text-sm font-mono font-semibold text-foreground">{{ ret.id | slice:-8 }}</span>
+        </td>
+        <td class="px-4 py-5">
+          <span class="text-sm text-foreground">{{ returnTypeLabel(ret.type) }}</span>
+        </td>
+        <td class="px-4 py-5">
+          <p-tag
+            [value]="returnStatusUserLabel(ret.status)"
+            [severity]="returnStatusSeverity(ret.status)"
+            styleClass="text-[11px] font-bold px-2 py-0.5 rounded-md"
+          />
+        </td>
+        <td class="px-4 py-5">
+          <span class="text-sm text-foreground">{{ ret.returnLines.length }}</span>
+        </td>
+        <td class="px-4 py-5">
+          <span class="text-sm text-muted-foreground">{{ ret.createdAt | date:'mediumDate' }}</span>
+        </td>
+        <td class="px-4 py-5 text-right">
+          <div class="flex justify-end items-center gap-1">
+            <p-button
+              label="View"
+              icon="pi pi-arrow-right"
+              size="small"
+              styleClass="h-8 px-3 mr-1"
+              (onClick)="viewReturn.emit(ret)"
+            />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="loadingbody">
+      @for (_ of skeletonRows; track _) {
+        <tr>
+          <td class="px-4 py-5"><p-skeleton height="1.1rem" width="60%"></p-skeleton></td>
+          <td class="px-4 py-5"><p-skeleton height="1.1rem" width="40%"></p-skeleton></td>
+          <td class="px-4 py-5"><p-skeleton height="1.1rem" width="30%"></p-skeleton></td>
+          <td class="px-4 py-5"><p-skeleton height="1.1rem" width="20%"></p-skeleton></td>
+          <td class="px-4 py-5"><p-skeleton height="1.1rem" width="40%"></p-skeleton></td>
+          <td class="px-4 py-5 text-right"><p-skeleton height="2rem" width="4.5rem" borderRadius="6px" styleClass="ml-auto"></p-skeleton></td>
+        </tr>
+      }
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6" class="px-4 py-12 text-center">
+          <div class="flex flex-col items-center gap-3">
+            <i class="pi pi-undo text-4xl text-muted-foreground opacity-20"></i>
+            <div class="text-base font-medium text-foreground">No returns found</div>
+            <p class="text-sm text-muted-foreground">Try adjusting your search or filters.</p>
+            <p-button label="Clear filters" [link]="true" (onClick)="clearFilters.emit()" />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</app-surface-card>
+

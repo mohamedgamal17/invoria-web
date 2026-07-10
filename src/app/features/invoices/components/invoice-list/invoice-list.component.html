@@ -1,0 +1,145 @@
+<!-- Mobile View (Cards) -->
+<div class="block md:hidden space-y-4">
+  @if (isListLoading()) {
+    <app-invoice-list-skeleton variant="mobile" [count]="pageSize()" />
+  } @else if (invoices().length > 0) {
+    @for (invoice of invoices(); track invoice.id) {
+      <div class="rounded-xl border border-border bg-surface p-4 shadow-sm hover:border-primary/30 transition-all active:scale-[0.98]">
+        <div class="flex justify-between items-start mb-4">
+          <div class="flex flex-col min-w-0">
+            <span class="truncate text-base font-bold text-foreground">{{ invoice.invoiceNumber || invoice.id }}</span>
+            <span class="text-xs text-muted-foreground mt-0.5">{{ invoice.createdAt | date:'shortDate' }}</span>
+          </div>
+          <div class="flex flex-col items-end gap-2 shrink-0">
+            <span class="text-sm font-semibold tabular-nums">{{ invoice.totalPrice | currency:'EGP' }}</span>
+          </div>
+        </div>
+        <div class="flex items-center justify-between pt-3 border-t border-border/50">
+          <div class="flex items-center gap-3 text-xs text-muted-foreground">
+            <span class="truncate max-w-[120px]" [pTooltip]="invoice.customerId">Order: {{ invoice.orderId | slice:0:8 }}...</span>
+          </div>
+          <p-button
+            label="View Details"
+            icon="pi pi-arrow-right"
+            size="small"
+            styleClass="h-9"
+            (onClick)="viewInvoice.emit(invoice)"
+          />
+        </div>
+      </div>
+    }
+  } @else {
+    <app-empty-state
+      icon="pi pi-file"
+      title="No invoices found"
+      description="Try adjusting your filters."
+    >
+      <p-button label="Clear Filters" [link]="true" (onClick)="clearFilters.emit()" />
+    </app-empty-state>
+  }
+
+  <!-- Mobile Pagination -->
+  <div class="mt-8 pb-4">
+    <p-paginator
+      [first]="first()"
+      [rows]="pageSize()"
+      [totalRecords]="totalRecords()"
+      [rowsPerPageOptions]="pageSizeOptions()"
+      (onPageChange)="pageChange.emit($event)"
+      styleClass="bg-transparent border-none"
+    />
+  </div>
+</div>
+
+<!-- Desktop Table View -->
+<app-surface-card tone="accent" class="hidden md:block overflow-visible">
+  <p-table
+    [value]="invoices()"
+    dataKey="id"
+    [lazy]="true"
+    [paginator]="true"
+    [rows]="pageSize()"
+    [first]="first()"
+    [totalRecords]="totalRecords()"
+    [rowsPerPageOptions]="pageSizeOptions()"
+    (onPage)="pageChange.emit($event)"
+    [loading]="isListLoading()"
+    [showLoader]="false"
+    [rowHover]="true"
+    [stripedRows]="true"
+    styleClass="p-datatable-sm"
+  >
+    <ng-template pTemplate="caption">
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-4 px-2 py-3">
+        <div class="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          Displaying {{ invoices().length }} of {{ totalRecords() }} invoices
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider">Invoice Number</th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider">Customer ID</th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider">Order ID</th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider">Total</th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider">Date</th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">View</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-invoice>
+      <tr>
+        <td class="px-4 py-5">
+          <span class="text-sm font-semibold text-foreground">{{ invoice.invoiceNumber || invoice.id }}</span>
+        </td>
+        <td class="px-4 py-5">
+          <span class="text-sm text-muted-foreground font-mono text-xs">{{ invoice.customerId | slice:0:12 }}...</span>
+        </td>
+        <td class="px-4 py-5">
+          <span class="text-sm text-muted-foreground font-mono text-xs">{{ invoice.orderId | slice:0:12 }}...</span>
+        </td>
+        <td class="px-4 py-5">
+          <span class="text-sm font-semibold tabular-nums">{{ invoice.totalPrice | currency:'EGP' }}</span>
+        </td>
+        <td class="px-4 py-5">
+          <span class="text-sm text-muted-foreground">{{ invoice.createdAt | date:'mediumDate' }}</span>
+        </td>
+        <td class="px-4 py-5 text-right">
+          <div class="flex justify-end gap-1">
+            <p-button
+              label="View"
+              icon="pi pi-arrow-right"
+              size="small"
+              pTooltip="View Invoice"
+              tooltipPosition="top"
+              styleClass="h-8 px-3 mr-1"
+              (onClick)="viewInvoice.emit(invoice)"
+            />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="loadingbody">
+      <app-invoice-list-skeleton variant="table" [count]="pageSize()" />
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6" class="px-4 py-12 text-center">
+          <div class="flex flex-col items-center gap-3">
+            <i class="pi pi-file text-4xl text-muted-foreground opacity-20"></i>
+            <div class="text-base font-medium text-foreground">No invoices found</div>
+            <p class="text-sm text-muted-foreground">Try adjusting your filters.</p>
+            <p-button
+              label="Clear Filters"
+              [link]="true"
+              (onClick)="clearFilters.emit()"
+            />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</app-surface-card>

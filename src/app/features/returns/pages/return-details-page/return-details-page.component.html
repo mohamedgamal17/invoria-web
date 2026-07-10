@@ -1,0 +1,36 @@
+﻿<section class="flex flex-col gap-8">
+  <app-return-details-toolbar (back)="backToList()" />
+
+  @if (loading()) {
+    <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
+      <div class="space-y-5 p-1">
+        <p-skeleton height="2rem" width="45%"></p-skeleton>
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <p-skeleton height="5.5rem"></p-skeleton>
+          <p-skeleton height="5.5rem"></p-skeleton>
+          <p-skeleton height="5.5rem"></p-skeleton>
+        </div>
+        <p-skeleton height="1rem" width="80%"></p-skeleton>
+      </div>
+    </p-card>
+  } @else if (error()) {
+    <p-card styleClass="border border-destructive/30 rounded-2xl shadow-sm">
+      <div class="flex flex-col gap-4 p-1 sm:flex-row sm:items-center sm:justify-between">
+        <div class="space-y-1">
+          <h2 class="text-base font-semibold text-foreground">Unable to load return</h2>
+          <p class="text-sm text-destructive">{{ error() }}</p>
+        </div>
+        <p-button
+          label="Retry"
+          icon="pi pi-refresh"
+          styleClass="rounded-xl px-4 py-2.5 text-sm font-semibold"
+          (onClick)="retry()"
+        />
+      </div>
+    </p-card>
+  } @else if (returnData(); as ret) {
+    <app-return-details-info [return]="ret" />
+
+    <app-return-details-lines [returnLines]="ret.returnLines" />
+  }
+</section>
