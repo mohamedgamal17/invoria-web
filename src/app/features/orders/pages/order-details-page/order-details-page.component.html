@@ -72,14 +72,26 @@
         />
       }
       @if (returnSummary(); as summary) {
-        <div
-          class="flex items-center gap-2 rounded-xl border border-border/60 bg-surface-2 px-3 py-2 text-sm"
-        >
-          <i class="pi pi-undo text-accent text-xs"></i>
-          <span class="font-medium">{{ summary.count }} {{ summary.count === 1 ? 'item' : 'items' }} returned</span>
-          <span class="text-muted-foreground">·</span>
-          <span class="font-semibold tabular-nums">{{ summary.total | currency: currencyCode }}</span>
-        </div>
+        @if (summary.returnId) {
+          <a
+            [routerLink]="['/returns', summary.returnId]"
+            class="flex items-center gap-2 rounded-xl border border-border/60 bg-surface-2 px-3 py-2 text-sm no-underline text-inherit hover:bg-surface-3 transition-colors cursor-pointer"
+          >
+            <i class="pi pi-undo text-accent text-xs"></i>
+            <span class="font-medium">{{ summary.count }} {{ summary.count === 1 ? 'item' : 'items' }} returned</span>
+            <span class="text-muted-foreground">·</span>
+            <span class="font-semibold tabular-nums">{{ summary.total | currency: currencyCode }}</span>
+          </a>
+        } @else {
+          <div
+            class="flex items-center gap-2 rounded-xl border border-border/60 bg-surface-2 px-3 py-2 text-sm"
+          >
+            <i class="pi pi-undo text-accent text-xs"></i>
+            <span class="font-medium">{{ summary.count }} {{ summary.count === 1 ? 'item' : 'items' }} returned</span>
+            <span class="text-muted-foreground">·</span>
+            <span class="font-semibold tabular-nums">{{ summary.total | currency: currencyCode }}</span>
+          </div>
+        }
       }
       @if (canRecordPayment()) {
         <p-button

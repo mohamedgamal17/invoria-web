@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, linkedSignal, signal, untracked } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, finalize, map, of, take } from 'rxjs';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -66,6 +66,7 @@ function indexToTabSlug(index: number): string {
     OrderSummaryCardComponent,
     OrderProgressComponent,
     PageHeaderComponent,
+    RouterLink,
     Tabs,
     TabList,
     Tab,
@@ -200,7 +201,8 @@ export class OrderDetailsPageComponent {
     if (!order || order.status !== OrderStatus.Completed || !order.returnItems?.length) return null;
     return {
       count: order.returnItems.length,
-      total: order.returnsTotal
+      total: order.returnsTotal,
+      returnId: order.returnId
     };
   });
 
