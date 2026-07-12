@@ -34,6 +34,7 @@ export interface UiOrder {
   totalAmount: number;
   netOfTotalOrderAmount: number;
   returnsTotal: number;
+  amountDue?: number;
   status: OrderStatus;
   paymentType?: PaymentType;
   paymentStatus?: PaymentStatus;

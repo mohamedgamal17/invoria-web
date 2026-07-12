@@ -48,9 +48,10 @@ export interface Order extends Entity {
   amountOutstanding: number;
   items: OrderItem[];
   returnItems: OrderReturnItem[];
-  totalOrderAmount: number;
-  netOfTotalOrderAmount: number;
-  returnsTotal: number;
+  subtotalAmount: number;
+  netOrderAmount: number;
+  returnsAmount: number;
+  amountDue: number;
   payments: OrderPayment[];
   allocationId?: string | null;
   returnId?: string | null;

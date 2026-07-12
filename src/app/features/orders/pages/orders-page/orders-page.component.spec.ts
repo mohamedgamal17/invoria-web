@@ -52,9 +52,10 @@ describe('OrdersPageComponent', () => {
     amountPaid: 21,
     amountOutstanding: 0,
     returnItems: [],
-    totalOrderAmount: 21,
-    netOfTotalOrderAmount: 21,
-    returnsTotal: 0,
+    subtotalAmount: 21,
+    netOrderAmount: 21,
+    returnsAmount: 0,
+    amountDue: 0,
     payments: [],
     orderAllocated: true,
     items: [{ id: 'line-1', productId: 'prd_1', quantity: 2, price: 10.5 }]
