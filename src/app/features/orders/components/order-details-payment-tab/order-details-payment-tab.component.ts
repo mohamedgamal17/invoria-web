@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, input, model, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize, take } from 'rxjs';
 
@@ -142,22 +142,30 @@ export class OrderDetailsPaymentTabComponent {
     }
   }
 
-  openRecordDialog(): void {
+  private initRecordForm(): void {
     const o = this.order();
     if (o.paymentType === PaymentType.Immediate) {
       this.recordPaidAmount = o.totalAmount;
     } else if (o.paymentType === PaymentType.Debt) {
       const outstanding = o.amountOutstanding ?? 0;
-      if (outstanding > MONEY_EPS) {
-        this.recordPaidAmount = outstanding;
-      } else {
-        this.recordPaidAmount = null;
-      }
+      this.recordPaidAmount = outstanding > MONEY_EPS ? outstanding : null;
     } else {
       this.recordPaidAmount = null;
     }
     this.recordPaymentMethod = OrderPaymentMethod.Cash;
+  }
+
+  openRecordDialog(): void {
+    this.initRecordForm();
     this.dialogVisible.set(true);
+  }
+
+  constructor() {
+    effect(() => {
+      if (this.dialogVisible()) {
+        this.initRecordForm();
+      }
+    });
   }
 
   closeDialog(): void {
