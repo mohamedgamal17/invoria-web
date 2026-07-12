@@ -170,7 +170,10 @@ export class OrderDetailsPageComponent {
 
   readonly canRecordPayment = computed(() => {
     const o = this.displayOrder();
-    return !!o && o.status === OrderStatus.Completed && o.paymentType !== undefined && o.paymentType !== null;
+    return !!o
+      && o.status === OrderStatus.Completed
+      && o.paymentType !== undefined && o.paymentType !== null
+      && (o.amountOutstanding ?? 0) > 0.005;
   });
 
   private readonly revisionSnapshotKey = computed(
@@ -271,6 +274,13 @@ export class OrderDetailsPageComponent {
     const order = this.displayOrder();
     if (!order || !canEditOrder(order)) return;
     void this.router.navigate(['edit'], { relativeTo: this.route });
+  }
+
+  onRecordPayment(): void {
+    const order = this.displayOrder();
+    if (!order) return;
+    this.activeTab.set(2);
+    setTimeout(() => this.paymentDialogVisible.set(true));
   }
 
   onAction(action: OrderActionKey): void {
