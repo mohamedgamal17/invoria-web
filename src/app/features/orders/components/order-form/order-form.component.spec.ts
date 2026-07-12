@@ -45,10 +45,10 @@ describe('OrderFormComponent', () => {
     expect(submitSpy).not.toHaveBeenCalled();
   });
 
-  it('formSubmit on step 3 emits submit in create mode', () => {
+  it('formSubmit on step 2 emits submit in create mode', () => {
     const submitSpy = vi.fn();
     component.submit.subscribe(submitSpy);
-    component.activeStep.set(3);
+    component.activeStep.set(2);
 
     component.formSubmit(new Event('submit'));
 
