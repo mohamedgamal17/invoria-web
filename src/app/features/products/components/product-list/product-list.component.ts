@@ -4,6 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { PaginatorModule } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
+import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import type { PaginatorState } from 'primeng/paginator';
 import type { TablePageEvent } from 'primeng/table';
@@ -21,6 +22,7 @@ import type { Product } from '../../models/product.entity';
     TableModule,
     PaginatorModule,
     SkeletonModule,
+    TagModule,
     TooltipModule,
     EmptyStateComponent,
     SurfaceCardComponent

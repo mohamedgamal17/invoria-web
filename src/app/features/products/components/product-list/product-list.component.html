@@ -199,18 +199,11 @@
           </div>
         </td>
         <td class="px-4 py-5 text-center">
-          <span class="inline-flex items-center gap-1 text-[11px] font-medium"
-            [class.text-success]="getStockSeverity(product) === 'success'"
-            [class.text-warning]="getStockSeverity(product) === 'warn'"
-            [class.text-danger]="getStockSeverity(product) === 'danger'"
-          >
-            <span class="w-1.5 h-1.5 rounded-full inline-block"
-              [class.bg-success]="getStockSeverity(product) === 'success'"
-              [class.bg-warning]="getStockSeverity(product) === 'warn'"
-              [class.bg-danger]="getStockSeverity(product) === 'danger'"
-            ></span>
-            {{ stockStatusLabel(product) }}
-          </span>
+          <p-tag
+            [value]="stockStatusLabel(product)"
+            [severity]="getStockSeverity(product)"
+            styleClass="px-2 py-1 text-[10px] uppercase font-bold tracking-tight rounded-md border border-border"
+          />
         </td>
         <td class="px-4 py-5 text-right">
           <div class="flex justify-end items-center gap-1">
