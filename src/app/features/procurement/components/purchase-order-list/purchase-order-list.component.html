@@ -61,7 +61,7 @@
           }
         </td>
         <td class="px-4 py-5 text-right text-sm font-bold tabular-nums text-foreground">
-          {{ row.totalAmount | currency: 'EGP' : 'symbol-narrow' }}
+          EGP {{ row.totalAmount | number:'1.2-2' }}
         </td>
         <td class="px-4 py-5 text-right">
           <p-button
