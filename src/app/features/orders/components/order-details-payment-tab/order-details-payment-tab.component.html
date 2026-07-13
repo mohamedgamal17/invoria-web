@@ -15,30 +15,61 @@
       </div>
     </div>
 
-    <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm border-t border-border/60 pt-6">
-      <div class="space-y-1">
-        <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Order total</div>
-        <div class="font-semibold tabular-nums text-foreground">
-          {{ order().totalAmount | currency: currencyCode() : 'symbol-narrow' }}
+    <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-border/60 pt-6">
+      <div class="rounded-lg border border-border/60 bg-surface-2/40 p-4 space-y-1.5">
+        <div class="flex items-center gap-1.5">
+          <i class="pi pi-receipt text-xs text-muted-foreground"></i>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Order total</span>
         </div>
+        <div class="text-lg font-bold tabular-nums text-foreground">
+          {{ currencyCode() }} {{ order().totalAmount | number:'1.2-2' }}
+        </div>
+        <div class="text-[10px] text-muted-foreground/70">Full order value</div>
       </div>
-      <div class="space-y-1">
-        <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Amount paid</div>
-        <div class="font-semibold tabular-nums text-foreground">
+
+      <div class="rounded-lg border border-success/15 bg-success/5 p-4 space-y-1.5">
+        <div class="flex items-center gap-1.5">
+          <i class="pi pi-check-circle text-xs text-success"></i>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-success">Amount paid</span>
+        </div>
+        <div class="text-lg font-bold tabular-nums text-success">
           @if (order().amountPaid !== undefined && order().amountPaid !== null) {
-            {{ order().amountPaid | currency: currencyCode() : 'symbol-narrow' }}
+            {{ currencyCode() }} {{ order().amountPaid | number:'1.2-2' }}
           } @else { — }
         </div>
+        <div class="text-[10px] text-success/70">Total received from customer</div>
       </div>
-      <div class="space-y-1">
-        <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Outstanding</div>
-        <div class="font-semibold tabular-nums text-foreground">
+
+      <div class="rounded-lg border border-warning/15 bg-warning/5 p-4 space-y-1.5">
+        <div class="flex items-center gap-1.5">
+          <i class="pi pi-exclamation-triangle text-xs text-warning"></i>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-warning">Outstanding</span>
+        </div>
+        <div class="text-lg font-bold tabular-nums text-warning">
           @if (order().amountOutstanding !== undefined && order().amountOutstanding !== null) {
-            {{ order().amountOutstanding | currency: currencyCode() : 'symbol-narrow' }}
+            {{ currencyCode() }} {{ order().amountOutstanding | number:'1.2-2' }}
           } @else { — }
         </div>
+        <div class="text-[10px] text-warning/70">Remaining balance due</div>
       </div>
     </div>
+
+    @if (paidPercent() !== null) {
+      <div class="mt-4">
+        <div class="flex justify-between text-xs text-muted-foreground mb-1">
+          <span>Payment progress</span>
+          <span>{{ paidPercent()!.toFixed(0) }}%</span>
+        </div>
+        <div class="h-2 bg-border/40 rounded-full overflow-hidden">
+          <div
+            class="h-full rounded-full transition-all duration-500"
+            [class.bg-success]="paidPercent()! < 100"
+            [class.bg-primary]="paidPercent()! >= 100"
+            [style.width.%]="Math.min(paidPercent()!, 100)"
+          ></div>
+        </div>
+      </div>
+    }
   </p-card>
 
   <p-card styleClass="border border-border" header="Payment history">
@@ -55,7 +86,7 @@
           <ng-template pTemplate="body" let-row>
             <tr>
               <td class="px-3 py-2 text-sm tabular-nums font-medium text-foreground">
-                {{ row.paidAmount | currency: currencyCode() : 'symbol-narrow' }}
+                {{ currencyCode() }} {{ row.paidAmount | number:'1.2-2' }}
               </td>
               <td class="px-3 py-2 text-sm text-foreground">{{ paymentMethodLabel(row.paymentMethod) }}</td>
               <td class="px-3 py-2 text-sm text-muted-foreground">{{ row.paidAt | date: 'medium' }}</td>
@@ -89,9 +120,9 @@
       <p class="text-sm text-muted-foreground">
         Enter an amount up to
         @if ((order().amountOutstanding ?? 0) > 0.005) {
-          the outstanding balance ({{ recordPaidAmountMax() | currency: currencyCode() : 'symbol-narrow' }}).
+          the outstanding balance ({{ currencyCode() }} {{ recordPaidAmountMax() | number:'1.2-2' }}).
         } @else {
-          the order total ({{ recordPaidAmountMax() | currency: currencyCode() : 'symbol-narrow' }}).
+          the order total ({{ currencyCode() }} {{ recordPaidAmountMax() | number:'1.2-2' }}).
         }
       </p>
     }

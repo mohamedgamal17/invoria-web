@@ -82,6 +82,14 @@ export class OrderDetailsPaymentTabComponent {
   });
 
   /** True when paid + outstanding matches total within a small tolerance. */
+  readonly Math = Math;
+
+  readonly paidPercent = computed(() => {
+    const o = this.order();
+    if (o.amountPaid == null || !Number.isFinite(o.totalAmount) || o.totalAmount <= 0) return null;
+    return (o.amountPaid / o.totalAmount) * 100;
+  });
+
   readonly paymentFiguresAligned = computed(() => {
     const o = this.order();
     if (o.amountPaid == null || o.amountOutstanding == null) {
