@@ -34,4 +34,18 @@ export class ReturnsApiService {
       `${this.baseUrl}returns/${encodeURIComponent(id)}`
     );
   }
+
+  approveReturn(id: string): Observable<ApiResponse<Return>> {
+    return this.http.post<ApiResponse<Return>>(
+      `${this.baseUrl}returns/${encodeURIComponent(id)}/approve`,
+      {}
+    );
+  }
+
+  rejectReturn(id: string): Observable<ApiResponse<Return>> {
+    return this.http.post<ApiResponse<Return>>(
+      `${this.baseUrl}returns/${encodeURIComponent(id)}/reject`,
+      {}
+    );
+  }
 }

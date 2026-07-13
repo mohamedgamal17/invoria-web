@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, linkedSignal, signal, untracked } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, finalize, map, of, take } from 'rxjs';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -28,6 +28,7 @@ import { orderToUiOrder } from '../../models/order-ui.mapper';
 import { OrderActionFacade, type OrderTransitionAction } from '../../services/order-action.facade';
 import { OrderDetailsLineItemsTabComponent } from '../../components/order-details-line-items-tab/order-details-line-items-tab.component';
 import { OrderDetailsPaymentTabComponent } from '../../components/order-details-payment-tab/order-details-payment-tab.component';
+import { OrderDetailsReturnItemsTabComponent } from '../../components/order-details-return-items-tab/order-details-return-items-tab.component';
 import { OrderSummaryCardComponent } from '../../components/order-summary-card/order-summary-card.component';
 import { OrderProgressComponent } from '../../components/order-progress/order-progress.component';
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
@@ -38,11 +39,12 @@ import { OrderReturnItemsDialogComponent } from '../../components/order-return-i
 import { OrdersApiService } from '../../services/orders-api.service';
 import { DialogModule } from 'primeng/dialog';
 
-const TAB_SLUGS = ['summary', 'lineItems', 'payment'] as const;
+const TAB_SLUGS = ['summary', 'lineItems', 'payment', 'returns'] as const;
 
 function tabSlugToIndex(tab: string | null): number | null {
   if (tab === 'lineItems') return 1;
   if (tab === 'payment') return 2;
+  if (tab === 'returns') return 3;
   if (tab === 'summary' || tab === 'overview' || tab === null || tab === '') return 0;
   return null;
 }
@@ -62,10 +64,12 @@ function indexToTabSlug(index: number): string {
     DialogModule,
     OrderDetailsLineItemsTabComponent,
     OrderDetailsPaymentTabComponent,
+    OrderDetailsReturnItemsTabComponent,
     OrderReturnItemsDialogComponent,
     OrderSummaryCardComponent,
     OrderProgressComponent,
     PageHeaderComponent,
+    RouterLink,
     Tabs,
     TabList,
     Tab,
@@ -166,7 +170,10 @@ export class OrderDetailsPageComponent {
 
   readonly canRecordPayment = computed(() => {
     const o = this.displayOrder();
-    return !!o && o.status === OrderStatus.Completed && o.paymentType !== undefined && o.paymentType !== null;
+    return !!o
+      && o.status === OrderStatus.Completed
+      && o.paymentType !== undefined && o.paymentType !== null
+      && (o.amountOutstanding ?? 0) > 0.005;
   });
 
   private readonly revisionSnapshotKey = computed(
@@ -200,7 +207,8 @@ export class OrderDetailsPageComponent {
     if (!order || order.status !== OrderStatus.Completed || !order.returnItems?.length) return null;
     return {
       count: order.returnItems.length,
-      total: order.returnsTotal
+      total: order.returnsTotal,
+      returnId: order.returnId
     };
   });
 
@@ -266,6 +274,13 @@ export class OrderDetailsPageComponent {
     const order = this.displayOrder();
     if (!order || !canEditOrder(order)) return;
     void this.router.navigate(['edit'], { relativeTo: this.route });
+  }
+
+  onRecordPayment(): void {
+    const order = this.displayOrder();
+    if (!order) return;
+    this.activeTab.set(2);
+    setTimeout(() => this.paymentDialogVisible.set(true));
   }
 
   onAction(action: OrderActionKey): void {

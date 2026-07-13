@@ -1,0 +1,53 @@
+<div class="space-y-5">
+  <p-card styleClass="border border-border" header="Return items">
+    @if (order().returnItems.length) {
+      <div class="rounded-xl border border-border/60 overflow-x-auto -mx-1">
+        <p-table [value]="order().returnItems" styleClass="p-datatable-sm min-w-[520px]">
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider w-12">#</th>
+              <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Product</th>
+              <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Qty</th>
+              <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Unit price</th>
+              <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Line total</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-row let-index="rowIndex">
+            <tr>
+              <td class="px-3 py-2 text-sm tabular-nums text-muted-foreground">{{ index + 1 }}</td>
+              <td class="px-3 py-2">
+                <div class="flex flex-col min-w-0">
+                  <span class="truncate text-sm font-semibold text-foreground">{{ row.productName }}</span>
+                  <span class="text-xs text-muted-foreground font-mono">{{ row.productId | slice:-8 }}</span>
+                </div>
+              </td>
+              <td class="px-3 py-2 text-sm text-right tabular-nums">{{ row.quantity }}</td>
+              <td class="px-3 py-2 text-sm text-right tabular-nums">
+                {{ row.unitPrice | currency: currencyCode() : 'symbol-narrow' }}
+              </td>
+              <td class="px-3 py-2 text-sm text-right tabular-nums font-medium">
+                {{ row.lineReturnTotal | currency: currencyCode() : 'symbol-narrow' }}
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+
+      @if (order().returnId) {
+        <div class="mt-4 flex justify-end border-t border-border/60 pt-4">
+          <p-button
+            icon="pi pi-arrow-right"
+            iconPos="right"
+            label="View full return details"
+            severity="secondary"
+            [outlined]="true"
+            styleClass="rounded-xl"
+            (onClick)="navigateToReturn()"
+          />
+        </div>
+      }
+    } @else {
+      <p class="text-sm text-muted-foreground">No return items recorded for this order.</p>
+    }
+  </p-card>
+</div>

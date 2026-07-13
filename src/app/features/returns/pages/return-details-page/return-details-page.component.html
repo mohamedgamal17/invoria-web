@@ -1,7 +1,10 @@
-﻿<section class="flex flex-col gap-8">
+﻿<p-toast />
+<p-confirmDialog />
+
+<section class="flex flex-col gap-8">
   <app-return-details-toolbar (back)="backToList()" />
 
-  @if (loading()) {
+  @if (returnResource.isLoading()) {
     <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
       <div class="space-y-5 p-1">
         <p-skeleton height="2rem" width="45%"></p-skeleton>
@@ -28,7 +31,30 @@
         />
       </div>
     </p-card>
-  } @else if (returnData(); as ret) {
+  } @else if (displayReturn(); as ret) {
+    <app-page-header
+      [title]="'#' + (ret.id | slice:-8)"
+      [description]="'Created ' + (ret.createdAt | date: 'medium')"
+      eyebrow="Return"
+      eyebrowIcon="pi pi-undo"
+    >
+      <app-return-progress
+        slot="headerTop"
+        [status]="ret.status"
+      />
+      @for (action of availableActions(); track action) {
+        <p-button
+          [label]="RETURN_ACTION_UI[action].label"
+          [icon]="RETURN_ACTION_UI[action].icon"
+          [severity]="RETURN_ACTION_UI[action].severity"
+          [loading]="actionSaving()"
+          [disabled]="actionSaving()"
+          [class.pulse-beat]="pulseTarget() === action"
+          (onClick)="onAction(action)"
+        />
+      }
+    </app-page-header>
+
     <app-return-details-info [return]="ret" />
 
     <app-return-details-lines [returnLines]="ret.returnLines" />

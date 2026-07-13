@@ -9,8 +9,6 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 
 import { OrdersPageComponent } from './orders-page.component';
 import { OrdersApiService } from '../../services/orders-api.service';
-import { ProductsApiService } from '../../../products/services/products-api.service';
-import { CustomersApiService } from '../../../customers/services/customers-api.service';
 import type { Order } from '../../models/order.entity';
 import { OrderStatus } from '../../models/order.entity';
 import { PaymentStatus, PaymentType } from '../../models/order-payment.enums';
@@ -52,9 +50,10 @@ describe('OrdersPageComponent', () => {
     amountPaid: 21,
     amountOutstanding: 0,
     returnItems: [],
-    totalOrderAmount: 21,
-    netOfTotalOrderAmount: 21,
-    returnsTotal: 0,
+    subtotalAmount: 21,
+    netOrderAmount: 21,
+    returnsAmount: 0,
+    amountDue: 0,
     payments: [],
     orderAllocated: true,
     items: [{ id: 'line-1', productId: 'prd_1', quantity: 2, price: 10.5 }]
@@ -88,14 +87,6 @@ describe('OrdersPageComponent', () => {
         MessageService,
         ConfirmationService,
         { provide: OrdersApiService, useValue: mockOrdersApi },
-        {
-          provide: ProductsApiService,
-          useValue: { searchProducts: vi.fn().mockReturnValue(of([])) }
-        },
-        {
-          provide: CustomersApiService,
-          useValue: { searchCustomers: vi.fn().mockReturnValue(of([])) }
-        },
         {
           provide: ActivatedRoute,
           useValue: { queryParamMap: paramMap$.asObservable() }

@@ -4,7 +4,7 @@
 <section class="flex flex-col gap-8">
   <p-button
     icon="pi pi-arrow-left"
-    label="← Back to orders"
+    label="Back to orders"
     [text]="true"
     styleClass="px-0 text-sm text-muted-foreground hover:text-foreground self-start"
     (onClick)="backToList()"
@@ -72,14 +72,26 @@
         />
       }
       @if (returnSummary(); as summary) {
-        <div
-          class="flex items-center gap-2 rounded-xl border border-border/60 bg-surface-2 px-3 py-2 text-sm"
-        >
-          <i class="pi pi-undo text-accent text-xs"></i>
-          <span class="font-medium">{{ summary.count }} {{ summary.count === 1 ? 'item' : 'items' }} returned</span>
-          <span class="text-muted-foreground">·</span>
-          <span class="font-semibold tabular-nums">{{ summary.total | currency: currencyCode }}</span>
-        </div>
+        @if (summary.returnId) {
+          <a
+            [routerLink]="['/returns', summary.returnId]"
+            class="flex items-center gap-2 rounded-xl border border-border/60 bg-surface-2 px-3 py-2 text-sm no-underline text-inherit hover:bg-surface-3 transition-colors cursor-pointer"
+          >
+            <i class="pi pi-undo text-accent text-xs"></i>
+            <span class="font-medium">{{ summary.count }} {{ summary.count === 1 ? 'item' : 'items' }} returned</span>
+            <span class="text-muted-foreground">·</span>
+            <span class="font-semibold tabular-nums">{{ summary.total | currency: currencyCode }}</span>
+          </a>
+        } @else {
+          <div
+            class="flex items-center gap-2 rounded-xl border border-border/60 bg-surface-2 px-3 py-2 text-sm"
+          >
+            <i class="pi pi-undo text-accent text-xs"></i>
+            <span class="font-medium">{{ summary.count }} {{ summary.count === 1 ? 'item' : 'items' }} returned</span>
+            <span class="text-muted-foreground">·</span>
+            <span class="font-semibold tabular-nums">{{ summary.total | currency: currencyCode }}</span>
+          </div>
+        }
       }
       @if (canRecordPayment()) {
         <p-button
@@ -87,7 +99,7 @@
           icon="pi pi-wallet"
           severity="info"
           [disabled]="actionSaving()"
-          (onClick)="paymentDialogVisible.set(true)"
+          (onClick)="onRecordPayment()"
         />
       }
     </app-page-header>
@@ -96,7 +108,8 @@
       <p-tablist>
         <p-tab [value]="0">Summary</p-tab>
         <p-tab [value]="1">Line items</p-tab>
-        <p-tab [value]="2">Payment & Returns</p-tab>
+        <p-tab [value]="2">Payment</p-tab>
+        <p-tab [value]="3">Returns</p-tab>
       </p-tablist>
       <p-tabpanels>
         <p-tabpanel [value]="0">
@@ -116,6 +129,14 @@
               [currencyCode]="currencyCode"
               [(dialogVisible)]="paymentDialogVisible"
               (refreshRequested)="loadOrder()"
+            />
+          </div>
+        </p-tabpanel>
+        <p-tabpanel [value]="3">
+          <div class="pt-5">
+            <app-order-details-return-items-tab
+              [order]="order"
+              [currencyCode]="currencyCode"
             />
           </div>
         </p-tabpanel>

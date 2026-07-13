@@ -8,24 +8,26 @@ import type { UiOrder } from '../../models/order-ui.model';
   imports: [CommonModule],
   template: `
     <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3">Financial Summary</div>
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-      <div class="rounded-lg border border-border/60 bg-muted/20 p-3 space-y-1">
-        <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total Order</div>
-        <div class="text-xl font-bold tabular-nums text-foreground">
+    <div class="rounded-lg border border-border/60 bg-muted/20 divide-y divide-border/40">
+      <div class="flex items-center justify-between gap-4 px-4 py-3">
+        <span class="text-sm text-muted-foreground">Subtotal</span>
+        <span class="text-base font-semibold tabular-nums text-foreground">
           {{ order().totalAmount | currency: currencyCode() : 'symbol-narrow' }}
-        </div>
+        </span>
       </div>
-      <div class="rounded-lg border border-border/60 bg-muted/20 p-3 space-y-1">
-        <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Net of Returns</div>
-        <div class="text-xl font-bold tabular-nums text-foreground">
+      @if (order().returnsTotal > 0) {
+        <div class="flex items-center justify-between gap-4 px-4 py-3">
+          <span class="text-sm text-muted-foreground">Returns</span>
+          <span class="text-base font-semibold tabular-nums text-danger">
+            &minus;{{ order().returnsTotal | currency: currencyCode() : 'symbol-narrow' }}
+          </span>
+        </div>
+      }
+      <div class="flex items-center justify-between gap-4 px-4 py-4">
+        <span class="text-sm font-bold text-foreground">Net Total</span>
+        <span class="text-xl font-bold tabular-nums text-primary">
           {{ order().netOfTotalOrderAmount | currency: currencyCode() : 'symbol-narrow' }}
-        </div>
-      </div>
-      <div class="rounded-lg border border-border/60 bg-muted/20 p-3 space-y-1">
-        <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Returns Total</div>
-        <div class="text-xl font-bold tabular-nums" [class.text-foreground]="order().returnsTotal > 0" [class.text-muted-foreground]="!order().returnsTotal">
-          {{ order().returnsTotal | currency: currencyCode() : 'symbol-narrow' }}
-        </div>
+        </span>
       </div>
     </div>
   `

@@ -45,9 +45,10 @@ describe('OrderDetailsPageComponent', () => {
     amountPaid: 10,
     amountOutstanding: 0,
     returnItems: [],
-    totalOrderAmount: 10,
-    netOfTotalOrderAmount: 10,
-    returnsTotal: 0,
+    subtotalAmount: 10,
+    netOrderAmount: 10,
+    returnsAmount: 0,
+    amountDue: 0,
     payments: [],
     orderAllocated: true,
     items: [{ id: 'line-1', productId: 'p1', quantity: 1, price: 10 }]

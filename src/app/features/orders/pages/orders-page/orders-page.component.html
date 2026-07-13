@@ -26,42 +26,4 @@
     (view)="goToDetails($event)"
   />
 
-  <!-- Quick-create FAB -->
-  <button
-    (click)="openQuickCreate()"
-    class="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center text-2xl"
-    pTooltip="Quick create order"
-    type="button"
-  >
-    <i class="pi pi-plus text-xl"></i>
-  </button>
-
-  <app-order-dialog
-    [(visible)]="createDialogVisible"
-    mode="create"
-    [draftItems]="dialogDraftItems()"
-    [saving]="saving()"
-    [totalAmount]="dialogTotalAmount()"
-    [(selectedCustomer)]="dialogCustomer"
-    [customers]="dialogCustomers()"
-    [isCustomerLoading]="isCustomerLoading()"
-    [(selectedProduct)]="dialogProduct"
-    [products]="dialogProducts()"
-    [isProductLoading]="isProductLoading()"
-    [(itemQuantity)]="dialogItemQuantity"
-    [(itemPrice)]="dialogItemPrice"
-    [(paymentType)]="dialogPaymentType"
-    (orderSubmit)="submitQuickCreate()"
-    (cancel)="closeQuickCreate()"
-    (hide)="closeQuickCreate()"
-    (searchCustomers)="searchDialogCustomers($event)"
-    (customerSelect)="onDialogCustomerSelect()"
-    (clearCustomer)="clearDialogCustomer()"
-    (searchProducts)="searchDialogProducts($event)"
-    (productSelect)="onDialogProductSelect($event)"
-    (clearProduct)="clearDialogProduct()"
-    (addItem)="addDialogItem()"
-    (removeItem)="removeDialogItem($event)"
-    (calculateTotal)="calculateDialogTotal()"
-  />
 </section>
