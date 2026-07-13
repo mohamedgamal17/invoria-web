@@ -11,7 +11,7 @@
             <span class="text-xs text-muted-foreground mt-0.5">{{ invoice.createdAt | date:'shortDate' }}</span>
           </div>
           <div class="flex flex-col items-end gap-2 shrink-0">
-            <span class="text-sm font-semibold tabular-nums">{{ invoice.totalPrice | currency:'EGP' }}</span>
+            <span class="text-sm font-semibold tabular-nums">EGP {{ invoice.totalPrice | number:'1.2-2' }}</span>
           </div>
         </div>
         <div class="flex items-center justify-between pt-3 border-t border-border/50">
@@ -100,7 +100,7 @@
           <span class="text-sm text-muted-foreground font-mono text-xs">{{ invoice.orderId | slice:0:12 }}...</span>
         </td>
         <td class="px-4 py-5">
-          <span class="text-sm font-semibold tabular-nums">{{ invoice.totalPrice | currency:'EGP' }}</span>
+          <span class="text-sm font-semibold tabular-nums">EGP {{ invoice.totalPrice | number:'1.2-2' }}</span>
         </td>
         <td class="px-4 py-5">
           <span class="text-sm text-muted-foreground">{{ invoice.createdAt | date:'mediumDate' }}</span>
