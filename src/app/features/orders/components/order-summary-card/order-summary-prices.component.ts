@@ -12,21 +12,21 @@ import type { UiOrder } from '../../models/order-ui.model';
       <div class="flex items-center justify-between gap-4 px-4 py-3">
         <span class="text-sm text-muted-foreground">Subtotal</span>
         <span class="text-base font-semibold tabular-nums text-foreground">
-          {{ order().totalAmount | currency: currencyCode() : 'symbol-narrow' }}
+          {{ currencyCode() }} {{ order().totalAmount | number:'1.2-2' }}
         </span>
       </div>
       @if (order().returnsTotal > 0) {
         <div class="flex items-center justify-between gap-4 px-4 py-3">
           <span class="text-sm text-muted-foreground">Returns</span>
           <span class="text-base font-semibold tabular-nums text-danger">
-            &minus;{{ order().returnsTotal | currency: currencyCode() : 'symbol-narrow' }}
+            &minus;{{ currencyCode() }} {{ order().returnsTotal | number:'1.2-2' }}
           </span>
         </div>
       }
       <div class="flex items-center justify-between gap-4 px-4 py-4">
         <span class="text-sm font-bold text-foreground">Net Total</span>
         <span class="text-xl font-bold tabular-nums text-primary">
-          {{ order().netOfTotalOrderAmount | currency: currencyCode() : 'symbol-narrow' }}
+          {{ currencyCode() }} {{ order().netOfTotalOrderAmount | number:'1.2-2' }}
         </span>
       </div>
     </div>

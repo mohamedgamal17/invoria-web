@@ -80,7 +80,7 @@
             <i class="pi pi-undo text-accent text-xs"></i>
             <span class="font-medium">{{ summary.count }} {{ summary.count === 1 ? 'item' : 'items' }} returned</span>
             <span class="text-muted-foreground">·</span>
-            <span class="font-semibold tabular-nums">{{ summary.total | currency: currencyCode }}</span>
+            <span class="font-semibold tabular-nums">{{ currencyCode }} {{ summary.total | number:'1.2-2' }}</span>
           </a>
         } @else {
           <div
@@ -89,7 +89,7 @@
             <i class="pi pi-undo text-accent text-xs"></i>
             <span class="font-medium">{{ summary.count }} {{ summary.count === 1 ? 'item' : 'items' }} returned</span>
             <span class="text-muted-foreground">·</span>
-            <span class="font-semibold tabular-nums">{{ summary.total | currency: currencyCode }}</span>
+            <span class="font-semibold tabular-nums">{{ currencyCode }} {{ summary.total | number:'1.2-2' }}</span>
           </div>
         }
       }

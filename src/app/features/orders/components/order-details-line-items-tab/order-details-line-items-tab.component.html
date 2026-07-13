@@ -19,10 +19,10 @@
               <td class="px-3 py-2 text-sm font-medium text-foreground break-all">{{ row.productName }}</td>
               <td class="px-3 py-2 text-sm text-right tabular-nums">{{ row.quantity }}</td>
               <td class="px-3 py-2 text-sm text-right tabular-nums">
-                {{ row.price | currency: currencyCode() : 'symbol-narrow' }}
+                {{ currencyCode() }} {{ row.price | number:'1.2-2' }}
               </td>
               <td class="px-3 py-2 text-sm text-right tabular-nums font-medium">
-                {{ lineTotal(row) | currency: currencyCode() : 'symbol-narrow' }}
+                {{ currencyCode() }} {{ lineTotal(row) | number:'1.2-2' }}
               </td>
               <td
                 class="px-3 py-2 text-xs text-muted-foreground font-mono break-all max-w-[10rem]"
@@ -45,13 +45,13 @@
         <div class="space-y-1">
           <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Subtotal (from items)</div>
           <div class="text-base font-semibold tabular-nums text-foreground">
-            {{ subtotal(order()) | currency: currencyCode() : 'symbol-narrow' }}
+            {{ currencyCode() }} {{ subtotal(order()) | number:'1.2-2' }}
           </div>
         </div>
         <div class="space-y-1">
           <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Order total</div>
           <div class="text-base font-bold tabular-nums text-foreground">
-            {{ order().totalAmount | currency: currencyCode() : 'symbol-narrow' }}
+            {{ currencyCode() }} {{ order().totalAmount | number:'1.2-2' }}
           </div>
         </div>
       </div>

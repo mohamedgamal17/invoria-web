@@ -29,13 +29,13 @@ import type { UiOrder } from '../../models/order-ui.model';
       <div class="rounded-lg border border-border/60 bg-muted/20 p-3 space-y-1">
         <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Amount Paid</div>
         <div class="text-lg font-bold tabular-nums text-success">
-          {{ order().amountPaid ?? 0 | currency: currencyCode() : 'symbol-narrow' }}
+          {{ currencyCode() }} {{ order().amountPaid ?? 0 | number:'1.2-2' }}
         </div>
       </div>
       <div class="rounded-lg border border-border/60 bg-muted/20 p-3 space-y-1">
         <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Outstanding</div>
         <div class="text-lg font-bold tabular-nums" [class.text-warn]="(order().amountOutstanding ?? 0) > 0" [class.text-muted-foreground]="!order().amountOutstanding">
-          {{ order().amountOutstanding ?? 0 | currency: currencyCode() : 'symbol-narrow' }}
+          {{ currencyCode() }} {{ order().amountOutstanding ?? 0 | number:'1.2-2' }}
         </div>
       </div>
     </div>

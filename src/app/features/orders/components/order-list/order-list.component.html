@@ -86,7 +86,7 @@
           <div class="flex flex-col">
             <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-0.5">Total Amount</span>
             <span class="text-lg font-black text-foreground tabular-nums">
-              {{ order.totalAmount | currency:'EGP':'symbol-narrow' }}
+              EGP {{ order.totalAmount | number:'1.2-2' }}
             </span>
           </div>
           <div class="flex flex-col items-end gap-2">
@@ -219,7 +219,7 @@
         </td>
         <td class="px-4 py-5 text-right">
           <div class="text-sm font-bold text-foreground tabular-nums">
-            {{ order.totalAmount | currency:'EGP':'symbol-narrow' }}
+            EGP {{ order.totalAmount | number:'1.2-2' }}
           </div>
         </td>
         <td class="px-4 py-5 text-right">
