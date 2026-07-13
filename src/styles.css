@@ -47,6 +47,8 @@
   --shadow-glow-sm: var(--sh-glow-sm);
   --shadow-glow-md: var(--sh-glow-md);
 
+  --font-size-2xs: 0.625rem;
+
   --duration-150: var(--m-duration-150);
   --duration-200: var(--m-duration-200);
   --duration-300: var(--m-duration-300);

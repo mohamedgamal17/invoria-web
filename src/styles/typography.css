@@ -16,6 +16,7 @@
   --typography-line-height: 1.5;
 
   /* Scale (rem) */
+  --ty-2xs: 0.625rem; /* 10px */
   --ty-xs: 0.75rem; /* 12px */
   --ty-sm: 0.875rem; /* 14px */
   --ty-md: 1rem; /* 16px */
