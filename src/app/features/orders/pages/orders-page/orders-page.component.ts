@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
+import { Component, computed, inject, linkedSignal } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, finalize, map, of, Subject, debounceTime, switchMap, take, tap } from 'rxjs';
+import { catchError, map, of } from 'rxjs';
 
 import { MessageService } from 'primeng/api';
 
@@ -10,7 +10,7 @@ import type { PagingInfo } from '../../../../core/models/paging';
 import type { ListOrderRequest } from '../../models/list-order.request';
 import { OrderStatus } from '../../models/order.entity';
 import type { UiOrder } from '../../models/order-ui.model';
-import { orderToUiOrder, draftItemsToLineItems } from '../../models/order-ui.mapper';
+import { orderToUiOrder } from '../../models/order-ui.mapper';
 import { PaymentStatus, PaymentType } from '../../models/order-payment.enums';
 import { parseOptionalEnumQueryParam } from '../../../../shared/navigation/query-param-parsers';
 import { OrdersApiService } from '../../services/orders-api.service';
@@ -20,17 +20,7 @@ import {
   type OrdersListFilters
 } from '../../components/orders-filter-panel/orders-filter-panel.component';
 import { OrderListComponent } from '../../components/order-list/order-list.component';
-import { OrderDialogComponent } from '../../components/order-dialog/order-dialog.component';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
-import { CustomersApiService } from '../../../customers/services/customers-api.service';
-import { ProductsApiService } from '../../../products/services/products-api.service';
-import { customerSearchListRequest } from '../../../customers/models/list-customer.request';
-import { productSearchListRequest } from '../../../products/models/list-product.request';
-import type { Customer } from '../../../customers/models/customer.entity';
-import type { Product } from '../../../products/models/product.entity';
-import type { UiOrderItem } from '../../models/order-ui.model';
-
-const ORDER_FORM_AUTOCOMPLETE_DEBOUNCE_MS = 700;
 
 const EMPTY_ORDERS_TUPLE: [UiOrder[], PagingInfo] = [
   [],
@@ -50,38 +40,16 @@ const PAYMENT_TYPE_VALUES = Object.values(PaymentType).filter(
 @Component({
   selector: 'app-orders-page',
   standalone: true,
-  imports: [CommonModule, OrderHeaderComponent, OrdersFilterPanelComponent, OrderListComponent, OrderDialogComponent],
+  imports: [CommonModule, OrderHeaderComponent, OrdersFilterPanelComponent, OrderListComponent],
   templateUrl: './orders-page.component.html'
 })
 export class OrdersPageComponent {
   readonly pageSizeOptions = [25, 50, 100, 200];
 
   private readonly ordersApi = inject(OrdersApiService);
-  private readonly customersApi = inject(CustomersApiService);
-  private readonly productsApi = inject(ProductsApiService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-
-  /** Dialog quick-create state */
-  readonly createDialogVisible = signal(false);
-  readonly isProductLoading = signal(false);
-  readonly isCustomerLoading = signal(false);
-  readonly saving = signal(false);
-  readonly dialogCustomer = signal<Customer | null>(null);
-  readonly dialogCustomers = signal<Customer[]>([]);
-  readonly dialogProduct = signal<Product | null>(null);
-  readonly dialogProducts = signal<Product[]>([]);
-  readonly dialogItemQuantity = signal(1);
-  readonly dialogItemPrice = signal(0);
-  readonly dialogPaymentType = signal<PaymentType>(PaymentType.Immediate);
-  readonly dialogDraftItems = signal<UiOrderItem[]>([]);
-  readonly dialogTotalAmount = signal(0);
-  readonly dialogTotalItems = signal(0);
-
-  private readonly productSearchCache = new Map<string, Product[]>();
-  private readonly productQuery$ = new Subject<string>();
-  private readonly customerQuery$ = new Subject<string>();
 
   /** 1-based page number from `?page=` (default 1). */
   private readonly pageFromRoute = toSignal(
@@ -201,39 +169,6 @@ export class OrdersPageComponent {
     computation: (src) => ({ ...src.paging })
   });
 
-  constructor() {
-    this.productQuery$
-      .pipe(
-        debounceTime(ORDER_FORM_AUTOCOMPLETE_DEBOUNCE_MS),
-        switchMap((query) => {
-          const cached = this.productSearchCache.get(query);
-          if (cached !== undefined) {
-            return of(cached);
-          }
-          this.isProductLoading.set(true);
-          return this.productsApi.searchProducts(productSearchListRequest, query).pipe(
-            tap((rows) => this.productSearchCache.set(query, rows)),
-            catchError(() => of([] as Product[])),
-            finalize(() => this.isProductLoading.set(false))
-          );
-        })
-      )
-      .subscribe((products) => this.dialogProducts.set(products));
-
-    this.customerQuery$
-      .pipe(
-        debounceTime(ORDER_FORM_AUTOCOMPLETE_DEBOUNCE_MS),
-        switchMap((query) => {
-          this.isCustomerLoading.set(true);
-          return this.customersApi.searchCustomers(customerSearchListRequest, query).pipe(
-            catchError(() => of([] as Customer[])),
-            finalize(() => this.isCustomerLoading.set(false))
-          );
-        })
-      )
-      .subscribe((customers) => this.dialogCustomers.set(customers));
-  }
-
   goToCreatePage(): void {
     void this.router.navigate(['new'], { relativeTo: this.route });
   }
@@ -312,144 +247,6 @@ export class OrdersPageComponent {
       },
       queryParamsHandling: 'merge'
     });
-  }
-
-  /* Quick-create dialog handlers */
-
-  openQuickCreate(): void {
-    this.dialogCustomer.set(null);
-    this.dialogCustomers.set([]);
-    this.dialogProduct.set(null);
-    this.dialogProducts.set([]);
-    this.dialogDraftItems.set([]);
-    this.dialogItemQuantity.set(1);
-    this.dialogItemPrice.set(0);
-    this.dialogPaymentType.set(PaymentType.Immediate);
-    this.dialogTotalAmount.set(0);
-    this.createDialogVisible.set(true);
-  }
-
-  closeQuickCreate(): void {
-    this.createDialogVisible.set(false);
-  }
-
-  searchDialogCustomers(event: { query: string }): void {
-    this.customerQuery$.next((event.query ?? '').trim());
-  }
-
-  onDialogCustomerSelect(): void {
-    this.dialogCustomer.set(this.dialogCustomer());
-  }
-
-  clearDialogCustomer(): void {
-    this.dialogCustomer.set(null);
-  }
-
-  searchDialogProducts(event: { query: string }): void {
-    const query = (event.query ?? '').trim();
-    const cached = this.productSearchCache.get(query);
-    if (cached !== undefined) {
-      this.dialogProducts.set([...cached]);
-      this.isProductLoading.set(false);
-      return;
-    }
-    this.productQuery$.next(query);
-  }
-
-  onDialogProductSelect(event: unknown): void {
-    const product =
-      event && typeof event === 'object' && 'value' in event
-        ? (event as { value?: Product }).value
-        : (event as Product);
-    if (!product?.id) return;
-    this.dialogProduct.set(product);
-    this.dialogItemQuantity.set(1);
-    this.dialogItemPrice.set(product.price);
-  }
-
-  clearDialogProduct(): void {
-    this.dialogProduct.set(null);
-    this.dialogItemQuantity.set(1);
-    this.dialogItemPrice.set(0);
-  }
-
-  addDialogItem(): void {
-    const product = this.dialogProduct();
-    if (!product) return;
-    const quantity = this.dialogItemQuantity() > 0 ? this.dialogItemQuantity() : 1;
-    this.dialogDraftItems.update((items) => {
-      const existingIndex = items.findIndex((i) => i.productId === product.id);
-      if (existingIndex > -1) {
-        const next = [...items];
-        next[existingIndex] = {
-          ...next[existingIndex],
-          quantity: next[existingIndex].quantity + quantity
-        };
-        return next;
-      }
-      return [
-        ...items,
-        {
-          id: '',
-          productId: product.id,
-          productName: product.name,
-          quantity,
-          price: this.dialogItemPrice()
-        }
-      ];
-    });
-    this.dialogProduct.set(null);
-    this.dialogItemQuantity.set(1);
-    this.calculateDialogTotal();
-  }
-
-  removeDialogItem(index: number): void {
-    this.dialogDraftItems.update((items) => items.filter((_, i) => i !== index));
-    this.calculateDialogTotal();
-  }
-
-  calculateDialogTotal(): void {
-    const total = this.dialogDraftItems().reduce((acc, item) => acc + item.price * item.quantity, 0);
-    this.dialogTotalAmount.set(total);
-  }
-
-  submitQuickCreate(): void {
-    const customerId = this.dialogCustomer()?.id?.trim();
-    if (!customerId) {
-      this.messageService.add({ severity: 'warn', summary: 'Customer required', detail: 'Please search and select a customer.' });
-      return;
-    }
-    if (!this.dialogDraftItems().length) {
-      this.messageService.add({ severity: 'warn', summary: 'Items required', detail: 'Add at least one product.' });
-      return;
-    }
-
-    this.saving.set(true);
-    this.ordersApi
-      .createOrder({
-        CustomerId: customerId,
-        Items: draftItemsToLineItems(this.dialogDraftItems()),
-        PaymentType: this.dialogPaymentType()
-      })
-      .pipe(
-        take(1),
-        finalize(() => this.saving.set(false))
-      )
-      .subscribe({
-        next: (res) => {
-          if (!res.isSuccess || !res.result) {
-            this.messageService.add(presentApiError(res.error).toast);
-            return;
-          }
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order created successfully!' });
-          this.createDialogVisible.set(false);
-          this.ordersResource.reload();
-          void this.router.navigate([res.result.id], { relativeTo: this.route });
-        },
-        error: (err: unknown) => {
-          this.messageService.add(presentApiError(err).toast);
-        }
-      });
   }
 
   private ordersLinkSource(): {
