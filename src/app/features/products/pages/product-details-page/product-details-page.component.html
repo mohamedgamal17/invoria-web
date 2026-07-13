@@ -86,7 +86,7 @@
                   <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
                     <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Price</div>
                     <div class="mt-1 text-xl font-black tabular-nums text-foreground">
-                      {{ p.price | currency: 'EGP' : 'symbol-narrow' }}
+                      EGP {{ p.price | number:'1.2-2' }}
                     </div>
                   </div>
                   <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">

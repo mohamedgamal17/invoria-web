@@ -30,31 +30,31 @@
       <div class="space-y-1">
         <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Product line subtotal</div>
         <div class="text-base font-semibold tabular-nums text-foreground">
-          {{ aggregate().productLineSubtotalTotal | currency: currencyCode() : 'symbol-narrow' }}
+          {{ currencyCode() }} {{ aggregate().productLineSubtotalTotal | number:'1.2-2' }}
         </div>
       </div>
       <div class="space-y-1">
         <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Product returns subtotal</div>
         <div class="text-base font-semibold tabular-nums text-muted-foreground">
-          {{ aggregate().productReturnSubtotalTotal | currency: currencyCode() : 'symbol-narrow' }}
+          {{ currencyCode() }} {{ aggregate().productReturnSubtotalTotal | number:'1.2-2' }}
         </div>
       </div>
       <div class="space-y-1">
         <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Product net (after returns)</div>
         <div class="text-base font-bold tabular-nums text-foreground">
-          {{ aggregate().productNetSubtotalTotal | currency: currencyCode() : 'symbol-narrow' }}
+          {{ currencyCode() }} {{ aggregate().productNetSubtotalTotal | number:'1.2-2' }}
         </div>
       </div>
       <div class="space-y-1">
         <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Sum of order totals</div>
         <div class="text-base font-semibold tabular-nums text-foreground">
-          {{ aggregate().orderTotalSum | currency: currencyCode() : 'symbol-narrow' }}
+          {{ currencyCode() }} {{ aggregate().orderTotalSum | number:'1.2-2' }}
         </div>
       </div>
       <div class="space-y-1">
         <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Sum of order nets</div>
         <div class="text-base font-semibold tabular-nums text-foreground">
-          {{ aggregate().orderNetAfterReturnsSum | currency: currencyCode() : 'symbol-narrow' }}
+          {{ currencyCode() }} {{ aggregate().orderNetAfterReturnsSum | number:'1.2-2' }}
         </div>
         <div class="text-xs text-muted-foreground">
           Order total minus all return line subtotals per order
@@ -82,22 +82,22 @@
             <td class="px-3 py-2 text-sm font-medium text-foreground whitespace-nowrap">{{ row.orderNumber }}</td>
             <td class="px-3 py-2 text-sm text-muted-foreground whitespace-nowrap">{{ row.orderStatusLabel }}</td>
             <td class="px-3 py-2 text-sm text-right tabular-nums">
-              {{ row.productLineSubtotal | currency: currencyCode() : 'symbol-narrow' }}
+              {{ currencyCode() }} {{ row.productLineSubtotal | number:'1.2-2' }}
             </td>
             <td class="px-3 py-2 text-sm text-right tabular-nums text-muted-foreground">
-              {{ row.productReturnSubtotal | currency: currencyCode() : 'symbol-narrow' }}
+              {{ currencyCode() }} {{ row.productReturnSubtotal | number:'1.2-2' }}
             </td>
             <td class="px-3 py-2 text-sm text-right tabular-nums font-medium">
-              {{ row.productNetSubtotal | currency: currencyCode() : 'symbol-narrow' }}
+              {{ currencyCode() }} {{ row.productNetSubtotal | number:'1.2-2' }}
             </td>
             <td class="px-3 py-2 text-sm text-right tabular-nums">
-              {{ row.orderTotal | currency: currencyCode() : 'symbol-narrow' }}
+              {{ currencyCode() }} {{ row.orderTotal | number:'1.2-2' }}
             </td>
             <td class="px-3 py-2 text-sm text-right tabular-nums text-muted-foreground">
-              {{ row.orderReturnSubtotal | currency: currencyCode() : 'symbol-narrow' }}
+              {{ currencyCode() }} {{ row.orderReturnSubtotal | number:'1.2-2' }}
             </td>
             <td class="px-3 py-2 text-sm text-right tabular-nums font-medium">
-              {{ row.orderNetAfterReturns | currency: currencyCode() : 'symbol-narrow' }}
+              {{ currencyCode() }} {{ row.orderNetAfterReturns | number:'1.2-2' }}
             </td>
             <td class="px-3 py-2 text-center whitespace-nowrap">
               <p-button label="View" [link]="true" type="button" (onClick)="viewOrder(row)" />
