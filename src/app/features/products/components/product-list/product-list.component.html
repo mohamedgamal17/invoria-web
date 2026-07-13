@@ -155,8 +155,11 @@
         <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">
           Price
         </th>
-        <th class="px-4 py-5 font-bold uppercase tracking-wider text-center">
+        <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">
           Stock
+        </th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider text-center">
+          Status
         </th>
         <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">
           Actions
@@ -168,23 +171,9 @@
     <ng-template pTemplate="body" let-product>
       <tr>
         <td class="px-4 py-5">
-          <div class="flex flex-col min-w-0 gap-0.5">
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="truncate text-sm font-semibold text-foreground">{{ product.name }}</span>
-              <span class="inline-flex items-center gap-1 text-[11px] font-medium whitespace-nowrap shrink-0"
-                [class.text-success]="getStockSeverity(product) === 'success'"
-                [class.text-warning]="getStockSeverity(product) === 'warn'"
-                [class.text-danger]="getStockSeverity(product) === 'danger'"
-              >
-                <span class="w-1.5 h-1.5 rounded-full inline-block"
-                  [class.bg-success]="getStockSeverity(product) === 'success'"
-                  [class.bg-warning]="getStockSeverity(product) === 'warn'"
-                  [class.bg-danger]="getStockSeverity(product) === 'danger'"
-                ></span>
-                {{ stockStatusLabel(product) }}
-              </span>
-            </div>
-            <span class="text-xs text-muted-foreground">Updated {{ product.lastModifiedAt | date:'shortDate' }}</span>
+          <div class="flex flex-col min-w-0">
+            <span class="truncate text-sm font-semibold text-foreground">{{ product.name }}</span>
+            <span class="text-xs text-muted-foreground mt-0.5">Updated {{ product.lastModifiedAt | date:'shortDate' }}</span>
           </div>
         </td>
         <td class="px-4 py-5 text-right">
@@ -192,21 +181,36 @@
             EGP {{ product.price | number:'1.2-2' }}
           </div>
         </td>
-        <td class="px-4 py-5 text-center">
-          <div class="flex flex-col items-center gap-0.5"
+        <td class="px-4 py-5 text-right">
+          <div class="flex flex-col gap-0.5"
             [attr.aria-label]="formatQuantitySummary(product.stock.actualQuantity, product.stock.reservedQuantity)"
-            [pTooltip]="'Actual: ' + product.stock.actualQuantity + ' · Reserved: ' + product.stock.reservedQuantity"
-            tooltipPosition="top"
           >
-            <span class="text-lg font-black tabular-nums leading-none"
+            <span class="text-base font-black tabular-nums leading-none"
               [class.text-success]="getStockSeverity(product) === 'success'"
               [class.text-warning]="getStockSeverity(product) === 'warn'"
               [class.text-danger]="getStockSeverity(product) === 'danger'"
             >
               {{ product.stock.actualQuantity - product.stock.reservedQuantity }}
+              <span class="text-[10px] font-semibold text-muted-foreground normal-case">avail.</span>
             </span>
-            <span class="text-[10px] text-muted-foreground uppercase tracking-wider">Available</span>
+            <span class="text-[11px] tabular-nums text-muted-foreground">
+              {{ product.stock.reservedQuantity }} reserved
+            </span>
           </div>
+        </td>
+        <td class="px-4 py-5 text-center">
+          <span class="inline-flex items-center gap-1 text-[11px] font-medium"
+            [class.text-success]="getStockSeverity(product) === 'success'"
+            [class.text-warning]="getStockSeverity(product) === 'warn'"
+            [class.text-danger]="getStockSeverity(product) === 'danger'"
+          >
+            <span class="w-1.5 h-1.5 rounded-full inline-block"
+              [class.bg-success]="getStockSeverity(product) === 'success'"
+              [class.bg-warning]="getStockSeverity(product) === 'warn'"
+              [class.bg-danger]="getStockSeverity(product) === 'danger'"
+            ></span>
+            {{ stockStatusLabel(product) }}
+          </span>
         </td>
         <td class="px-4 py-5 text-right">
           <div class="flex justify-end items-center gap-1">
@@ -235,11 +239,14 @@
           <td class="px-4 py-5 text-right">
             <p-skeleton height="1.1rem" width="4rem" styleClass="ml-auto"></p-skeleton>
           </td>
-          <td class="px-4 py-5 text-center">
-            <div class="flex flex-col items-center gap-0.5">
-              <p-skeleton height="1.25rem" width="2.5rem" styleClass="mx-auto"></p-skeleton>
-              <p-skeleton height="0.65rem" width="3rem" styleClass="mx-auto"></p-skeleton>
+          <td class="px-4 py-5 text-right">
+            <div class="flex flex-col items-end gap-1">
+              <p-skeleton height="1.1rem" width="4rem"></p-skeleton>
+              <p-skeleton height="0.65rem" width="3rem"></p-skeleton>
             </div>
+          </td>
+          <td class="px-4 py-5 text-center">
+            <p-skeleton height="1rem" width="5rem" styleClass="mx-auto" borderRadius="999px"></p-skeleton>
           </td>
           <td class="px-4 py-5 text-right">
             <div class="flex justify-end">
@@ -253,7 +260,7 @@
     <!-- Empty Message -->
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="4" class="px-4 py-12 text-center">
+        <td colspan="5" class="px-4 py-12 text-center">
           <div class="flex flex-col items-center gap-3">
             <i class="pi pi-inbox text-4xl text-muted-foreground opacity-20"></i>
             <div class="text-base font-medium text-foreground">No products found</div>
