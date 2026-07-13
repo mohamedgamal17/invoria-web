@@ -83,7 +83,7 @@ import { Batch, BatchState } from '../models/batch.entity';
                   </span>
                 </div>
               </td>
-              <td class="px-3 py-3 font-bold tabular-nums text-foreground">{{ batch.purchasePrice | currency }}</td>
+              <td class="px-3 py-3 font-bold tabular-nums text-foreground">{{ currencyCode() }} {{ batch.purchasePrice | number:'1.2-2' }}</td>
               <td class="px-3 py-3">
                 <p-tag [value]="batch.state" [severity]="getSeverity(batch.state)"></p-tag>
               </td>
@@ -189,7 +189,7 @@ import { Batch, BatchState } from '../models/batch.entity';
                     </div>
                     <div>
                       <div class="text-[10px] font-bold uppercase text-muted-foreground">Purchase price</div>
-                      <div class="font-bold tabular-nums">{{ batch.purchasePrice | currency }}</div>
+                      <div class="font-bold tabular-nums">{{ currencyCode() }} {{ batch.purchasePrice | number:'1.2-2' }}</div>
                     </div>
                   </div>
 
@@ -241,6 +241,7 @@ export class BatchListComponent {
   first = input(0);
   pageSize = input(25);
   pageSizeOptions = input<number[]>([25, 50, 100, 200]);
+  currencyCode = input<string>('EGP');
 
   onPageChange = output<{ first?: number; rows?: number }>();
   edit = output<Batch>();
