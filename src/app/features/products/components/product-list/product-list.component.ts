@@ -45,9 +45,11 @@ export class ProductListComponent {
     return 'success';
   }
 
-  stockReservedPercent(product: Product): number {
-    if (product.stock.actualQuantity <= 0) return 0;
-    return Math.min((product.stock.reservedQuantity / product.stock.actualQuantity) * 100, 100);
+  stockStatusLabel(product: Product): string {
+    if (product.stock.actualQuantity === 0) return 'Out of stock';
+    const available = product.stock.actualQuantity - product.stock.reservedQuantity;
+    if (available <= 0) return 'Fully reserved';
+    return 'In stock';
   }
 
   formatQuantitySummary(actualQuantity: number, reservedQuantity: number): string {

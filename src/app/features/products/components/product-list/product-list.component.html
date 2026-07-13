@@ -3,18 +3,21 @@
   @if (isListLoading()) {
     @for (_ of skeletonRows; track _) {
       <div class="rounded-xl border border-border bg-surface p-4 shadow-sm">
-        <div class="space-y-2 mb-4">
-          <p-skeleton height="1.25rem" width="80%"></p-skeleton>
-          <p-skeleton height="0.875rem" width="40%"></p-skeleton>
+        <div class="flex items-start justify-between gap-3 mb-4">
+          <div class="space-y-2 flex-1">
+            <p-skeleton height="1.25rem" width="80%"></p-skeleton>
+            <p-skeleton height="0.875rem" width="40%"></p-skeleton>
+          </div>
+          <p-skeleton height="1rem" width="5rem" borderRadius="999px"></p-skeleton>
         </div>
         <div class="flex items-center justify-between gap-4 mb-4">
-          <div class="space-y-2">
+          <div class="space-y-1">
             <p-skeleton height="0.65rem" width="3rem"></p-skeleton>
-            <p-skeleton height="1.25rem" width="4rem"></p-skeleton>
+            <p-skeleton height="1.25rem" width="3rem"></p-skeleton>
           </div>
-          <div class="flex flex-col items-end gap-2">
-            <p-skeleton height="0.65rem" width="5rem"></p-skeleton>
-            <p-skeleton height="0.5rem" width="4rem" borderRadius="999px"></p-skeleton>
+          <div class="flex flex-col items-end gap-1">
+            <p-skeleton height="0.65rem" width="3rem"></p-skeleton>
+            <p-skeleton height="0.65rem" width="3rem"></p-skeleton>
           </div>
         </div>
         <div class="flex justify-between items-center pt-3 border-t border-border/50">
@@ -31,47 +34,42 @@
   } @else if (products().length > 0) {
     @for (product of products(); track product.id) {
       <div class="rounded-xl border border-border bg-surface p-4 shadow-sm hover:border-primary/30 transition-all active:scale-[0.98]">
-        <div class="flex justify-between items-start mb-4">
+        <div class="flex items-start justify-between gap-3 mb-1">
           <div class="flex flex-col min-w-0">
             <span class="truncate text-base font-bold text-foreground">{{ product.name }}</span>
             <span class="text-xs text-muted-foreground mt-0.5">Updated {{ product.lastModifiedAt | date:'shortDate' }}</span>
           </div>
+          <span class="inline-flex items-center gap-1 text-[11px] font-medium shrink-0 whitespace-nowrap"
+            [class.text-success]="getStockSeverity(product) === 'success'"
+            [class.text-warning]="getStockSeverity(product) === 'warn'"
+            [class.text-danger]="getStockSeverity(product) === 'danger'"
+          >
+            <span class="w-1.5 h-1.5 rounded-full inline-block"
+              [class.bg-success]="getStockSeverity(product) === 'success'"
+              [class.bg-warning]="getStockSeverity(product) === 'warn'"
+              [class.bg-danger]="getStockSeverity(product) === 'danger'"
+            ></span>
+            {{ stockStatusLabel(product) }}
+          </span>
         </div>
         
         <div class="flex items-center justify-between gap-4 mb-4 px-1"
           [attr.aria-label]="formatQuantitySummary(product.stock.actualQuantity, product.stock.reservedQuantity)"
           [attr.title]="formatQuantitySummary(product.stock.actualQuantity, product.stock.reservedQuantity)"
         >
-          <div class="flex flex-col gap-1 min-w-0">
+          <div class="flex flex-col gap-0.5">
             <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Available</span>
-            <span class="flex items-center gap-1 text-lg font-black tabular-nums"
+            <span class="text-lg font-black tabular-nums"
               [class.text-success]="getStockSeverity(product) === 'success'"
               [class.text-warning]="getStockSeverity(product) === 'warn'"
               [class.text-danger]="getStockSeverity(product) === 'danger'"
             >
-              <i class="pi text-sm"
-                [class.pi-check-circle]="getStockSeverity(product) === 'success'"
-                [class.pi-exclamation-triangle]="getStockSeverity(product) === 'warn'"
-                [class.pi-ban]="getStockSeverity(product) === 'danger'"
-              ></i>
               {{ product.stock.actualQuantity - product.stock.reservedQuantity }}
             </span>
           </div>
-          <div class="flex flex-col items-end gap-1.5 min-w-0">
-            <div class="flex items-center gap-2 text-[11px] tabular-nums text-muted-foreground">
-              <span>A:<span class="text-foreground font-semibold">{{ product.stock.actualQuantity }}</span></span>
-              <span class="opacity-40">|</span>
-              <span>R:<span class="text-foreground font-semibold">{{ product.stock.reservedQuantity }}</span></span>
-            </div>
-            <div class="w-20 h-1 bg-border/40 rounded-full overflow-hidden">
-              <div
-                class="h-full rounded-full transition-all"
-                [class.bg-success]="getStockSeverity(product) === 'success'"
-                [class.bg-warning]="getStockSeverity(product) === 'warn'"
-                [class.bg-danger]="getStockSeverity(product) === 'danger'"
-                [style.width.%]="stockReservedPercent(product)"
-              ></div>
-            </div>
+          <div class="flex flex-col items-end gap-0.5 text-[11px] text-muted-foreground tabular-nums">
+            <span>{{ product.stock.actualQuantity }} actual</span>
+            <span>{{ product.stock.reservedQuantity }} reserved</span>
           </div>
         </div>
         
@@ -170,9 +168,23 @@
     <ng-template pTemplate="body" let-product>
       <tr>
         <td class="px-4 py-5">
-          <div class="flex flex-col min-w-0">
-            <span class="truncate text-sm font-semibold text-foreground">{{ product.name }}</span>
-            <span class="text-xs text-muted-foreground mt-0.5">Updated {{ product.lastModifiedAt | date:'shortDate' }}</span>
+          <div class="flex flex-col min-w-0 gap-0.5">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="truncate text-sm font-semibold text-foreground">{{ product.name }}</span>
+              <span class="inline-flex items-center gap-1 text-[11px] font-medium whitespace-nowrap shrink-0"
+                [class.text-success]="getStockSeverity(product) === 'success'"
+                [class.text-warning]="getStockSeverity(product) === 'warn'"
+                [class.text-danger]="getStockSeverity(product) === 'danger'"
+              >
+                <span class="w-1.5 h-1.5 rounded-full inline-block"
+                  [class.bg-success]="getStockSeverity(product) === 'success'"
+                  [class.bg-warning]="getStockSeverity(product) === 'warn'"
+                  [class.bg-danger]="getStockSeverity(product) === 'danger'"
+                ></span>
+                {{ stockStatusLabel(product) }}
+              </span>
+            </div>
+            <span class="text-xs text-muted-foreground">Updated {{ product.lastModifiedAt | date:'shortDate' }}</span>
           </div>
         </td>
         <td class="px-4 py-5 text-right">
@@ -181,40 +193,19 @@
           </div>
         </td>
         <td class="px-4 py-5 text-center">
-          <div class="flex flex-col items-center gap-1.5 min-w-[7rem]"
+          <div class="flex flex-col items-center gap-0.5"
             [attr.aria-label]="formatQuantitySummary(product.stock.actualQuantity, product.stock.reservedQuantity)"
-            [attr.title]="formatQuantitySummary(product.stock.actualQuantity, product.stock.reservedQuantity)"
+            [pTooltip]="'Actual: ' + product.stock.actualQuantity + ' · Reserved: ' + product.stock.reservedQuantity"
+            tooltipPosition="top"
           >
-            <span class="inline-flex items-center gap-1 text-sm font-bold tabular-nums"
+            <span class="text-lg font-black tabular-nums leading-none"
               [class.text-success]="getStockSeverity(product) === 'success'"
               [class.text-warning]="getStockSeverity(product) === 'warn'"
               [class.text-danger]="getStockSeverity(product) === 'danger'"
             >
-              <i class="pi"
-                [class.pi-check-circle]="getStockSeverity(product) === 'success'"
-                [class.pi-exclamation-triangle]="getStockSeverity(product) === 'warn'"
-                [class.pi-ban]="getStockSeverity(product) === 'danger'"
-              ></i>
               {{ product.stock.actualQuantity - product.stock.reservedQuantity }}
-              <span class="text-[10px] font-medium text-muted-foreground normal-case">avail.</span>
             </span>
-            <span class="inline-flex items-center gap-1.5 text-[11px] tabular-nums text-muted-foreground">
-              <span>A:<span class="text-foreground font-medium">{{ product.stock.actualQuantity }}</span></span>
-              <span class="opacity-40">|</span>
-              <span>R:<span class="text-foreground font-medium">{{ product.stock.reservedQuantity }}</span></span>
-            </span>
-            <div class="w-full max-w-[6rem] h-1 bg-border/40 rounded-full overflow-hidden"
-              [pTooltip]="stockReservedPercent(product).toFixed(0) + '% reserved'"
-              tooltipPosition="top"
-            >
-              <div
-                class="h-full rounded-full transition-all"
-                [class.bg-success]="getStockSeverity(product) === 'success'"
-                [class.bg-warning]="getStockSeverity(product) === 'warn'"
-                [class.bg-danger]="getStockSeverity(product) === 'danger'"
-                [style.width.%]="stockReservedPercent(product)"
-              ></div>
-            </div>
+            <span class="text-[10px] text-muted-foreground uppercase tracking-wider">Available</span>
           </div>
         </td>
         <td class="px-4 py-5 text-right">
@@ -245,9 +236,9 @@
             <p-skeleton height="1.1rem" width="4rem" styleClass="ml-auto"></p-skeleton>
           </td>
           <td class="px-4 py-5 text-center">
-            <div class="flex flex-col items-center gap-1.5">
-              <p-skeleton height="1.1rem" width="5rem" styleClass="mx-auto"></p-skeleton>
-              <p-skeleton height="0.5rem" width="4rem" borderRadius="999px" styleClass="mx-auto"></p-skeleton>
+            <div class="flex flex-col items-center gap-0.5">
+              <p-skeleton height="1.25rem" width="2.5rem" styleClass="mx-auto"></p-skeleton>
+              <p-skeleton height="0.65rem" width="3rem" styleClass="mx-auto"></p-skeleton>
             </div>
           </td>
           <td class="px-4 py-5 text-right">
