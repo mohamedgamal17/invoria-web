@@ -4,6 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { PaginatorModule } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
+import { TooltipModule } from 'primeng/tooltip';
 import type { PaginatorState } from 'primeng/paginator';
 import type { TablePageEvent } from 'primeng/table';
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
@@ -20,6 +21,7 @@ import type { Product } from '../../models/product.entity';
     TableModule,
     PaginatorModule,
     SkeletonModule,
+    TooltipModule,
     EmptyStateComponent,
     SurfaceCardComponent
   ],
@@ -37,8 +39,20 @@ export class ProductListComponent {
   pageChange = output<PaginatorState | TablePageEvent>();
   clearFilters = output<void>();
 
+  getStockSeverity(product: Product): 'success' | 'warn' | 'danger' {
+    if (product.stock.actualQuantity === 0) return 'danger';
+    if (product.stock.actualQuantity - product.stock.reservedQuantity <= 0) return 'warn';
+    return 'success';
+  }
+
+  stockReservedPercent(product: Product): number {
+    if (product.stock.actualQuantity <= 0) return 0;
+    return Math.min((product.stock.reservedQuantity / product.stock.actualQuantity) * 100, 100);
+  }
+
   formatQuantitySummary(actualQuantity: number, reservedQuantity: number): string {
-    return `Actual ${actualQuantity} / Reserved ${reservedQuantity}`;
+    const available = actualQuantity - reservedQuantity;
+    return `Actual ${actualQuantity}, Reserved ${reservedQuantity}, Available ${available}`;
   }
 
   get skeletonRows(): number[] {
