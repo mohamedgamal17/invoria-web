@@ -1,10 +1,12 @@
 import type { UiOrder } from '../../orders/models/order-ui.model';
+import type { OrderStatus } from '../../orders/models/order.entity';
 
 /** Per-order financial view for a single product's lines and returns. */
 export type ProductOrderRowSummary = {
   orderId: string;
   orderNumber: string;
   orderStatusLabel: string;
+  orderStatus: OrderStatus;
   productLineSubtotal: number;
   productReturnSubtotal: number;
   productNetSubtotal: number;
@@ -50,7 +52,8 @@ export function orderReturnSubtotal(order: UiOrder): number {
 export function buildProductOrderRowSummary(
   order: UiOrder,
   productId: string,
-  orderStatusLabel: string
+  orderStatusLabel: string,
+  orderStatus: OrderStatus
 ): ProductOrderRowSummary | null {
   if (!orderIncludesProduct(order, productId)) {
     return null;
@@ -64,6 +67,7 @@ export function buildProductOrderRowSummary(
     orderId: order.id,
     orderNumber: order.orderNumber,
     orderStatusLabel,
+    orderStatus,
     productLineSubtotal: lineSubtotal,
     productReturnSubtotal: returnSubtotal,
     productNetSubtotal: lineSubtotal - returnSubtotal,
@@ -104,7 +108,7 @@ export function summarizeProductOrders(
   statusLabelFn: (order: UiOrder) => string
 ): { rows: ProductOrderRowSummary[]; aggregate: ProductOrdersAggregateSummary } {
   const rows = orders
-    .map((order) => buildProductOrderRowSummary(order, productId, statusLabelFn(order)))
+    .map((order) => buildProductOrderRowSummary(order, productId, statusLabelFn(order), order.status))
     .filter((row): row is ProductOrderRowSummary => row !== null)
     .sort((a, b) => a.orderNumber.localeCompare(b.orderNumber));
 

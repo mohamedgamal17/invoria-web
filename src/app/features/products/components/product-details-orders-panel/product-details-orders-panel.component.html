@@ -24,36 +24,36 @@
       class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 rounded-lg border border-border/60 bg-muted/15 p-4 text-sm"
     >
       <div class="space-y-1">
-        <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Orders with product</div>
+        <div class="text-2xs font-bold uppercase tracking-wider">Orders with product</div>
         <div class="text-base font-semibold tabular-nums text-foreground">{{ aggregate().orderCount }}</div>
       </div>
       <div class="space-y-1">
-        <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Product line subtotal</div>
-        <div class="text-base font-semibold tabular-nums text-foreground">
+        <div class="text-2xs font-bold uppercase tracking-wider">Product line subtotal</div>
+        <div class="text-base font-semibold tabular-nums text-success">
           {{ currencyCode() }} {{ aggregate().productLineSubtotalTotal | number:'1.2-2' }}
         </div>
       </div>
       <div class="space-y-1">
-        <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Product returns subtotal</div>
-        <div class="text-base font-semibold tabular-nums text-muted-foreground">
+        <div class="text-2xs font-bold uppercase tracking-wider">Product returns subtotal</div>
+        <div class="text-base font-semibold tabular-nums text-warn">
           {{ currencyCode() }} {{ aggregate().productReturnSubtotalTotal | number:'1.2-2' }}
         </div>
       </div>
       <div class="space-y-1">
-        <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Product net (after returns)</div>
+        <div class="text-2xs font-bold uppercase tracking-wider">Product net (after returns)</div>
         <div class="text-base font-bold tabular-nums text-foreground">
           {{ currencyCode() }} {{ aggregate().productNetSubtotalTotal | number:'1.2-2' }}
         </div>
       </div>
       <div class="space-y-1">
-        <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Sum of order totals</div>
+        <div class="text-2xs font-bold uppercase tracking-wider">Sum of order totals</div>
         <div class="text-base font-semibold tabular-nums text-foreground">
           {{ currencyCode() }} {{ aggregate().orderTotalSum | number:'1.2-2' }}
         </div>
       </div>
       <div class="space-y-1">
-        <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Sum of order nets</div>
-        <div class="text-base font-semibold tabular-nums text-foreground">
+        <div class="text-2xs font-bold uppercase tracking-wider">Sum of order nets</div>
+        <div class="text-base font-bold tabular-nums text-foreground">
           {{ currencyCode() }} {{ aggregate().orderNetAfterReturnsSum | number:'1.2-2' }}
         </div>
         <div class="text-xs text-muted-foreground">
@@ -68,11 +68,11 @@
           <tr>
             <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Order</th>
             <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Status</th>
-            <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Product subtotal</th>
-            <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Product returns</th>
+            <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider text-success">Product subtotal</th>
+            <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider text-warn">Product returns</th>
             <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Product net</th>
-            <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Order total</th>
-            <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Order returns</th>
+            <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider border-l border-border/40 pl-4">Order total</th>
+            <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider text-warn">Order returns</th>
             <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider">Order net</th>
             <th class="px-3 py-2 text-center text-xs font-bold uppercase tracking-wider w-24"></th>
           </tr>
@@ -80,23 +80,39 @@
         <ng-template pTemplate="body" let-row>
           <tr>
             <td class="px-3 py-2 text-sm font-medium text-foreground whitespace-nowrap">{{ row.orderNumber }}</td>
-            <td class="px-3 py-2 text-sm text-muted-foreground whitespace-nowrap">{{ row.orderStatusLabel }}</td>
-            <td class="px-3 py-2 text-sm text-right tabular-nums">
+            <td class="px-3 py-2 whitespace-nowrap">
+              <span
+                class="px-2.5 py-1 rounded-md text-xs font-bold tracking-tight"
+                [class.bg-success/10]="orderStatusSeverity(row.orderStatus) === 'success'"
+                [class.text-success]="orderStatusSeverity(row.orderStatus) === 'success'"
+                [class.bg-info/10]="orderStatusSeverity(row.orderStatus) === 'info'"
+                [class.text-info]="orderStatusSeverity(row.orderStatus) === 'info'"
+                [class.bg-warn/10]="orderStatusSeverity(row.orderStatus) === 'warn'"
+                [class.text-warn]="orderStatusSeverity(row.orderStatus) === 'warn'"
+                [class.bg-danger/10]="orderStatusSeverity(row.orderStatus) === 'danger'"
+                [class.text-danger]="orderStatusSeverity(row.orderStatus) === 'danger'"
+                [class.bg-surface-2]="orderStatusSeverity(row.orderStatus) === 'secondary'"
+                [class.text-muted-foreground]="orderStatusSeverity(row.orderStatus) === 'secondary'"
+              >
+                {{ row.orderStatusLabel }}
+              </span>
+            </td>
+            <td class="px-3 py-2 text-sm text-right tabular-nums text-success">
               {{ currencyCode() }} {{ row.productLineSubtotal | number:'1.2-2' }}
             </td>
-            <td class="px-3 py-2 text-sm text-right tabular-nums text-muted-foreground">
+            <td class="px-3 py-2 text-sm text-right tabular-nums text-warn">
               {{ currencyCode() }} {{ row.productReturnSubtotal | number:'1.2-2' }}
             </td>
-            <td class="px-3 py-2 text-sm text-right tabular-nums font-medium">
+            <td class="px-3 py-2 text-sm text-right tabular-nums font-semibold text-foreground">
               {{ currencyCode() }} {{ row.productNetSubtotal | number:'1.2-2' }}
             </td>
-            <td class="px-3 py-2 text-sm text-right tabular-nums">
+            <td class="px-3 py-2 text-sm text-right tabular-nums border-l border-border/40 pl-4">
               {{ currencyCode() }} {{ row.orderTotal | number:'1.2-2' }}
             </td>
-            <td class="px-3 py-2 text-sm text-right tabular-nums text-muted-foreground">
+            <td class="px-3 py-2 text-sm text-right tabular-nums text-warn">
               {{ currencyCode() }} {{ row.orderReturnSubtotal | number:'1.2-2' }}
             </td>
-            <td class="px-3 py-2 text-sm text-right tabular-nums font-medium">
+            <td class="px-3 py-2 text-sm text-right tabular-nums font-semibold text-foreground">
               {{ currencyCode() }} {{ row.orderNetAfterReturns | number:'1.2-2' }}
             </td>
             <td class="px-3 py-2 text-center whitespace-nowrap">
