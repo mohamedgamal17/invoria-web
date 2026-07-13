@@ -1,33 +1,20 @@
 <section class="flex flex-col gap-8">
   <app-products-breadcrumb [items]="breadcrumbItems()" />
 
-  <div class="flex flex-col gap-4 rounded-xl border border-border/70 bg-surface-0/80 p-4 sm:flex-row sm:items-center sm:justify-between">
-    <div class="space-y-1">
-      <p-button
-        icon="pi pi-arrow-left"
-        label="Back to Products"
-        [text]="true"
-        (onClick)="backToList()"
-      />
-      <p class="text-xs text-muted-foreground">
-        View and manage profile, batches, stock, and lifecycle actions.
-      </p>
-    </div>
-    <div class="flex flex-wrap gap-2 justify-end">
+  <div class="flex items-start justify-between">
+    <p-button
+      icon="pi pi-arrow-left"
+      label="Back to Products"
+      [text]="true"
+      styleClass="px-0 text-sm text-muted-foreground hover:text-foreground self-start"
+      (onClick)="backToList()"
+    />
+    <div class="flex flex-wrap gap-2">
       <p-button
         label="Edit"
         icon="pi pi-pencil"
         [disabled]="actionsDisabled()"
         (onClick)="goToEdit()"
-      />
-      <p-button
-        [label]="deleting() ? 'Deleting...' : 'Delete'"
-        icon="pi pi-trash"
-        severity="danger"
-        [outlined]="true"
-        [loading]="deleting()"
-        [disabled]="actionsDisabled()"
-        (onClick)="deleteProduct()"
       />
     </div>
   </div>
@@ -74,46 +61,7 @@
       </p-tablist>
       <p-tabpanels>
         <p-tabpanel [value]="0">
-          <div class="pt-5">
-            <p-card styleClass="border border-border/70">
-              <div class="flex flex-col gap-6">
-                <div class="min-w-0 space-y-1">
-                  <h1 class="text-2xl font-bold text-foreground truncate">{{ p.name }}</h1>
-                  <p class="text-sm text-muted-foreground">Updated {{ p.lastModifiedAt | date: 'medium' }}</p>
-                </div>
-
-                <div class="grid gap-4 sm:grid-cols-2">
-                  <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
-                    <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Price</div>
-                    <div class="mt-1 text-xl font-black tabular-nums text-foreground">
-                      EGP {{ p.price | number:'1.2-2' }}
-                    </div>
-                  </div>
-                  <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
-                    <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                      Quantity (Act / Res)
-                    </div>
-                    <div class="mt-1 text-xl font-black tabular-nums text-foreground">
-                      {{ p.stock.actualQuantity }} / {{ p.stock.reservedQuantity }}
-                    </div>
-                  </div>
-                </div>
-
-                <div class="grid gap-4 sm:grid-cols-2">
-                  <div class="rounded-xl border border-border/60 bg-surface-2/20 p-4 space-y-1">
-                    <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Created</div>
-                    <div class="text-sm text-foreground">{{ p.createdAt | date: 'medium' }}</div>
-                  </div>
-                  <div class="rounded-xl border border-border/60 bg-surface-2/20 p-4 space-y-1">
-                    <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                      Last Modified
-                    </div>
-                    <div class="text-sm text-foreground">{{ p.lastModifiedAt | date: 'medium' }}</div>
-                  </div>
-                </div>
-              </div>
-            </p-card>
-          </div>
+          <app-product-details-info-panel [product]="p" />
         </p-tabpanel>
 
         <p-tabpanel [value]="1">

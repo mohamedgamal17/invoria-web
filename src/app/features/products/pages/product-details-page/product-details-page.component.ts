@@ -11,6 +11,7 @@ import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
+import { ProductDetailsInfoPanelComponent } from '../../components/product-details-info-panel/product-details-info-panel.component';
 import { ProductDetailsOrdersPanelComponent } from '../../components/product-details-orders-panel/product-details-orders-panel.component';
 import { ProductBatchesPanelComponent } from '../../../inventory/components/product-batches-panel.component';
 import type { BatchesProductRef } from '../../../inventory/models/batches-product.ref';
@@ -32,6 +33,7 @@ import { ProductsApiService } from '../../services/products-api.service';
     TabPanels,
     TabPanel,
     ProductsBreadcrumbComponent,
+    ProductDetailsInfoPanelComponent,
     ProductBatchesPanelComponent,
     ProductDetailsOrdersPanelComponent,
   ],

@@ -1,0 +1,49 @@
+<div class="pt-5 space-y-6">
+  <p-card styleClass="border border-border/70">
+    <div class="space-y-4">
+      <h3 class="text-2xs font-bold uppercase tracking-widest">Product Name</h3>
+      <div class="text-lg font-bold text-foreground truncate">{{ product().name }}</div>
+    </div>
+  </p-card>
+
+  <p-card styleClass="border border-border/70">
+    <div class="space-y-4">
+      <h3 class="text-2xs font-bold uppercase tracking-widest">Pricing</h3>
+      <div class="text-lg font-bold tabular-nums text-foreground">
+        EGP {{ product().price | number:'1.2-2' }}
+      </div>
+    </div>
+  </p-card>
+
+  <p-card styleClass="border border-border/70">
+    <div class="space-y-4">
+      <h3 class="text-2xs font-bold uppercase tracking-widest">Stock</h3>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="space-y-1">
+          <div class="text-2xs font-bold uppercase tracking-wider">Actual Quantity</div>
+          <div class="text-lg font-bold tabular-nums text-foreground">{{ product().stock.actualQuantity }}</div>
+        </div>
+        <div class="space-y-1">
+          <div class="text-2xs font-bold uppercase tracking-wider">Reserved Quantity</div>
+          <div class="text-lg font-bold tabular-nums text-foreground">{{ product().stock.reservedQuantity }}</div>
+        </div>
+      </div>
+    </div>
+  </p-card>
+
+  <p-card styleClass="border border-border/70">
+    <div class="space-y-4">
+      <h3 class="text-2xs font-bold uppercase tracking-widest">Audit</h3>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="space-y-1">
+          <div class="text-2xs font-bold uppercase tracking-wider">Created</div>
+          <div class="text-lg font-bold text-foreground">{{ product().createdAt | date: 'medium' }}</div>
+        </div>
+        <div class="space-y-1">
+          <div class="text-2xs font-bold uppercase tracking-wider">Last Modified</div>
+          <div class="text-lg font-bold text-foreground">{{ product().lastModifiedAt | date: 'medium' }}</div>
+        </div>
+      </div>
+    </div>
+  </p-card>
+</div>
