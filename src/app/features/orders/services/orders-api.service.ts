@@ -13,6 +13,17 @@ import type { AddReturnItemsRequest } from '../models/add-return-items.request';
 import type { CompleteOrderRequest } from '../models/complete-order.request';
 import type { RecordOrderPaymentRequest } from '../models/record-order-payment.request';
 import { OrderPaymentMethod } from '../models/order-payment.enums';
+import type {
+  OrderCompletionReportPeriod,
+  OrderSalesProfitReportPeriod,
+  OrderSalesReportPeriod
+} from '../models/order-report.entity';
+import type {
+  ListOrderCompletionReportRequest,
+  ListOrderSalesProfitReportRequest,
+  ListOrderSalesReportRequest
+} from '../models/list-order-report.request';
+import type { ReportOverview } from '../../../shared/models/report-overview';
 import { httpParamsFromRequest } from '../../../shared/requests/http-params-from-request';
 
 @Injectable({
@@ -103,6 +114,73 @@ export class OrdersApiService {
     return this.http.put<ApiResponse<Order>>(
       `${this.baseUrl}orders/${encodeURIComponent(id)}/return-items`,
       request
+    );
+  }
+
+  getOrderSalesReportOverview(): Observable<ApiResponse<ReportOverview<OrderSalesReportPeriod>>> {
+    return this.http.get<ApiResponse<ReportOverview<OrderSalesReportPeriod>>>(
+      `${this.baseUrl}report/orders/sales/overview`
+    );
+  }
+
+  listOrderSalesReportMetrics(
+    request: ListOrderSalesReportRequest
+  ): Observable<ApiResponse<Paging<OrderSalesReportPeriod>>> {
+    if (request.Skip < 0) {
+      return throwError(() => new Error('Invalid Skip.'));
+    }
+    if (request.Length <= 0) {
+      return throwError(() => new Error('Invalid Length.'));
+    }
+    return this.http.get<ApiResponse<Paging<OrderSalesReportPeriod>>>(
+      `${this.baseUrl}report/orders/sales/metrics`,
+      { params: httpParamsFromRequest(request) }
+    );
+  }
+
+  getOrderSalesProfitReportOverview(): Observable<
+    ApiResponse<ReportOverview<OrderSalesProfitReportPeriod>>
+  > {
+    return this.http.get<ApiResponse<ReportOverview<OrderSalesProfitReportPeriod>>>(
+      `${this.baseUrl}report/orders/sales-profit/overview`
+    );
+  }
+
+  listOrderSalesProfitReportMetrics(
+    request: ListOrderSalesProfitReportRequest
+  ): Observable<ApiResponse<Paging<OrderSalesProfitReportPeriod>>> {
+    if (request.Skip < 0) {
+      return throwError(() => new Error('Invalid Skip.'));
+    }
+    if (request.Length <= 0) {
+      return throwError(() => new Error('Invalid Length.'));
+    }
+    return this.http.get<ApiResponse<Paging<OrderSalesProfitReportPeriod>>>(
+      `${this.baseUrl}report/orders/sales-profit/metrics`,
+      { params: httpParamsFromRequest(request) }
+    );
+  }
+
+  getOrderCompletionReportOverview(): Observable<
+    ApiResponse<ReportOverview<OrderCompletionReportPeriod>>
+  > {
+    return this.http.get<ApiResponse<ReportOverview<OrderCompletionReportPeriod>>>(
+      `${this.baseUrl}report/orders/completion/overview`
+    );
+  }
+
+  listOrderCompletionReportMetrics(
+    request: ListOrderCompletionReportRequest
+  ): Observable<ApiResponse<Paging<OrderCompletionReportPeriod>>> {
+    if (request.Skip < 0) {
+      return throwError(() => new Error('Invalid Skip.'));
+    }
+    if (request.Length <= 0) {
+      return throwError(() => new Error('Invalid Length.'));
+    }
+    return this.http.get<ApiResponse<Paging<OrderCompletionReportPeriod>>>(
+      `${this.baseUrl}report/orders/completion/metrics`,
+      { params: httpParamsFromRequest(request) }
     );
   }
 

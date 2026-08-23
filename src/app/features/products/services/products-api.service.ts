@@ -9,6 +9,9 @@ import type { Product } from '../models/product.entity';
 import type { CreateProductRequest } from '../models/create-product.request';
 import type { ListProductRequest } from '../models/list-product.request';
 import type { UpdateProductRequest } from '../models/update-product.request';
+import type { ProductCreationReportPeriod } from '../models/product-report.entity';
+import type { ListProductCreationReportRequest } from '../models/list-product-report.request';
+import type { ReportOverview } from '../../../shared/models/report-overview';
 import { httpParamsFromRequest } from '../../../shared/requests/http-params-from-request';
 
 @Injectable({
@@ -81,6 +84,29 @@ export class ProductsApiService {
           return body.result.data;
         })
       );
+  }
+
+  getProductCreationReportOverview(): Observable<
+    ApiResponse<ReportOverview<ProductCreationReportPeriod>>
+  > {
+    return this.http.get<ApiResponse<ReportOverview<ProductCreationReportPeriod>>>(
+      `${this.baseUrl}report/products/creation/overview`
+    );
+  }
+
+  listProductCreationReportMetrics(
+    request: ListProductCreationReportRequest
+  ): Observable<ApiResponse<Paging<ProductCreationReportPeriod>>> {
+    if (request.Skip < 0) {
+      return throwError(() => new Error('Invalid Skip.'));
+    }
+    if (request.Length <= 0) {
+      return throwError(() => new Error('Invalid Length.'));
+    }
+    return this.http.get<ApiResponse<Paging<ProductCreationReportPeriod>>>(
+      `${this.baseUrl}report/products/creation/metrics`,
+      { params: httpParamsFromRequest(request) }
+    );
   }
 
   private assertCreateOrUpdateBody(request: CreateProductRequest): void {

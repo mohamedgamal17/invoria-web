@@ -9,6 +9,15 @@ import type { PurchaseOrder } from '../models/purchase-order.entity';
 import type { CreatePurchaseOrderRequest } from '../models/create-purchase-order.request';
 import type { UpdatePurchaseOrderRequest } from '../models/update-purchase-order.request';
 import type { ListPurchaseOrderRequest } from '../models/list-purchase-order.request';
+import type {
+  PurchaseCompletionReportPeriod,
+  PurchaseSalesReportPeriod
+} from '../models/purchase-order-report.entity';
+import type {
+  ListPurchaseCompletionReportRequest,
+  ListPurchaseSalesReportRequest
+} from '../models/list-purchase-order-report.request';
+import type { ReportOverview } from '../../../shared/models/report-overview';
 import { httpParamsFromRequest } from '../../../shared/requests/http-params-from-request';
 
 @Injectable({
@@ -94,6 +103,52 @@ export class PurchaseOrdersApiService {
     return this.http.post<ApiResponse<PurchaseOrder>>(
       `${this.baseUrl}purchase-orders/${encodeURIComponent(id)}/reopen`,
       {}
+    );
+  }
+
+  getPurchaseSalesReportOverview(): Observable<
+    ApiResponse<ReportOverview<PurchaseSalesReportPeriod>>
+  > {
+    return this.http.get<ApiResponse<ReportOverview<PurchaseSalesReportPeriod>>>(
+      `${this.baseUrl}report/purchase-orders/sales/overview`
+    );
+  }
+
+  listPurchaseSalesReportMetrics(
+    request: ListPurchaseSalesReportRequest
+  ): Observable<ApiResponse<Paging<PurchaseSalesReportPeriod>>> {
+    if (request.Skip < 0) {
+      return throwError(() => new Error('Invalid Skip.'));
+    }
+    if (request.Length <= 0) {
+      return throwError(() => new Error('Invalid Length.'));
+    }
+    return this.http.get<ApiResponse<Paging<PurchaseSalesReportPeriod>>>(
+      `${this.baseUrl}report/purchase-orders/sales/metrics`,
+      { params: httpParamsFromRequest(request) }
+    );
+  }
+
+  getPurchaseCompletionReportOverview(): Observable<
+    ApiResponse<ReportOverview<PurchaseCompletionReportPeriod>>
+  > {
+    return this.http.get<ApiResponse<ReportOverview<PurchaseCompletionReportPeriod>>>(
+      `${this.baseUrl}report/purchase-orders/completion/overview`
+    );
+  }
+
+  listPurchaseCompletionReportMetrics(
+    request: ListPurchaseCompletionReportRequest
+  ): Observable<ApiResponse<Paging<PurchaseCompletionReportPeriod>>> {
+    if (request.Skip < 0) {
+      return throwError(() => new Error('Invalid Skip.'));
+    }
+    if (request.Length <= 0) {
+      return throwError(() => new Error('Invalid Length.'));
+    }
+    return this.http.get<ApiResponse<Paging<PurchaseCompletionReportPeriod>>>(
+      `${this.baseUrl}report/purchase-orders/completion/metrics`,
+      { params: httpParamsFromRequest(request) }
     );
   }
 
