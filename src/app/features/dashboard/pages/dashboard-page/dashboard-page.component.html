@@ -1,45 +1,145 @@
+<p-toast />
 <section class="space-y-6">
-  <header class="flex flex-col gap-1">
-    <h1 class="text-2xl font-semibold">Dashboard</h1>
-    <p class="text-sm text-muted-foreground">Today’s operational snapshot.</p>
+  <header class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+    <div class="flex flex-col gap-1">
+      <h1 class="text-2xl font-semibold">Dashboard</h1>
+      <p class="text-sm text-muted-foreground">Today’s operational snapshot.</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <p-select
+        [options]="periodOptions"
+        [ngModel]="selectedPeriod()"
+        (onChange)="onPeriodChange($event.value)"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Period"
+        styleClass="w-36"
+      />
+      <p-button label="Refresh" icon="pi pi-refresh" severity="secondary" [outlined]="true" (onClick)="refresh()" />
+    </div>
   </header>
 
-  <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    <app-kpi-card title="Open orders" value="18" hint="Need action" tone="warning" />
-    <app-kpi-card title="Low stock items" value="7" hint="Below reorder" tone="danger" />
-    <app-kpi-card title="Items received" value="42" hint="Last 24h" tone="success" />
-    <app-kpi-card title="On-time delivery" value="96%" hint="Last 7d" tone="primary" />
-  </section>
-
-  <section class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-    <div class="lg:col-span-1">
-      <app-quick-actions />
-    </div>
-    <div class="lg:col-span-2">
-      <app-surface-card tone="accent">
-        <div class="text-sm font-semibold">API-connected modules</div>
-        <p class="mt-1 text-sm text-muted-foreground">
-          Deployment scope currently focuses on backend-driven flows.
-        </p>
-        <div class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-          <div class="rounded-md border border-border/70 bg-surface-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide">Orders</div>
-          <div class="rounded-md border border-border/70 bg-surface-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide">Products</div>
-          <div class="rounded-md border border-border/70 bg-surface-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide">Customers</div>
-          <div class="rounded-md border border-border/70 bg-surface-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide">Suppliers</div>
-          <div class="rounded-md border border-border/70 bg-surface-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide">Procurement</div>
-          <div class="rounded-md border border-border/70 bg-surface-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide">Inventory batches</div>
-        </div>
-      </app-surface-card>
-    </div>
-  </section>
-
+  <!-- Overview KPIs -->
   <section>
-    <app-surface-card>
-      <div class="text-sm font-semibold">Notes</div>
-      <p class="mt-2 text-sm text-muted-foreground">
-        Non-API placeholder modules were removed from primary navigation to keep deployment scope focused.
-      </p>
-    </app-surface-card>
+    <div class="mb-3 flex items-center justify-between">
+      <h2 class="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Overview · All-time & Today</h2>
+      @if (isOverviewLoading()) {
+        <span class="text-xs text-muted-foreground">Syncing…</span>
+      }
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <app-kpi-card
+        title="Total customers"
+        [value]="kpiCustomersAll() ?? '—'"
+        [hint]="customerOverview() ? 'Today ' + formatNumber(customerOverview()!.thisDay.totalCount) + ' · Month ' + formatNumber(customerOverview()!.thisMonth.totalCount) : 'All-time'"
+        tone="primary"
+        [loading]="isOverviewLoading()"
+        [icon]="customersIcon"
+      />
+      <app-kpi-card
+        title="Total products"
+        [value]="kpiProductsAll() ?? '—'"
+        [hint]="productOverview() ? 'Today ' + formatNumber(productOverview()!.thisDay.totalCount) + ' · Year ' + formatNumber(productOverview()!.thisYear.totalCount) : 'All-time'"
+        tone="success"
+        [loading]="isOverviewLoading()"
+        [icon]="productsIcon"
+      />
+      <app-kpi-card
+        title="Total suppliers"
+        [value]="kpiSuppliersAll() ?? '—'"
+        [hint]="supplierOverview() ? 'Today ' + formatNumber(supplierOverview()!.thisDay.totalCount) + ' · All-time' : 'All-time'"
+        tone="warning"
+        [loading]="isOverviewLoading()"
+        [icon]="suppliersIcon"
+      />
+      <app-kpi-card
+        title="Completed orders"
+        [value]="kpiOrdersCompletedAll() ?? '—'"
+        [hint]="orderCompletionOverview() ? 'Today ' + formatNumber(orderCompletionOverview()!.thisDay.totalCount) : 'All-time fulfilled'"
+        tone="primary"
+        [loading]="isOverviewLoading()"
+        [icon]="completedOrdersIcon"
+      />
+    </div>
+
+    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <app-kpi-card
+        title="Order sales"
+        [value]="kpiSalesAmountAll() != null ? formatCurrency(kpiSalesAmountAll()) : '—'"
+        [hint]="orderSalesOverview() ? 'Net ' + formatCurrency(orderSalesOverview()!.allTime.totalNetAmount) : 'All-time gross'"
+        tone="success"
+        [loading]="isOverviewLoading()"
+        [icon]="orderSalesIcon"
+      />
+      <app-kpi-card
+        title="Total profit"
+        [value]="kpiProfitAll() != null ? formatCurrency(kpiProfitAll()) : '—'"
+        [hint]="orderProfitOverview() ? 'Revenue ' + formatCurrency(orderProfitOverview()!.allTime.totalRevenue) : 'All-time profit'"
+        tone="primary"
+        [loading]="isOverviewLoading()"
+        [icon]="profitIcon"
+      />
+      <app-kpi-card
+        title="Purchase sales"
+        [value]="kpiPurchaseAmountAll() != null ? formatCurrency(kpiPurchaseAmountAll()) : '—'"
+        [hint]="purchaseSalesOverview() ? 'Today ' + formatCurrency(purchaseSalesOverview()!.thisDay.totalAmount) : 'All-time procurement'"
+        tone="warning"
+        [loading]="isOverviewLoading()"
+        [icon]="purchaseSalesIcon"
+      />
+      <app-kpi-card
+        title="Revenue (sales-profit)"
+        [value]="kpiRevenueAll() != null ? formatCurrency(kpiRevenueAll()) : '—'"
+        [hint]="orderProfitOverview() ? 'Cost ' + formatCurrency(orderProfitOverview()!.allTime.totalCost) : 'All-time revenue'"
+        tone="danger"
+        [loading]="isOverviewLoading()"
+        [icon]="revenueIcon"
+      />
+    </div>
+  </section>
+
+  <!-- Charts -->
+  <section class="space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Trends · {{ selectedPeriod() === ReportPeriod.Daily ? 'Daily' : selectedPeriod() === ReportPeriod.Monthly ? 'Monthly' : 'Yearly' }}</h2>
+      <span class="text-xs text-muted-foreground">Last 14 periods</span>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div class="lg:col-span-2">
+        <app-report-chart
+          title="Revenue · Cost · Profit"
+          subtitle="Sales-profit metrics — area trend"
+          [options]="profitChartOptions()"
+          [loading]="isMetricsLoading()"
+          heightClass="h-[22rem]"
+        />
+      </div>
+      <app-report-chart
+        title="Order sales"
+        subtitle="Gross vs returns — bar comparison"
+        [options]="salesChartOptions()"
+        [loading]="isMetricsLoading()"
+        heightClass="h-[22rem]"
+      />
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <app-report-chart
+        title="Customer creation"
+        subtitle="Daily/Monthly aggregated counts"
+        [options]="customerChartOptions()"
+        [loading]="isMetricsLoading()"
+        heightClass="h-80"
+      />
+      <app-report-chart
+        title="Product creation"
+        subtitle="New products per period"
+        [options]="productChartOptions()"
+        [loading]="isMetricsLoading()"
+        heightClass="h-80"
+      />
+    </div>
   </section>
 </section>
-
