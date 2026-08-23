@@ -103,8 +103,9 @@ graph TD
 4. **Exception (products / inventory)**: The `products` feature may import `features/inventory` for product batch UI (`ProductBatchesModalComponent` and related batch models/services). The `inventory` feature must not import from `products`; use `BatchesProductRef` (or similar) instead of `Product` entity types to keep the dependency one-way.
 5. **Exception (products / orders)**: The `products` feature may import and inject **`OrdersApiService`** only and the minimal read-only order types/helpers needed for product-scoped order summaries (`UiOrder`, `orderToUiOrder`, `orderStatusLabel`). Do not import order pages, forms, or other services from `orders`.
 6. **Exception (suppliers / procurement)**: The `suppliers` feature may import and inject **`PurchaseOrdersApiService`** only (the typed HTTP API service) for supplier-scoped purchase order listing. It may import **`PurchaseOrderListComponent`** and the minimal read-only procurement types needed to drive that list (**`PurchaseOrder`**, **`ListPurchaseOrderRequest`** from `features/procurement`). Do not import procurement pages, forms, or other services from `procurement`.
-7. **Shared Usage**: Features may import from `shared/` and `core/`.
-8. **Circular Dependencies**: Strictly forbidden; use `shared/entities` for common base classes.
+7. **Exception (dashboard / reports)**: The `dashboard` feature may import and inject the typed report API services only — **`CustomersApiService`**, **`ProductsApiService`**, **`OrdersApiService`**, **`SuppliersApiService`**, and **`PurchaseOrdersApiService`** — for report overview/metrics aggregation (live KPIs and trend charts). Do not import feature pages, forms, or mock services; rely solely on the report HTTP methods.
+8. **Shared Usage**: Features may import from `shared/` and `core/`.
+9. **Circular Dependencies**: Strictly forbidden; use `shared/entities` for common base classes.
 
 ---
 
@@ -119,6 +120,12 @@ The application uses **Tailwind CSS 4** with a CSS-first configuration.
 ### PrimeNG Integration
 - **Preset**: A custom `AuraInvoria` preset (`src/styles/primeng/aura.preset.ts`) maps PrimeNG's `--p-*` variables to the application's semantic tokens.
 - **Theming**: PrimeNG components automatically adapt to Light/Dark mode via the `.dark` class on the document root.
+
+### ECharts Integration
+- **Stack**: `echarts` + `ngx-echarts` (`provideEchartsCore` in `src/app/app.config.ts:10`, tree-shaken via `echarts.use(...)`). One-time registration; do not add per-component providers.
+- **Wrapper**: `src/app/shared/ui/chart-card/chart-card.component.ts:1` (`app-chart-card` / legacy `app-report-chart`) — inputs `title`, `subtitle`, `options: EChartsCoreOption | null`, `loading`, `heightClass`. Smart pages compute `EChartsCoreOption` via `computed()` and pass to the card (see `src/app/features/dashboard/pages/dashboard-page/dashboard-page.component.ts:124`).
+- **Helpers**: `src/app/shared/charts/echarts-presets.ts:1` (`ECHARTS_PALETTE`, `ECHARTS_GRID_COMPACT`, `formatPeriodLabel`).
+- **Convention**: All future charts must use this wrapper. See `ai/charts.md`.
 
 ---
 
