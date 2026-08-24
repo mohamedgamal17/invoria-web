@@ -5,11 +5,11 @@ import { Component, input } from '@angular/core';
   standalone: true,
   template: `
     <div
-      class="invoria-gradient-surface rounded-2xl border border-border/80 bg-surface px-4 py-4 shadow-sm sm:px-5"
+      class="invoria-gradient-surface rounded-2xl border border-border/80 bg-surface px-5 py-6 shadow-sm sm:px-6 sm:py-7"
     >
       <ng-content select="[slot=headerTop]" />
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div class="space-y-1">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+        <div class="space-y-1.5">
           <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent/90">
             @if (eyebrowIcon(); as icon) {
               <i [class]="icon" class="mr-1.5"></i>
