@@ -9,6 +9,9 @@ import type { Customer } from '../models/customer.entity';
 import type { CreateCustomerRequest } from '../models/create-customer.request';
 import type { ListCustomerRequest } from '../models/list-customer.request';
 import type { UpdateCustomerRequest } from '../models/update-customer.request';
+import type { CustomerCreationReportPeriod } from '../models/customer-report.entity';
+import type { ListCustomerCreationReportRequest } from '../models/list-customer-report.request';
+import type { ReportOverview } from '../../../shared/models/report-overview';
 import { httpParamsFromRequest } from '../../../shared/requests/http-params-from-request';
 
 @Injectable({
@@ -78,6 +81,29 @@ export class CustomersApiService {
           return body.result.data;
         })
       );
+  }
+
+  getCustomerCreationReportOverview(): Observable<
+    ApiResponse<ReportOverview<CustomerCreationReportPeriod>>
+  > {
+    return this.http.get<ApiResponse<ReportOverview<CustomerCreationReportPeriod>>>(
+      `${this.baseUrl}report/customers/creation/overview`
+    );
+  }
+
+  listCustomerCreationReportMetrics(
+    request: ListCustomerCreationReportRequest
+  ): Observable<ApiResponse<Paging<CustomerCreationReportPeriod>>> {
+    if (request.Skip < 0) {
+      return throwError(() => new Error('Invalid Skip.'));
+    }
+    if (request.Length <= 0) {
+      return throwError(() => new Error('Invalid Length.'));
+    }
+    return this.http.get<ApiResponse<Paging<CustomerCreationReportPeriod>>>(
+      `${this.baseUrl}report/customers/creation/metrics`,
+      { params: httpParamsFromRequest(request) }
+    );
   }
 
   private assertName(name: string | undefined): void {

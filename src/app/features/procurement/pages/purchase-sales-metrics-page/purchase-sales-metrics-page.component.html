@@ -1,0 +1,31 @@
+<p-toast />
+
+<section class="flex flex-col gap-8">
+  <app-page-header
+    title="Purchase sales metrics"
+    description="Full paginated breakdown — Total, Subtotal, Tax and Discount per period. Switch aggregation to change date view."
+    eyebrow="Procurement · Reports"
+    eyebrowIcon="pi pi-table"
+  >
+    <p-button label="Back to charts" icon="pi pi-chart-bar" severity="secondary" [outlined]="true" (onClick)="goToCharts()" />
+  </app-page-header>
+
+  <app-purchase-sales-metrics-filter-panel
+    [period]="selectedPeriod()"
+    [loading]="metricsResource.isLoading()"
+    (filtersChange)="onFiltersChange($event)"
+    (clearFilters)="onClearFilters()"
+  />
+
+  <app-purchase-sales-metrics-list
+    [rows]="displayRows()"
+    [totalRecords]="displayPaging().totalCount"
+    [first]="first()"
+    [pageSize]="pageSize()"
+    [pageSizeOptions]="pageSizeOptions"
+    [loading]="metricsResource.isLoading()"
+    [selectedPeriod]="selectedPeriod()"
+    (pageChange)="onPageChange($event)"
+    (clearFilters)="onClearFilters()"
+  />
+</section>

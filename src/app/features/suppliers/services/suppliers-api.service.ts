@@ -10,6 +10,9 @@ import type { Supplier } from '../models/supplier.entity';
 import type { ListSupplierRequest } from '../models/list-supplier.request';
 import type { CreateSupplierRequest } from '../models/create-supplier.request';
 import type { UpdateSupplierRequest } from '../models/update-supplier.request';
+import type { SupplierCreationReportPeriod } from '../models/supplier-report.entity';
+import type { ListSupplierCreationReportRequest } from '../models/list-supplier-report.request';
+import type { ReportOverview } from '../../../shared/models/report-overview';
 
 /** Client-side name filter helper (retained for unit tests). */
 export function filterSuppliersByName(suppliers: Supplier[], nameFilter: string | undefined): Supplier[] {
@@ -81,6 +84,29 @@ export class SuppliersApiService {
           return body.result.data;
         })
       );
+  }
+
+  getSupplierCreationReportOverview(): Observable<
+    ApiResponse<ReportOverview<SupplierCreationReportPeriod>>
+  > {
+    return this.http.get<ApiResponse<ReportOverview<SupplierCreationReportPeriod>>>(
+      `${this.baseUrl}report/suppliers/creation/overview`
+    );
+  }
+
+  listSupplierCreationReportMetrics(
+    request: ListSupplierCreationReportRequest
+  ): Observable<ApiResponse<Paging<SupplierCreationReportPeriod>>> {
+    if (request.Skip < 0) {
+      return throwError(() => new Error('Invalid Skip.'));
+    }
+    if (request.Length <= 0) {
+      return throwError(() => new Error('Invalid Length.'));
+    }
+    return this.http.get<ApiResponse<Paging<SupplierCreationReportPeriod>>>(
+      `${this.baseUrl}report/suppliers/creation/metrics`,
+      { params: httpParamsFromRequest(request) }
+    );
   }
 
   private assertSupplierBody(supplierCode: string | undefined, name: string | undefined): void {

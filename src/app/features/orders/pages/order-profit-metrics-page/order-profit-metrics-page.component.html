@@ -1,0 +1,31 @@
+<p-toast />
+
+<section class="flex flex-col gap-8">
+  <app-page-header
+    title="Profit metrics"
+    description="Full paginated breakdown — Revenue, Cost, Profit and Returns per period. Switch aggregation to change date view."
+    eyebrow="Ordering · Reports"
+    eyebrowIcon="pi pi-table"
+  >
+    <p-button label="Back to charts" icon="pi pi-chart-line" severity="secondary" [outlined]="true" (onClick)="goToCharts()" />
+  </app-page-header>
+
+  <app-order-profit-metrics-filter-panel
+    [period]="selectedPeriod()"
+    [loading]="metricsResource.isLoading()"
+    (filtersChange)="onFiltersChange($event)"
+    (clearFilters)="onClearFilters()"
+  />
+
+  <app-order-profit-metrics-list
+    [rows]="displayRows()"
+    [totalRecords]="displayPaging().totalCount"
+    [first]="first()"
+    [pageSize]="pageSize()"
+    [pageSizeOptions]="pageSizeOptions"
+    [loading]="metricsResource.isLoading()"
+    [selectedPeriod]="selectedPeriod()"
+    (pageChange)="onPageChange($event)"
+    (clearFilters)="onClearFilters()"
+  />
+</section>

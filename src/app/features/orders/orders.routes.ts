@@ -23,6 +23,34 @@ export const ORDERS_ROUTES: Routes = [
         data: { mode: 'create' }
       },
       {
+        path: 'reports/sales',
+        loadComponent: () =>
+          import('./pages/order-sales-report-page/order-sales-report-page.component').then(
+            (m) => m.OrderSalesReportPageComponent
+          )
+      },
+      {
+        path: 'reports/sales/metrics',
+        loadComponent: () =>
+          import('./pages/order-sales-metrics-page/order-sales-metrics-page.component').then(
+            (m) => m.OrderSalesMetricsPageComponent
+          )
+      },
+      {
+        path: 'reports/profit',
+        loadComponent: () =>
+          import('./pages/order-profit-report-page/order-profit-report-page.component').then(
+            (m) => m.OrderProfitReportPageComponent
+          )
+      },
+      {
+        path: 'reports/profit/metrics',
+        loadComponent: () =>
+          import('./pages/order-profit-metrics-page/order-profit-metrics-page.component').then(
+            (m) => m.OrderProfitMetricsPageComponent
+          )
+      },
+      {
         path: ':id',
         pathMatch: 'full',
         loadComponent: () =>

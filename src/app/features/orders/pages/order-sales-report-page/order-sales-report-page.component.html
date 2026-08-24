@@ -1,0 +1,98 @@
+<p-toast />
+
+<section class="space-y-8">
+  <app-page-header
+    title="Sales report"
+    description="Gross vs net sales with returns across Daily / Monthly / Yearly aggregation."
+    eyebrow="Ordering · Reports"
+    eyebrowIcon="pi pi-chart-bar"
+    class="block"
+  />
+
+  <!-- Overview KPIs -->
+  <section class="space-y-5">
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
+      <app-kpi-card
+        title="All-time gross sales"
+        [value]="kpiAllTimeAmount() != null ? formatCurrency(kpiAllTimeAmount()) : '—'"
+        [hint]="overview() ? 'Net ' + formatCurrency(overview()!.allTime.totalNetAmount) : 'All-time gross'"
+        tone="primary"
+        [loading]="isOverviewLoading()"
+        [icon]="salesIcon"
+      />
+      <app-kpi-card
+        title="All-time net sales"
+        [value]="kpiAllTimeNet() != null ? formatCurrency(kpiAllTimeNet()) : '—'"
+        [hint]="overview() ? 'Today ' + formatCurrency(overview()!.thisDay.totalNetAmount) : 'Net after returns'"
+        tone="success"
+        [loading]="isOverviewLoading()"
+        [icon]="netIcon"
+      />
+      <app-kpi-card
+        title="All-time returns"
+        [value]="kpiAllTimeReturns() != null ? formatCurrency(kpiAllTimeReturns()) : '—'"
+        [hint]="overview() ? 'Today ' + formatCurrency(overview()!.thisDay.totalReturnAmount) : 'Total returns'"
+        tone="danger"
+        [loading]="isOverviewLoading()"
+        [icon]="returnsIcon"
+      />
+      <app-kpi-card
+        title="Today gross"
+        [value]="kpiTodayAmount() != null ? formatCurrency(kpiTodayAmount()) : '—'"
+        [hint]="overview() ? 'Month ' + formatCurrency(overview()!.thisMonth.totalAmount) + ' · Year ' + formatCurrency(overview()!.thisYear.totalAmount) : 'Daily gross'"
+        tone="warning"
+        [loading]="isOverviewLoading()"
+        [icon]="growthIcon"
+      />
+    </div>
+  </section>
+
+  <!-- Additional today vs month hints — Net sales -->
+  <section class="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-6">
+    <app-kpi-card
+      title="Today"
+      [value]="overview()?.thisDay?.totalNetAmount != null ? formatCurrency(overview()!.thisDay.totalNetAmount) : '—'"
+      [hint]="overview() ? 'Gross ' + formatCurrency(overview()!.thisDay.totalAmount) + ' · Returns ' + formatCurrency(overview()!.thisDay.totalReturnAmount) : 'Net today'"
+      tone="success"
+      [loading]="isOverviewLoading()"
+      [icon]="todayIcon"
+    />
+    <app-kpi-card
+      title="This month"
+      [value]="overview()?.thisMonth?.totalNetAmount != null ? formatCurrency(overview()!.thisMonth.totalNetAmount) : '—'"
+      [hint]="overview() ? 'Gross ' + formatCurrency(overview()!.thisMonth.totalAmount) + ' · Returns ' + formatCurrency(overview()!.thisMonth.totalReturnAmount) : 'Net this month'"
+      tone="primary"
+      [loading]="isOverviewLoading()"
+      [icon]="monthIcon"
+    />
+    <app-kpi-card
+      title="This year"
+      [value]="overview()?.thisYear?.totalNetAmount != null ? formatCurrency(overview()!.thisYear.totalNetAmount) : '—'"
+      [hint]="overview() ? 'Gross ' + formatCurrency(overview()!.thisYear.totalAmount) + ' · Returns ' + formatCurrency(overview()!.thisYear.totalReturnAmount) : 'Net this year'"
+      tone="warning"
+      [loading]="isOverviewLoading()"
+      [icon]="yearIcon"
+    />
+  </section>
+
+  <!-- Chart -->
+  <app-chart-card
+    title="Sales trend"
+    [subtitle]="'Aggregation: ' + periodOptions.find(p => p.value === selectedPeriod())!.label + ' · Last 14 periods'"
+    [options]="chartOptions()"
+    [loading]="isMetricsLoading()"
+    heightClass="h-[24rem]"
+    [showPeriodSelector]="true"
+    [selectedPeriod]="selectedPeriod()"
+    [periodOptions]="periodOptions"
+    (periodChange)="onPeriodChange($event)"
+  >
+    <p-button
+      label="View full metrics table"
+      icon="pi pi-table"
+      severity="secondary"
+      [outlined]="true"
+      (onClick)="goToMetrics()"
+    />
+  </app-chart-card>
+</section>

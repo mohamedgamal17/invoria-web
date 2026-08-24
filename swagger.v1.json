@@ -12,6 +12,222 @@
     }
   ],
   "paths": {
+    "/report/products/creation/overview": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Get product creation metrics overview",
+        "description": "Returns current day, month, year and all-time product creation metrics.",
+        "operationId": "GetProductMetricsEndpoint",
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the report product metrics overview.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfReportProductMetricsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/products/creation/metrics": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "List product creation metrics per period",
+        "description": "Returns a paged list of product creation metrics for a given period, ordered by date descending.",
+        "operationId": "ListProductMetricsEndpoint",
+        "parameters": [
+          {
+            "name": "Period",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainEnumsReportPeriod"
+                }
+              ]
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Length",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns paged product metrics data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfReportProductMetricsPeriodDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/products": {
       "post": {
         "tags": [
@@ -450,6 +666,222 @@
         }
       }
     },
+    "/report/customers/creation/overview": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Get customer creation metrics overview",
+        "description": "Returns current day, month, year and all-time customer creation metrics.",
+        "operationId": "GetCustomerMetricsEndpoint",
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the report customer metrics overview.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfReportCustomerMetricsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/customers/creation/metrics": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "List customer creation metrics per period",
+        "description": "Returns a paged list of customer creation metrics for a given period, ordered by date descending.",
+        "operationId": "ListCustomerMetricsEndpoint",
+        "parameters": [
+          {
+            "name": "Period",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainEnumsReportPeriod"
+                }
+              ]
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Length",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns paged customer metrics data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfReportCustomerMetricsPeriodDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/customers": {
       "post": {
         "tags": [
@@ -881,6 +1313,274 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfCustomerDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/returns/{id}/approve": {
+      "post": {
+        "tags": [
+          "Returns"
+        ],
+        "summary": "Approve return",
+        "description": "Approves a pending return. For immediate returns, this triggers stock restoration.",
+        "operationId": "ApproveReturnEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the approved return DTO.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfReturnDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/returns/{id}": {
+      "get": {
+        "tags": [
+          "Returns"
+        ],
+        "summary": "Get return by id",
+        "description": "Returns a single return by identifier.",
+        "operationId": "GetReturnByIdEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the return DTO.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfReturnDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/returns": {
+      "get": {
+        "tags": [
+          "Returns"
+        ],
+        "summary": "List returns",
+        "description": "Returns a paged list of returns, optionally filtered by return type.",
+        "operationId": "ListReturnsEndpoint",
+        "parameters": [
+          {
+            "name": "Type",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/InvoriaInventoryDomainReturnsReturnType"
+                }
+              ]
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Length",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns paged return data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfReturnDto"
                 }
               }
             }
@@ -1338,13 +2038,661 @@
         }
       }
     },
+    "/report/orders/sales-profit/overview": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Get order sales profit metrics overview",
+        "description": "Returns current day, month, year and all-time order sales profit metrics.",
+        "operationId": "GetOrderSalesProfitMetricsEndpoint",
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the report order sales profit metrics overview.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfReportOrderSalesProfitMetricsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/orders/sales-profit/metrics": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "List order sales profit metrics per period",
+        "description": "Returns a paged list of order sales profit metrics for a given period, ordered by date descending.",
+        "operationId": "ListOrderSalesProfitMetricsEndpoint",
+        "parameters": [
+          {
+            "name": "Period",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainEnumsReportPeriod"
+                }
+              ]
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Length",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns paged order sales profit metrics data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfReportOrderSalesProfitMetricsPeriodDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/orders/sales/overview": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Get order sales metrics overview",
+        "description": "Returns current day, month, year and all-time order sales metrics.",
+        "operationId": "GetOrderSalesMetricsEndpoint",
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the report order sales metrics overview.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfReportOrderSalesMetricsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/orders/sales/metrics": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "List order sales metrics per period",
+        "description": "Returns a paged list of order sales metrics for a given period, ordered by date descending.",
+        "operationId": "ListOrderSalesMetricsEndpoint",
+        "parameters": [
+          {
+            "name": "Period",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainEnumsReportPeriod"
+                }
+              ]
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Length",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns paged order sales metrics data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfReportOrderSalesMetricsPeriodDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/orders/completion/overview": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Get order completion metrics overview",
+        "description": "Returns current day, month, year and all-time order completion metrics.",
+        "operationId": "GetOrderCompletedMetricsEndpoint",
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the report order completion metrics overview.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfReportOrderCompletedMetricsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/orders/completion/metrics": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "List order completion metrics per period",
+        "description": "Returns a paged list of order completion metrics for a given period, ordered by date descending.",
+        "operationId": "ListOrderCompletedMetricsEndpoint",
+        "parameters": [
+          {
+            "name": "Period",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainEnumsReportPeriod"
+                }
+              ]
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Length",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns paged order completion metrics data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfReportOrderCompletedMetricsPeriodDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/orders/{id}/accept": {
       "post": {
         "tags": [
           "Orders"
         ],
         "summary": "Accept order",
-        "description": "Transitions the order to processing when business rules allow.",
+        "description": "Transitions the order to accepted when business rules allow.",
         "operationId": "AcceptOrderEndpoint",
         "parameters": [
           {
@@ -1548,7 +2896,7 @@
           "Orders"
         ],
         "summary": "Complete order",
-        "description": "Marks the order as completed when allowed.",
+        "description": "Marks the order as completed when allowed. Optional items may be omitted, an empty array, or one or more return lines recorded at completion.",
         "operationId": "CompleteOrderEndpoint",
         "parameters": [
           {
@@ -1560,6 +2908,19 @@
             }
           }
         ],
+        "requestBody": {
+          "x-name": "CompleteOrderRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoriaOrderingEndpointsOrdersRequestsCompleteOrderRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "400": {
             "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
@@ -1753,7 +3114,7 @@
           "Orders"
         ],
         "summary": "List orders",
-        "description": "Returns a paged list of orders with optional filters.",
+        "description": "Returns a paged list of orders with optional filters. Use includeOrderItems and includeReturnItems (both default false) to control line and return payload size.",
         "operationId": "ListOrdersEndpoint",
         "parameters": [
           {
@@ -1781,13 +3142,21 @@
             }
           },
           {
+            "name": "IncludeReturnItems",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "PaymentType",
             "in": "query",
             "schema": {
               "nullable": true,
               "allOf": [
                 {
-                  "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderPaymentType"
+                  "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersEnumsOrderPaymentType"
                 }
               ]
             }
@@ -1799,7 +3168,7 @@
               "nullable": true,
               "allOf": [
                 {
-                  "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderPaymentStatus"
+                  "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersEnumsOrderPaymentStatus"
                 }
               ]
             }
@@ -1811,19 +3180,7 @@
               "nullable": true,
               "allOf": [
                 {
-                  "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderStatus"
-                }
-              ]
-            }
-          },
-          {
-            "name": "FullfillmentStatus",
-            "in": "query",
-            "schema": {
-              "nullable": true,
-              "allOf": [
-                {
-                  "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersFullfillmentStatus"
+                  "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersEnumsOrderStatus"
                 }
               ]
             }
@@ -1924,108 +3281,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfOrderDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/orders/{id}/request-revision": {
-      "post": {
-        "tags": [
-          "Orders"
-        ],
-        "summary": "Request order revision",
-        "description": "Requests a revision of the order when allowed.",
-        "operationId": "RequestRevisionOrderEndpoint",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "400": {
-            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found. HTTP 404. The requested resource does not exist.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Server error. HTTP 500. An unexpected error occurred.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated order.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfOrderDto"
                 }
               }
             }
@@ -2356,6 +3611,986 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfOrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{id}/request-revision": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Request order revision",
+        "description": "Moves an allocated processing order to revision pending and clears the allocated indicator.",
+        "operationId": "RequestOrderRevisionEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. HTTP 409. The request conflicts with the current state of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity. HTTP 422. A business rule prevented the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the updated order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfOrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/invoices/{id}": {
+      "get": {
+        "tags": [
+          "Invoices"
+        ],
+        "summary": "Get invoice by id",
+        "description": "Returns a single invoice by identifier, including line items.",
+        "operationId": "GetInvoiceByIdEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. HTTP 404. The requested resource does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the invoice DTO.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfInvoiceDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/invoices": {
+      "get": {
+        "tags": [
+          "Invoices"
+        ],
+        "summary": "List invoices",
+        "description": "Returns a paged list of invoices with optional filters by customer id and order id.",
+        "operationId": "ListInvoicesEndpoint",
+        "parameters": [
+          {
+            "name": "CustomerId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "OrderId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Length",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns paged invoice data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfInvoiceDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/suppliers/creation/overview": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Get supplier creation metrics overview",
+        "description": "Returns current day, month, year and all-time supplier creation metrics.",
+        "operationId": "GetSupplierMetricsEndpoint",
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the report supplier metrics overview.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfReportSupplierMetricsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/suppliers/creation/metrics": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "List supplier creation metrics per period",
+        "description": "Returns a paged list of supplier creation metrics for a given period, ordered by date descending.",
+        "operationId": "ListSupplierMetricsEndpoint",
+        "parameters": [
+          {
+            "name": "Period",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainEnumsReportPeriod"
+                }
+              ]
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Length",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns paged supplier metrics data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfReportSupplierMetricsPeriodDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/purchase-orders/sales/overview": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Get purchase sales metrics overview",
+        "description": "Returns current day, month, year and all-time purchase sales metrics.",
+        "operationId": "GetPurchaseSalesMetricsEndpoint",
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the report purchase sales metrics overview.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfReportPurchaseSalesMetricsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/purchase-orders/sales/metrics": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "List purchase sales metrics per period",
+        "description": "Returns a paged list of purchase sales metrics for a given period, ordered by date descending.",
+        "operationId": "ListPurchaseSalesMetricsEndpoint",
+        "parameters": [
+          {
+            "name": "Period",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainEnumsReportPeriod"
+                }
+              ]
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Length",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns paged purchase sales metrics data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfReportPurchaseSalesMetricsPeriodDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/purchase-orders/completion/overview": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Get purchase orders completion metrics overview",
+        "description": "Returns current day, month, year and all-time purchase orders completion metrics.",
+        "operationId": "GetPurchaseOrdersCompletedMetricsEndpoint",
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns the report purchase orders completed metrics overview.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfReportPurchaseOrdersCompletedMetricsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/purchase-orders/completion/metrics": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "List purchase orders completion metrics per period",
+        "description": "Returns a paged list of purchase orders completion metrics for a given period, ordered by date descending.",
+        "operationId": "ListPurchaseOrdersCompletedMetricsEndpoint",
+        "parameters": [
+          {
+            "name": "Period",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainEnumsReportPeriod"
+                }
+              ]
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Length",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Validation failed or malformed input. HTTP 400. Envelope with validation_error and field errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error. HTTP 500. An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success. HTTP 200. Envelope with isSuccess true and the operation result in result. Returns paged purchase orders completed metrics data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfReportPurchaseOrdersCompletedMetricsPeriodDto"
                 }
               }
             }
@@ -3964,7 +6199,7 @@
           }
         }
       },
-      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfProductDto": {
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfReportProductMetricsDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -3983,7 +6218,7 @@
             "nullable": true,
             "oneOf": [
               {
-                "$ref": "#/components/schemas/InvoriaCatalogContractsDtosProductDto"
+                "$ref": "#/components/schemas/InvoriaCatalogContractsDtosReportProductMetricsDto"
               }
             ]
           }
@@ -4034,6 +6269,144 @@
           }
         }
       },
+      "InvoriaCatalogContractsDtosReportProductMetricsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ThisDay": {
+            "$ref": "#/components/schemas/InvoriaCatalogContractsDtosReportProductMetricsPeriodDto"
+          },
+          "ThisMonth": {
+            "$ref": "#/components/schemas/InvoriaCatalogContractsDtosReportProductMetricsPeriodDto"
+          },
+          "ThisYear": {
+            "$ref": "#/components/schemas/InvoriaCatalogContractsDtosReportProductMetricsPeriodDto"
+          },
+          "AllTime": {
+            "$ref": "#/components/schemas/InvoriaCatalogContractsDtosReportProductMetricsPeriodDto"
+          }
+        }
+      },
+      "InvoriaCatalogContractsDtosReportProductMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "TotalCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "Period": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainEnumsReportPeriod"
+          }
+        }
+      },
+      "InvoriaBuildingBlocksDomainEnumsReportPeriod": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Daily",
+          "Monthly",
+          "Yearly",
+          "AllTheTime"
+        ],
+        "enum": [
+          5,
+          10,
+          15,
+          20
+        ]
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfReportProductMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingDtoOfReportProductMetricsPeriodDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaBuildingBlocksDomainDtosPagingDtoOfReportProductMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaCatalogContractsDtosReportProductMetricsPeriodDto"
+            }
+          },
+          "Info": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingInfoDto"
+          }
+        }
+      },
+      "InvoriaBuildingBlocksDomainDtosPagingInfoDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Length": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Skip": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "TotalCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "InvoriaCatalogEndpointsReportProductMetricsRequestsListProductMetricsRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfProductDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaCatalogContractsDtosProductDto"
+              }
+            ]
+          }
+        }
+      },
       "InvoriaCatalogContractsDtosProductDto": {
         "type": "object",
         "additionalProperties": false,
@@ -4066,11 +6439,11 @@
             "format": "decimal"
           },
           "Stock": {
-            "$ref": "#/components/schemas/InvoriaInventoryContractsDtosStockDto"
+            "$ref": "#/components/schemas/InvoriaInventoryContractsStockDtosStockDto"
           }
         }
       },
-      "InvoriaInventoryContractsDtosStockDto": {
+      "InvoriaInventoryContractsStockDtosStockDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4141,24 +6514,6 @@
           }
         }
       },
-      "InvoriaBuildingBlocksDomainDtosPagingInfoDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Length": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "Skip": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "TotalCount": {
-            "type": "integer",
-            "format": "int64"
-          }
-        }
-      },
       "InvoriaCatalogEndpointsProductsRequestsListProductsRequest": {
         "type": "object",
         "additionalProperties": false
@@ -4175,6 +6530,110 @@
             "format": "decimal"
           }
         }
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfReportCustomerMetricsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaCustomerManagementContractsDtosReportCustomerMetricsDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaCustomerManagementContractsDtosReportCustomerMetricsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ThisDay": {
+            "$ref": "#/components/schemas/InvoriaCustomerManagementContractsDtosReportCustomerMetricsPeriodDto"
+          },
+          "ThisMonth": {
+            "$ref": "#/components/schemas/InvoriaCustomerManagementContractsDtosReportCustomerMetricsPeriodDto"
+          },
+          "ThisYear": {
+            "$ref": "#/components/schemas/InvoriaCustomerManagementContractsDtosReportCustomerMetricsPeriodDto"
+          },
+          "AllTime": {
+            "$ref": "#/components/schemas/InvoriaCustomerManagementContractsDtosReportCustomerMetricsPeriodDto"
+          }
+        }
+      },
+      "InvoriaCustomerManagementContractsDtosReportCustomerMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "TotalCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "Period": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainEnumsReportPeriod"
+          }
+        }
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfReportCustomerMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingDtoOfReportCustomerMetricsPeriodDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaBuildingBlocksDomainDtosPagingDtoOfReportCustomerMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaCustomerManagementContractsDtosReportCustomerMetricsPeriodDto"
+            }
+          },
+          "Info": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingInfoDto"
+          }
+        }
+      },
+      "InvoriaCustomerManagementEndpointsReportCustomerMetricsRequestsListCustomerMetricsRequest": {
+        "type": "object",
+        "additionalProperties": false
       },
       "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfCustomerDto": {
         "type": "object",
@@ -4296,6 +6755,211 @@
           }
         }
       },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfReturnDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaInventoryContractsReturnsDtosReturnDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaInventoryContractsReturnsDtosReturnDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CreatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "CreatedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "LastModifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "LastModifiedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "Id": {
+            "type": "string"
+          },
+          "Type": {
+            "$ref": "#/components/schemas/InvoriaInventoryContractsReturnsEnumsReturnType"
+          },
+          "Status": {
+            "$ref": "#/components/schemas/InvoriaInventoryContractsReturnsEnumsReturnStatus"
+          },
+          "ReturnLines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaInventoryContractsReturnsDtosReturnLineDto"
+            }
+          },
+          "AllocationId": {
+            "type": "string",
+            "nullable": true
+          },
+          "OrderId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "InvoriaInventoryContractsReturnsEnumsReturnType": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Immediate"
+        ],
+        "enum": [
+          0
+        ]
+      },
+      "InvoriaInventoryContractsReturnsEnumsReturnStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Pending",
+          "Rejected",
+          "Approved",
+          "Completed"
+        ],
+        "enum": [
+          0,
+          5,
+          10,
+          20
+        ]
+      },
+      "InvoriaInventoryContractsReturnsDtosReturnLineDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "string"
+          },
+          "ReturnId": {
+            "type": "string"
+          },
+          "OrderItemId": {
+            "type": "string"
+          },
+          "ProductId": {
+            "type": "string"
+          },
+          "Quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Product": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaInventoryContractsReturnsDtosReturnProductDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaInventoryContractsReturnsDtosReturnProductDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "string"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "Price": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "InvoriaInventoryEndpointsReturnsRequestsApproveReturnRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaInventoryEndpointsReturnsRequestsGetReturnByIdRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfReturnDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingDtoOfReturnDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaBuildingBlocksDomainDtosPagingDtoOfReturnDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaInventoryContractsReturnsDtosReturnDto"
+            }
+          },
+          "Info": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingInfoDto"
+          }
+        }
+      },
+      "InvoriaInventoryEndpointsReturnsRequestsListReturnsRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaInventoryDomainReturnsReturnType": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Immediate"
+        ],
+        "enum": [
+          0
+        ]
+      },
       "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfBatchDto": {
         "type": "object",
         "additionalProperties": false,
@@ -4315,13 +6979,13 @@
             "nullable": true,
             "oneOf": [
               {
-                "$ref": "#/components/schemas/InvoriaInventoryContractsDtosBatchDto"
+                "$ref": "#/components/schemas/InvoriaInventoryContractsBatchesDtosBatchDto"
               }
             ]
           }
         }
       },
-      "InvoriaInventoryContractsDtosBatchDto": {
+      "InvoriaInventoryContractsBatchesDtosBatchDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4419,7 +7083,7 @@
           "Data": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/InvoriaInventoryContractsDtosBatchDto"
+              "$ref": "#/components/schemas/InvoriaInventoryContractsBatchesDtosBatchDto"
             }
           },
           "Info": {
@@ -4459,6 +7123,338 @@
           }
         }
       },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfReportOrderSalesProfitMetricsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosReportOrderSalesProfitMetricsDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaOrderingContractsOrdersDtosReportOrderSalesProfitMetricsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ThisDay": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosReportOrderSalesProfitMetricsPeriodDto"
+          },
+          "ThisMonth": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosReportOrderSalesProfitMetricsPeriodDto"
+          },
+          "ThisYear": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosReportOrderSalesProfitMetricsPeriodDto"
+          },
+          "AllTime": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosReportOrderSalesProfitMetricsPeriodDto"
+          }
+        }
+      },
+      "InvoriaOrderingContractsOrdersDtosReportOrderSalesProfitMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "TotalRevenue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "TotalCost": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "TotalProfit": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "TotalReturnAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "Period": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainEnumsReportPeriod"
+          }
+        }
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfReportOrderSalesProfitMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingDtoOfReportOrderSalesProfitMetricsPeriodDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaBuildingBlocksDomainDtosPagingDtoOfReportOrderSalesProfitMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosReportOrderSalesProfitMetricsPeriodDto"
+            }
+          },
+          "Info": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingInfoDto"
+          }
+        }
+      },
+      "InvoriaOrderingEndpointsReportOrderSalesProfitMetricsRequestsListOrderSalesProfitMetricsRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfReportOrderSalesMetricsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosReportOrderSalesMetricsDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaOrderingContractsOrdersDtosReportOrderSalesMetricsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ThisDay": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosReportOrderSalesMetricsPeriodDto"
+          },
+          "ThisMonth": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosReportOrderSalesMetricsPeriodDto"
+          },
+          "ThisYear": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosReportOrderSalesMetricsPeriodDto"
+          },
+          "AllTime": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosReportOrderSalesMetricsPeriodDto"
+          }
+        }
+      },
+      "InvoriaOrderingContractsOrdersDtosReportOrderSalesMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "TotalAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "TotalNetAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "TotalReturnAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "Period": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainEnumsReportPeriod"
+          }
+        }
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfReportOrderSalesMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingDtoOfReportOrderSalesMetricsPeriodDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaBuildingBlocksDomainDtosPagingDtoOfReportOrderSalesMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosReportOrderSalesMetricsPeriodDto"
+            }
+          },
+          "Info": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingInfoDto"
+          }
+        }
+      },
+      "InvoriaOrderingEndpointsReportOrderSalesMetricsRequestsListOrderSalesMetricsRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfReportOrderCompletedMetricsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosReportOrderCompletedMetricsDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaOrderingContractsOrdersDtosReportOrderCompletedMetricsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ThisDay": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosReportOrderCompletedMetricsPeriodDto"
+          },
+          "ThisMonth": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosReportOrderCompletedMetricsPeriodDto"
+          },
+          "ThisYear": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosReportOrderCompletedMetricsPeriodDto"
+          },
+          "AllTime": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosReportOrderCompletedMetricsPeriodDto"
+          }
+        }
+      },
+      "InvoriaOrderingContractsOrdersDtosReportOrderCompletedMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "TotalCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "Period": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainEnumsReportPeriod"
+          }
+        }
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfReportOrderCompletedMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingDtoOfReportOrderCompletedMetricsPeriodDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaBuildingBlocksDomainDtosPagingDtoOfReportOrderCompletedMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosReportOrderCompletedMetricsPeriodDto"
+            }
+          },
+          "Info": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingInfoDto"
+          }
+        }
+      },
+      "InvoriaOrderingEndpointsReportOrderCompletedMetricsRequestsListOrderCompletedMetricsRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
       "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfOrderDto": {
         "type": "object",
         "additionalProperties": false,
@@ -4478,13 +7474,13 @@
             "nullable": true,
             "oneOf": [
               {
-                "$ref": "#/components/schemas/InvoriaOrderingContractsDtosOrderDto"
+                "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosOrderDto"
               }
             ]
           }
         }
       },
-      "InvoriaOrderingContractsDtosOrderDto": {
+      "InvoriaOrderingContractsOrdersDtosOrderDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4523,10 +7519,10 @@
             ]
           },
           "Status": {
-            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderStatus"
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersEnumsOrderStatus"
           },
           "PaymentType": {
-            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderPaymentType"
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersEnumsOrderPaymentType"
           },
           "AmountPaid": {
             "type": "number",
@@ -4537,35 +7533,66 @@
             "format": "decimal"
           },
           "PaymentStatus": {
-            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderPaymentStatus"
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersEnumsOrderPaymentStatus"
           },
           "Items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/InvoriaOrderingContractsDtosOrderItemDto"
+              "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosOrderItemDto"
             }
           },
-          "FailureDetails": {
+          "ReturnItems": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/InvoriaOrderingContractsDtosOrderFailureDetailsDto"
+              "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosOrderReturnItemDto"
+            }
+          },
+          "SubtotalAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "ReturnsAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "NetOrderAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "AmountDue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "Payments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosOrderPaymentDto"
             }
           },
           "StateTransitionHistory": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/InvoriaOrderingContractsDtosOrderStateTransitionHistoryDto"
+              "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosOrderStateTransitionHistoryDto"
             }
           },
-          "Payments": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/InvoriaOrderingContractsDtosOrderPaymentDto"
-            }
+          "AllocationId": {
+            "type": "string",
+            "nullable": true
+          },
+          "ReturnId": {
+            "type": "string",
+            "nullable": true
+          },
+          "InvoiceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "OrderAllocated": {
+            "type": "boolean"
           }
         }
       },
-      "InvoriaOrderingContractsOrdersOrderStatus": {
+      "InvoriaOrderingContractsOrdersEnumsOrderStatus": {
         "type": "integer",
         "description": "",
         "x-enumNames": [
@@ -4585,23 +7612,7 @@
           30
         ]
       },
-      "InvoriaOrderingContractsOrdersAllocationStatus": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Pending",
-          "Allocated",
-          "Released",
-          "Failed"
-        ],
-        "enum": [
-          5,
-          10,
-          15,
-          20
-        ]
-      },
-      "InvoriaOrderingContractsOrdersOrderPaymentType": {
+      "InvoriaOrderingContractsOrdersEnumsOrderPaymentType": {
         "type": "integer",
         "description": "",
         "x-enumNames": [
@@ -4613,7 +7624,7 @@
           1
         ]
       },
-      "InvoriaOrderingContractsOrdersOrderPaymentStatus": {
+      "InvoriaOrderingContractsOrdersEnumsOrderPaymentStatus": {
         "type": "integer",
         "description": "",
         "x-enumNames": [
@@ -4627,10 +7638,13 @@
           2
         ]
       },
-      "InvoriaOrderingContractsDtosOrderItemDto": {
+      "InvoriaOrderingContractsOrdersDtosOrderItemDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "Id": {
+            "type": "string"
+          },
           "ProductId": {
             "type": "string"
           },
@@ -4652,78 +7666,43 @@
           }
         }
       },
-      "InvoriaOrderingContractsDtosOrderFailureDetailsDto": {
+      "InvoriaOrderingContractsOrdersDtosOrderReturnItemDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "CreatedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "CreatedBy": {
-            "type": "string",
-            "nullable": true
-          },
-          "LastModifiedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "LastModifiedBy": {
-            "type": "string",
-            "nullable": true
-          },
-          "Id": {
+          "OrderItemId": {
             "type": "string"
           },
-          "ItemId": {
+          "Quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ProductId": {
             "type": "string"
           },
-          "ItemName": {
-            "type": "string",
-            "nullable": true
-          },
-          "QuantityRequested": {
+          "OrderedQuantity": {
             "type": "integer",
             "format": "int32"
           },
-          "QuantityAvailable": {
-            "type": "integer",
-            "format": "int32"
+          "UnitPrice": {
+            "type": "number",
+            "format": "decimal"
           },
-          "Shortage": {
-            "type": "integer",
-            "format": "int32"
+          "LineReturnTotal": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "Product": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaCatalogContractsDtosProductDto"
+              }
+            ]
           }
         }
       },
-      "InvoriaOrderingContractsDtosOrderStateTransitionHistoryDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "FromStatus": {
-            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderStatus"
-          },
-          "ToStatus": {
-            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderStatus"
-          },
-          "FromAllocationStatus": {
-            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersAllocationStatus"
-          },
-          "ToAllocationStatus": {
-            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersAllocationStatus"
-          },
-          "ChangedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "Reason": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "InvoriaOrderingContractsDtosOrderPaymentDto": {
+      "InvoriaOrderingContractsOrdersDtosOrderPaymentDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4755,7 +7734,7 @@
             "format": "decimal"
           },
           "PaymentMethod": {
-            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderPaymentMethod"
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersEnumsOrderPaymentMethod"
           },
           "PaidAt": {
             "type": "string",
@@ -4763,7 +7742,7 @@
           }
         }
       },
-      "InvoriaOrderingContractsOrdersOrderPaymentMethod": {
+      "InvoriaOrderingContractsOrdersEnumsOrderPaymentMethod": {
         "type": "integer",
         "description": "",
         "x-enumNames": [
@@ -4779,6 +7758,28 @@
           3
         ]
       },
+      "InvoriaOrderingContractsOrdersDtosOrderStateTransitionHistoryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "string"
+          },
+          "OrderId": {
+            "type": "string"
+          },
+          "FromStatus": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersEnumsOrderStatus"
+          },
+          "ToStatus": {
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersEnumsOrderStatus"
+          },
+          "ChangedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "InvoriaOrderingEndpointsOrdersRequestsAcceptOrderRequest": {
         "type": "object",
         "additionalProperties": false
@@ -4789,7 +7790,29 @@
       },
       "InvoriaOrderingEndpointsOrdersRequestsCompleteOrderRequest": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "ReturnItems": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/InvoriaOrderingEndpointsOrdersRequestsCompleteReturnLineItemRequest"
+            }
+          }
+        }
+      },
+      "InvoriaOrderingEndpointsOrdersRequestsCompleteReturnLineItemRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "OrderItemId": {
+            "type": "string"
+          },
+          "Quantity": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
       },
       "InvoriaOrderingEndpointsOrdersRequestsCreateOrderRequest": {
         "type": "object",
@@ -4808,7 +7831,7 @@
             "nullable": true,
             "oneOf": [
               {
-                "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderPaymentType"
+                "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersEnumsOrderPaymentType"
               }
             ]
           }
@@ -4830,10 +7853,6 @@
             "format": "decimal"
           }
         }
-      },
-      "InvoriaOrderingEndpointsOrdersRequestsDispatchOrderRequest": {
-        "type": "object",
-        "additionalProperties": false
       },
       "InvoriaOrderingEndpointsOrdersRequestsGetOrderByIdRequest": {
         "type": "object",
@@ -4871,7 +7890,7 @@
           "Data": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/InvoriaOrderingContractsDtosOrderDto"
+              "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersDtosOrderDto"
             }
           },
           "Info": {
@@ -4892,7 +7911,7 @@
             "format": "decimal"
           },
           "PaymentMethod": {
-            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersOrderPaymentMethod"
+            "$ref": "#/components/schemas/InvoriaOrderingContractsOrdersEnumsOrderPaymentMethod"
           },
           "PaidAt": {
             "type": "string",
@@ -4901,11 +7920,7 @@
           }
         }
       },
-      "InvoriaOrderingEndpointsOrdersRequestsRefuseOrderRequest": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "InvoriaOrderingEndpointsOrdersRequestsReopenOrderRequest": {
+      "InvoriaOrderingEndpointsOrdersRequestsRequestOrderRevisionRequest": {
         "type": "object",
         "additionalProperties": false
       },
@@ -4920,6 +7935,477 @@
             }
           }
         }
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfInvoiceDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaOrderingContractsInvoicesDtosInvoiceDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaOrderingContractsInvoicesDtosInvoiceDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CreatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "CreatedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "LastModifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "LastModifiedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "Id": {
+            "type": "string"
+          },
+          "InvoiceNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "CustomerId": {
+            "type": "string"
+          },
+          "OrderId": {
+            "type": "string"
+          },
+          "Subtotal": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "TotalPrice": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "Items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaOrderingContractsInvoicesDtosInvoiceItemDto"
+            }
+          }
+        }
+      },
+      "InvoriaOrderingContractsInvoicesDtosInvoiceItemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "OrderItemId": {
+            "type": "string"
+          },
+          "ProductId": {
+            "type": "string"
+          },
+          "Quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Price": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "LineTotal": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "InvoriaOrderingEndpointsInvoicesRequestsGetInvoiceByIdRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfInvoiceDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingDtoOfInvoiceDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaBuildingBlocksDomainDtosPagingDtoOfInvoiceDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaOrderingContractsInvoicesDtosInvoiceDto"
+            }
+          },
+          "Info": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingInfoDto"
+          }
+        }
+      },
+      "InvoriaOrderingEndpointsInvoicesRequestsListInvoicesRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfReportSupplierMetricsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaProcurementContractsDtosReportSupplierMetricsDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaProcurementContractsDtosReportSupplierMetricsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ThisDay": {
+            "$ref": "#/components/schemas/InvoriaProcurementContractsDtosReportSupplierMetricsPeriodDto"
+          },
+          "ThisMonth": {
+            "$ref": "#/components/schemas/InvoriaProcurementContractsDtosReportSupplierMetricsPeriodDto"
+          },
+          "ThisYear": {
+            "$ref": "#/components/schemas/InvoriaProcurementContractsDtosReportSupplierMetricsPeriodDto"
+          },
+          "AllTime": {
+            "$ref": "#/components/schemas/InvoriaProcurementContractsDtosReportSupplierMetricsPeriodDto"
+          }
+        }
+      },
+      "InvoriaProcurementContractsDtosReportSupplierMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "TotalCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "Period": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainEnumsReportPeriod"
+          }
+        }
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfReportSupplierMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingDtoOfReportSupplierMetricsPeriodDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaBuildingBlocksDomainDtosPagingDtoOfReportSupplierMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaProcurementContractsDtosReportSupplierMetricsPeriodDto"
+            }
+          },
+          "Info": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingInfoDto"
+          }
+        }
+      },
+      "InvoriaProcurementEndpointsReportSupplierMetricsRequestsListSupplierMetricsRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfReportPurchaseSalesMetricsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaProcurementContractsDtosReportPurchaseSalesMetricsDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaProcurementContractsDtosReportPurchaseSalesMetricsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ThisDay": {
+            "$ref": "#/components/schemas/InvoriaProcurementContractsDtosReportPurchaseSalesMetricsPeriodDto"
+          },
+          "ThisMonth": {
+            "$ref": "#/components/schemas/InvoriaProcurementContractsDtosReportPurchaseSalesMetricsPeriodDto"
+          },
+          "ThisYear": {
+            "$ref": "#/components/schemas/InvoriaProcurementContractsDtosReportPurchaseSalesMetricsPeriodDto"
+          },
+          "AllTime": {
+            "$ref": "#/components/schemas/InvoriaProcurementContractsDtosReportPurchaseSalesMetricsPeriodDto"
+          }
+        }
+      },
+      "InvoriaProcurementContractsDtosReportPurchaseSalesMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "TotalAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "SubTotal": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "TaxAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "DiscountAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "Period": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainEnumsReportPeriod"
+          }
+        }
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfReportPurchaseSalesMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingDtoOfReportPurchaseSalesMetricsPeriodDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaBuildingBlocksDomainDtosPagingDtoOfReportPurchaseSalesMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaProcurementContractsDtosReportPurchaseSalesMetricsPeriodDto"
+            }
+          },
+          "Info": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingInfoDto"
+          }
+        }
+      },
+      "InvoriaProcurementEndpointsReportPurchaseSalesMetricsRequestsListPurchaseSalesMetricsRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfReportPurchaseOrdersCompletedMetricsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaProcurementContractsDtosReportPurchaseOrdersCompletedMetricsDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaProcurementContractsDtosReportPurchaseOrdersCompletedMetricsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ThisDay": {
+            "$ref": "#/components/schemas/InvoriaProcurementContractsDtosReportPurchaseOrdersCompletedMetricsPeriodDto"
+          },
+          "ThisMonth": {
+            "$ref": "#/components/schemas/InvoriaProcurementContractsDtosReportPurchaseOrdersCompletedMetricsPeriodDto"
+          },
+          "ThisYear": {
+            "$ref": "#/components/schemas/InvoriaProcurementContractsDtosReportPurchaseOrdersCompletedMetricsPeriodDto"
+          },
+          "AllTime": {
+            "$ref": "#/components/schemas/InvoriaProcurementContractsDtosReportPurchaseOrdersCompletedMetricsPeriodDto"
+          }
+        }
+      },
+      "InvoriaProcurementContractsDtosReportPurchaseOrdersCompletedMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "TotalCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "Period": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainEnumsReportPeriod"
+          }
+        }
+      },
+      "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPagingDtoOfReportPurchaseOrdersCompletedMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Error": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksInfrastructureCommonApiProblemDetails"
+              }
+            ]
+          },
+          "Result": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingDtoOfReportPurchaseOrdersCompletedMetricsPeriodDto"
+              }
+            ]
+          }
+        }
+      },
+      "InvoriaBuildingBlocksDomainDtosPagingDtoOfReportPurchaseOrdersCompletedMetricsPeriodDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoriaProcurementContractsDtosReportPurchaseOrdersCompletedMetricsPeriodDto"
+            }
+          },
+          "Info": {
+            "$ref": "#/components/schemas/InvoriaBuildingBlocksDomainDtosPagingInfoDto"
+          }
+        }
+      },
+      "InvoriaProcurementEndpointsReportPurchaseOrdersCompletedMetricsRequestsListPurchaseOrdersCompletedMetricsRequest": {
+        "type": "object",
+        "additionalProperties": false
       },
       "InvoriaBuildingBlocksInfrastructureCommonEnvelopeOfPurchaseOrderDto": {
         "type": "object",
@@ -4986,16 +8472,6 @@
           },
           "State": {
             "$ref": "#/components/schemas/InvoriaProcurementContractsPurchaseOrdersPurchaseState"
-          },
-          "OrderDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "ExpectedDeliveryDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
           },
           "CompletedDate": {
             "type": "string",
@@ -5161,16 +8637,6 @@
             "type": "number",
             "format": "decimal"
           },
-          "OrderDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "ExpectedDeliveryDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
           "PurchaseOrderItems": {
             "type": "array",
             "items": {
@@ -5274,16 +8740,6 @@
           "DiscountAmount": {
             "type": "number",
             "format": "decimal"
-          },
-          "OrderDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "ExpectedDeliveryDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
           },
           "PurchaseOrderItems": {
             "type": "array",
