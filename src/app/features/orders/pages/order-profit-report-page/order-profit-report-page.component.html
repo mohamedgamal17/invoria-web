@@ -1,0 +1,92 @@
+<p-toast />
+
+<section class="space-y-8">
+  <app-page-header
+    title="Profit report"
+    description="Revenue, cost and profit across Daily / Monthly / Yearly aggregation."
+    eyebrow="Ordering · Reports"
+    eyebrowIcon="pi pi-chart-line"
+    class="block"
+  />
+
+  <!-- Overview KPIs -->
+  <section class="space-y-5">
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
+      <app-kpi-card
+        title="All-time profit"
+        [value]="kpiAllTimeProfit() != null ? formatCurrency(kpiAllTimeProfit()) : '—'"
+        [hint]="overview() ? 'Revenue ' + formatCurrency(overview()!.allTime.totalRevenue) : 'All-time profit'"
+        tone="success"
+        [loading]="isOverviewLoading()"
+        [icon]="profitIcon"
+      />
+      <app-kpi-card
+        title="All-time revenue"
+        [value]="kpiAllTimeRevenue() != null ? formatCurrency(kpiAllTimeRevenue()) : '—'"
+        [hint]="overview() ? 'Today ' + formatCurrency(overview()!.thisDay.totalRevenue) : 'All-time revenue'"
+        tone="primary"
+        [loading]="isOverviewLoading()"
+        [icon]="revenueIcon"
+      />
+      <app-kpi-card
+        title="All-time cost"
+        [value]="kpiAllTimeCost() != null ? formatCurrency(kpiAllTimeCost()) : '—'"
+        [hint]="overview() ? 'Today ' + formatCurrency(overview()!.thisDay.totalCost) : 'All-time cost'"
+        tone="warning"
+        [loading]="isOverviewLoading()"
+        [icon]="costIcon"
+      />
+      <app-kpi-card
+        title="All-time returns"
+        [value]="kpiAllTimeReturns() != null ? formatCurrency(kpiAllTimeReturns()) : '—'"
+        [hint]="overview() ? 'Today ' + formatCurrency(overview()!.thisDay.totalReturnAmount) : 'Returns in profit scope'"
+        tone="danger"
+        [loading]="isOverviewLoading()"
+        [icon]="returnsIcon"
+      />
+    </div>
+  </section>
+
+  <!-- Additional today vs month hints — now KPI cards with icons -->
+  <section class="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-6">
+    <app-kpi-card
+      title="Today"
+      [value]="overview()?.thisDay?.totalProfit != null ? formatCurrency(overview()!.thisDay.totalProfit) : '—'"
+      [hint]="overview() ? 'Revenue ' + formatCurrency(overview()!.thisDay.totalRevenue) + ' · Cost ' + formatCurrency(overview()!.thisDay.totalCost) : 'Profit today'"
+      tone="success"
+      [loading]="isOverviewLoading()"
+      [icon]="todayIcon"
+    />
+    <app-kpi-card
+      title="This month"
+      [value]="overview()?.thisMonth?.totalProfit != null ? formatCurrency(overview()!.thisMonth.totalProfit) : '—'"
+      [hint]="overview() ? 'Revenue ' + formatCurrency(overview()!.thisMonth.totalRevenue) + ' · Cost ' + formatCurrency(overview()!.thisMonth.totalCost) : 'Profit this month'"
+      tone="primary"
+      [loading]="isOverviewLoading()"
+      [icon]="monthIcon"
+    />
+    <app-kpi-card
+      title="This year"
+      [value]="overview()?.thisYear?.totalProfit != null ? formatCurrency(overview()!.thisYear.totalProfit) : '—'"
+      [hint]="overview() ? 'Revenue ' + formatCurrency(overview()!.thisYear.totalRevenue) + ' · Cost ' + formatCurrency(overview()!.thisYear.totalCost) : 'Profit this year'"
+      tone="warning"
+      [loading]="isOverviewLoading()"
+      [icon]="yearIcon"
+    />
+  </section>
+
+  <!-- Chart -->
+  <app-chart-card
+    title="Revenue · Cost · Profit"
+    [subtitle]="'Aggregation: ' + periodOptions.find(p => p.value === selectedPeriod())!.label + ' · Last 14 periods'"
+    [options]="chartOptions()"
+    [loading]="isMetricsLoading()"
+    heightClass="h-[24rem]"
+    [showPeriodSelector]="true"
+    [selectedPeriod]="selectedPeriod()"
+    [periodOptions]="periodOptions"
+    (periodChange)="onPeriodChange($event)"
+  >
+    <p-button label="View full metrics table" icon="pi pi-table" severity="secondary" [outlined]="true" (onClick)="goToMetrics()" />
+  </app-chart-card>
+</section>

@@ -1,0 +1,40 @@
+<app-surface-card tone="neutral">
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div class="flex items-center gap-2 text-foreground">
+        <i class="pi pi-filter text-muted-foreground" aria-hidden="true"></i>
+        <span class="text-sm font-bold uppercase tracking-wider text-muted-foreground">Filters</span>
+      </div>
+      <p-button
+        label="Clear filters"
+        icon="pi pi-times"
+        [text]="true"
+        severity="secondary"
+        styleClass="text-sm shrink-0 self-start sm:self-auto"
+        [disabled]="loading()"
+        (onClick)="onClear()"
+      />
+    </div>
+
+    <div class="flex flex-col gap-1.5 w-full">
+      <label
+        class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider"
+        for="profit-metrics-filter-period"
+        >Metric aggregation</label
+      >
+      <p-select
+        inputId="profit-metrics-filter-period"
+        [options]="periodOptions"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="period()"
+        (ngModelChange)="onPeriodChange($event)"
+        placeholder="Aggregation"
+        [disabled]="loading()"
+        appendTo="body"
+        class="w-full"
+        styleClass="w-full rounded-lg border-border bg-surface-2 text-sm min-h-[2.5rem]"
+      />
+    </div>
+  </div>
+</app-surface-card>

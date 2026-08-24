@@ -1,0 +1,31 @@
+<p-toast />
+
+<section class="flex flex-col gap-8">
+  <app-page-header
+    title="Sales metrics"
+    description="Full paginated breakdown — Gross, Net and Returns per period. Switch aggregation to change date view."
+    eyebrow="Ordering · Reports"
+    eyebrowIcon="pi pi-table"
+  >
+    <p-button label="Back to charts" icon="pi pi-chart-bar" severity="secondary" [outlined]="true" (onClick)="goToCharts()" />
+  </app-page-header>
+
+  <app-order-sales-metrics-filter-panel
+    [period]="selectedPeriod()"
+    [loading]="metricsResource.isLoading()"
+    (filtersChange)="onFiltersChange($event)"
+    (clearFilters)="onClearFilters()"
+  />
+
+  <app-order-sales-metrics-list
+    [rows]="displayRows()"
+    [totalRecords]="displayPaging().totalCount"
+    [first]="first()"
+    [pageSize]="pageSize()"
+    [pageSizeOptions]="pageSizeOptions"
+    [loading]="metricsResource.isLoading()"
+    [selectedPeriod]="selectedPeriod()"
+    (pageChange)="onPageChange($event)"
+    (clearFilters)="onClearFilters()"
+  />
+</section>
