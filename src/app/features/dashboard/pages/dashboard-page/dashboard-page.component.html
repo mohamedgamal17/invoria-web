@@ -1,34 +1,25 @@
 <p-toast />
-<section class="space-y-6">
+<section class="space-y-8">
   <header class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
     <div class="flex flex-col gap-1">
       <h1 class="text-2xl font-semibold">Dashboard</h1>
       <p class="text-sm text-muted-foreground">Today’s operational snapshot.</p>
     </div>
     <div class="flex flex-wrap items-center gap-2">
-      <p-select
-        [options]="periodOptions"
-        [ngModel]="selectedPeriod()"
-        (onChange)="onPeriodChange($event.value)"
-        optionLabel="label"
-        optionValue="value"
-        placeholder="Period"
-        styleClass="w-36"
-      />
       <p-button label="Refresh" icon="pi pi-refresh" severity="secondary" [outlined]="true" (onClick)="refresh()" />
     </div>
   </header>
 
   <!-- Overview KPIs -->
-  <section>
-    <div class="mb-3 flex items-center justify-between">
+  <section class="space-y-5">
+    <div class="flex items-center justify-between">
       <h2 class="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Overview · All-time & Today</h2>
       @if (isOverviewLoading()) {
         <span class="text-xs text-muted-foreground">Syncing…</span>
       }
     </div>
 
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
       <app-kpi-card
         title="Total customers"
         [value]="kpiCustomersAll() ?? '—'"
@@ -63,7 +54,7 @@
       />
     </div>
 
-    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
       <app-kpi-card
         title="Order sales"
         [value]="kpiSalesAmountAll() != null ? formatCurrency(kpiSalesAmountAll()) : '—'"
@@ -99,47 +90,31 @@
     </div>
   </section>
 
-  <!-- Charts -->
-  <section class="space-y-4">
-    <div class="flex items-center justify-between">
-      <h2 class="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Trends · {{ selectedPeriod() === ReportPeriod.Daily ? 'Daily' : selectedPeriod() === ReportPeriod.Monthly ? 'Monthly' : 'Yearly' }}</h2>
-      <span class="text-xs text-muted-foreground">Last 14 periods</span>
-    </div>
-
-    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-      <div class="lg:col-span-2">
-        <app-report-chart
-          title="Revenue · Cost · Profit"
-          subtitle="Sales-profit metrics — area trend"
-          [options]="profitChartOptions()"
-          [loading]="isMetricsLoading()"
-          heightClass="h-[22rem]"
-        />
-      </div>
-      <app-report-chart
-        title="Order sales"
-        subtitle="Gross vs returns — bar comparison"
-        [options]="salesChartOptions()"
-        [loading]="isMetricsLoading()"
-        heightClass="h-[22rem]"
-      />
-    </div>
-
-    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-      <app-report-chart
-        title="Customer creation"
-        subtitle="Daily/Monthly aggregated counts"
-        [options]="customerChartOptions()"
-        [loading]="isMetricsLoading()"
-        heightClass="h-80"
-      />
-      <app-report-chart
-        title="Product creation"
-        subtitle="New products per period"
-        [options]="productChartOptions()"
-        [loading]="isMetricsLoading()"
-        heightClass="h-80"
-      />
-    </div>
+  <!-- Charts — full-width, per-card period selector like order-sales-report -->
+  <section class="flex flex-col gap-8">
+    <app-report-chart
+      class="block w-full"
+      title="Revenue · Cost · Profit"
+      subtitle="Sales-profit metrics — area trend · Last 14 periods"
+      [options]="profitChartOptions()"
+      [loading]="isMetricsLoading()"
+      heightClass="h-[24rem]"
+      [showPeriodSelector]="true"
+      [selectedPeriod]="selectedPeriod()"
+      [periodOptions]="periodOptions"
+      (periodChange)="onPeriodChange($event)"
+    />
+    <app-report-chart
+      class="block w-full"
+      title="Order sales"
+      subtitle="Gross vs returns — bar comparison · Last 14 periods"
+      [options]="salesChartOptions()"
+      [loading]="isMetricsLoading()"
+      heightClass="h-[24rem]"
+      [showPeriodSelector]="true"
+      [selectedPeriod]="selectedPeriod()"
+      [periodOptions]="periodOptions"
+      (periodChange)="onPeriodChange($event)"
+    />
   </section>
 </section>
