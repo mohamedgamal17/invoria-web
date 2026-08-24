@@ -75,7 +75,7 @@
     />
   </section>
 
-  <!-- Chart -->
+  <!-- Chart — placeholder Y inferred as count so empty state shows 0–10 scale -->
   <app-chart-card
     title="Completed orders"
     [subtitle]="'Aggregation: ' + periodOptions.find(p => p.value === selectedPeriod())!.label + ' · Last 14 periods'"
@@ -86,6 +86,7 @@
     [selectedPeriod]="selectedPeriod()"
     [periodOptions]="periodOptions"
     (periodChange)="onPeriodChange($event)"
+    [placeholderYKind]="'count'"
   >
     <p-button label="View full metrics table" icon="pi pi-table" severity="secondary" [outlined]="true" (onClick)="goToMetrics()" />
   </app-chart-card>
