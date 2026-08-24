@@ -1,0 +1,92 @@
+<p-toast />
+
+<section class="space-y-8">
+  <app-page-header
+    title="Purchase completion report"
+    description="Completed purchase orders across Daily / Monthly / Yearly aggregation."
+    eyebrow="Procurement · Reports"
+    eyebrowIcon="pi pi-chart-line"
+    class="block"
+  />
+
+  <!-- Overview KPIs -->
+  <section class="space-y-5">
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
+      <app-kpi-card
+        title="All-time completed"
+        [value]="kpiAllTimeCount() != null ? formatNumber(kpiAllTimeCount()) : '—'"
+        [hint]="overview() ? 'Today ' + formatNumber(overview()!.thisDay.totalCount) : 'All-time completed'"
+        tone="success"
+        [loading]="isOverviewLoading()"
+        [icon]="allTimeIcon"
+      />
+      <app-kpi-card
+        title="Today completed"
+        [value]="kpiTodayCount() != null ? formatNumber(kpiTodayCount()) : '—'"
+        [hint]="overview() ? 'This month ' + formatNumber(overview()!.thisMonth.totalCount) : 'Completed today'"
+        tone="primary"
+        [loading]="isOverviewLoading()"
+        [icon]="todayCountIcon"
+      />
+      <app-kpi-card
+        title="This month"
+        [value]="kpiMonthCount() != null ? formatNumber(kpiMonthCount()) : '—'"
+        [hint]="overview() ? 'This year ' + formatNumber(overview()!.thisYear.totalCount) : 'Completed this month'"
+        tone="warning"
+        [loading]="isOverviewLoading()"
+        [icon]="monthIcon"
+      />
+      <app-kpi-card
+        title="This year"
+        [value]="kpiYearCount() != null ? formatNumber(kpiYearCount()) : '—'"
+        [hint]="overview() ? 'All-time ' + formatNumber(overview()!.allTime.totalCount) : 'Completed this year'"
+        tone="primary"
+        [loading]="isOverviewLoading()"
+        [icon]="yearIcon"
+      />
+    </div>
+  </section>
+
+  <!-- Additional today vs month hints -->
+  <section class="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-6">
+    <app-kpi-card
+      title="Today"
+      [value]="overview()?.thisDay?.totalCount != null ? formatNumber(overview()!.thisDay.totalCount) : '—'"
+      [hint]="overview() ? 'Month ' + formatNumber(overview()!.thisMonth.totalCount) : 'Completed today'"
+      tone="success"
+      [loading]="isOverviewLoading()"
+      [icon]="todayIcon"
+    />
+    <app-kpi-card
+      title="This month"
+      [value]="overview()?.thisMonth?.totalCount != null ? formatNumber(overview()!.thisMonth.totalCount) : '—'"
+      [hint]="overview() ? 'Year ' + formatNumber(overview()!.thisYear.totalCount) : 'Completed this month'"
+      tone="primary"
+      [loading]="isOverviewLoading()"
+      [icon]="monthIcon"
+    />
+    <app-kpi-card
+      title="This year"
+      [value]="overview()?.thisYear?.totalCount != null ? formatNumber(overview()!.thisYear.totalCount) : '—'"
+      [hint]="overview() ? 'All-time ' + formatNumber(overview()!.allTime.totalCount) : 'Completed this year'"
+      tone="warning"
+      [loading]="isOverviewLoading()"
+      [icon]="yearIcon"
+    />
+  </section>
+
+  <!-- Chart -->
+  <app-chart-card
+    title="Completed orders"
+    [subtitle]="'Aggregation: ' + periodOptions.find(p => p.value === selectedPeriod())!.label + ' · Last 14 periods'"
+    [options]="chartOptions()"
+    [loading]="isMetricsLoading()"
+    heightClass="h-[24rem]"
+    [showPeriodSelector]="true"
+    [selectedPeriod]="selectedPeriod()"
+    [periodOptions]="periodOptions"
+    (periodChange)="onPeriodChange($event)"
+  >
+    <p-button label="View full metrics table" icon="pi pi-table" severity="secondary" [outlined]="true" (onClick)="goToMetrics()" />
+  </app-chart-card>
+</section>

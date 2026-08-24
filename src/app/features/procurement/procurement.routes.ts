@@ -21,6 +21,34 @@ export const PROCUREMENT_ROUTES: Routes = [
         data: { mode: 'create' }
       },
       {
+        path: 'reports/sales',
+        loadComponent: () =>
+          import('./pages/purchase-sales-report-page/purchase-sales-report-page.component').then(
+            (m) => m.PurchaseSalesReportPageComponent
+          )
+      },
+      {
+        path: 'reports/sales/metrics',
+        loadComponent: () =>
+          import('./pages/purchase-sales-metrics-page/purchase-sales-metrics-page.component').then(
+            (m) => m.PurchaseSalesMetricsPageComponent
+          )
+      },
+      {
+        path: 'reports/completion',
+        loadComponent: () =>
+          import('./pages/purchase-completion-report-page/purchase-completion-report-page.component').then(
+            (m) => m.PurchaseCompletionReportPageComponent
+          )
+      },
+      {
+        path: 'reports/completion/metrics',
+        loadComponent: () =>
+          import('./pages/purchase-completion-metrics-page/purchase-completion-metrics-page.component').then(
+            (m) => m.PurchaseCompletionMetricsPageComponent
+          )
+      },
+      {
         path: ':id/edit',
         loadComponent: () =>
           import('./pages/purchase-order-form-page/purchase-order-form-page.component').then(

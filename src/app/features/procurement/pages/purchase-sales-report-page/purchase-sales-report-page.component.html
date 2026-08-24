@@ -1,0 +1,98 @@
+<p-toast />
+
+<section class="space-y-8">
+  <app-page-header
+    title="Purchase sales report"
+    description="Total, subtotal, tax and discount across Daily / Monthly / Yearly aggregation."
+    eyebrow="Procurement · Reports"
+    eyebrowIcon="pi pi-chart-bar"
+    class="block"
+  />
+
+  <!-- Overview KPIs -->
+  <section class="space-y-5">
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
+      <app-kpi-card
+        title="All-time total"
+        [value]="kpiAllTimeTotal() != null ? formatCurrency(kpiAllTimeTotal()) : '—'"
+        [hint]="overview() ? 'Subtotal ' + formatCurrency(overview()!.allTime.subTotal) : 'All-time total'"
+        tone="primary"
+        [loading]="isOverviewLoading()"
+        [icon]="totalIcon"
+      />
+      <app-kpi-card
+        title="All-time subtotal"
+        [value]="kpiAllTimeSubTotal() != null ? formatCurrency(kpiAllTimeSubTotal()) : '—'"
+        [hint]="overview() ? 'Today ' + formatCurrency(overview()!.thisDay.subTotal) : 'All-time subtotal'"
+        tone="success"
+        [loading]="isOverviewLoading()"
+        [icon]="subTotalIcon"
+      />
+      <app-kpi-card
+        title="All-time tax"
+        [value]="kpiAllTimeTax() != null ? formatCurrency(kpiAllTimeTax()) : '—'"
+        [hint]="overview() ? 'Today ' + formatCurrency(overview()!.thisDay.taxAmount) : 'All-time tax'"
+        tone="warning"
+        [loading]="isOverviewLoading()"
+        [icon]="taxIcon"
+      />
+      <app-kpi-card
+        title="All-time discount"
+        [value]="kpiAllTimeDiscount() != null ? formatCurrency(kpiAllTimeDiscount()) : '—'"
+        [hint]="overview() ? 'Today ' + formatCurrency(overview()!.thisDay.discountAmount) : 'Total discount'"
+        tone="danger"
+        [loading]="isOverviewLoading()"
+        [icon]="discountIcon"
+      />
+    </div>
+  </section>
+
+  <!-- Additional today vs month hints — Total -->
+  <section class="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-6">
+    <app-kpi-card
+      title="Today"
+      [value]="overview()?.thisDay?.totalAmount != null ? formatCurrency(overview()!.thisDay.totalAmount) : '—'"
+      [hint]="overview() ? 'Subtotal ' + formatCurrency(overview()!.thisDay.subTotal) + ' · Tax ' + formatCurrency(overview()!.thisDay.taxAmount) : 'Total today'"
+      tone="success"
+      [loading]="isOverviewLoading()"
+      [icon]="todayIcon"
+    />
+    <app-kpi-card
+      title="This month"
+      [value]="overview()?.thisMonth?.totalAmount != null ? formatCurrency(overview()!.thisMonth.totalAmount) : '—'"
+      [hint]="overview() ? 'Subtotal ' + formatCurrency(overview()!.thisMonth.subTotal) + ' · Discount ' + formatCurrency(overview()!.thisMonth.discountAmount) : 'Total this month'"
+      tone="primary"
+      [loading]="isOverviewLoading()"
+      [icon]="monthIcon"
+    />
+    <app-kpi-card
+      title="This year"
+      [value]="overview()?.thisYear?.totalAmount != null ? formatCurrency(overview()!.thisYear.totalAmount) : '—'"
+      [hint]="overview() ? 'Subtotal ' + formatCurrency(overview()!.thisYear.subTotal) + ' · Tax ' + formatCurrency(overview()!.thisYear.taxAmount) : 'Total this year'"
+      tone="warning"
+      [loading]="isOverviewLoading()"
+      [icon]="yearIcon"
+    />
+  </section>
+
+  <!-- Chart -->
+  <app-chart-card
+    title="Purchase sales trend"
+    [subtitle]="'Aggregation: ' + periodOptions.find(p => p.value === selectedPeriod())!.label + ' · Last 14 periods'"
+    [options]="chartOptions()"
+    [loading]="isMetricsLoading()"
+    heightClass="h-[24rem]"
+    [showPeriodSelector]="true"
+    [selectedPeriod]="selectedPeriod()"
+    [periodOptions]="periodOptions"
+    (periodChange)="onPeriodChange($event)"
+  >
+    <p-button
+      label="View full metrics table"
+      icon="pi pi-table"
+      severity="secondary"
+      [outlined]="true"
+      (onClick)="goToMetrics()"
+    />
+  </app-chart-card>
+</section>
