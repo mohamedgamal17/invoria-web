@@ -1,21 +1,15 @@
 <div class="min-h-dvh bg-surface text-foreground invoria-gradient-surface">
   <div class="grid min-h-dvh grid-cols-1 md:grid-cols-[auto_1fr]">
-    <!-- Desktop sidebar -->
-    <app-dashboard-sidebar
-      class="hidden md:block transition-all duration-300"
-      [collapsed]="isSidebarCollapsed()"
-      (toggleCollapse)="toggleSidebarCollapsed()"
-    />
+    <app-dashboard-sidebar class="hidden md:block" [collapsed]="isSidebarCollapsed()" />
 
-    <!-- Mobile sidebar overlay -->
     @if (isMobileSidebarOpen()) {
       <div
-        class="fixed inset-0 z-40 bg-foreground/20 md:hidden"
+        class="drawer-backdrop fixed inset-0 z-40 bg-foreground/40 backdrop-blur-sm md:hidden"
         (click)="closeMobileSidebar()"
         aria-hidden="true"
       ></div>
       <app-dashboard-sidebar
-        class="fixed inset-y-0 left-0 z-50 w-64 md:hidden"
+        class="mobile-drawer fixed inset-y-0 left-0 z-50 md:hidden"
         [collapsed]="false"
         (navigate)="closeMobileSidebar()"
       />
@@ -38,4 +32,3 @@
     </div>
   </div>
 </div>
-

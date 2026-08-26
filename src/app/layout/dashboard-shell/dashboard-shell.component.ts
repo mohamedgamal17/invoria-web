@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 import { NavigationLoadingService } from '../../core/router/navigation-loading.service';
@@ -7,10 +7,13 @@ import { DashboardSidebarComponent } from '../dashboard-sidebar/dashboard-sideba
 
 @Component({
   selector: 'app-dashboard-shell',
-  standalone: true,
   imports: [RouterOutlet, DashboardNavbarComponent, DashboardSidebarComponent],
   templateUrl: './dashboard-shell.component.html',
-  styleUrl: './dashboard-shell.component.css'
+  styleUrl: './dashboard-shell.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '(document:keydown.escape)': 'closeMobileSidebar()'
+  }
 })
 export class DashboardShellComponent {
   readonly isMobileSidebarOpen = signal(false);
@@ -18,10 +21,19 @@ export class DashboardShellComponent {
   readonly navigationLoading = inject(NavigationLoadingService);
 
   openMobileSidebar(): void {
+    if (!this.isMobileSidebarOpen() && typeof document !== 'undefined') {
+      document.body.style.overflow = 'hidden';
+    }
     this.isMobileSidebarOpen.set(true);
   }
 
   closeMobileSidebar(): void {
+    if (!this.isMobileSidebarOpen()) {
+      return;
+    }
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = '';
+    }
     this.isMobileSidebarOpen.set(false);
   }
 
@@ -29,4 +41,3 @@ export class DashboardShellComponent {
     this.isSidebarCollapsed.update((value) => !value);
   }
 }
-
