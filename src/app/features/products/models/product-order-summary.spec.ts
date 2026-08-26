@@ -71,12 +71,13 @@ describe('product-order-summary', () => {
           lineReturnTotal: 10
         }
       ]
-    }), 'prod-1', 'Completed');
+    }), 'prod-1', 'Completed', OrderStatus.Completed);
 
     expect(row).toEqual({
       orderId: 'ord-1',
       orderNumber: 'ORD-1',
       orderStatusLabel: 'Completed',
+      orderStatus: OrderStatus.Completed,
       productLineSubtotal: 20,
       productReturnSubtotal: 10,
       productNetSubtotal: 10,
