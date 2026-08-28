@@ -43,6 +43,7 @@ import type { SupplierCreationReportPeriod } from '../../../suppliers/models/sup
 import type { PurchaseSalesReportPeriod } from '../../../procurement/models/purchase-order-report.entity';
 import type { EChartsCoreOption } from 'echarts/core';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
+import { ECHARTS_COLORS } from '../../../../shared/charts/echarts-presets';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -158,7 +159,7 @@ export class DashboardPageComponent implements OnInit {
           data: chronological.map((d) => d.totalProfit)
         }
       ],
-      color: ['#6366f1', '#f59e0b', '#10b981']
+      color: [...ECHARTS_COLORS.revenueCostProfit]
     };
   });
 
@@ -188,7 +189,7 @@ export class DashboardPageComponent implements OnInit {
           data: chronological.map((d) => d.totalReturnAmount)
         }
       ],
-      color: ['#0ea5e9', '#f43f5e']
+      color: [...ECHARTS_COLORS.salesReturns]
     };
   });
 

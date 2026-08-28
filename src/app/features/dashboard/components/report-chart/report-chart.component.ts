@@ -1,4 +1,4 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgxEchartsDirective } from 'ngx-echarts';
 import type { EChartsCoreOption } from 'echarts/core';
@@ -15,6 +15,8 @@ import {
   resolvePlaceholderYMax,
   type PlaceholderYKind
 } from '../../../../shared/charts/chart-placeholder';
+import { chartToken } from '../../../../shared/charts/echarts-presets';
+import { ThemeService } from '../../../../core/theme/theme.service';
 
 @Component({
   selector: 'app-report-chart',
@@ -24,6 +26,8 @@ import {
   host: { class: 'block w-full' }
 })
 export class ReportChartComponent {
+  private readonly themeService = inject(ThemeService);
+
   title = input.required<string>();
   subtitle = input<string>('');
   options = input<EChartsCoreOption | null>(null);
@@ -44,6 +48,11 @@ export class ReportChartComponent {
   readonly placeholderXLabels = input<string[] | null>(null);
 
   readonly emptyOptions = computed<EChartsCoreOption>(() => {
+    // Read theme signal so placeholder chrome (axis/grid/labels) recomputes on toggle.
+    this.themeService.isDark();
+    const axisColor = chartToken('--c-border', '#e6e9ee');
+    const labelColor = chartToken('--c-muted-foreground', '#5d6b7e');
+    const gridColor = chartToken('--c-surface-3', '#e7eaf0');
     const count = this.placeholderCount();
     const xData =
       this.placeholderXLabels() ??
@@ -61,11 +70,11 @@ export class ReportChartComponent {
         type: 'category',
         data: xData,
         boundaryGap: true,
-        axisLine: { lineStyle: { color: '#e2e8f0' } },
+        axisLine: { lineStyle: { color: axisColor } },
         axisTick: { show: false },
         axisLabel: {
           fontSize: 10,
-          color: '#64748b',
+          color: labelColor,
           interval: 0,
           rotate: isDaily ? 0 : 18,
           lineHeight: isDaily ? 12 : undefined
@@ -78,8 +87,8 @@ export class ReportChartComponent {
         max: yMax,
         interval: yInterval,
         axisLine: { show: false },
-        axisLabel: { fontSize: 10, color: '#64748b' },
-        splitLine: { show: true, lineStyle: { type: 'dashed', color: '#f1f5f9' } }
+        axisLabel: { fontSize: 10, color: labelColor },
+        splitLine: { show: true, lineStyle: { type: 'dashed', color: gridColor } }
       },
       series: [],
       ...(this.emptyText()
@@ -90,7 +99,7 @@ export class ReportChartComponent {
               top: 'middle',
               style: {
                 text: this.emptyText(),
-                fill: '#94a3b8',
+                fill: labelColor,
                 fontSize: 12,
                 fontWeight: 500
               }

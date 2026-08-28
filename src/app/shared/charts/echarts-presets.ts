@@ -1,15 +1,17 @@
 import type { EChartsCoreOption } from 'echarts/core';
 
-/** Shared palette — keep charts visually consistent across features. */
+/** Shared palette — keep charts visually consistent across features.
+ *  Values mirror the light-mode semantic tokens in `src/styles/tokens.css`
+ *  (softened for eye comfort; readable on both light and dark surfaces). */
 export const ECHARTS_PALETTE = {
-  primary: '#6366f1',
-  success: '#10b981',
-  warning: '#f59e0b',
-  danger: '#ef4444',
-  info: '#0ea5e9',
-  purple: '#8b5cf6',
-  cyan: '#06b6d4',
-  muted: '#64748b'
+  primary: '#5e73d4',
+  success: '#2f855a',
+  warning: '#b7791f',
+  danger: '#c2413c',
+  info: '#3a8cb8',
+  purple: '#7266c9',
+  cyan: '#2f9bbf',
+  muted: '#5d6b7e'
 } as const;
 
 export const ECHARTS_COLORS = {
@@ -26,6 +28,20 @@ export const ECHARTS_GRID_COMPACT: EChartsCoreOption['grid'] = {
   bottom: 24,
   containLabel: true
 };
+
+/**
+ * Resolve an Invoria design token (CSS custom property) to its current value.
+ * ECharts renders to canvas and cannot consume `var()` directly, so chart code
+ * reads the resolved token at option-build time. Call it inside a `computed()`
+ * that also reads `ThemeService.isDark()` so options recompute on theme toggle.
+ * Only plain-color tokens (`--c-border`, `--c-muted-foreground`, ...) resolve to
+ * hex; avoid tokens defined via `color-mix()`.
+ */
+export function chartToken(name: string, fallback: string): string {
+  if (typeof document === 'undefined') return fallback;
+  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return value.length > 0 ? value : fallback;
+}
 
 export function formatPeriodLabel(iso: string, period: number): string {
   const d = new Date(iso);

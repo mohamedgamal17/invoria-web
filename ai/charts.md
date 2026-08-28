@@ -57,7 +57,8 @@ export class MyPage {
 Rules:
 - Compute `EChartsCoreOption` in the **smart component** via `computed()`; the chart card is dumb.
 - Type `options` as `EChartsCoreOption` (never `any`).
-- Use `ECHARTS_PALETTE` / `ECHARTS_GRID_COMPACT` from `shared/charts/echarts-presets.ts` for consistency and dark-mode-friendly contrast (PrimeNG `.dark` already handles `bg-surface`/`text-muted-foreground`; ECharts palette stays constant).
+- Use `ECHARTS_PALETTE` / `ECHARTS_COLORS` / `ECHARTS_GRID_COMPACT` from `shared/charts/echarts-presets.ts` for series colors — never hardcode hex values in pages. The palette mirrors the light-mode semantic tokens in `src/styles/tokens.css`.
+- **Theme-aware chart chrome** (axis lines, grid lines, labels, empty-state text): ECharts renders to canvas and cannot consume CSS `var()`. Use `chartToken('--c-border', '#e6e9ee')` from `shared/charts/echarts-presets.ts` to resolve a design token at option-build time, and read `ThemeService.isDark()` inside the same `computed()` so options recompute when the theme toggles. Only plain-color tokens resolve (avoid `color-mix()`-defined tokens). See `shared/ui/chart-card/chart-card.component.ts` for the reference implementation.
 - For report trends, derive labels via `formatPeriodLabel(date, period)` which mirrors `dashboard-page.component.ts:247` Daily/Monthly/Yearly logic and `ReportPeriod` (Daily=5, Monthly=10, Yearly=15) from `shared/models/report-period.ts`.
 
 ## Anti-patterns
