@@ -48,11 +48,11 @@
           </div>
           <div class="flex items-center justify-between gap-3">
             <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider shrink-0">Tax</span>
-            <span class="text-sm font-semibold tabular-nums text-amber-600 dark:text-amber-400">EGP {{ row.taxAmount | number:'1.2-2' }}</span>
+            <span class="text-sm font-semibold tabular-nums text-warning">EGP {{ row.taxAmount | number:'1.2-2' }}</span>
           </div>
           <div class="flex items-center justify-between gap-3">
             <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider shrink-0">Discount</span>
-            <span class="text-sm font-semibold tabular-nums text-red-600 dark:text-red-400">EGP {{ row.discountAmount | number:'1.2-2' }}</span>
+            <span class="text-sm font-semibold tabular-nums text-danger">EGP {{ row.discountAmount | number:'1.2-2' }}</span>
           </div>
         </div>
       </div>
