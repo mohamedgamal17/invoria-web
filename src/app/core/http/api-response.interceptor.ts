@@ -14,7 +14,7 @@ import { ApiEmptyResponseError, ApiHttpError } from './api-http-error';
 import { normalizeApiError } from './api-error.normalize';
 
 function normalizeBaseUrl(url: string): string {
-  return url.replace(/\/?$/, '/');
+  return url.trim().replace(/\/?$/, '/');
 }
 
 function isApiUrl(url: string, apiBaseUrl: string): boolean {
