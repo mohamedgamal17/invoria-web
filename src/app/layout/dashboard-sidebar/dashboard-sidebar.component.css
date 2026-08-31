@@ -15,12 +15,12 @@ aside {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--c-border), var(--c-muted-foreground) 35%);
+  background: var(--p-content-border-color);
   border-radius: 999px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--c-muted-foreground);
+  background: var(--p-text-muted-color);
 }
 
 .nav-link {
@@ -33,7 +33,7 @@ aside {
   padding: 0.625rem 0.75rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: color-mix(in srgb, var(--c-foreground), var(--c-muted-foreground) 45%);
+  color: var(--p-text-muted-color);
   cursor: pointer;
   transition:
     background-color var(--t-duration-150) var(--t-ease-standard),
@@ -41,18 +41,18 @@ aside {
 }
 
 .nav-link:hover {
-  background-color: var(--c-muted);
-  color: var(--c-foreground);
+  background-color: var(--p-content-hover-background);
+  color: var(--p-text-color);
 }
 
 .nav-link:focus-visible {
-  outline: 2px solid var(--c-focus);
+  outline: 2px solid var(--p-focus-ring-color, var(--p-primary-color));
   outline-offset: 2px;
 }
 
 .nav-link.active {
-  background-color: color-mix(in srgb, var(--c-primary), transparent 90%);
-  color: var(--c-primary);
+  background-color: var(--p-highlight-background);
+  color: var(--p-primary-color);
   font-weight: 600;
 }
 
@@ -67,7 +67,7 @@ aside {
   scale: 1 0.3;
   opacity: 0;
   border-radius: 0 999px 999px 0;
-  background: var(--c-primary);
+  background: var(--p-primary-color);
   transition:
     opacity var(--t-duration-200) var(--t-ease-standard),
     scale var(--t-duration-200) var(--t-ease-standard);
@@ -90,7 +90,7 @@ aside {
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--c-muted-foreground), var(--c-foreground) 25%);
+  color: var(--p-text-muted-color);
   cursor: pointer;
   transition:
     background-color var(--t-duration-150) var(--t-ease-standard),
@@ -98,15 +98,15 @@ aside {
 }
 
 .group-header:hover {
-  background-color: var(--c-muted);
-  color: var(--c-foreground);
+  background-color: var(--p-content-hover-background);
+  color: var(--p-text-color);
 }
 
 .group-header:focus-visible {
-  outline: 2px solid var(--c-focus);
+  outline: 2px solid var(--p-focus-ring-color, var(--p-primary-color));
   outline-offset: 2px;
 }
 
 .group-header.active {
-  color: var(--c-primary);
+  color: var(--p-primary-color);
 }

@@ -48,7 +48,7 @@
         }
       </nav>
     } @else {
-      <nav class="space-y-0.5 px-2" aria-label="Main navigation">
+      <nav class="space-y-1 px-2" aria-label="Main navigation">
         @for (entry of navSections; track $index) {
           @if ('path' in entry) {
             <a
@@ -89,7 +89,7 @@
                 />
               </button>
               @if (isGroupExpanded(entry.label)) {
-                <div @slide class="mt-0.5 space-y-0.5">
+                <div @slide class="mt-0.5 space-y-1">
                   @for (item of entry.children; track item.path) {
                     <a
                       [routerLink]="item.path"
