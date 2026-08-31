@@ -15,7 +15,7 @@ import {
   resolvePlaceholderYMax,
   type PlaceholderYKind
 } from '../../../shared/charts/chart-placeholder';
-import { chartToken } from '../../../shared/charts/echarts-presets';
+import { chartToken, echartsAxisColor, echartsGridColor, echartsLabelColor } from '../../../shared/charts/echarts-presets';
 import { ThemeService } from '../../../core/theme/theme.service';
 
 /**
@@ -62,11 +62,11 @@ export class ChartCardComponent {
   readonly placeholderXLabels = input<string[] | null>(null);
 
   readonly emptyOptions = computed<EChartsCoreOption>(() => {
-    // Read theme signal so placeholder chrome (axis/grid/labels) recomputes on toggle.
+    // Read theme signal so placeholder chrome recomputes on PrimeNG dark toggle.
     this.themeService.isDark();
-    const axisColor = chartToken('--c-border', '#e6e9ee');
-    const labelColor = chartToken('--c-muted-foreground', '#5d6b7e');
-    const gridColor = chartToken('--c-surface-3', '#e7eaf0');
+    const axisColor = echartsAxisColor();
+    const labelColor = echartsLabelColor();
+    const gridColor = echartsGridColor();
     const count = this.placeholderCount();
     const xData =
       this.placeholderXLabels() ??

@@ -1,41 +1,14 @@
 /* Design Tokens (Invoria)
-   - Base tokens: --t-*
-   - Semantic tokens: --c-* (colors), --r-* (radii), --sh-* (shadows), --m-* (motion)
-   - Theme switching: add/remove `.dark` on html or body
+   - PrimeNG is now the source of truth for ALL color palettes (Aura preset).
+   - Semantic aliases --c-* proxy to --p-* (PrimeNG) so existing Tailwind utilities
+     (bg-surface, text-foreground, etc.) and legacy CSS keep working without drift.
+   - Light/dark inversion is handled by PrimeNG via the `.dark` selector
+     (app.config.ts: darkModeSelector: '.dark'). No manual `.dark` color overrides.
+   - This file only owns non-color design tokens (radii, shadows, motion).
 */
 
 :root {
-  /* Base palette (neutral) */
-  --t-gray-0: #ffffff;
-  --t-gray-50: #f8fafc;
-  --t-gray-100: #f1f5f9;
-  --t-gray-200: #e2e8f0;
-  --t-gray-300: #cbd5e1;
-  --t-gray-400: #94a3b8;
-  --t-gray-500: #64748b;
-  --t-gray-600: #475569;
-  --t-gray-700: #334155;
-  --t-gray-800: #1f2937;
-  --t-gray-900: #0f172a;
-  --t-gray-950: #020617;
-
-  /* Base palette (brand + status) */
-  --t-brand-50: #f3f6ff;
-  --t-brand-100: #e6edff;
-  --t-brand-200: #ccd9ff;
-  --t-brand-300: #aebfff;
-  --t-brand-400: #93a5f2;
-  --t-brand-500: #7488e6;
-  --t-brand-600: #5e73d4;
-  --t-brand-700: #4a5bb2;
-  --t-brand-800: #3d4b92;
-  --t-brand-900: #333f78;
-
-  --t-success-500: #2f855a;
-  --t-warning-500: #b7791f;
-  --t-danger-500: #c2413c;
-
-  /* Base measures */
+  /* Base measures — owned by app (not palette) */
   --t-radius-sm: 0.375rem; /* 6px */
   --t-radius-md: 0.5rem; /* 8px */
   --t-radius-lg: 0.75rem; /* 12px */
@@ -50,36 +23,39 @@
   --t-duration-300: 300ms;
   --t-ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
 
-  /* Semantic colors (light) */
-  --c-surface-0: var(--t-gray-0);
-  --c-surface: #f6f7f9;
-  --c-surface-2: #eef0f4;
-  --c-surface-3: #e7eaf0;
-  --c-foreground: #2a3442;
-  --c-muted: var(--t-gray-100);
-  --c-muted-foreground: #5d6b7e;
-  --c-border: #e6e9ee;
+  /* Semantic aliases — offloaded to PrimeNG defaults (Aura) */
+  /* Surfaces: map to PrimeNG content/surface semantics so dark mode inverts automatically */
+  --c-surface-0: var(--p-surface-0);
+  --c-surface: var(--p-content-background);
+  --c-surface-2: var(--p-content-hover-background);
+  --c-surface-3: light-dark(var(--p-surface-200), var(--p-surface-800));
+  --c-foreground: var(--p-text-color);
+  --c-muted: var(--p-content-hover-background);
+  --c-muted-foreground: var(--p-text-muted-color);
+  --c-border: var(--p-content-border-color);
 
-  --c-primary: var(--t-brand-600);
-  --c-primary-foreground: var(--t-gray-0);
-  --c-secondary: var(--t-gray-900);
-  --c-secondary-foreground: var(--t-gray-0);
+  --c-primary: var(--p-primary-color);
+  --c-primary-foreground: var(--p-primary-contrast-color);
+  --c-secondary: var(--p-surface-900);
+  --c-secondary-foreground: var(--p-surface-0);
 
-  --c-success: var(--t-success-500);
-  --c-success-foreground: var(--t-gray-950);
-  --c-warning: var(--t-warning-500);
-  --c-warning-foreground: var(--t-gray-950);
-  --c-danger: var(--t-danger-500);
-  --c-danger-foreground: var(--t-gray-950);
+  /* Status — map to PrimeNG primitive palettes */
+  --c-success: var(--p-emerald-500);
+  --c-success-foreground: var(--p-surface-0);
+  --c-warning: var(--p-amber-500);
+  --c-warning-foreground: var(--p-surface-0);
+  --c-danger: var(--p-red-500);
+  --c-danger-foreground: var(--p-surface-0);
   --c-destructive: var(--c-danger);
   --c-destructive-foreground: var(--c-danger-foreground);
-  --c-accent: #7266c9;
-  --c-accent-2: #3a8cb8;
-  --c-highlight: #c98a3f;
+  /* Accents — offloaded to nearest PrimeNG primitives (sky primary) */
+  --c-accent: var(--p-violet-500);
+  --c-accent-2: var(--p-sky-400);
+  --c-highlight: var(--p-amber-400);
 
-  --c-focus: var(--t-brand-400);
+  --c-focus: var(--p-primary-color);
 
-  /* Semantic radii */
+  /* Semantic radii — still owned by app but wired to PrimeNG borderRadius */
   --r-sm: var(--t-radius-sm);
   --r-md: var(--t-radius-md);
   --r-lg: var(--t-radius-lg);
@@ -89,10 +65,11 @@
   --sh-sm: var(--t-shadow-sm);
   --sh-md: var(--t-shadow-md);
   --sh-lg: var(--t-shadow-lg);
-  --sh-glow-sm: 0 0 0 1px color-mix(in srgb, var(--c-accent), transparent 65%),
-    0 8px 24px -14px color-mix(in srgb, var(--c-accent), transparent 40%);
-  --sh-glow-md: 0 0 0 1px color-mix(in srgb, var(--c-accent-2), transparent 60%),
-    0 18px 36px -18px color-mix(in srgb, var(--c-accent-2), transparent 35%);
+  /* Glow effects now use PrimeNG accents (sky-aligned) */
+  --sh-glow-sm: 0 0 0 1px color-mix(in srgb, var(--p-sky-500), transparent 65%),
+    0 8px 24px -14px color-mix(in srgb, var(--p-sky-500), transparent 40%);
+  --sh-glow-md: 0 0 0 1px color-mix(in srgb, var(--p-sky-400), transparent 60%),
+    0 18px 36px -18px color-mix(in srgb, var(--p-sky-400), transparent 35%);
 
   /* Semantic motion */
   --m-duration-150: var(--t-duration-150);
@@ -101,33 +78,6 @@
   --m-ease-standard: var(--t-ease-standard);
 }
 
-.dark {
-  /* Semantic colors (dark) */
-  --c-surface-0: #101623;
-  --c-surface: #141a28;
-  --c-surface-2: #1b2334;
-  --c-surface-3: #232d42;
-  --c-foreground: #c2cbd8;
-  --c-muted: #1a2231;
-  --c-muted-foreground: #8d99ab;
-  --c-border: #2a3448;
-
-  --c-primary: var(--t-brand-400);
-  --c-primary-foreground: var(--t-gray-950);
-  --c-secondary: var(--t-gray-50);
-  --c-secondary-foreground: var(--t-gray-950);
-
-  --c-success: #3aa06b;
-  --c-success-foreground: var(--t-gray-950);
-  --c-warning: #cfa04e;
-  --c-warning-foreground: var(--t-gray-950);
-  --c-danger: #d16a63;
-  --c-danger-foreground: var(--t-gray-950);
-  --c-destructive: var(--c-danger);
-  --c-destructive-foreground: var(--c-danger-foreground);
-  --c-accent: #9d90dd;
-  --c-accent-2: #5fa9cf;
-  --c-highlight: #d9a468;
-
-  --c-focus: var(--t-brand-300);
-}
+/* NOTE: No `.dark` block — PrimeNG generates dark scheme variables under `.dark`
+   via darkModeSelector. The --c-* aliases above automatically resolve to dark values
+   because they proxy to --p-* which PrimeNG redefines in dark mode. */

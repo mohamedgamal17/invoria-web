@@ -4,9 +4,9 @@
   width: 40%;
   background: linear-gradient(
     90deg,
-    color-mix(in srgb, var(--c-accent-2), transparent 80%) 0%,
-    color-mix(in srgb, var(--c-accent-2), transparent 10%) 50%,
-    var(--c-accent) 100%
+    color-mix(in srgb, var(--p-sky-500), transparent 80%) 0%,
+    color-mix(in srgb, var(--p-sky-500), transparent 10%) 50%,
+    var(--p-sky-400) 100%
   );
   animation: route-progress-indeterminate 1.2s ease-in-out infinite;
 }
