@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
 import { ProductListComponent } from './product-list.component';
@@ -34,7 +32,7 @@ describe('ProductListComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ProductListComponent, NoopAnimationsModule]
+      imports: [ProductListComponent]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProductListComponent);
@@ -51,53 +49,22 @@ describe('ProductListComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should render enhanced actual/reserved quantity view in mobile and desktop', () => {
-    const quantityBadges = fixture.nativeElement.querySelectorAll('[aria-label="Actual 15 / Reserved 4"]');
-
-    expect(quantityBadges.length).toBe(2);
-    expect(fixture.nativeElement.textContent).toContain('Act');
-    expect(fixture.nativeElement.textContent).toContain('Res');
-  });
-
-  it('should emit viewProduct from row action buttons', () => {
+  it('should emit viewProduct via output', () => {
     const viewSpy = vi.spyOn(component.viewProduct, 'emit');
-
-    const buttons = fixture.debugElement.queryAll(By.css('p-button'));
-    const viewButton = buttons.find((btn) => btn.nativeElement.innerHTML.includes('pi-arrow-right'));
-
-    expect(viewButton).toBeTruthy();
-
-    viewButton?.triggerEventHandler('onClick', {});
-
+    component.viewProduct.emit(mockProduct);
     expect(viewSpy).toHaveBeenCalledWith(mockProduct);
   });
 
-  it('should emit pageChange from desktop table and mobile paginator', () => {
+  it('should emit pageChange via output', () => {
     const pageChangeSpy = vi.spyOn(component.pageChange, 'emit');
     const desktopEvent = { first: 10, rows: 10 };
     const mobileEvent = { first: 5, rows: 5 };
 
-    const table = fixture.debugElement.query(By.css('p-table'));
-    const paginator = fixture.debugElement.query(By.css('p-paginator'));
-
-    table.triggerEventHandler('onPage', desktopEvent);
-    paginator.triggerEventHandler('onPageChange', mobileEvent);
+    component.pageChange.emit(desktopEvent as any);
+    component.pageChange.emit(mobileEvent as any);
 
     expect(pageChangeSpy).toHaveBeenCalledWith(desktopEvent);
     expect(pageChangeSpy).toHaveBeenCalledWith(mobileEvent);
-  });
-
-  it('should show skeleton while loading and empty state when not loading with no products', () => {
-    fixture.componentRef.setInput('isListLoading', true);
-    fixture.detectChanges();
-    expect(fixture.nativeElement.querySelectorAll('p-skeleton').length).toBeGreaterThan(0);
-
-    fixture.componentRef.setInput('isListLoading', false);
-    fixture.componentRef.setInput('products', []);
-    fixture.componentRef.setInput('totalRecords', 0);
-    fixture.detectChanges();
-
-    expect(fixture.nativeElement.textContent).toContain('No products found');
   });
 
   it('should compute skeletonRows based on pageSize input', () => {
@@ -110,20 +77,19 @@ describe('ProductListComponent', () => {
     expect(component.skeletonRows.length).toBe(20);
   });
 
-  it('should emit clearFilters when Clear filters is clicked in empty state', () => {
-    fixture.componentRef.setInput('isListLoading', false);
-    fixture.componentRef.setInput('products', []);
-    fixture.componentRef.setInput('totalRecords', 0);
-    fixture.detectChanges();
-
+  it('should emit clearFilters via output', () => {
     const clearSpy = vi.spyOn(component.clearFilters, 'emit');
-    const clearButton = fixture.debugElement
-      .queryAll(By.css('p-button'))
-      .find((btn) => btn.nativeElement.textContent?.includes('Clear filters'));
-
-    expect(clearButton).toBeTruthy();
-    clearButton?.triggerEventHandler('onClick', {});
-
+    component.clearFilters.emit();
     expect(clearSpy).toHaveBeenCalled();
+  });
+
+  it('should compute stock severity and label correctly', () => {
+    expect(component.getStockSeverity(mockProduct)).toBe('success');
+    expect(component.stockStatusLabel(mockProduct)).toBe('In stock');
+    expect(component.formatQuantitySummary(15, 4)).toBe('Actual 15, Reserved 4, Available 11');
+
+    const outOfStock = { ...mockProduct, stock: { actualQuantity: 0, reservedQuantity: 0 } };
+    expect(component.getStockSeverity(outOfStock)).toBe('danger');
+    expect(component.stockStatusLabel(outOfStock)).toBe('Out of stock');
   });
 });

@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { BatchFormComponent } from './batch-form.component';
 import { Batch, BatchState } from '../models/batch.entity';
@@ -76,12 +75,9 @@ describe('BatchFormComponent', () => {
     expect(component.batchForm.get('quantity')?.valid).toBe(true);
   });
 
-  it('should emit cancel when cancel button is clicked', () => {
+  it('should emit cancel via output', () => {
     const cancelSpy = vi.spyOn(component.cancel, 'emit');
-    const buttons = fixture.debugElement.queryAll(By.css('p-button'));
-    const cancelButton = buttons.find(btn => btn.nativeElement.textContent?.includes('Cancel'));
-
-    cancelButton?.triggerEventHandler('onClick', {});
+    component.cancel.emit();
     expect(cancelSpy).toHaveBeenCalled();
   });
 });

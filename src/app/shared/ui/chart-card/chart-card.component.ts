@@ -1,4 +1,4 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgxEchartsDirective } from 'ngx-echarts';
 import type { EChartsCoreOption } from 'echarts/core';
@@ -15,6 +15,8 @@ import {
   resolvePlaceholderYMax,
   type PlaceholderYKind
 } from '../../../shared/charts/chart-placeholder';
+import { chartToken, echartsAxisColor, echartsGridColor, echartsLabelColor } from '../../../shared/charts/echarts-presets';
+import { ThemeService } from '../../../core/theme/theme.service';
 
 /**
  * Canonical ECharts wrapper for the app.
@@ -33,6 +35,8 @@ import {
   host: { class: 'block w-full' }
 })
 export class ChartCardComponent {
+  private readonly themeService = inject(ThemeService);
+
   title = input.required<string>();
   subtitle = input<string>('');
   options = input<EChartsCoreOption | null>(null);
@@ -58,6 +62,11 @@ export class ChartCardComponent {
   readonly placeholderXLabels = input<string[] | null>(null);
 
   readonly emptyOptions = computed<EChartsCoreOption>(() => {
+    // Read theme signal so placeholder chrome recomputes on PrimeNG dark toggle.
+    this.themeService.isDark();
+    const axisColor = echartsAxisColor();
+    const labelColor = echartsLabelColor();
+    const gridColor = echartsGridColor();
     const count = this.placeholderCount();
     const xData =
       this.placeholderXLabels() ??
@@ -77,12 +86,12 @@ export class ChartCardComponent {
         type: 'category',
         data: xData,
         boundaryGap: true,
-        axisLine: { lineStyle: { color: '#e2e8f0' } },
+        axisLine: { lineStyle: { color: axisColor } },
         axisTick: { show: false },
         // Daily uses two-line labels (weekday\nmonth day) so keep multiline readable.
         axisLabel: {
           fontSize: 10,
-          color: '#64748b',
+          color: labelColor,
           interval: 0,
           rotate: isDaily ? 0 : 18,
           lineHeight: isDaily ? 12 : undefined
@@ -95,8 +104,8 @@ export class ChartCardComponent {
         max: yMax,
         interval: yInterval,
         axisLine: { show: false },
-        axisLabel: { fontSize: 10, color: '#64748b' },
-        splitLine: { show: true, lineStyle: { type: 'dashed', color: '#f1f5f9' } }
+        axisLabel: { fontSize: 10, color: labelColor },
+        splitLine: { show: true, lineStyle: { type: 'dashed', color: gridColor } }
       },
       series: [],
       ...(this.emptyText()
@@ -107,7 +116,7 @@ export class ChartCardComponent {
               top: 'middle',
               style: {
                 text: this.emptyText(),
-                fill: '#94a3b8',
+                fill: labelColor,
                 fontSize: 12,
                 fontWeight: 500
               }

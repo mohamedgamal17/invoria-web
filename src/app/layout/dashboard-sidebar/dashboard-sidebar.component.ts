@@ -1,8 +1,17 @@
-﻿import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { trigger, style, animate, transition } from '@angular/animations';
-import { RouterLink, RouterLinkActive, type IsActiveMatchOptions } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  NavigationEnd,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+  type IsActiveMatchOptions
+} from '@angular/router';
+import { filter } from 'rxjs';
 import {
   BarChart3,
+  ChevronDown,
   ClipboardList,
   ContactRound,
   LayoutDashboard,
@@ -18,26 +27,20 @@ import {
   Users,
   Wallet,
   Warehouse,
-  LogOut,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight
+  type LucideIconData
 } from 'lucide-angular';
-import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
-import { AvatarModule } from 'primeng/avatar';
-import { ButtonModule } from 'primeng/button';
-import { CommonModule } from '@angular/common';
+import { TooltipModule } from 'primeng/tooltip';
 
 type NavItem = {
   label: string;
   path: string;
-  icon: any;
+  icon: LucideIconData;
 };
 
 type NavGroup = {
   label: string;
-  icon: any;
+  icon: LucideIconData;
   children: NavItem[];
 };
 
@@ -45,19 +48,10 @@ type SidebarEntry = NavItem | NavGroup;
 
 @Component({
   selector: 'app-dashboard-sidebar',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    RouterLinkActive,
-    LucideAngularModule,
-    TooltipModule,
-    RippleModule,
-    AvatarModule,
-    ButtonModule
-  ],
+  imports: [RouterLink, RouterLinkActive, LucideAngularModule, TooltipModule, RippleModule],
   templateUrl: './dashboard-sidebar.component.html',
   styleUrls: ['./dashboard-sidebar.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
     trigger('slide', [
       transition(':enter', [
@@ -72,17 +66,16 @@ type SidebarEntry = NavItem | NavGroup;
   ]
 })
 export class DashboardSidebarComponent {
-  @Input() collapsed = false;
-  @Output() readonly navigate = new EventEmitter<void>();
-  @Output() readonly toggleCollapse = new EventEmitter<void>();
+  readonly collapsed = input(false);
+  readonly navigate = output<void>();
 
-  readonly user = {
-    name: 'Mohamed gamal',
+  protected readonly user = {
+    name: 'Mohamed Gamal',
     email: 'mohamed@invoria.com',
-    avatar: 'MG'
+    initials: 'MG'
   };
 
-  readonly navSections: SidebarEntry[] = [
+  protected readonly navSections: SidebarEntry[] = [
     { label: 'Dashboard', path: '/', icon: LayoutDashboard },
     {
       label: 'Inventory', icon: Warehouse,
@@ -121,36 +114,41 @@ export class DashboardSidebarComponent {
     }
   ];
 
-  get flatItems(): NavItem[] {
-    return this.navSections.flatMap(s => 'children' in s ? s.children : [s]);
+  protected readonly chevronDownIcon = ChevronDown;
+
+  protected readonly expandedGroup = signal<string | null>(null);
+
+  protected readonly activeGroupLabel = signal<string | null>(null);
+
+  private readonly router = inject(Router);
+
+  protected readonly flatItems = computed<NavItem[]>(() =>
+    this.navSections.flatMap((section) => ('children' in section ? section.children : [section]))
+  );
+
+  constructor() {
+    this.syncRouteGroups(this.router.url);
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntilDestroyed()
+      )
+      .subscribe((event) => this.syncRouteGroups(event.urlAfterRedirects));
   }
 
-  readonly logoutIcon = LogOut;
-  readonly collapseIcon = ChevronLeft;
-  readonly expandIcon = ChevronRight;
-  readonly chevronDownIcon = ChevronDown;
-
-  readonly expandedGroups = signal<Set<string>>(new Set());
-
-  toggleGroup(label: string): void {
-    this.expandedGroups.update(set => {
-      const next = new Set(set);
-      if (next.has(label)) {
-        next.delete(label);
-      } else {
-        next.add(label);
-      }
-      return next;
-    });
+  protected toggleGroup(label: string): void {
+    this.expandedGroup.update((current) => (current === label ? null : label));
   }
 
-  isGroupExpanded(label: string): boolean {
-    return this.expandedGroups().has(label);
+  protected isGroupExpanded(label: string): boolean {
+    return this.expandedGroup() === label;
   }
 
-  linkActiveOptions(_path: string): IsActiveMatchOptions {
-    // Exact matching for all paths prevents parent/child double-active
-    // (e.g. /orders vs /orders/reports/sales and /orders/reports/sales vs /orders/reports/sales/metrics)
+  protected isGroupActive(label: string): boolean {
+    return this.activeGroupLabel() === label;
+  }
+
+  protected linkActiveOptions(_path: string): IsActiveMatchOptions {
     return {
       paths: 'exact',
       queryParams: 'ignored' as const,
@@ -158,6 +156,23 @@ export class DashboardSidebarComponent {
       fragment: 'ignored' as const
     };
   }
+
+  private syncRouteGroups(url: string): void {
+    const path = url.split('?')[0].split('#')[0];
+    const group = this.findGroupForPath(path);
+    this.activeGroupLabel.set(group?.label ?? null);
+    if (group) {
+      this.expandedGroup.set(group.label);
+    }
+  }
+
+  private findGroupForPath(path: string): NavGroup | undefined {
+    return this.navSections.find(
+      (entry): entry is NavGroup =>
+        'children' in entry &&
+        entry.children.some(
+          (child) => child.path === path || path.startsWith(child.path + '/')
+        )
+    );
+  }
 }
-
-

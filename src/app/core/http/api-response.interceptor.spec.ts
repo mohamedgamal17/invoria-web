@@ -5,6 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 
 import { apiResponseInterceptor } from './api-response.interceptor';
+import { environment } from '../../../environments/environment';
 
 describe('apiResponseInterceptor', () => {
   it('should turn 204 No Content into an error for API requests', () => {
@@ -17,16 +18,17 @@ describe('apiResponseInterceptor', () => {
 
     const http = TestBed.inject(HttpClient);
     const ctrl = TestBed.inject(HttpTestingController);
+    const apiUrl = `${environment.apiUrl.replace(/\s+/g, '').replace(/\/+$/, '')}/customers`;
 
     let seenError: unknown;
-    http.get('https://localhost:7012/customers').subscribe({
+    http.get(apiUrl).subscribe({
       next: () => {},
       error: (e) => {
         seenError = e;
       }
     });
 
-    const req = ctrl.expectOne('https://localhost:7012/customers');
+    const req = ctrl.expectOne(apiUrl);
     req.flush(null, { status: 204, statusText: 'No Content' });
     ctrl.verify();
 

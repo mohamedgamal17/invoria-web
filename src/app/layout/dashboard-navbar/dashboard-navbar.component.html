@@ -1,51 +1,76 @@
-<header class="sticky top-0 z-30 border-b border-border/80 bg-surface/85 backdrop-blur invoria-gradient-surface">
-  <div class="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 md:px-6">
-    <p-button
-      class="md:hidden"
-      styleClass="rounded-md border border-border bg-surface-2 p-2 text-foreground transition-all duration-200 ease-in-out hover:bg-muted hover:scale-105 active:scale-95 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus group"
+<header class="sticky top-0 z-30 border-b border-border/80 bg-surface/85 backdrop-blur">
+  <div class="mx-auto flex h-14 w-full max-w-7xl items-center gap-2 px-4 md:px-6">
+    <button
+      type="button"
+      class="nav-icon-btn md:hidden"
       aria-label="Open navigation menu"
-      (onClick)="menuClick.emit()"
+      (click)="menuClick.emit()"
     >
-      <lucide-icon [name]="menuIcon" class="size-5 transition-transform duration-200 group-hover:rotate-12" />
-    </p-button>
+      <lucide-icon [img]="menuIcon" class="size-5" aria-hidden="true" />
+    </button>
 
-    <p-button
-      class="hidden md:inline-flex"
-      styleClass="rounded-md border border-border bg-surface-2 p-2 text-foreground transition-all duration-200 ease-in-out hover:bg-muted hover:scale-105 active:scale-95 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus group"
-      (onClick)="collapseToggle.emit()"
-      [attr.aria-pressed]="collapsed"
-      aria-label="Toggle sidebar collapse"
+    <button
+      type="button"
+      class="nav-icon-btn hidden md:inline-flex"
+      [attr.aria-label]="collapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+      [attr.aria-pressed]="collapsed()"
+      (click)="collapseToggle.emit()"
     >
-      <lucide-icon 
-        [name]="collapsed ? collapseIconCollapsed : collapseIconExpanded" 
-        class="size-5 transition-transform duration-200 group-hover:scale-110" 
+      <lucide-icon
+        [img]="collapsed() ? panelLeftOpenIcon : panelLeftCloseIcon"
+        class="size-5"
+        aria-hidden="true"
       />
-    </p-button>
-
-    <div class="min-w-0">
-      <div class="text-sm font-semibold tracking-wide">Invoria Control Center</div>
-      <div class="text-xs text-muted-foreground">Creative-bold operations workspace</div>
-    </div>
+    </button>
 
     <div class="flex-1"></div>
 
-    <div class="hidden w-full max-w-sm md:block">
-      <label class="sr-only" for="globalSearch">Search</label>
-      <input
-        id="globalSearch"
-        type="search"
-        placeholder="Search products, orders, suppliers..."
-        class="w-full border border-border/70 bg-surface-2/80"
-        pInputText
-      />
-    </div>
-
-    <p-button
-      aria-label="Open user menu"
-      styleClass="rounded-md border border-border bg-surface-2 p-2 text-foreground transition-all duration-200 ease-in-out hover:bg-muted hover:scale-105 active:scale-95 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus group"
+    <button
+      type="button"
+      class="nav-icon-btn"
+      [attr.aria-label]="theme.isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
+      (click)="theme.toggleDark()"
     >
-      <lucide-icon [name]="userIcon" class="size-5 transition-transform duration-200 group-hover:scale-110" />
-    </p-button>
+      <lucide-icon
+        [img]="theme.isDark() ? sunIcon : moonIcon"
+        class="size-5 transition-transform duration-200"
+        aria-hidden="true"
+      />
+    </button>
+
+    <p-menu
+      #userMenu
+      [popup]="true"
+      [model]="userMenuItems"
+      appendTo="body"
+      (onShow)="isUserMenuVisible.set(true)"
+      (onHide)="isUserMenuVisible.set(false)"
+    />
+
+    <button
+      type="button"
+      class="nav-user-btn"
+      aria-haspopup="menu"
+      [attr.aria-expanded]="isUserMenuVisible()"
+      aria-label="Open user menu"
+      (click)="userMenu.toggle($event)"
+    >
+      <span
+        class="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground shadow-sm shadow-primary/25"
+      >
+        {{ user.initials }}
+      </span>
+      <span class="hidden min-w-0 flex-col items-start leading-tight sm:flex">
+        <span class="max-w-36 truncate text-xs font-semibold text-foreground">{{ user.name }}</span>
+        <span class="max-w-36 truncate text-2xs text-muted-foreground">{{ user.email }}</span>
+      </span>
+      <lucide-icon
+        [img]="chevronDownIcon"
+        [size]="14"
+        class="hidden shrink-0 text-muted-foreground transition-transform duration-200 sm:block"
+        [class.rotate-180]="isUserMenuVisible()"
+        aria-hidden="true"
+      />
+    </button>
   </div>
 </header>
-

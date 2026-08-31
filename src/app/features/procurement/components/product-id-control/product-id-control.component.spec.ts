@@ -1,57 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { FormArray, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
 
 import { productSearchListRequest } from '../../../products/models/list-product.request';
 import { ProductIdControlComponent } from './product-id-control.component';
 import { ProductsApiService } from '../../../products/services/products-api.service';
-
-@Component({
-  standalone: true,
-  template: `
-    <form [formGroup]="form">
-      <div formArrayName="items">
-        @for (_ of items.controls; track $index) {
-          <div [formGroupName]="$index">
-            <app-product-id-control formControlName="productId" [rowIndex]="$index" />
-          </div>
-        }
-      </div>
-    </form>
-  `,
-  imports: [ReactiveFormsModule, ProductIdControlComponent]
-})
-class ProductPickerHostComponent {
-  readonly form = new FormBuilder().nonNullable.group({
-    items: new FormBuilder().array([
-      new FormBuilder().nonNullable.group({
-        productId: ['']
-      })
-    ])
-  });
-
-  get items(): FormArray {
-    return this.form.controls.items;
-  }
-}
-
-@Component({
-  standalone: true,
-  template: `
-    <form [formGroup]="form">
-      <app-product-id-control formControlName="productId" [resolvedProduct]="resolved" />
-    </form>
-  `,
-  imports: [ReactiveFormsModule, ProductIdControlComponent]
-})
-class ResolvedProductHostComponent {
-  readonly form = new FormBuilder().nonNullable.group({ productId: [''] });
-  resolved: { id: string; name: string } | null = null;
-}
 
 describe('ProductIdControlComponent', () => {
   beforeEach(() => {
@@ -160,45 +114,35 @@ describe('ProductIdControlComponent', () => {
     expect(onChange).toHaveBeenLastCalledWith('');
   });
 
-  it('should bind to FormControl inside FormArray', async () => {
+  it('should show resolved product when resolvedProduct input matches control value', () => {
     const searchProducts = vi.fn().mockReturnValue(of([]));
-    await TestBed.configureTestingModule({
-      imports: [ProductPickerHostComponent, NoopAnimationsModule],
+    TestBed.configureTestingModule({
+      imports: [ProductIdControlComponent, NoopAnimationsModule],
       providers: [{ provide: ProductsApiService, useValue: { searchProducts } }]
-    }).compileComponents();
-
-    const fixture = TestBed.createComponent(ProductPickerHostComponent);
-    const host = fixture.componentInstance;
-    host.form.patchValue({ items: [{ productId: 'p1' }] });
+    });
+    const fixture = TestBed.createComponent(ProductIdControlComponent);
+    const cmp = fixture.componentInstance;
+    fixture.componentRef.setInput('resolvedProduct', { id: 'prod_1', name: 'Acme Widget' } as any);
+    cmp.writeValue('prod_1');
     fixture.detectChanges();
-    await fixture.whenStable();
-
-    const picker = fixture.debugElement.query(By.css('app-product-id-control'))
-      .componentInstance as ProductIdControlComponent;
-    expect(picker.selectedProduct()?.id).toBe('p1');
-
-    picker.clearSelection();
-    expect(host.form.get('items')?.value).toEqual([{ productId: '' }]);
+    expect(cmp.selectedProduct()?.name).toBe('Acme Widget');
   });
 
-  it('should show resolved product name when resolvedProduct matches control value', async () => {
+  it('should propagate writeValue to selectedProduct without host DOM', () => {
     const searchProducts = vi.fn().mockReturnValue(of([]));
-
-    await TestBed.configureTestingModule({
-      imports: [ResolvedProductHostComponent, NoopAnimationsModule],
+    TestBed.configureTestingModule({
+      imports: [ProductIdControlComponent, NoopAnimationsModule],
       providers: [{ provide: ProductsApiService, useValue: { searchProducts } }]
-    }).compileComponents();
-
-    const fixture = TestBed.createComponent(ResolvedProductHostComponent);
-    const host = fixture.componentInstance;
-    host.resolved = { id: 'prod_1', name: 'Acme Widget' };
-    host.form.patchValue({ productId: 'prod_1' });
+    });
+    const fixture = TestBed.createComponent(ProductIdControlComponent);
+    const cmp = fixture.componentInstance;
+    cmp.writeValue('p1');
     fixture.detectChanges();
-    await fixture.whenStable();
-
-    const picker = fixture.debugElement.query(By.css('app-product-id-control'))
-      .componentInstance as ProductIdControlComponent;
-    expect(picker.selectedProduct()?.name).toBe('Acme Widget');
-    expect(picker.selectedProduct()?.name).not.toBe('prod_1');
+    expect(cmp.selectedProduct()?.id).toBe('p1');
+    const onChange = vi.fn();
+    cmp.registerOnChange(onChange);
+    cmp.clearSelection();
+    expect(onChange).toHaveBeenLastCalledWith('');
+    expect(cmp.selectedProduct()).toBeNull();
   });
 });

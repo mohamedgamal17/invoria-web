@@ -1,55 +1,39 @@
+<p-toast />
+
 <section class="flex flex-col gap-8">
   <app-products-breadcrumb [items]="breadcrumbItems()" />
-
-  <div class="flex items-start justify-between">
-    <p-button
-      icon="pi pi-arrow-left"
-      label="Back to Products"
-      [text]="true"
-      styleClass="px-0 text-sm text-muted-foreground hover:text-foreground self-start"
-      (onClick)="backToList()"
-    />
-    <div class="flex flex-wrap gap-2">
-      <p-button
-        label="Edit"
-        icon="pi pi-pencil"
-        [disabled]="actionsDisabled()"
-        (onClick)="goToEdit()"
-      />
-    </div>
-  </div>
+  <app-product-details-toolbar (back)="backToList()" />
 
   @if (loading()) {
-    <p-card styleClass="border border-border/70">
-      <div class="space-y-6">
-        <div class="space-y-2">
-          <p-skeleton height="2rem" width="38%"></p-skeleton>
-          <p-skeleton height="1rem" width="22%"></p-skeleton>
+    <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
+      <div class="space-y-5 p-1">
+        <p-skeleton height="2rem" width="45%"></p-skeleton>
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <p-skeleton height="5.5rem"></p-skeleton>
+          <p-skeleton height="5.5rem"></p-skeleton>
+          <p-skeleton height="5.5rem"></p-skeleton>
         </div>
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4 space-y-2">
-            <p-skeleton height="0.75rem" width="35%"></p-skeleton>
-            <p-skeleton height="1.75rem" width="45%"></p-skeleton>
-          </div>
-          <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4 space-y-2">
-            <p-skeleton height="0.75rem" width="45%"></p-skeleton>
-            <p-skeleton height="1.75rem" width="50%"></p-skeleton>
-          </div>
-        </div>
-        <div class="grid gap-4 sm:grid-cols-2">
-          <p-skeleton height="5rem" width="100%"></p-skeleton>
-          <p-skeleton height="5rem" width="100%"></p-skeleton>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <p-skeleton height="5rem"></p-skeleton>
+          <p-skeleton height="5rem"></p-skeleton>
+          <p-skeleton height="5rem"></p-skeleton>
+          <p-skeleton height="5rem"></p-skeleton>
         </div>
       </div>
     </p-card>
   } @else if (error()) {
-    <p-card styleClass="border border-destructive/30 bg-destructive/5">
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <p-card styleClass="border border-destructive/30 rounded-2xl shadow-sm">
+      <div class="flex flex-col gap-4 p-1 sm:flex-row sm:items-center sm:justify-between">
         <div class="space-y-1">
-          <p class="text-sm font-semibold text-destructive">Could not load product details.</p>
-          <p class="text-sm text-destructive/90">{{ error() }}</p>
+          <h2 class="text-base font-semibold text-foreground">Unable to load product</h2>
+          <p class="text-sm text-destructive">{{ error() }}</p>
         </div>
-        <p-button label="Retry" icon="pi pi-refresh" [outlined]="true" (onClick)="retry()" />
+        <p-button
+          label="Retry"
+          icon="pi pi-refresh"
+          styleClass="rounded-xl px-4 py-2.5 text-sm font-semibold"
+          (onClick)="retry()"
+        />
       </div>
     </p-card>
   } @else if (product(); as p) {
@@ -61,12 +45,12 @@
       </p-tablist>
       <p-tabpanels>
         <p-tabpanel [value]="0">
-          <app-product-details-info-panel [product]="p" />
+          <app-product-details-info-panel [product]="p" (edit)="goToEdit()" />
         </p-tabpanel>
 
         <p-tabpanel [value]="1">
           <div class="pt-6">
-            <p-card styleClass="border border-border">
+            <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
               <div class="mb-4 flex flex-col gap-1 border-b border-border pb-4">
                 <span class="text-xs font-bold uppercase tracking-widest text-primary">Inventory</span>
                 <p class="m-0 text-sm text-muted-foreground">Manage batches and stock for this product.</p>
@@ -86,7 +70,7 @@
 
         <p-tabpanel [value]="2">
           <div class="pt-6">
-            <p-card styleClass="border border-border">
+            <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
               <div class="mb-4 flex flex-col gap-1 border-b border-border pb-4">
                 <span class="text-xs font-bold uppercase tracking-widest text-primary">Orders</span>
                 <p class="m-0 text-sm text-muted-foreground">

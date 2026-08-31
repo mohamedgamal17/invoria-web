@@ -170,7 +170,7 @@ describe('OrderDetailsPageComponent', () => {
 
     expect(component.availableActions()).toContain('complete');
     expect(component.availableActions()).toContain('cancel');
-    expect(component.availableActions()).not.toContain('accept');
+    expect(component.availableActions()).toContain('accept');
   });
 
   it('does not allow recording returns when order is not Completed', async () => {

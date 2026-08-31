@@ -3,7 +3,6 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
 
 import { SupplierIdControlComponent } from './supplier-id-control.component';
@@ -47,26 +46,25 @@ describe('SupplierIdControlComponent', () => {
     expect(onChange).toHaveBeenLastCalledWith('');
   });
 
-  it('should bind to FormControl via formControlName', async () => {
+  it('should sync resolved supplier via input and propagate to form control', () => {
     const searchSuppliers = vi.fn().mockReturnValue(of([]));
-    await TestBed.configureTestingModule({
-      imports: [SupplierPickerHostComponent, NoopAnimationsModule],
+    TestBed.configureTestingModule({
+      imports: [SupplierIdControlComponent, NoopAnimationsModule],
       providers: [{ provide: SuppliersApiService, useValue: { searchSuppliers } }]
-    }).compileComponents();
-
-    const fixture = TestBed.createComponent(SupplierPickerHostComponent);
-    const host = fixture.componentInstance;
-    host.resolved = { id: 'sup_1', name: 'Acme' };
-    host.form.patchValue({ supplierId: 'sup_1' });
+    });
+    const fixture = TestBed.createComponent(SupplierIdControlComponent);
+    const cmp = fixture.componentInstance;
+    fixture.componentRef.setInput('resolvedSupplier', { id: 'sup_1', name: 'Acme' } as any);
+    cmp.writeValue('sup_1');
     fixture.detectChanges();
-    await fixture.whenStable();
-
-    const picker = fixture.debugElement.query(By.css('app-supplier-id-control'))
-      .componentInstance as SupplierIdControlComponent;
-    expect(picker.selectedSupplier()?.name).toBe('Acme');
-
-    picker.clearSelection();
-    expect(host.form.get('supplierId')?.value).toBe('');
+    expect(cmp.selectedSupplier()?.name).toBe('Acme');
+    cmp.clearSelection();
+    // clearSelection should propagate empty value via CVA
+    const onChange = vi.fn();
+    cmp.registerOnChange(onChange);
+    cmp.writeValue('sup_1');
+    cmp.clearSelection();
+    expect(onChange).toHaveBeenLastCalledWith('');
   });
 
   it('does not duplicate API call when completeMethod fires twice with empty query', () => {

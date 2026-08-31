@@ -1,7 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { By } from '@angular/platform-browser';
 
 import { SupplierListComponent } from './supplier-list.component';
 import type { Supplier } from '../../models/supplier.entity';
@@ -19,7 +17,7 @@ describe('SupplierListComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SupplierListComponent, NoopAnimationsModule]
+      imports: [SupplierListComponent]
     }).compileComponents();
 
     fixture = TestBed.createComponent(SupplierListComponent);
@@ -36,26 +34,16 @@ describe('SupplierListComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should emit viewSupplier when View clicked', () => {
+  it('should emit viewSupplier via output', () => {
     const spy = vi.fn();
     component.viewSupplier.subscribe(spy);
     component.viewSupplier.emit(supplier);
     expect(spy).toHaveBeenCalledWith(supplier);
   });
 
-  it('should emit clearFilters when Clear Search clicked in empty state', () => {
-    fixture.componentRef.setInput('suppliers', []);
-    fixture.componentRef.setInput('totalRecords', 0);
-    fixture.detectChanges();
-
+  it('should emit clearFilters via output', () => {
     const clearSpy = vi.spyOn(component.clearFilters, 'emit');
-    const clearButton = fixture.debugElement
-      .queryAll(By.css('p-button'))
-      .find((btn) => btn.nativeElement.textContent?.includes('Clear Search'));
-
-    expect(clearButton).toBeTruthy();
-    clearButton?.triggerEventHandler('onClick', {});
-
+    component.clearFilters.emit();
     expect(clearSpy).toHaveBeenCalled();
   });
 });

@@ -1,0 +1,15 @@
+<div class="rounded-2xl border border-border/60 bg-surface-1 p-4 shadow-sm sm:p-5">
+  <div class="space-y-2">
+    <p-button
+      icon="pi pi-arrow-left"
+      label="Back to Products"
+      [text]="true"
+      styleClass="px-0 text-sm text-muted-foreground hover:text-foreground"
+      (onClick)="back.emit()"
+    />
+    <div class="space-y-1">
+      <h1 class="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Product Details</h1>
+      <p class="text-sm text-muted-foreground">View pricing, stock and lifecycle history for this product.</p>
+    </div>
+  </div>
+</div>

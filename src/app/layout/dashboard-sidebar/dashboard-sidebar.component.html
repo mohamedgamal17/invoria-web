@@ -1,44 +1,38 @@
-<!-- Modern Sidebar Container -->
 <aside
-  class="sticky top-0 h-screen border-r border-border/80 bg-surface-2 invoria-gradient-surface transition-all duration-300 ease-in-out flex flex-col z-20 shrink-0 overflow-hidden"
-  [class.w-64]="!collapsed"
-  [class.md:w-64]="!collapsed"
-  [class.w-20]="collapsed"
-  [class.md:w-20]="collapsed"
+  class="sticky top-0 z-20 flex h-dvh shrink-0 flex-col overflow-hidden border-r border-border/80 bg-surface-2 transition-all duration-300 ease-in-out"
+  [class.w-64]="!collapsed()"
+  [class.w-20]="collapsed()"
 >
-  <!-- Header / Brand Section -->
-  <div class="p-4 h-16 flex items-center shrink-0 transition-all duration-300" [class.justify-center]="collapsed" [class.gap-3]="!collapsed">
+  <div
+    class="flex h-14 shrink-0 items-center gap-3 border-b border-border/60 px-4 transition-all duration-300"
+    [class.justify-center]="collapsed()"
+    [class.px-0]="collapsed()"
+  >
     <div
-      class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+      class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/25"
     >
-      <span class="text-lg font-extrabold italic">I</span>
+      <span class="text-base font-extrabold italic">I</span>
     </div>
-    <div
-      class="flex flex-col overflow-hidden transition-all duration-300 ease-in-out"
-      [class.opacity-0]="collapsed"
-      [class.w-0]="collapsed"
-      [class.opacity-100]="!collapsed"
-      [class.w-auto]="!collapsed"
-    >
-      <span class="text-sm font-bold tracking-tight text-foreground whitespace-nowrap">Invoria</span>
-      <span class="text-[10px] uppercase tracking-widest text-muted-foreground font-medium whitespace-nowrap"
-        >Operations Admin</span
-      >
-    </div>
+    @if (!collapsed()) {
+      <div class="flex min-w-0 flex-col">
+        <span class="whitespace-nowrap text-sm font-bold tracking-tight text-foreground">Invoria</span>
+        <span
+          class="whitespace-nowrap text-2xs font-medium uppercase tracking-widest text-muted-foreground"
+          >Operations Admin</span
+        >
+      </div>
+    }
   </div>
 
-  <!-- Main Navigation Area (Scrollable) -->
-  <div class="flex-1 overflow-y-auto px-3 py-4 custom-scrollbar">
-    <!-- Primary Navigation -->
-    @if (collapsed) {
-      <!-- Collapsed: flat list of all items (icons only) -->
-      <nav class="space-y-1">
-        @for (item of flatItems; track item.path) {
+  <div class="custom-scrollbar flex-1 overflow-y-auto py-3">
+    @if (collapsed()) {
+      <nav class="space-y-1 px-2" aria-label="Main navigation">
+        @for (item of flatItems(); track item.path) {
           <a
             [routerLink]="item.path"
-            routerLinkActive="bg-primary/10 text-primary font-semibold shadow-glow-sm active"
+            routerLinkActive="active"
             [routerLinkActiveOptions]="linkActiveOptions(item.path)"
-            class="flex items-center rounded-lg px-3 py-2.5 text-sm transition-all duration-200 hover:bg-muted group relative overflow-hidden justify-center cursor-pointer"
+            class="nav-link group justify-center"
             pRipple
             [pTooltip]="item.label"
             tooltipPosition="right"
@@ -49,24 +43,19 @@
               [size]="18"
               class="shrink-0 transition-transform duration-200 group-hover:scale-110"
               aria-hidden="true"
-            ></lucide-icon>
-            <div
-              class="indicator-dot absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full transition-opacity opacity-0"
-            ></div>
+            />
           </a>
         }
       </nav>
     } @else {
-      <!-- Expanded: grouped navigation with headers -->
-      <nav class="space-y-4">
+      <nav class="space-y-1 px-2" aria-label="Main navigation">
         @for (entry of navSections; track $index) {
           @if ('path' in entry) {
-            <!-- Standalone link (Dashboard) -->
             <a
               [routerLink]="entry.path"
-              routerLinkActive="bg-primary/10 text-primary font-semibold shadow-glow-sm active"
+              routerLinkActive="active"
               [routerLinkActiveOptions]="linkActiveOptions(entry.path)"
-              class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 hover:bg-muted group relative overflow-hidden cursor-pointer"
+              class="nav-link group mt-3 first:mt-0"
               pRipple
               (click)="navigate.emit()"
             >
@@ -75,28 +64,20 @@
                 [size]="18"
                 class="shrink-0 transition-transform duration-200 group-hover:scale-110"
                 aria-hidden="true"
-              ></lucide-icon>
-              <span class="whitespace-nowrap overflow-hidden">
-                {{ entry.label }}
-              </span>
-              <div
-                class="indicator-dot absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full transition-opacity opacity-0"
-              ></div>
+              />
+              <span class="whitespace-nowrap">{{ entry.label }}</span>
             </a>
           } @else {
-            <!-- Group -->
-            <div>
+            <div class="mt-3 border-t border-border/50 pt-3 first:mt-0 first:border-t-0 first:pt-0">
               <button
+                type="button"
+                class="group-header"
+                [class.active]="isGroupActive(entry.label)"
+                [attr.aria-expanded]="isGroupExpanded(entry.label)"
                 (click)="toggleGroup(entry.label)"
-                class="flex w-full items-center justify-between gap-1.5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-foreground/80 rounded-lg hover:bg-muted transition-all cursor-pointer"
               >
                 <span class="flex items-center gap-1.5">
-                  <lucide-icon
-                    [img]="entry.icon"
-                    [size]="14"
-                    class="shrink-0"
-                    aria-hidden="true"
-                  ></lucide-icon>
+                  <lucide-icon [img]="entry.icon" [size]="14" class="shrink-0" aria-hidden="true" />
                   {{ entry.label }}
                 </span>
                 <lucide-icon
@@ -105,16 +86,16 @@
                   class="shrink-0 transition-transform duration-200"
                   [class.rotate-180]="isGroupExpanded(entry.label)"
                   aria-hidden="true"
-                ></lucide-icon>
+                />
               </button>
               @if (isGroupExpanded(entry.label)) {
-                <div @slide class="space-y-0.5">
+                <div @slide class="mt-0.5 space-y-1">
                   @for (item of entry.children; track item.path) {
                     <a
                       [routerLink]="item.path"
-                      routerLinkActive="bg-primary/10 text-primary font-semibold shadow-glow-sm active"
+                      routerLinkActive="active"
                       [routerLinkActiveOptions]="linkActiveOptions(item.path)"
-                      class="flex items-center gap-3 rounded-lg px-3 py-2 pl-9 text-sm transition-all duration-200 hover:bg-muted group relative overflow-hidden cursor-pointer"
+                      class="nav-link group pl-10"
                       pRipple
                       (click)="navigate.emit()"
                     >
@@ -123,13 +104,8 @@
                         [size]="18"
                         class="shrink-0 transition-transform duration-200 group-hover:scale-110"
                         aria-hidden="true"
-                      ></lucide-icon>
-                      <span class="whitespace-nowrap overflow-hidden">
-                        {{ item.label }}
-                      </span>
-                      <div
-                        class="indicator-dot absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full transition-opacity opacity-0"
-                      ></div>
+                      />
+                      <span class="whitespace-nowrap">{{ item.label }}</span>
                     </a>
                   }
                 </div>
@@ -141,44 +117,25 @@
     }
   </div>
 
-  <!-- Footer / Profile Section -->
-  <div class="mt-auto border-t border-border p-4 bg-surface/30 backdrop-blur-sm">
-    <div class="flex items-center transition-all duration-300" [class.justify-center]="collapsed" [class.gap-3]="!collapsed">
-      <p-avatar
-        [label]="user.avatar"
-        shape="circle"
-        styleClass="bg-primary text-primary-foreground font-bold shadow-sm"
-        [pTooltip]="collapsed ? user.name : ''"
-        tooltipPosition="right"
-      ></p-avatar>
-      <div
-        class="flex flex-col overflow-hidden transition-all duration-300 ease-in-out flex-1"
-        [class.opacity-0]="collapsed"
-        [class.w-0]="collapsed"
+  <div class="shrink-0 border-t border-border/60 bg-surface/40 p-3 backdrop-blur-sm">
+    <div
+      class="flex items-center rounded-xl p-1.5 transition-colors duration-200 hover:bg-muted"
+      [class.justify-center]="collapsed()"
+      [class.gap-3]="!collapsed()"
+      [pTooltip]="collapsed() ? user.name : ''"
+      tooltipPosition="top"
+    >
+      <span
+        class="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground shadow-md shadow-primary/25"
       >
-        <span class="text-xs font-semibold text-foreground truncate">{{ user.name }}</span>
-        <span class="text-[10px] text-muted-foreground truncate">{{ user.email }}</span>
-      </div>
-      @if (!collapsed) {
-        <button
-          class="p-2 rounded-lg hover:bg-danger/10 hover:text-danger text-muted-foreground transition-all shrink-0"
-          pRipple
-          pTooltip="Logout"
-          tooltipPosition="top"
-        >
-          <lucide-icon [img]="logoutIcon" [size]="16"></lucide-icon>
-        </button>
+        {{ user.initials }}
+      </span>
+      @if (!collapsed()) {
+        <div class="min-w-0">
+          <span class="block truncate text-xs font-semibold text-foreground">{{ user.name }}</span>
+          <span class="block truncate text-2xs text-muted-foreground">{{ user.email }}</span>
+        </div>
       }
     </div>
   </div>
-
-  <!-- Toggle Button (Optional floating or integrated) -->
-  <button
-    (click)="toggleCollapse.emit()"
-    class="absolute -right-3 top-20 hidden md:flex h-6 w-6 items-center justify-center rounded-full border border-border bg-surface text-muted-foreground hover:bg-muted hover:text-foreground shadow-sm transition-all z-10"
-    pRipple
-  >
-    <lucide-icon [img]="collapsed ? expandIcon : collapseIcon" [size]="12"></lucide-icon>
-  </button>
 </aside>
-

@@ -4,9 +4,9 @@
   width: 40%;
   background: linear-gradient(
     90deg,
-    rgb(59 130 246 / 0.2) 0%,
-    rgb(59 130 246 / 1) 50%,
-    rgb(14 165 233 / 0.9) 100%
+    color-mix(in srgb, var(--p-sky-500), transparent 80%) 0%,
+    color-mix(in srgb, var(--p-sky-500), transparent 10%) 50%,
+    var(--p-sky-400) 100%
   );
   animation: route-progress-indeterminate 1.2s ease-in-out infinite;
 }
@@ -18,5 +18,33 @@
 
   100% {
     transform: translateX(260%);
+  }
+}
+
+.mobile-drawer {
+  animation: drawer-slide-in var(--t-duration-300) var(--t-ease-standard) both;
+}
+
+@keyframes drawer-slide-in {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+.drawer-backdrop {
+  animation: backdrop-fade-in var(--t-duration-200) ease-out both;
+}
+
+@keyframes backdrop-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }

@@ -1,11 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MessageService } from 'primeng/api';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { of } from 'rxjs';
 import { ProductBatchesModalComponent } from './product-batches-modal.component';
-import { ProductBatchesPanelComponent } from './product-batches-panel.component';
 import type { BatchesProductRef } from '../models/batches-product.ref';
 import { BatchesApiService } from '../services/batches-api.service';
 
@@ -46,14 +44,12 @@ describe('ProductBatchesModalComponent', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('should pass active to panel when visible and product are set', () => {
+  it('should compute panelActive as true when visible and product are set', () => {
     fixture.componentRef.setInput('product', mockProduct);
     fixture.componentInstance.visible.set(true);
     fixture.detectChanges();
 
-    const panel = fixture.debugElement.query(By.directive(ProductBatchesPanelComponent));
-    expect(panel).toBeTruthy();
-    expect(panel.componentInstance.active()).toBe(true);
+    expect(fixture.componentInstance.panelActive()).toBe(true);
   });
 
   it('should set panel inactive when dialog is not visible', () => {
@@ -61,6 +57,12 @@ describe('ProductBatchesModalComponent', () => {
     fixture.componentInstance.visible.set(false);
     fixture.detectChanges();
 
+    expect(fixture.componentInstance.panelActive()).toBe(false);
+  });
+
+  it('should be inactive when product is not set even if visible', () => {
+    fixture.componentInstance.visible.set(true);
+    fixture.detectChanges();
     expect(fixture.componentInstance.panelActive()).toBe(false);
   });
 });

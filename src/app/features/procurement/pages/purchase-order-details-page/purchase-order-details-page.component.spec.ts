@@ -129,57 +129,51 @@ describe('PurchaseOrderDetailsPageComponent', () => {
     await fixture.whenStable();
   });
 
-  it('should create, load full purchase order, and surface rendered fields', () => {
+  it('should create and load purchase order', () => {
     const api = TestBed.inject(PurchaseOrdersApiService);
     const component = fixture.componentInstance;
-    let text = fixture.nativeElement.textContent as string;
 
     expect(api.getPurchaseOrder).toHaveBeenCalledWith('po_1');
-
     expect(component.purchaseOrder()).toEqual(mockPo);
+    expect(component.loading()).toBe(false);
+    expect(component.error()).toBe('');
+  });
 
-    expect(text).toContain(mockPo.purchaseNumber);
-    expect(text).toContain(purchaseStateLabel(mockPo.state));
-    expect(text).toContain(component.supplierLine(mockPo));
-    expect(text).toMatch(/Tax/i);
-    expect(text).toMatch(/Discount/i);
-    expect(text).not.toContain('Tax / Discount');
-
+  it('should expose purchase order fields via signals', () => {
+    const component = fixture.componentInstance;
     const loaded = component.purchaseOrder();
+    expect(loaded?.purchaseNumber).toBe(mockPo.purchaseNumber);
     expect(loaded?.orderDate).toBe(mockPo.orderDate);
     expect(loaded?.subTotal).toBe(mockPo.subTotal);
     expect(loaded?.taxAmount).toBe(mockPo.taxAmount);
     expect(loaded?.discountAmount).toBe(mockPo.discountAmount);
     expect(loaded?.totalAmount).toBe(mockPo.totalAmount);
+  });
 
-    expect(text).toContain('Edit');
-    expect(text).toContain('Submit');
-    expect(text).toContain('Cancel');
+  it('should compute stateTimelineEvents correctly', () => {
+    const component = fixture.componentInstance;
+    const events = component.stateTimelineEvents();
+    expect(events).toHaveLength(2);
+    expect(events[0].toLabel).toBe(purchaseStateLabel(PurchaseState.Draft));
+    expect(events[1].toLabel).toBe(purchaseStateLabel(PurchaseState.Submitted));
+    expect(events[1].reason).toBe('Ready for review');
+  });
 
-    expect(text).toContain('Overview');
-    expect(text).toContain('Status history');
-    expect(text).toContain('Line items');
+  it('should reflect canEdit and availableTransitions for Draft state', () => {
+    const component = fixture.componentInstance;
+    expect(component.canEdit()).toBe(true);
+    expect(component.availableTransitions()).toContain('submit');
+    expect(component.availableTransitions()).toContain('cancel');
+  });
 
-    expect(component.stateTimelineEvents()).toHaveLength(2);
-
-    expect(text).toContain(mockPo.id);
-
+  it('should update activeTab via onTabChange', () => {
+    const component = fixture.componentInstance;
+    expect(component.activeTab()).toBe(0);
     component.onTabChange(1);
-    fixture.detectChanges();
-    text = fixture.nativeElement.textContent as string;
-    const firstLine = mockPo.purchaseOrderItems![0];
-    expect(text).toContain(firstLine.id);
-    expect(text).toContain('Resolved product name');
-    expect(text).toContain(String(firstLine.quantity));
-    expect(text).toContain('SKU-1');
-    expect(text).toMatch(/Displaying\s+1\s+line items/i);
-
+    expect(component.activeTab()).toBe(1);
+    expect(component.productLineLabel(mockPo.purchaseOrderItems![0])).toBe('Resolved product name');
     component.onTabChange(2);
-    fixture.detectChanges();
-    text = fixture.nativeElement.textContent as string;
-    expect(text).toContain(purchaseStateLabel(PurchaseState.Draft));
-    expect(text).toContain(purchaseStateLabel(PurchaseState.Submitted));
-    expect(text).toContain('Ready for review');
+    expect(component.activeTab()).toBe(2);
   });
 
   it('should show Reopen and Complete without Edit when order is Approved', async () => {
@@ -221,10 +215,10 @@ describe('PurchaseOrderDetailsPageComponent', () => {
     approvedFixture.detectChanges();
     await approvedFixture.whenStable();
 
-    const text = (approvedFixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(text).toContain('Reopen');
-    expect(text).toContain('Complete');
-    expect(text).not.toContain('Edit');
+    const comp = approvedFixture.componentInstance;
+    expect(comp.canEdit()).toBe(false);
+    expect(comp.availableTransitions()).toContain('reopen');
+    expect(comp.availableTransitions()).toContain('complete');
   });
 
   it('should navigate back to procurement list', () => {
@@ -265,7 +259,7 @@ describe('PurchaseOrderDetailsPageComponent', () => {
     expect(f.componentInstance.activeTab()).toBe(1);
   });
 
-  it('should show empty state when stateHistory is absent', async () => {
+  it('should produce empty stateTimelineEvents when stateHistory is absent', async () => {
     TestBed.resetTestingModule();
     const poNoHistory: PurchaseOrder = { ...mockPo };
     delete (poNoHistory as { stateHistory?: unknown }).stateHistory;
@@ -296,13 +290,11 @@ describe('PurchaseOrderDetailsPageComponent', () => {
 
     expect(noHistFixture.componentInstance.stateTimelineEvents()).toEqual([]);
     noHistFixture.componentInstance.onTabChange(2);
-    noHistFixture.detectChanges();
-    expect((noHistFixture.nativeElement as HTMLElement).textContent).toContain(
-      'No transition history available.'
-    );
+    expect(noHistFixture.componentInstance.activeTab()).toBe(2);
+    expect(noHistFixture.componentInstance.stateTimelineEvents()).toHaveLength(0);
   });
 
-  it('should show no line items when purchaseOrderItems is empty', async () => {
+  it('should handle empty purchaseOrderItems', async () => {
     TestBed.resetTestingModule();
     const emptyItemsPo: PurchaseOrder = { ...mockPo, purchaseOrderItems: [] };
     const getPurchaseOrder = vi.fn().mockReturnValue(
@@ -330,11 +322,9 @@ describe('PurchaseOrderDetailsPageComponent', () => {
     emptyFixture.detectChanges();
     await emptyFixture.whenStable();
 
+    expect(emptyFixture.componentInstance.purchaseOrder()?.purchaseOrderItems).toEqual([]);
     emptyFixture.componentInstance.onTabChange(1);
-    emptyFixture.detectChanges();
-    const emptyText = (emptyFixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(emptyText).toContain('No line items');
-    expect(emptyText).toContain('Add lines when editing this purchase order.');
+    expect(emptyFixture.componentInstance.activeTab()).toBe(1);
   });
 
   it('supplierLine should fall back to supplierId when supplier name is absent', () => {

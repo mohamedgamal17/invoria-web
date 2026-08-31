@@ -5,13 +5,15 @@
 @import 'primeicons/primeicons.css';
 
 /* Tailwind v4 CSS-first theming
-   This maps semantic tokens into Tailwind theme keys so utilities like
-   `bg-surface`, `text-foreground`, `border-border`, `rounded-md`, `shadow-sm`,
-   and `duration-150` work everywhere. */
+    Color utilities (bg-surface, text-foreground, border-border, etc.) now
+    proxy to PrimeNG Aura tokens via --c-* aliases (tokens.css: --c-* -> --p-*).
+    PrimeNG is the canonical palette; Tailwind is a consumer, not an owner.
+    This keeps existing templates working while eliminating palette contradictions. */
 @theme {
   --color-surface-0: var(--c-surface-0);
   --color-surface: var(--c-surface);
   --color-surface-2: var(--c-surface-2);
+  --color-surface-3: var(--c-surface-3);
   --color-foreground: var(--c-foreground);
   --color-muted: var(--c-muted);
   --color-muted-foreground: var(--c-muted-foreground);
@@ -57,18 +59,18 @@
 
 @import 'tailwindcss';
 
-/* Shared visual helpers for reusable creative-bold surfaces. */
+/* Shared visual helpers — now driven by PrimeNG semantics */
 .invoria-gradient-surface {
   background-image: none;
 }
 
 .modern-popover {
-  border: 1px solid color-mix(in srgb, var(--c-border), var(--c-accent) 10%);
+  border: 1px solid var(--p-content-border-color);
   border-radius: var(--r-lg);
   box-shadow: var(--sh-md);
-  background: color-mix(in srgb, var(--c-surface), var(--c-surface-2) 8%);
+  background: var(--p-content-background);
 }
 
 .custom-timeline .p-timeline-event-connector {
-  background: color-mix(in srgb, var(--c-border), var(--c-accent) 12%);
+  background: var(--p-content-border-color);
 }

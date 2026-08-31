@@ -48,11 +48,11 @@
           </div>
           <div class="flex items-center justify-between gap-3">
             <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider shrink-0">Profit</span>
-            <span class="text-sm font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">EGP {{ row.totalProfit | number:'1.2-2' }}</span>
+            <span class="text-sm font-semibold tabular-nums text-success">EGP {{ row.totalProfit | number:'1.2-2' }}</span>
           </div>
           <div class="flex items-center justify-between gap-3">
             <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider shrink-0">Returns</span>
-            <span class="text-sm font-semibold tabular-nums text-red-600 dark:text-red-400">EGP {{ row.totalReturnAmount | number:'1.2-2' }}</span>
+            <span class="text-sm font-semibold tabular-nums text-danger">EGP {{ row.totalReturnAmount | number:'1.2-2' }}</span>
           </div>
         </div>
       </div>
@@ -85,7 +85,7 @@
 </div>
 
 <!-- Desktop Table View -->
-<app-surface-card tone="accent" class="hidden md:block overflow-visible">
+<app-surface-card tone="neutral" class="hidden md:block overflow-visible">
   <p-table
     #dt
     [value]="rows()"

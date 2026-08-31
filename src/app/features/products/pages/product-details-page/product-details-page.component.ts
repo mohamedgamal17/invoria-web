@@ -9,15 +9,30 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
+import { ToastModule } from 'primeng/toast';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
 import { ProductDetailsInfoPanelComponent } from '../../components/product-details-info-panel/product-details-info-panel.component';
+import { ProductDetailsToolbarComponent } from '../../components/product-details-toolbar/product-details-toolbar.component';
 import { ProductDetailsOrdersPanelComponent } from '../../components/product-details-orders-panel/product-details-orders-panel.component';
 import { ProductBatchesPanelComponent } from '../../../inventory/components/product-batches-panel.component';
 import type { BatchesProductRef } from '../../../inventory/models/batches-product.ref';
 import { ProductsBreadcrumbComponent } from '../../components/products-breadcrumb/products-breadcrumb.component';
 import type { Product } from '../../models/product.entity';
 import { ProductsApiService } from '../../services/products-api.service';
+
+function tabSlugToIndex(tab: string | null): number | null {
+  if (tab === 'batches') return 1;
+  if (tab === 'orders') return 2;
+  if (tab === 'info' || tab === null || tab === '') return 0;
+  return null;
+}
+
+function indexToTabSlug(index: number): 'info' | 'batches' | 'orders' {
+  if (index === 1) return 'batches';
+  if (index === 2) return 'orders';
+  return 'info';
+}
 
 @Component({
   selector: 'app-product-details-page',
@@ -27,16 +42,19 @@ import { ProductsApiService } from '../../services/products-api.service';
     ButtonModule,
     CardModule,
     SkeletonModule,
+    ToastModule,
     Tabs,
     TabList,
     Tab,
     TabPanels,
     TabPanel,
     ProductsBreadcrumbComponent,
+    ProductDetailsToolbarComponent,
     ProductDetailsInfoPanelComponent,
     ProductBatchesPanelComponent,
     ProductDetailsOrdersPanelComponent,
   ],
+  providers: [MessageService],
   templateUrl: './product-details-page.component.html',
 })
 export class ProductDetailsPageComponent {
@@ -48,7 +66,7 @@ export class ProductDetailsPageComponent {
 
   private readonly productId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
-    { initialValue: '' },
+    { initialValue: this.route.snapshot.paramMap.get('id') ?? '' },
   );
 
   private readonly queryParamsSig = toSignal(
@@ -59,7 +77,13 @@ export class ProductDetailsPageComponent {
         pageSize: m.get('pageSize'),
       })),
     ),
-    { initialValue: { tab: null, page: null, pageSize: null } },
+    {
+      initialValue: {
+        tab: this.route.snapshot.queryParamMap.get('tab'),
+        page: this.route.snapshot.queryParamMap.get('page'),
+        pageSize: this.route.snapshot.queryParamMap.get('pageSize'),
+      },
+    },
   );
 
   readonly pageSizeOptions = [25, 50, 100, 200];
@@ -122,13 +146,7 @@ export class ProductDetailsPageComponent {
     const n = typeof value === 'number' ? value : Number(value);
     const next = Number.isFinite(n) ? n : 0;
     this.activeTab.set(next);
-
-    type TabSlug = 'batches' | 'info' | 'orders';
-    const tabSlug: TabSlug | undefined =
-      next === 1 ? 'batches' : next === 0 ? 'info' : next === 2 ? 'orders' : undefined;
-    if (!tabSlug) {
-      return;
-    }
+    const tabSlug = indexToTabSlug(next);
 
     void this.router.navigate([], {
       relativeTo: this.route,
@@ -212,7 +230,7 @@ export class ProductDetailsPageComponent {
         relativeTo: this.route,
         replaceUrl: true,
         queryParams: {
-          tab: this.activeTab() === 1 ? 'batches' : this.activeTab() === 2 ? 'orders' : 'info',
+          tab: indexToTabSlug(this.activeTab()),
           page: newPageIndex + 1,
           pageSize: rows,
         },
@@ -233,25 +251,26 @@ export class ProductDetailsPageComponent {
     page: string | null;
     pageSize: string | null;
   }): void {
-    const tab = qp.tab?.toLowerCase();
-    if (tab === 'batches') {
-      this.activeTab.set(1);
-    } else if (tab === 'orders') {
-      this.activeTab.set(2);
-    } else if (tab === 'info') {
-      this.activeTab.set(0);
+    const idx = tabSlugToIndex(qp.tab?.toLowerCase() ?? qp.tab);
+    if (idx !== null && this.activeTab() !== idx) {
+      this.activeTab.set(idx);
     }
 
-    if (qp.page !== null) {
-      const pn = parseInt(qp.page, 10);
-      if (Number.isFinite(pn) && pn >= 1) {
-        this.pageIndex.set(pn - 1);
+    const isBatchesTab = (idx ?? this.activeTab()) === 1;
+
+    // Only honor page/pageSize when batches tab is active to avoid polluting other tabs' URLs
+    if (isBatchesTab) {
+      if (qp.page !== null) {
+        const pn = parseInt(qp.page, 10);
+        if (Number.isFinite(pn) && pn >= 1) {
+          this.pageIndex.set(pn - 1);
+        }
       }
-    }
-    if (qp.pageSize !== null) {
-      const psz = parseInt(qp.pageSize, 10);
-      if (Number.isFinite(psz) && this.pageSizeOptions.includes(psz)) {
-        this.pageSize.set(psz);
+      if (qp.pageSize !== null) {
+        const psz = parseInt(qp.pageSize, 10);
+        if (Number.isFinite(psz) && this.pageSizeOptions.includes(psz)) {
+          this.pageSize.set(psz);
+        }
       }
     }
   }
