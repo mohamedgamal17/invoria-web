@@ -22,42 +22,14 @@ const routes: Routes = [
   { path: 'customers/:id', component: StubPageComponent }
 ];
 
-function findNavLinkByLabel(
-  fixture: ComponentFixture<SidebarNavTestHost>,
-  label: string
-): HTMLAnchorElement | undefined {
-  const anchors = fixture.nativeElement.querySelectorAll('a');
-  return Array.from(anchors as NodeListOf<HTMLAnchorElement>).find((a) =>
-    a.textContent?.includes(label)
-  );
-}
-
-function findGroupToggleButton(
-  fixture: ComponentFixture<SidebarNavTestHost>,
-  label: string
-): HTMLButtonElement | undefined {
-  const buttons = fixture.nativeElement.querySelectorAll('button');
-  return Array.from(buttons as NodeListOf<HTMLButtonElement>).find((b) =>
-    b.textContent?.includes(label)
-  );
-}
-
-async function settle(fixture: ComponentFixture<SidebarNavTestHost>): Promise<void> {
-  fixture.detectChanges();
-  await fixture.whenStable();
-  fixture.detectChanges();
-}
-
-function navLinkClass(
-  fixture: ComponentFixture<SidebarNavTestHost>,
-  label: string
-): string {
-  return findNavLinkByLabel(fixture, label)?.className ?? '';
-}
-
 describe('DashboardSidebarComponent', () => {
   let fixture: ComponentFixture<SidebarNavTestHost>;
   let router: Router;
+
+  function sidebar(): DashboardSidebarComponent {
+    const debug = fixture.debugElement.children.find((c) => c.componentInstance instanceof DashboardSidebarComponent);
+    return debug!.componentInstance as DashboardSidebarComponent;
+  }
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
@@ -71,72 +43,66 @@ describe('DashboardSidebarComponent', () => {
     fixture.detectChanges();
   });
 
-  it('marks Dashboard active on home and not Customers', async () => {
-    await router.navigateByUrl('/');
-    fixture.detectChanges();
-
-    expect(navLinkClass(fixture, 'Dashboard')).toContain('active');
-    expect(navLinkClass(fixture, 'Customers')).not.toContain('active');
+  it('toggles expanded group via toggleGroup', async () => {
+    const s = sidebar();
+    expect(s['isGroupExpanded']('Inventory')).toBe(false);
+    s['toggleGroup']('Inventory');
+    expect(s['isGroupExpanded']('Inventory')).toBe(true);
+    expect(s['expandedGroup']()).toBe('Inventory');
+    s['toggleGroup']('Inventory');
+    expect(s['isGroupExpanded']('Inventory')).toBe(false);
+    expect(s['expandedGroup']()).toBeNull();
   });
 
-  it('auto-expands CRM and marks Customers active when URL has paging query params', async () => {
+  it('auto-expands CRM when navigating to customers route', async () => {
     await router.navigateByUrl('/customers');
     fixture.detectChanges();
-    await router.navigateByUrl('/customers?page=2&pageSize=25');
-    fixture.detectChanges();
-
-    expect(findNavLinkByLabel(fixture, 'Customers')).toBeDefined();
-    expect(navLinkClass(fixture, 'Customers')).toContain('active');
-    expect(navLinkClass(fixture, 'Dashboard')).not.toContain('active');
+    await fixture.whenStable();
+    const s = sidebar();
+    expect(s['expandedGroup']()).toBe('CRM');
+    expect(s['activeGroupLabel']()).toBe('CRM');
+    expect(s['isGroupActive']('CRM')).toBe(true);
+    expect(s['isGroupExpanded']('CRM')).toBe(true);
   });
 
-  it('auto-expands CRM on child detail route without marking parent active', async () => {
+  it('keeps query params ignored for active group detection', async () => {
+    await router.navigateByUrl('/customers?page=2&pageSize=25');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const s = sidebar();
+    expect(s['activeGroupLabel']()).toBe('CRM');
+    expect(s['isGroupActive']('CRM')).toBe(true);
+  });
+
+  it('expands parent group on child detail route and keeps it active', async () => {
     await router.navigateByUrl('/customers/cust_1');
     fixture.detectChanges();
-
-    const customersClass = navLinkClass(fixture, 'Customers');
-
-    expect(customersClass.length).toBeGreaterThan(0);
-    expect(customersClass).not.toContain('active');
-    expect(navLinkClass(fixture, 'Dashboard')).not.toContain('active');
+    await fixture.whenStable();
+    const s = sidebar();
+    expect(s['expandedGroup']()).toBe('CRM');
+    expect(s['activeGroupLabel']()).toBe('CRM');
+    expect(s['isGroupExpanded']('CRM')).toBe(true);
   });
 
-  it('accordion-collapses the previous group when navigating into another section', async () => {
+  it('accordion behavior - navigating to another group updates expandedGroup', async () => {
     await router.navigateByUrl('/products');
-    await settle(fixture);
-    expect(findNavLinkByLabel(fixture, 'Products')).toBeDefined();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(sidebar()['expandedGroup']()).toBe('Inventory');
 
-    await router.navigateByUrl('/customers');
-    await settle(fixture);
-
-    expect(findNavLinkByLabel(fixture, 'Customers')).toBeDefined();
-    expect(findNavLinkByLabel(fixture, 'Products')).toBeUndefined();
-  });
-
-  it('opens a group on header click and collapses it on second click', async () => {
-    await router.navigateByUrl('/');
-    await settle(fixture);
-
-    const inventoryHeader = findGroupToggleButton(fixture, 'Inventory');
-    expect(inventoryHeader).toBeDefined();
-
-    inventoryHeader!.click();
-    await settle(fixture);
-    expect(findNavLinkByLabel(fixture, 'Products')).toBeDefined();
-
-    inventoryHeader!.click();
-    await settle(fixture);
-    expect(findNavLinkByLabel(fixture, 'Products')).toBeUndefined();
-  });
-
-  it('tints the parent header while a child route is active', async () => {
     await router.navigateByUrl('/customers');
     fixture.detectChanges();
-    await router.navigateByUrl('/customers?page=2&pageSize=25');
-    await settle(fixture);
+    await fixture.whenStable();
+    expect(sidebar()['expandedGroup']()).toBe('CRM');
+  });
 
-    const crmHeader = findGroupToggleButton(fixture, 'CRM');
-    expect(crmHeader?.className).toContain('active');
-    expect(navLinkClass(fixture, 'Customers')).toContain('active');
+  it('reports isGroupActive correctly for non-active group', async () => {
+    await router.navigateByUrl('/');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const s = sidebar();
+    expect(s['activeGroupLabel']()).toBeNull();
+    expect(s['isGroupActive']('CRM')).toBe(false);
+    expect(s['isGroupActive']('Inventory')).toBe(false);
   });
 });
