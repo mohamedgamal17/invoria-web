@@ -48,6 +48,12 @@ describe('OrderFormComponent', () => {
   it('formSubmit on step 2 emits submit in create mode', () => {
     const submitSpy = vi.fn();
     component.submit.subscribe(submitSpy);
+    component.selectedCustomer.set({
+      id: 'c1',
+      name: 'Alice',
+      createdAt: '2026-01-01T00:00:00.000Z'
+    });
+    fixture.componentRef.setInput('draftItems', [validItem]);
     component.activeStep.set(2);
 
     component.formSubmit(new Event('submit'));
@@ -85,7 +91,7 @@ describe('OrderFormComponent', () => {
       component.formSubmit(new Event('submit'));
 
       expect(submitSpy).not.toHaveBeenCalled();
-      expect(component.stepError()).toContain('line item');
+      expect(component.stepError()).toContain('product');
     });
 
     it('onEditTabChange switches tab and clears stepError', () => {
