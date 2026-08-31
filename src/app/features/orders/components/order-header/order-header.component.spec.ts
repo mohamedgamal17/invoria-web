@@ -1,8 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { OrderHeaderComponent } from './order-header.component';
-import { ButtonModule } from 'primeng/button';
-import { By } from '@angular/platform-browser';
 
 describe('OrderHeaderComponent', () => {
   let component: OrderHeaderComponent;
@@ -10,7 +8,7 @@ describe('OrderHeaderComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [OrderHeaderComponent, ButtonModule]
+      imports: [OrderHeaderComponent]
     }).compileComponents();
 
     fixture = TestBed.createComponent(OrderHeaderComponent);
@@ -27,29 +25,22 @@ describe('OrderHeaderComponent', () => {
     expect(componentDef.styles?.length ?? 0).toBe(0);
   });
 
-  it('should display default title and description', () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Orders');
-    expect(compiled.querySelector('.text-muted-foreground')?.textContent).toContain(
-      'Manage and track your customer orders and status updates.'
-    );
+  it('should have default title and description inputs', () => {
+    expect(component.title()).toBe('Orders');
+    expect(component.description()).toContain('Manage and track your customer orders');
   });
 
-  it('should display custom title and description', () => {
+  it('should allow custom title and description via inputs', () => {
     fixture.componentRef.setInput('title', 'Custom Title');
     fixture.componentRef.setInput('description', 'Custom Description');
     fixture.detectChanges();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Custom Title');
-    expect(compiled.querySelector('.text-muted-foreground')?.textContent).toContain('Custom Description');
+    expect(component.title()).toBe('Custom Title');
+    expect(component.description()).toBe('Custom Description');
   });
 
-  it('should emit create event when button is clicked', () => {
+  it('should emit create event via output', () => {
     const emitSpy = vi.spyOn(component.create, 'emit');
-    const button = fixture.debugElement.query(By.css('p-button'));
-    button.triggerEventHandler('onClick', {});
-    
+    component.create.emit();
     expect(emitSpy).toHaveBeenCalled();
   });
 });

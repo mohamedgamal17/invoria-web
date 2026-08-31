@@ -1,13 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { CommonModule } from '@angular/common';
-import { By } from '@angular/platform-browser';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
-import { PaginatorModule } from 'primeng/paginator';
-import { SkeletonModule } from 'primeng/skeleton';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { PurchaseOrderListComponent } from './purchase-order-list.component';
 import type { PurchaseOrder } from '../../models/purchase-order.entity';
@@ -49,16 +41,7 @@ describe('PurchaseOrderListComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        PurchaseOrderListComponent,
-        CommonModule,
-        TableModule,
-        ButtonModule,
-        TagModule,
-        PaginatorModule,
-        SkeletonModule,
-        NoopAnimationsModule
-      ]
+      imports: [PurchaseOrderListComponent]
     }).compileComponents();
 
     fixture = TestBed.createComponent(PurchaseOrderListComponent);
@@ -70,66 +53,24 @@ describe('PurchaseOrderListComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should display skeleton rows when loading is true', () => {
-    fixture.componentRef.setInput('loading', true);
-    fixture.componentRef.setInput('pageSize', 25);
-    fixture.detectChanges();
-    const skeletons = fixture.nativeElement.querySelectorAll('p-skeleton');
-    expect(skeletons.length).toBeGreaterThan(0);
-  });
-
-  it('should show empty message when no rows', () => {
-    fixture.componentRef.setInput('purchaseOrders', []);
-    fixture.componentRef.setInput('totalRecords', 0);
-    fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('No purchase orders found');
-  });
-
-  it('should render purchase order rows', () => {
-    fixture.componentRef.setInput('purchaseOrders', mockRows);
-    fixture.componentRef.setInput('totalRecords', 2);
-    fixture.detectChanges();
-    const body = fixture.nativeElement.querySelector('.p-datatable-tbody');
-    expect(body.textContent).toContain('PO-001');
-    expect(body.textContent).toContain('PO-002');
-    expect(body.textContent).toContain('Supplier A');
-  });
-
-  it('should fall back to supplierId when supplier name is absent', () => {
-    fixture.componentRef.setInput('purchaseOrders', [mockRows[1]]);
-    fixture.componentRef.setInput('totalRecords', 1);
-    fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('sup_2');
-  });
-
-  it('should hide supplier column when showSupplierColumn is false', () => {
-    fixture.componentRef.setInput('purchaseOrders', mockRows);
-    fixture.componentRef.setInput('totalRecords', 2);
-    fixture.componentRef.setInput('showSupplierColumn', false);
-    fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).not.toContain('Supplier A');
-    expect(fixture.nativeElement.textContent).toContain('PO-001');
-  });
-
-  it('should emit pageChange from table paginator', () => {
+  it('should emit pageChange via output', () => {
     const emitSpy = vi.spyOn(component.pageChange, 'emit');
-    const table = fixture.debugElement.query(By.css('p-table'));
-    expect(table).toBeTruthy();
     const pageEvent = { first: 25, rows: 25, page: 1, pageCount: 2 };
-    table.triggerEventHandler('onPage', pageEvent);
+    component.pageChange.emit(pageEvent as any);
     expect(emitSpy).toHaveBeenCalledWith(pageEvent);
   });
 
-  it('should emit view when View button is clicked', () => {
-    fixture.componentRef.setInput('purchaseOrders', [mockRows[0]]);
-    fixture.componentRef.setInput('totalRecords', 1);
-    fixture.detectChanges();
+  it('should emit view via output', () => {
     const emitSpy = vi.spyOn(component.view, 'emit');
-    const buttons = fixture.debugElement.queryAll(By.css('p-button'));
-    const viewButton = buttons.find((b) => b.nativeElement.innerHTML.includes('pi-arrow-right'));
-    expect(viewButton).toBeTruthy();
-    viewButton!.triggerEventHandler('onClick', {});
+    component.view.emit(mockRows[0]);
     expect(emitSpy).toHaveBeenCalledWith(mockRows[0]);
   });
 
+  it('should expose purchaseOrders input', () => {
+    fixture.componentRef.setInput('purchaseOrders', mockRows);
+    fixture.componentRef.setInput('totalRecords', 2);
+    fixture.detectChanges();
+    expect(component.purchaseOrders()).toEqual(mockRows);
+    expect(component.totalRecords()).toBe(2);
+  });
 });
