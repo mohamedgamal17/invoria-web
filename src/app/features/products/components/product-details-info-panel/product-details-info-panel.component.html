@@ -1,47 +1,84 @@
-<div class="pt-5 space-y-6">
-  <p-card styleClass="border border-border/70">
-    <div class="space-y-4">
-      <h3 class="text-2xs font-bold uppercase tracking-widest">Product Name</h3>
-      <div class="text-lg font-bold text-foreground truncate">{{ product().name }}</div>
-    </div>
-  </p-card>
+<div class="grid gap-5 pt-5">
+  <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
+    <div class="space-y-5">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div class="space-y-1">
+          <p class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Product</p>
+          <h2 class="text-2xl font-bold tracking-tight text-foreground break-words">{{ product().name }}</h2>
+          <p class="text-xs text-muted-foreground break-all">ID: {{ product().id }}</p>
+        </div>
+        <div class="flex shrink-0 justify-start sm:justify-end">
+          <p-button
+            label="Edit"
+            icon="pi pi-pencil"
+            styleClass="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90 transition-all"
+            (onClick)="edit.emit()"
+          />
+        </div>
+      </div>
 
-  <p-card styleClass="border border-border/70">
-    <div class="space-y-4">
-      <h3 class="text-2xs font-bold uppercase tracking-widest">Pricing</h3>
-      <div class="text-lg font-bold tabular-nums text-foreground">
-        EGP {{ product().price | number:'1.2-2' }}
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="rounded-xl border border-border/60 bg-surface-2/50 p-4">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Product Name</div>
+          <div class="mt-1.5 text-sm font-semibold text-foreground break-words">{{ product().name }}</div>
+        </div>
+        <div class="rounded-xl border border-border/60 bg-surface-2/50 p-4">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Price</div>
+          <div class="mt-1.5 text-sm font-semibold tabular-nums text-foreground">
+            EGP {{ product().price | number: '1.2-2' }}
+          </div>
+        </div>
+        <div class="rounded-xl border border-border/60 bg-surface-2/50 p-4 sm:col-span-2 lg:col-span-1">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Stock Overview</div>
+          <div class="mt-2 grid grid-cols-2 gap-3">
+            <div class="space-y-0.5">
+              <div class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Actual</div>
+              <div class="text-base font-bold tabular-nums text-foreground">{{ product().stock.actualQuantity }}</div>
+            </div>
+            <div class="space-y-0.5">
+              <div class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Reserved</div>
+              <div class="text-base font-bold tabular-nums text-foreground">{{ product().stock.reservedQuantity }}</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </p-card>
 
-  <p-card styleClass="border border-border/70">
+  <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
     <div class="space-y-4">
-      <h3 class="text-2xs font-bold uppercase tracking-widest">Stock</h3>
-      <div class="grid gap-4 sm:grid-cols-2">
-        <div class="space-y-1">
-          <div class="text-2xs font-bold uppercase tracking-wider">Actual Quantity</div>
-          <div class="text-lg font-bold tabular-nums text-foreground">{{ product().stock.actualQuantity }}</div>
-        </div>
-        <div class="space-y-1">
-          <div class="text-2xs font-bold uppercase tracking-wider">Reserved Quantity</div>
-          <div class="text-lg font-bold tabular-nums text-foreground">{{ product().stock.reservedQuantity }}</div>
-        </div>
+      <div class="space-y-1">
+        <p class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Audit</p>
+        <h3 class="text-lg font-semibold text-foreground">Lifecycle Information</h3>
       </div>
-    </div>
-  </p-card>
 
-  <p-card styleClass="border border-border/70">
-    <div class="space-y-4">
-      <h3 class="text-2xs font-bold uppercase tracking-widest">Audit</h3>
-      <div class="grid gap-4 sm:grid-cols-2">
-        <div class="space-y-1">
-          <div class="text-2xs font-bold uppercase tracking-wider">Created</div>
-          <div class="text-lg font-bold text-foreground">{{ product().createdAt | date: 'medium' }}</div>
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Created At</div>
+          <div class="mt-1.5 text-sm font-semibold text-foreground">
+            {{ product().createdAt | date: 'medium' }}
+          </div>
         </div>
-        <div class="space-y-1">
-          <div class="text-2xs font-bold uppercase tracking-wider">Last Modified</div>
-          <div class="text-lg font-bold text-foreground">{{ product().lastModifiedAt | date: 'medium' }}</div>
+
+        <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Created By</div>
+          <div class="mt-1.5 text-sm font-semibold text-foreground break-words">
+            {{ product().createdBy || 'N/A' }}
+          </div>
+        </div>
+
+        <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Last Modified At</div>
+          <div class="mt-1.5 text-sm font-semibold text-foreground">
+            {{ product().lastModifiedAt ? (product().lastModifiedAt | date: 'medium') : 'N/A' }}
+          </div>
+        </div>
+
+        <div class="rounded-xl border border-border/60 bg-surface-2/40 p-4">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Last Modified By</div>
+          <div class="mt-1.5 text-sm font-semibold text-foreground break-words">
+            {{ product().lastModifiedBy || 'N/A' }}
+          </div>
         </div>
       </div>
     </div>
