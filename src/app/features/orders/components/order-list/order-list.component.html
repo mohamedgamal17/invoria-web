@@ -18,10 +18,10 @@
           </div>
         </div>
         <div class="space-y-2.5 pt-3 border-t border-border/50">
-          @for (__ of [1,2,3,4]; track __) {
+          @for (__ of [1,2,3]; track __) {
             <div class="flex items-center justify-between gap-2">
               <p-skeleton height="0.65rem" width="4.5rem"></p-skeleton>
-              <p-skeleton height="1.5rem" width="7rem" shape="rectangle"></p-skeleton>
+              <p-skeleton height="1rem" width="6rem"></p-skeleton>
             </div>
           }
         </div>
@@ -64,20 +64,18 @@
             />
           </div>
           <div class="flex items-start justify-between gap-3">
-            <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider pt-1 shrink-0">Payment type</span>
-            <p-tag
-              [value]="paymentTypeDisplay(order.paymentType)"
-              [severity]="getPaymentTypeSeverity(order.paymentType)"
-              styleClass="max-w-[65%] shrink px-2.5 py-1 text-[10px] font-semibold tracking-tight rounded-md border border-border text-right"
-            />
+            <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider pt-0.5 shrink-0">Payment type</span>
+            <span class="inline-flex items-center gap-1.5 text-sm font-medium max-w-[65%] shrink justify-end text-right" [ngClass]="getPaymentTypeTextClass(order.paymentType)">
+              <i [ngClass]="getPaymentTypeIcon(order.paymentType)" class="text-xs"></i>
+              {{ paymentTypeDisplay(order.paymentType) }}
+            </span>
           </div>
           <div class="flex items-start justify-between gap-3">
-            <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider pt-1 shrink-0">Payment</span>
-            <p-tag
-              [value]="paymentStatusDisplay(order.paymentStatus)"
-              [severity]="getPaymentStatusSeverity(order.paymentStatus)"
-              styleClass="max-w-[65%] shrink px-2.5 py-1 text-[10px] font-semibold tracking-tight rounded-md border border-border text-right"
-            />
+            <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider pt-0.5 shrink-0">Payment</span>
+            <span class="inline-flex items-center gap-1.5 text-sm font-medium max-w-[65%] shrink justify-end text-right" [ngClass]="getPaymentStatusTextClass(order.paymentStatus)">
+              <i [ngClass]="getPaymentStatusIcon(order.paymentStatus)" class="text-xs"></i>
+              {{ paymentStatusDisplay(order.paymentStatus) }}
+            </span>
           </div>
         </div>
 
@@ -86,7 +84,11 @@
           <div class="flex flex-col">
             <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-0.5">Total Amount</span>
             <span class="text-lg font-black text-foreground tabular-nums">
-              EGP {{ order.totalAmount | number:'1.2-2' }}
+              @if (order.netOfTotalOrderAmount != null) {
+                EGP {{ order.netOfTotalOrderAmount | number:'1.2-2' }}
+              } @else {
+                <span class="text-muted-foreground">—</span>
+              }
             </span>
           </div>
           <div class="flex flex-col items-end gap-2">
@@ -193,7 +195,7 @@
           </div>
         </td>
         <td class="px-4 py-5">
-          <span class="text-sm text-foreground">{{ order.customerName }}</span>
+          <span class="text-sm text-foreground">{{ customerDisplayName(order) }}</span>
         </td>
         <td class="px-4 py-5">
           <p-tag
@@ -204,31 +206,36 @@
         
         </td>
         <td class="px-4 py-5">
-          <p-tag
-            [value]="paymentTypeDisplay(order.paymentType)"
-            [severity]="getPaymentTypeSeverity(order.paymentType)"
-            styleClass="px-2 py-1 text-[10px] font-bold tracking-tight rounded-md border border-border"
-          />
+          <span class="inline-flex items-center gap-1.5 text-sm font-medium" [ngClass]="getPaymentTypeTextClass(order.paymentType)">
+            <i [ngClass]="getPaymentTypeIcon(order.paymentType)" class="text-xs"></i>
+            {{ paymentTypeDisplay(order.paymentType) }}
+          </span>
         </td>
         <td class="px-4 py-5">
-          <p-tag
-            [value]="paymentStatusDisplay(order.paymentStatus)"
-            [severity]="getPaymentStatusSeverity(order.paymentStatus)"
-            styleClass="px-2 py-1 text-[10px] font-bold tracking-tight rounded-md border border-border"
-          />
+          <span class="inline-flex items-center gap-1.5 text-sm font-medium" [ngClass]="getPaymentStatusTextClass(order.paymentStatus)">
+            <i [ngClass]="getPaymentStatusIcon(order.paymentStatus)" class="text-xs"></i>
+            {{ paymentStatusDisplay(order.paymentStatus) }}
+          </span>
         </td>
         <td class="px-4 py-5 text-right">
           <div class="text-sm font-bold text-foreground tabular-nums">
-            EGP {{ order.totalAmount | number:'1.2-2' }}
+            @if (order.netOfTotalOrderAmount != null) {
+              EGP {{ order.netOfTotalOrderAmount | number:'1.2-2' }}
+            } @else {
+              <span class="text-muted-foreground">—</span>
+            }
           </div>
         </td>
         <td class="px-4 py-5 text-right">
           <div class="flex justify-end items-center gap-1">
             <p-button
-              label="View"
-              icon="pi pi-arrow-right"
-              size="small"
-              styleClass="h-8 px-3 mr-1"
+              icon="pi pi-chevron-right"
+              [text]="true"
+              [rounded]="true"
+              severity="secondary"
+              pTooltip="View order"
+              tooltipPosition="top"
+              styleClass="w-8 h-8"
               (onClick)="view.emit(order)"
             />
 
@@ -266,21 +273,20 @@
             <p-skeleton height="1.5rem" width="5rem" shape="rectangle"></p-skeleton>
           </td>
           <td class="px-4 py-5">
-            <p-skeleton height="1.5rem" width="5rem" shape="rectangle"></p-skeleton>
+            <p-skeleton height="1rem" width="5rem"></p-skeleton>
           </td>
           <td class="px-4 py-5">
-            <p-skeleton height="1.5rem" width="4rem" shape="rectangle"></p-skeleton>
-          </td>
-          <td class="px-4 py-5">
-            <p-skeleton height="1.5rem" width="4rem" shape="rectangle"></p-skeleton>
+            <p-skeleton height="1rem" width="4.5rem"></p-skeleton>
           </td>
           <td class="px-4 py-5 text-right">
             <p-skeleton height="1.1rem" width="4rem" styleClass="ml-auto"></p-skeleton>
           </td>
           <td class="px-4 py-5 text-right">
             <div class="flex justify-end gap-2">
-              <p-skeleton shape="circle" size="2.25rem"></p-skeleton>
-              <p-skeleton shape="circle" size="2.25rem"></p-skeleton>
+              <p-skeleton shape="circle" size="2rem"></p-skeleton>
+              @if (showDelete()) {
+                <p-skeleton shape="circle" size="2rem"></p-skeleton>
+              }
             </div>
           </td>
         </tr>
