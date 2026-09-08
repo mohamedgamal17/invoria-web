@@ -109,6 +109,7 @@ export class OrderListComponent {
       case PaymentStatus.Partial:
         return 'warn';
       case PaymentStatus.Unpaid:
+        return 'danger';
       default:
         return 'secondary';
     }
@@ -151,6 +152,7 @@ export class OrderListComponent {
       case PaymentStatus.Partial:
         return 'text-warning';
       case PaymentStatus.Unpaid:
+        return 'text-danger';
       default:
         return 'text-muted-foreground';
     }
