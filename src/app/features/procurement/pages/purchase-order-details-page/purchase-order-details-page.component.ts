@@ -25,6 +25,7 @@ import { purchaseStateLabel, purchaseStateSeverity } from '../../models/purchase
 import { PurchaseOrdersApiService } from '../../services/purchase-orders-api.service';
 import { ProductsApiService } from '../../../products/services/products-api.service';
 import type { ApiResponse } from '../../../../core/models/api-response';
+import { PurchaseOrderDetailsOverviewTabComponent } from '../../components/purchase-order-details-overview-tab/purchase-order-details-overview-tab.component';
 import { PurchaseOrderDetailsLinesTabComponent } from '../../components/purchase-order-details-lines-tab/purchase-order-details-lines-tab.component';
 import {
   PurchaseOrderDetailsHistoryTabComponent,
@@ -60,6 +61,7 @@ function tabSlugToIndex(tab: string | null): number | null {
     Tab,
     TabPanels,
     TabPanel,
+    PurchaseOrderDetailsOverviewTabComponent,
     PurchaseOrderDetailsLinesTabComponent,
     PurchaseOrderDetailsHistoryTabComponent
   ],

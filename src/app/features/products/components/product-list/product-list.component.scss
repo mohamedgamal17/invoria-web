@@ -1,0 +1,8 @@
+:host {
+  display: block;
+}
+
+/* Tabular alignment helper — Tailwind tabular-nums is primary; this ensures isolation if utilities are purged. */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}

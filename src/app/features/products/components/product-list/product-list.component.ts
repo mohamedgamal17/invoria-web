@@ -4,7 +4,6 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { PaginatorModule } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
-import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import type { PaginatorState } from 'primeng/paginator';
 import type { TablePageEvent } from 'primeng/table';
@@ -12,6 +11,13 @@ import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-sta
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
 
 import type { Product } from '../../models/product.entity';
+
+/**
+ * Matches Arabic script code points (including supplements).
+ * Used as fallback since Product has no locale/language field — see product.entity.ts.
+ * Avoid broad RTL sniffing; scope to Arabic per bilingual catalog requirement.
+ */
+const ARABIC_RE = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
 
 @Component({
   selector: 'app-product-list',
@@ -22,12 +28,12 @@ import type { Product } from '../../models/product.entity';
     TableModule,
     PaginatorModule,
     SkeletonModule,
-    TagModule,
     TooltipModule,
     EmptyStateComponent,
     SurfaceCardComponent
   ],
-  templateUrl: './product-list.component.html'
+  templateUrl: './product-list.component.html',
+  styleUrl: './product-list.component.scss'
 })
 export class ProductListComponent {
   products = input.required<Product[]>();
@@ -57,6 +63,14 @@ export class ProductListComponent {
   formatQuantitySummary(actualQuantity: number, reservedQuantity: number): string {
     const available = actualQuantity - reservedQuantity;
     return `Actual ${actualQuantity}, Reserved ${reservedQuantity}, Available ${available}`;
+  }
+
+  availableQuantity(product: Product): number {
+    return product.stock.actualQuantity - product.stock.reservedQuantity;
+  }
+
+  isRtlName(name: string): boolean {
+    return ARABIC_RE.test(name ?? '');
   }
 
   get skeletonRows(): number[] {

@@ -100,7 +100,14 @@
       </p-tablist>
       <p-tabpanels>
         <p-tabpanel [value]="0">
-          <div class="pt-5 w-full"></div>
+          <div class="pt-5 w-full">
+            <app-purchase-order-details-overview-tab
+              [po]="po"
+              [currencyCode]="currencyCode"
+              [supplierLine]="supplierLine(po)"
+              [supplierCode]="supplierCodeLine(po)"
+            />
+          </div>
         </p-tabpanel>
         <p-tabpanel [value]="1">
           <div class="pt-5 min-w-0">

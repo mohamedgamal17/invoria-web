@@ -109,6 +109,7 @@ export class OrderListComponent {
       case PaymentStatus.Partial:
         return 'warn';
       case PaymentStatus.Unpaid:
+        return 'danger';
       default:
         return 'secondary';
     }
@@ -125,6 +126,61 @@ export class OrderListComponent {
         return 'warn';
       default:
         return 'secondary';
+    }
+  }
+
+  /** Icon for payment status inline display — uses existing PrimeIcons (no new library). */
+  getPaymentStatusIcon(status: PaymentStatus | undefined): string {
+    if (status === undefined) return 'pi pi-minus';
+    switch (status) {
+      case PaymentStatus.Paid:
+        return 'pi pi-check-circle';
+      case PaymentStatus.Partial:
+        return 'pi pi-clock';
+      case PaymentStatus.Unpaid:
+      default:
+        return 'pi pi-times-circle';
+    }
+  }
+
+  /** Tailwind text class for payment status — reuses existing --c-* tokens via text-* utilities. */
+  getPaymentStatusTextClass(status: PaymentStatus | undefined): string {
+    if (status === undefined) return 'text-muted-foreground';
+    switch (status) {
+      case PaymentStatus.Paid:
+        return 'text-success';
+      case PaymentStatus.Partial:
+        return 'text-warning';
+      case PaymentStatus.Unpaid:
+        return 'text-danger';
+      default:
+        return 'text-muted-foreground';
+    }
+  }
+
+  /** Icon for payment type plain-text display — secondary text, not status/badge classes. */
+  getPaymentTypeIcon(type: PaymentType | undefined): string {
+    if (type === undefined) return 'pi pi-minus';
+    switch (type) {
+      case PaymentType.Immediate:
+        return 'pi pi-bolt';
+      case PaymentType.Debt:
+        return 'pi pi-credit-card';
+      default:
+        return 'pi pi-wallet';
+    }
+  }
+
+  /** Tailwind text class for payment type — reuses existing --c-* tokens via text-* utilities. Immediate=primary (sky), Debt=warning (amber). */
+  getPaymentTypeTextClass(type: PaymentType | undefined): string {
+    if (type === undefined) return 'text-muted-foreground';
+    switch (type) {
+      case PaymentType.Immediate:
+        return 'text-primary';
+      case PaymentType.Debt:
+        return 'text-warning';
+      default:
+        return 'text-muted-foreground';
     }
   }
 }
