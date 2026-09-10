@@ -31,7 +31,6 @@ export interface UiOrder {
   orderNumber: string;
   customerId?: string;
   customerName: string;
-  totalAmount: number;
   netOfTotalOrderAmount: number;
   returnsTotal: number;
   amountDue?: number;
@@ -52,6 +51,6 @@ export interface UiOrder {
 
 export type OrderCreateInput = Pick<
   UiOrder,
-  'orderNumber' | 'customerName' | 'totalAmount' | 'orderDate' | 'items'
+  'orderNumber' | 'customerName' | 'netOfTotalOrderAmount' | 'orderDate' | 'items'
 >;
-export type OrderUpdateInput = Partial<Pick<UiOrder, 'orderNumber' | 'customerName' | 'totalAmount' | 'items'>>;
+export type OrderUpdateInput = Partial<Pick<UiOrder, 'orderNumber' | 'customerName' | 'netOfTotalOrderAmount' | 'items'>>;

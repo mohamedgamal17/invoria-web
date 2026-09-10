@@ -58,7 +58,6 @@ export function orderToUiOrder(order: Order): UiOrder {
     orderNumber: raw.orderNumber ?? raw.OrderNumber ?? '',
     customerId: raw.customerId ?? raw.CustomerId ?? '',
     customerName: raw.customer?.name ?? raw.Customer?.Name ?? '',
-    totalAmount: nSub !== 0 ? nSub : derivedFromItems,
     netOfTotalOrderAmount: safeNet,
     returnsTotal: nReturns,
     status: raw.status ?? raw.Status,
