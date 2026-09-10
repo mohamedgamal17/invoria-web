@@ -7,8 +7,7 @@ export function purchaseOrderItemToUiItem(line: PurchaseOrderItem): UiPurchaseOr
     productId: line.productId,
     productName: line.productName?.trim() ? line.productName.trim() : line.productId,
     quantity: line.quantity,
-    unitPrice: line.unitPrice,
-    supplierProductCode: line.supplierProductCode ?? null
+    unitPrice: line.unitPrice
   };
 }
 
@@ -16,12 +15,10 @@ export function draftItemsToPurchaseOrderLineItems(
   items: UiPurchaseOrderItem[]
 ): CreatePurchaseOrderLineItemRequest[] {
   return items.map((item) => {
-    const code = item.supplierProductCode?.trim();
     return {
       ProductId: item.productId,
       Quantity: item.quantity,
-      UnitPrice: item.unitPrice,
-      SupplierProductCode: code ? code : null
+      UnitPrice: item.unitPrice
     };
   });
 }

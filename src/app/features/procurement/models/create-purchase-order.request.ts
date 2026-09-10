@@ -5,7 +5,6 @@ export interface CreatePurchaseOrderLineItemRequest {
   ProductId: string;
   Quantity: number;
   UnitPrice: number;
-  SupplierProductCode?: string | null;
 }
 
 /**
@@ -13,9 +12,5 @@ export interface CreatePurchaseOrderLineItemRequest {
  */
 export interface CreatePurchaseOrderRequest {
   SupplierId: string;
-  TaxAmount: number;
-  DiscountAmount: number;
-  OrderDate?: string | null;
-  ExpectedDeliveryDate?: string | null;
   PurchaseOrderItems: CreatePurchaseOrderLineItemRequest[];
 }

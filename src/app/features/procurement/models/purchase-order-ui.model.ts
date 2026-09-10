@@ -4,5 +4,4 @@ export interface UiPurchaseOrderItem {
   productName: string;
   quantity: number;
   unitPrice: number;
-  supplierProductCode?: string | null;
 }

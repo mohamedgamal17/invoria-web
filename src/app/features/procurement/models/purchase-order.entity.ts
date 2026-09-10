@@ -6,11 +6,10 @@ import type { PurchaseState } from '../enums/purchase-state.enum';
 export interface PurchaseOrderItem {
   id: string;
   productId: string;
-  /** When present on the DTO, shown as the product label without an extra catalog request. */
+  /** UI-only enrichment from product catalog; never sent by the API. */
   productName?: string | null;
   quantity: number;
   unitPrice: number;
-  supplierProductCode?: string | null;
   lineTotal: number;
 }
 
@@ -39,12 +38,8 @@ export interface PurchaseOrder extends Entity {
   supplierId: string;
   supplier?: PurchaseOrderSupplierRef | null;
   state: PurchaseState;
-  orderDate?: string | null;
-  expectedDeliveryDate?: string | null;
   completedDate?: string | null;
   subTotal: number;
-  taxAmount: number;
-  discountAmount: number;
   totalAmount: number;
   /** Omitted or empty when list is fetched with `IncludePurchaseItems: false`. */
   purchaseOrderItems?: PurchaseOrderItem[];
