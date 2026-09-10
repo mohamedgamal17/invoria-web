@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { InputTextModule } from 'primeng/inputtext';
 import { StepperModule } from 'primeng/stepper';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { TableModule } from 'primeng/table';
@@ -28,7 +27,6 @@ type PurchaseOrderFormEditTab = 0 | 1;
     AutoCompleteModule,
     ButtonModule,
     InputNumberModule,
-    InputTextModule,
     StepperModule,
     Tabs,
     TabList,
@@ -45,10 +43,6 @@ export class PurchaseOrderFormComponent {
   mode = input<'create' | 'edit'>('create');
   purchaseNumber = input('');
   subTotal = input(0);
-  taxAmount = model(0);
-  discountAmount = model(0);
-  orderDate = model('');
-  expectedDeliveryDate = model('');
   draftItems = input<UiPurchaseOrderItem[]>([]);
   saving = input(false);
 
@@ -60,7 +54,6 @@ export class PurchaseOrderFormComponent {
   isProductLoading = input(false);
   itemQuantity = model(1);
   itemUnitPrice = model(0);
-  itemSupplierProductCode = model('');
 
   readonly activeStep = signal<PurchaseOrderFormStepperStep>(1);
   readonly activeTab = signal<PurchaseOrderFormEditTab>(0);
@@ -69,8 +62,6 @@ export class PurchaseOrderFormComponent {
   constructor() {
     effect(() => {
       this.supplierId();
-      this.taxAmount();
-      this.discountAmount();
       if (this.activeStep() === 1) {
         untracked(() => this.stepError.set(null));
       }
@@ -99,7 +90,7 @@ export class PurchaseOrderFormComponent {
   }
 
   reviewTotalAmount(): number {
-    return Math.max(0, this.subTotal() + this.taxAmount() - this.discountAmount());
+    return this.subTotal();
   }
 
   reviewSupplierDisplay(): string {
@@ -172,12 +163,6 @@ export class PurchaseOrderFormComponent {
   private validateDetailsStep(): string | null {
     if (this.mode() === 'create' && !this.supplierId().trim()) {
       return 'Please search and select a supplier before continuing.';
-    }
-    if (this.taxAmount() < 0) {
-      return 'Tax must be zero or greater.';
-    }
-    if (this.discountAmount() < 0) {
-      return 'Discount must be zero or greater.';
     }
     return null;
   }

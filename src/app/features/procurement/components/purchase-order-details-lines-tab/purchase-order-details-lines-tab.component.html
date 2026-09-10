@@ -4,7 +4,7 @@
     dataKey="id"
     [rowHover]="true"
     [stripedRows]="true"
-    styleClass="p-datatable-sm min-w-[640px]"
+    styleClass="p-datatable-sm min-w-[560px]"
   >
     <ng-template pTemplate="caption">
       <div class="flex flex-col sm:flex-row justify-end items-center gap-2 px-2 py-3">
@@ -20,7 +20,6 @@
         <th class="px-4 py-5 text-left font-bold uppercase tracking-wider">Product</th>
         <th class="px-4 py-5 text-right font-bold uppercase tracking-wider">Qty</th>
         <th class="px-4 py-5 text-right font-bold uppercase tracking-wider">Unit price</th>
-        <th class="px-4 py-5 text-left font-bold uppercase tracking-wider">Supplier code</th>
         <th class="px-4 py-5 text-right font-bold uppercase tracking-wider">Line total</th>
         <th class="px-4 py-5 text-left font-bold uppercase tracking-wider">Reference</th>
       </tr>
@@ -36,13 +35,6 @@
         <td class="px-4 py-5 text-sm text-right tabular-nums text-muted-foreground">
           {{ currencyCode }} {{ row.unitPrice | number:'1.2-2' }}
         </td>
-        <td class="px-4 py-5 text-sm text-foreground">
-          @if (row.supplierProductCode) {
-            {{ row.supplierProductCode }}
-          } @else {
-            —
-          }
-        </td>
         <td class="px-4 py-5 text-right text-sm font-bold tabular-nums text-foreground">
           {{ currencyCode }} {{ row.lineTotal | number:'1.2-2' }}
         </td>
@@ -57,7 +49,7 @@
 
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="7" class="px-4 py-12 text-center">
+        <td colspan="6" class="px-4 py-12 text-center">
           <div class="flex flex-col items-center gap-3">
             <i class="pi pi-inbox text-4xl text-muted-foreground opacity-20"></i>
             <div class="text-base font-medium text-foreground">No line items</div>

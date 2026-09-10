@@ -13,8 +13,7 @@ describe('PurchaseOrderFormComponent', () => {
     productId: 'prod_1',
     productName: 'Widget',
     quantity: 1,
-    unitPrice: 10,
-    supplierProductCode: null
+    unitPrice: 10
   };
 
   beforeEach(async () => {

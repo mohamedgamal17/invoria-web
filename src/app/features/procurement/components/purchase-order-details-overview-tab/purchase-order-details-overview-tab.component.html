@@ -14,14 +14,6 @@
       <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Schedule</div>
       <div class="grid gap-3 sm:grid-cols-3">
         <div class="rounded-lg border border-border/60 bg-surface-2/20 p-3">
-          <div class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Order date</div>
-          <div class="mt-1 text-sm font-semibold text-foreground">{{ formatDateOrDash(po.orderDate) }}</div>
-        </div>
-        <div class="rounded-lg border border-border/60 bg-surface-2/20 p-3">
-          <div class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Expected</div>
-          <div class="mt-1 text-sm font-semibold text-foreground">{{ formatDateOrDash(po.expectedDeliveryDate) }}</div>
-        </div>
-        <div class="rounded-lg border border-border/60 bg-surface-2/20 p-3">
           <div class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Completed</div>
           <div class="mt-1 text-sm font-semibold text-foreground">{{ formatDateOrDash(po.completedDate) }}</div>
         </div>
@@ -57,18 +49,6 @@
           <div class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Subtotal</div>
           <div class="mt-1 text-base font-semibold tabular-nums text-foreground">
             {{ po.subTotal | currency: currencyCode : 'symbol-narrow' }}
-          </div>
-        </div>
-        <div class="rounded-lg border border-border/60 bg-surface p-3">
-          <div class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Tax</div>
-          <div class="mt-1 text-base font-semibold tabular-nums text-foreground">
-            {{ po.taxAmount | currency: currencyCode : 'symbol-narrow' }}
-          </div>
-        </div>
-        <div class="rounded-lg border border-border/60 bg-surface p-3">
-          <div class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Discount</div>
-          <div class="mt-1 text-base font-semibold tabular-nums text-foreground">
-            {{ po.discountAmount | currency: currencyCode : 'symbol-narrow' }}
           </div>
         </div>
         <div class="rounded-lg border border-primary/30 bg-primary/5 p-3">

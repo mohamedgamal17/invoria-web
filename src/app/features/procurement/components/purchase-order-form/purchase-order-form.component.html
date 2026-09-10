@@ -16,78 +16,6 @@
             name="poFormSupplier"
           />
         </div>
-
-        <div class="grid gap-5 sm:grid-cols-2">
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider" for="poFormOrderDate"
-              >Order date</label
-            >
-            <input
-              id="poFormOrderDate"
-              type="date"
-              [ngModel]="orderDate()"
-              (ngModelChange)="orderDate.set($event)"
-              name="poFormOrderDate"
-              class="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm focus:ring-2 focus:ring-focus"
-              [disabled]="saving()"
-            />
-          </div>
-
-          <div class="flex flex-col gap-1.5">
-            <label
-              class="text-xs font-bold text-muted-foreground uppercase tracking-wider"
-              for="poFormExpectedDelivery"
-              >Expected delivery</label
-            >
-            <input
-              id="poFormExpectedDelivery"
-              type="date"
-              [ngModel]="expectedDeliveryDate()"
-              (ngModelChange)="expectedDeliveryDate.set($event)"
-              name="poFormExpectedDelivery"
-              class="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm focus:ring-2 focus:ring-focus"
-              [disabled]="saving()"
-            />
-          </div>
-
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider" for="poFormTax"
-              >Tax amount</label
-            >
-            <p-inputNumber
-              inputId="poFormTax"
-              [ngModel]="taxAmount()"
-              (ngModelChange)="taxAmount.set($event)"
-              name="poFormTax"
-              [disabled]="saving()"
-              mode="decimal"
-              [min]="0"
-              [minFractionDigits]="2"
-              [maxFractionDigits]="2"
-              styleClass="w-full"
-              inputStyleClass="w-full rounded-lg border-border bg-surface-2 tabular-nums"
-            />
-          </div>
-
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider" for="poFormDiscount"
-              >Discount amount</label
-            >
-            <p-inputNumber
-              inputId="poFormDiscount"
-              [ngModel]="discountAmount()"
-              (ngModelChange)="discountAmount.set($event)"
-              name="poFormDiscount"
-              [disabled]="saving()"
-              mode="decimal"
-              [min]="0"
-              [minFractionDigits]="2"
-              [maxFractionDigits]="2"
-              styleClass="w-full"
-              inputStyleClass="w-full rounded-lg border-border bg-surface-2 tabular-nums"
-            />
-          </div>
-        </div>
       </div>
     </app-surface-card>
   </ng-template>
@@ -170,20 +98,6 @@
                 </div>
               </div>
               <div class="flex flex-col sm:flex-row sm:items-end gap-4">
-                <div class="min-w-0 flex flex-1 flex-col gap-2">
-                  <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider"
-                    >Supplier code <span class="font-normal normal-case">(optional)</span></label
-                  >
-                  <input
-                    type="text"
-                    pInputText
-                    [ngModel]="itemSupplierProductCode()"
-                    (ngModelChange)="itemSupplierProductCode.set($event)"
-                    name="poFormItemSupplierCode"
-                    class="w-full rounded-lg border-border bg-surface-2 text-sm"
-                    [disabled]="saving()"
-                  />
-                </div>
                 <div class="sm:shrink-0">
                   <p-button
                     label="Add item"
@@ -206,7 +120,6 @@
                 <th>Product</th>
                 <th class="text-center">Qty</th>
                 <th class="text-right">Unit price</th>
-                <th>Supplier code</th>
                 <th class="text-right">Total</th>
                 <th class="text-right">Action</th>
               </tr>
@@ -235,16 +148,6 @@
                     [disabled]="saving()"
                   />
                 </td>
-                <td>
-                  <input
-                    type="text"
-                    pInputText
-                    [(ngModel)]="item.supplierProductCode"
-                    [name]="'poFormSupplierCode_' + index"
-                    class="w-full min-w-[6rem] text-sm"
-                    [disabled]="saving()"
-                  />
-                </td>
                 <td class="text-right tabular-nums">
                   EGP {{ item.unitPrice * item.quantity | number:'1.2-2' }}
                 </td>
@@ -262,11 +165,11 @@
               </tr>
             </ng-template>
             <ng-template pTemplate="emptymessage">
-              <tr><td colspan="6" class="py-8 text-center text-muted-foreground">No items added yet.</td></tr>
+              <tr><td colspan="5" class="py-8 text-center text-muted-foreground">No items added yet.</td></tr>
             </ng-template>
             <ng-template pTemplate="footer">
               <tr>
-                <td colspan="4" class="text-right">
+                <td colspan="3" class="text-right">
                   Subtotal <span class="text-xs text-muted-foreground">({{ totalItemsCount }} items)</span>
                 </td>
                 <td colspan="2" class="text-right font-bold tabular-nums">
@@ -295,21 +198,6 @@
             <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Supplier</span>
             <div class="font-medium text-foreground mt-1">{{ reviewSupplierDisplay() }}</div>
           </div>
-          <div class="text-sm">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Order date</span>
-            <div class="font-medium text-foreground mt-1">{{ orderDate() || '—' }}</div>
-          </div>
-          <div class="text-sm">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Expected delivery</span>
-            <div class="font-medium text-foreground mt-1">{{ expectedDeliveryDate() || '—' }}</div>
-          </div>
-          <div class="text-sm">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Tax / discount</span>
-            <div class="font-medium text-foreground mt-1 tabular-nums">
-              EGP {{ taxAmount() | number:'1.2-2' }} /
-              EGP {{ discountAmount() | number:'1.2-2' }}
-            </div>
-          </div>
         </div>
 
         <div class="border-t border-border/60 pt-4">
@@ -321,7 +209,6 @@
                   <th class="px-3 py-2">Product</th>
                   <th class="px-3 py-2 text-center">Qty</th>
                   <th class="px-3 py-2 text-right">Unit price</th>
-                  <th class="px-3 py-2">Supplier code</th>
                   <th class="px-3 py-2 text-right">Total</th>
                 </tr>
               </thead>
@@ -333,7 +220,6 @@
                     <td class="px-3 py-2.5 text-right tabular-nums">
                       EGP {{ item.unitPrice | number:'1.2-2' }}
                     </td>
-                    <td class="px-3 py-2.5 text-muted-foreground">{{ item.supplierProductCode || '—' }}</td>
                     <td class="px-3 py-2.5 text-right tabular-nums font-medium">
 EGP {{ item.unitPrice * item.quantity | number:'1.2-2' }}
                     </td>
@@ -343,7 +229,7 @@ EGP {{ item.unitPrice * item.quantity | number:'1.2-2' }}
               <tfoot class="bg-surface-2 border-t border-border">
                 <tr>
                   <td
-                    colspan="4"
+                    colspan="3"
                     class="px-3 py-3 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground"
                   >
                     Total ({{ totalItemsCount }} items)
