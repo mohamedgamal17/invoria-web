@@ -19,12 +19,12 @@
       <div class="rounded-lg border border-border/60 bg-surface-2/40 p-4 space-y-1.5">
         <div class="flex items-center gap-1.5">
           <i class="pi pi-receipt text-xs text-muted-foreground"></i>
-          <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Order total</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Net total</span>
         </div>
         <div class="text-lg font-bold tabular-nums text-foreground">
-          {{ currencyCode() }} {{ order().totalAmount | number:'1.2-2' }}
+          {{ currencyCode() }} {{ order().netOfTotalOrderAmount | number:'1.2-2' }}
         </div>
-        <div class="text-[10px] text-muted-foreground/70">Full order value</div>
+        <div class="text-[10px] text-muted-foreground/70">Final order value after returns</div>
       </div>
 
       <div class="rounded-lg border border-success/15 bg-success/5 p-4 space-y-1.5">

@@ -29,6 +29,6 @@ export class OrderDetailsLineItemsTabComponent {
   }
 
   subtotalDiffersFromTotal(o: UiOrder): boolean {
-    return Math.abs(this.subtotal(o) - o.totalAmount) > 0.01;
+    return Math.abs(this.subtotal(o) - o.netOfTotalOrderAmount) > 0.01;
   }
 }

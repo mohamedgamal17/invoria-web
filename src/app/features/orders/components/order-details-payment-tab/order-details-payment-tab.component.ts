@@ -62,23 +62,23 @@ export class OrderDetailsPaymentTabComponent {
   readonly recordPaidAmountMax = computed((): number => {
     const o = this.order();
     if (o.paymentType === PaymentType.Immediate) {
-      return o.totalAmount;
+      return o.netOfTotalOrderAmount;
     }
     if (o.paymentType === PaymentType.Debt) {
       const outstanding = o.amountOutstanding ?? 0;
       if (outstanding > MONEY_EPS) {
         return outstanding;
       }
-      return o.totalAmount;
+      return o.netOfTotalOrderAmount;
     }
-    return o.totalAmount;
+    return o.netOfTotalOrderAmount;
   });
 
   readonly recordPaidAmountMin = computed((): number => {
     if (this.order().paymentType === PaymentType.Debt) {
       return 0.01;
     }
-    return this.order().totalAmount;
+    return this.order().netOfTotalOrderAmount;
   });
 
   /** True when paid + outstanding matches total within a small tolerance. */
@@ -86,8 +86,8 @@ export class OrderDetailsPaymentTabComponent {
 
   readonly paidPercent = computed(() => {
     const o = this.order();
-    if (o.amountPaid == null || !Number.isFinite(o.totalAmount) || o.totalAmount <= 0) return null;
-    return (o.amountPaid / o.totalAmount) * 100;
+    if (o.amountPaid == null || !Number.isFinite(o.netOfTotalOrderAmount) || o.netOfTotalOrderAmount <= 0) return null;
+    return (o.amountPaid / o.netOfTotalOrderAmount) * 100;
   });
 
   readonly paymentFiguresAligned = computed(() => {
@@ -95,7 +95,7 @@ export class OrderDetailsPaymentTabComponent {
     if (o.amountPaid == null || o.amountOutstanding == null) {
       return true;
     }
-    return Math.abs(o.amountPaid + o.amountOutstanding - o.totalAmount) <= 0.02;
+    return Math.abs(o.amountPaid + o.amountOutstanding - o.netOfTotalOrderAmount) <= 0.02;
   });
 
   private readonly ordersApi = inject(OrdersApiService);
@@ -153,7 +153,7 @@ export class OrderDetailsPaymentTabComponent {
   private initRecordForm(): void {
     const o = this.order();
     if (o.paymentType === PaymentType.Immediate) {
-      this.recordPaidAmount = o.totalAmount;
+      this.recordPaidAmount = o.netOfTotalOrderAmount;
     } else if (o.paymentType === PaymentType.Debt) {
       const outstanding = o.amountOutstanding ?? 0;
       this.recordPaidAmount = outstanding > MONEY_EPS ? outstanding : null;
@@ -186,7 +186,7 @@ export class OrderDetailsPaymentTabComponent {
     const amount = this.recordPaidAmount;
 
     if (o.paymentType === PaymentType.Immediate) {
-      const expected = o.totalAmount;
+      const expected = o.netOfTotalOrderAmount;
       if (
         amount === null ||
         !Number.isFinite(amount) ||

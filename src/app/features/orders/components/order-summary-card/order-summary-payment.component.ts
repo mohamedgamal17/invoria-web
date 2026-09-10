@@ -74,10 +74,10 @@ export class OrderSummaryPaymentComponent {
 
   readonly paidPercent = computed(() => {
     const order = this.order();
-    if (order.amountPaid == null || !Number.isFinite(order.totalAmount) || order.totalAmount <= 0) {
+    if (order.amountPaid == null || !Number.isFinite(order.netOfTotalOrderAmount) || order.netOfTotalOrderAmount <= 0) {
       return null;
     }
-    return (order.amountPaid / order.totalAmount) * 100;
+    return (order.amountPaid / order.netOfTotalOrderAmount) * 100;
   });
 
   getPaymentStatusSeverity(status: PaymentStatus | undefined): 'success' | 'secondary' | 'info' | 'warn' | 'danger' {

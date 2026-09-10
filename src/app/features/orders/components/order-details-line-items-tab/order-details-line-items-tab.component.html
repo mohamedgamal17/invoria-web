@@ -49,17 +49,17 @@
           </div>
         </div>
         <div class="space-y-1">
-          <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Order total</div>
+          <div class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Net total</div>
           <div class="text-base font-bold tabular-nums text-foreground">
-            {{ currencyCode() }} {{ order().totalAmount | number:'1.2-2' }}
+            {{ currencyCode() }} {{ order().netOfTotalOrderAmount | number:'1.2-2' }}
           </div>
         </div>
       </div>
       @if (subtotalDiffersFromTotal(order())) {
         <p class="mt-3 text-xs text-muted-foreground leading-relaxed">
           <span class="font-semibold text-foreground">Note:</span>
-          Subtotal from line items may differ from the order total if the server applies adjustments, tax, or
-          rounding. Use the order total as the authoritative amount.
+          Subtotal from line items may differ from the net total if the server applies adjustments, returns, or
+          rounding. Use the net total as the authoritative amount.
         </p>
       }
     } @else {
