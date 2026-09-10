@@ -163,19 +163,12 @@ export class PurchaseOrdersApiService {
     for (const line of request.PurchaseOrderItems) {
       this.assertLineItem(line);
     }
-    if (!Number.isFinite(request.TaxAmount) || request.TaxAmount < 0) {
-      throw new Error('TaxAmount must be a valid non-negative number.');
-    }
-    if (!Number.isFinite(request.DiscountAmount) || request.DiscountAmount < 0) {
-      throw new Error('DiscountAmount must be a valid non-negative number.');
-    }
   }
 
   private assertLineItem(line: {
     ProductId: string;
     Quantity: number;
     UnitPrice: number;
-    SupplierProductCode?: string | null;
   }): void {
     const productId = (line.ProductId || '').trim();
     if (!productId) {

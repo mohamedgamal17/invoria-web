@@ -14,14 +14,11 @@ describe('PurchaseOrdersApiService', () => {
 
   const validBody: CreatePurchaseOrderRequest = {
     SupplierId: 'sup_1',
-    TaxAmount: 0,
-    DiscountAmount: 0,
     PurchaseOrderItems: [
       {
         ProductId: 'prod_1',
         Quantity: 1,
-        UnitPrice: 10,
-        SupplierProductCode: null
+        UnitPrice: 10
       }
     ]
   };
@@ -93,30 +90,11 @@ describe('PurchaseOrdersApiService', () => {
       ).toThrow('UnitPrice must be greater than zero.');
     });
 
-    it('POSTs body when line item is valid with optional supplier code omitted', () => {
+    it('POSTs body when line item is valid', () => {
       service.createPurchaseOrder(validBody).subscribe();
       const req = httpMock.expectOne(`${baseUrl}purchase-orders`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(validBody);
-      req.flush({ isSuccess: true, result: null });
-    });
-
-    it('POSTs body when SupplierProductCode is set', () => {
-      const body: CreatePurchaseOrderRequest = {
-        ...validBody,
-        PurchaseOrderItems: [
-          {
-            ProductId: 'prod_1',
-            Quantity: 2,
-            UnitPrice: 5.5,
-            SupplierProductCode: 'SKU-1'
-          }
-        ]
-      };
-      service.createPurchaseOrder(body).subscribe();
-      const req = httpMock.expectOne(`${baseUrl}purchase-orders`);
-      expect(req.request.method).toBe('POST');
-      expect(req.request.body).toEqual(body);
       req.flush({ isSuccess: true, result: null });
     });
   });
