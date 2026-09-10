@@ -285,7 +285,7 @@ export class OrderFormPageComponent {
           const full = orderToUiOrder(res.result);
           this.orderNumber.set(full.orderNumber);
           this.draftItems.set([...(full.items || [])]);
-          this.totalAmount.set(full.totalAmount);
+          this.totalAmount.set(full.netOfTotalOrderAmount);
           this.paymentType.set(full.paymentType ?? PaymentType.Immediate);
           this.selectedCustomer.set(
             full.customerId ? ({ id: full.customerId, name: full.customerName } as Customer) : null

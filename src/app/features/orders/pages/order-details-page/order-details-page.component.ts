@@ -189,7 +189,6 @@ export class OrderDetailsPageComponent {
       if (!raw) return false;
       const snapshot = JSON.parse(raw);
 
-      if (order.totalAmount !== snapshot.totalAmount) return true;
       if (order.netOfTotalOrderAmount !== snapshot.netOfTotalOrderAmount) return true;
       if (order.customerName !== snapshot.customerName) return true;
       if (order.items.length !== snapshot.items.length) return true;
@@ -255,7 +254,6 @@ export class OrderDetailsPageComponent {
         if (!sessionStorage.getItem(key)) {
           sessionStorage.setItem(key, JSON.stringify({
             items: order.items.map(i => ({ id: i.id, quantity: i.quantity, price: i.price })),
-            totalAmount: order.totalAmount,
             netOfTotalOrderAmount: order.netOfTotalOrderAmount,
             customerName: order.customerName
           }));
