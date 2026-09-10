@@ -48,12 +48,8 @@ describe('PurchaseOrderDetailsPageComponent', () => {
     supplierId: 'sup_1',
     supplier: { id: 'sup_1', name: 'Acme' },
     state: PurchaseState.Draft,
-    orderDate: '2026-01-10T00:00:00.000Z',
-    expectedDeliveryDate: '2026-01-20T00:00:00.000Z',
     completedDate: null,
     subTotal: 200,
-    taxAmount: 28,
-    discountAmount: 10,
     totalAmount: 218,
     purchaseOrderItems: [
       {
@@ -61,7 +57,6 @@ describe('PurchaseOrderDetailsPageComponent', () => {
         productId: 'prod_1',
         quantity: 2,
         unitPrice: 100,
-        supplierProductCode: 'SKU-1',
         lineTotal: 200
       }
     ],
@@ -143,10 +138,7 @@ describe('PurchaseOrderDetailsPageComponent', () => {
     const component = fixture.componentInstance;
     const loaded = component.purchaseOrder();
     expect(loaded?.purchaseNumber).toBe(mockPo.purchaseNumber);
-    expect(loaded?.orderDate).toBe(mockPo.orderDate);
     expect(loaded?.subTotal).toBe(mockPo.subTotal);
-    expect(loaded?.taxAmount).toBe(mockPo.taxAmount);
-    expect(loaded?.discountAmount).toBe(mockPo.discountAmount);
     expect(loaded?.totalAmount).toBe(mockPo.totalAmount);
   });
 

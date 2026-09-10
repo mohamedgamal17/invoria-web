@@ -72,17 +72,11 @@ export class PurchaseOrderFormPageComponent {
   readonly supplierDisplayRef = signal<PurchaseOrderSupplierRef | null>(null);
 
   readonly supplierId = signal('');
-  readonly taxAmount = signal(0);
-  readonly discountAmount = signal(0);
-  readonly orderDate = signal('');
-  readonly expectedDeliveryDate = signal('');
-
   readonly draftItems = signal<UiPurchaseOrderItem[]>([]);
   readonly products = signal<Product[]>([]);
   readonly selectedProduct = signal<Product | null>(null);
   readonly itemQuantity = signal(1);
   readonly itemUnitPrice = signal(0);
-  readonly itemSupplierProductCode = signal('');
   readonly isProductLoading = signal(false);
 
   constructor() {
@@ -139,15 +133,6 @@ export class PurchaseOrderFormPageComponent {
         severity: 'warn',
         summary: 'Validation',
         detail: itemsError
-      });
-      return;
-    }
-
-    if (this.taxAmount() < 0 || this.discountAmount() < 0) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Validation',
-        detail: 'Tax and discount must be zero or greater.'
       });
       return;
     }
@@ -248,14 +233,12 @@ export class PurchaseOrderFormPageComponent {
     this.selectedProduct.set(product);
     this.itemQuantity.set(1);
     this.itemUnitPrice.set(product.price > 0 ? product.price : 0.01);
-    this.itemSupplierProductCode.set('');
   }
 
   clearProductSelection(): void {
     this.selectedProduct.set(null);
     this.itemQuantity.set(1);
     this.itemUnitPrice.set(0);
-    this.itemSupplierProductCode.set('');
   }
 
   addItem(): void {
@@ -275,8 +258,6 @@ export class PurchaseOrderFormPageComponent {
       return;
     }
 
-    const supplierCode = this.itemSupplierProductCode().trim() || null;
-
     this.draftItems.update((items) => {
       const existingIndex = items.findIndex((i) => i.productId === product.id);
       if (existingIndex > -1) {
@@ -293,8 +274,7 @@ export class PurchaseOrderFormPageComponent {
           productId: product.id,
           productName: product.name,
           quantity,
-          unitPrice,
-          supplierProductCode: supplierCode
+          unitPrice
         }
       ];
     });
@@ -302,7 +282,6 @@ export class PurchaseOrderFormPageComponent {
     this.selectedProduct.set(null);
     this.itemQuantity.set(1);
     this.itemUnitPrice.set(0);
-    this.itemSupplierProductCode.set('');
     this.calculateSubTotal();
   }
 
@@ -334,23 +313,8 @@ export class PurchaseOrderFormPageComponent {
   private buildRequestBody(): CreatePurchaseOrderRequest {
     return {
       SupplierId: this.supplierId().trim(),
-      TaxAmount: this.taxAmount(),
-      DiscountAmount: this.discountAmount(),
-      OrderDate: this.normalizeOptionalDate(this.orderDate()),
-      ExpectedDeliveryDate: this.normalizeOptionalDate(this.expectedDeliveryDate()),
       PurchaseOrderItems: draftItemsToPurchaseOrderLineItems(this.draftItems())
     };
-  }
-
-  private normalizeOptionalDate(value: string): string | null | undefined {
-    const v = (value || '').trim();
-    if (!v) {
-      return undefined;
-    }
-    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
-      return `${v}T00:00:00.000Z`;
-    }
-    return v;
   }
 
   private loadPurchaseOrder(id: string): void {
@@ -394,10 +358,6 @@ export class PurchaseOrderFormPageComponent {
 
     this.purchaseNumber.set(po.purchaseNumber);
     this.supplierId.set(po.supplierId);
-    this.taxAmount.set(po.taxAmount);
-    this.discountAmount.set(po.discountAmount);
-    this.orderDate.set(this.toDateInputValue(po.orderDate));
-    this.expectedDeliveryDate.set(this.toDateInputValue(po.expectedDeliveryDate));
     this.supplierDisplayRef.set(
       po.supplier && po.supplier.id === po.supplierId ? po.supplier : null
     );
@@ -440,13 +400,5 @@ export class PurchaseOrderFormPageComponent {
           })
         );
       });
-  }
-
-  private toDateInputValue(iso: string | null | undefined): string {
-    if (!iso) {
-      return '';
-    }
-    const d = iso.slice(0, 10);
-    return /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : '';
   }
 }

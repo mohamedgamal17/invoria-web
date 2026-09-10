@@ -118,15 +118,12 @@ describe('PurchaseOrderFormPageComponent', () => {
 
   it('create mode should call createPurchaseOrder on submit', () => {
     component.supplierId.set('sup_1');
-    component.taxAmount.set(0);
-    component.discountAmount.set(0);
     component.draftItems.set([
       {
         productId: 'prod_1',
         productName: 'Widget',
         quantity: 1,
-        unitPrice: 10,
-        supplierProductCode: null
+        unitPrice: 10
       }
     ]);
 
@@ -137,7 +134,10 @@ describe('PurchaseOrderFormPageComponent', () => {
     expect(body.SupplierId).toBe('sup_1');
     expect(body.PurchaseOrderItems).toHaveLength(1);
     expect(body.PurchaseOrderItems[0].ProductId).toBe('prod_1');
-    expect(body.PurchaseOrderItems[0].SupplierProductCode).toBeNull();
+    expect(body).toEqual({
+      SupplierId: 'sup_1',
+      PurchaseOrderItems: [{ ProductId: 'prod_1', Quantity: 1, UnitPrice: 10 }]
+    });
   });
 
   it('create mode should not submit when unit price is zero', () => {
@@ -147,8 +147,7 @@ describe('PurchaseOrderFormPageComponent', () => {
         productId: 'prod_1',
         productName: 'Widget',
         quantity: 1,
-        unitPrice: 0,
-        supplierProductCode: null
+        unitPrice: 0
       }
     ]);
 
@@ -164,8 +163,7 @@ describe('PurchaseOrderFormPageComponent', () => {
         productId: 'prod_1',
         productName: 'Widget',
         quantity: 0,
-        unitPrice: 10,
-        supplierProductCode: null
+        unitPrice: 10
       }
     ]);
 
@@ -180,8 +178,7 @@ describe('PurchaseOrderFormPageComponent', () => {
         productId: 'prod_1',
         productName: 'Widget',
         quantity: 2,
-        unitPrice: 10,
-        supplierProductCode: null
+        unitPrice: 10
       }
     ]);
     component.selectedProduct.set({
@@ -208,8 +205,6 @@ describe('PurchaseOrderFormPageComponent', () => {
       supplier: { id: 'sup_1', name: 'Acme Supplier' },
       state: PurchaseState.Draft,
       subTotal: 10,
-      taxAmount: 0,
-      discountAmount: 0,
       totalAmount: 10,
       createdAt: '',
       purchaseOrderItems: [
@@ -243,8 +238,6 @@ describe('PurchaseOrderFormPageComponent', () => {
       supplier: { id: 'sup_1', name: 'Acme Supplier' },
       state: PurchaseState.Draft,
       subTotal: 10,
-      taxAmount: 0,
-      discountAmount: 0,
       totalAmount: 10,
       createdAt: '',
       purchaseOrderItems: [
