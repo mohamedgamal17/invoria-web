@@ -14,7 +14,7 @@
           </div>
         </div>
         <div class="space-y-2.5 pt-3 border-t border-border/50">
-          @for (__ of [1,2,3,4]; track __) {
+          @for (__ of [1,2]; track __) {
             <div class="flex items-center justify-between gap-2">
               <p-skeleton height="0.65rem" width="4.5rem"></p-skeleton>
               <p-skeleton height="1.1rem" width="6rem" shape="rectangle"></p-skeleton>
@@ -45,14 +45,6 @@
           <div class="flex items-center justify-between gap-3">
             <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider shrink-0">Subtotal</span>
             <span class="text-sm font-medium text-foreground tabular-nums">EGP {{ row.subTotal | number:'1.2-2' }}</span>
-          </div>
-          <div class="flex items-center justify-between gap-3">
-            <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider shrink-0">Tax</span>
-            <span class="text-sm font-semibold tabular-nums text-warning">EGP {{ row.taxAmount | number:'1.2-2' }}</span>
-          </div>
-          <div class="flex items-center justify-between gap-3">
-            <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider shrink-0">Discount</span>
-            <span class="text-sm font-semibold tabular-nums text-danger">EGP {{ row.discountAmount | number:'1.2-2' }}</span>
           </div>
         </div>
       </div>
@@ -119,8 +111,6 @@
         <th class="px-4 py-5 font-bold uppercase tracking-wider">Date</th>
         <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">Total</th>
         <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">Subtotal</th>
-        <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">Tax</th>
-        <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">Discount</th>
       </tr>
     </ng-template>
 
@@ -138,12 +128,6 @@
         </td>
         <td class="px-4 py-5 text-right">
           <span class="text-sm font-medium text-foreground tabular-nums">EGP {{ row.subTotal | number:'1.2-2' }}</span>
-        </td>
-        <td class="px-4 py-5 text-right">
-          <span class="text-sm font-semibold tabular-nums text-amber-600 dark:text-amber-400">EGP {{ row.taxAmount | number:'1.2-2' }}</span>
-        </td>
-        <td class="px-4 py-5 text-right">
-          <span class="text-sm font-semibold tabular-nums text-red-600 dark:text-red-400">EGP {{ row.discountAmount | number:'1.2-2' }}</span>
         </td>
       </tr>
     </ng-template>
@@ -164,12 +148,6 @@
           <td class="px-4 py-5">
             <p-skeleton height="1.1rem" width="5rem" styleClass="ml-auto"></p-skeleton>
           </td>
-          <td class="px-4 py-5">
-            <p-skeleton height="1.1rem" width="5rem" styleClass="ml-auto"></p-skeleton>
-          </td>
-          <td class="px-4 py-5">
-            <p-skeleton height="1.1rem" width="5rem" styleClass="ml-auto"></p-skeleton>
-          </td>
         </tr>
       }
     </ng-template>
@@ -177,7 +155,7 @@
     <!-- Empty Message -->
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="6" class="px-4 py-12 text-center">
+        <td colspan="4" class="px-4 py-12 text-center">
           <div class="flex flex-col items-center gap-3">
             <i class="pi pi-inbox text-4xl text-muted-foreground opacity-20"></i>
             <div class="text-base font-medium text-foreground">No purchase sales data for this aggregation.</div>
