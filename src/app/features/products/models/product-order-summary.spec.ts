@@ -14,7 +14,6 @@ const baseOrder = (overrides: Partial<UiOrder> = {}): UiOrder => ({
   createdAt: '2026-01-01T00:00:00.000Z',
   orderNumber: 'ORD-1',
   customerName: 'Alice',
-  totalAmount: 100,
   netOfTotalOrderAmount: 100,
   returnsTotal: 0,
   status: OrderStatus.Completed,
@@ -59,7 +58,7 @@ describe('product-order-summary', () => {
 
   it('buildProductOrderRowSummary: net product and order after returns', () => {
     const row = buildProductOrderRowSummary(baseOrder({
-      totalAmount: 100,
+      netOfTotalOrderAmount: 90,
       returnItems: [
         {
           orderItemId: 'line-a',
@@ -81,7 +80,7 @@ describe('product-order-summary', () => {
       productLineSubtotal: 20,
       productReturnSubtotal: 10,
       productNetSubtotal: 10,
-      orderTotal: 100,
+      orderTotal: 90,
       orderReturnSubtotal: 10,
       orderNetAfterReturns: 90
     });

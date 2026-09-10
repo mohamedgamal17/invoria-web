@@ -71,9 +71,9 @@ export function buildProductOrderRowSummary(
     productLineSubtotal: lineSubtotal,
     productReturnSubtotal: returnSubtotal,
     productNetSubtotal: lineSubtotal - returnSubtotal,
-    orderTotal: order.totalAmount,
+    orderTotal: order.netOfTotalOrderAmount,
     orderReturnSubtotal: orderReturns,
-    orderNetAfterReturns: order.totalAmount - orderReturns
+    orderNetAfterReturns: order.netOfTotalOrderAmount
   };
 }
 
