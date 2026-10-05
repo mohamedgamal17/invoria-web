@@ -1,0 +1,61 @@
+<app-surface-card tone="neutral">
+  @if (hasSettlements()) {
+    <p-table
+      [value]="safeSettlements()"
+      dataKey="id"
+      [rowHover]="true"
+      [stripedRows]="true"
+      styleClass="p-datatable-sm"
+    >
+      <ng-template pTemplate="caption">
+        <div class="flex items-center gap-2 px-2 py-3">
+          <i class="pi pi-list text-accent text-xs"></i>
+          <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            Settlements ({{ safeSettlements().length }})
+          </span>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th class="px-4 py-5 font-bold uppercase tracking-wider">Settlement ID</th>
+          <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">Amount</th>
+          <th class="px-4 py-5 font-bold uppercase tracking-wider">Settled At</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-settlement>
+        <tr>
+          <td class="px-4 py-5">
+            <span class="text-sm font-mono text-foreground">{{ settlement.id }}</span>
+          </td>
+          <td class="px-4 py-5 text-right">
+            <span class="text-sm font-semibold tabular-nums">{{ currencyCode() }} {{ settlement.amount | number:'1.2-2' }}</span>
+          </td>
+          <td class="px-4 py-5">
+            <span class="text-sm text-muted-foreground">{{ settlement.settledAt | date:'medium' }}</span>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="summary">
+        <div class="flex items-center justify-end gap-8 px-2 py-3 border-t border-border/40">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Total Settlements</span>
+            <span class="text-sm font-bold tabular-nums text-foreground">{{ safeSettlements().length }}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Total Settled</span>
+            <span class="text-sm font-bold tabular-nums text-accent">{{ currencyCode() }} {{ totalSettled() | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </ng-template>
+    </p-table>
+  } @else {
+    <div class="flex flex-col items-center gap-3 py-12">
+      <i class="pi pi-inbox text-4xl text-muted-foreground opacity-20"></i>
+      <div class="text-base font-medium text-foreground">No settlements</div>
+      <p class="text-sm text-muted-foreground">This receivable has no settlements yet.</p>
+    </div>
+  }
+</app-surface-card>
