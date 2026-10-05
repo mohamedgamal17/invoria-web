@@ -107,6 +107,12 @@ export class DashboardSidebarComponent {
       ]
     },
     {
+      label: 'Financial', icon: Wallet,
+      children: [
+        { label: 'Receivables', path: '/receivables', icon: Receipt }
+      ]
+    },
+    {
       label: 'CRM', icon: ContactRound,
       children: [
         { label: 'Customers', path: '/customers', icon: User }
