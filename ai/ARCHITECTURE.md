@@ -104,8 +104,9 @@ graph TD
 5. **Exception (products / orders)**: The `products` feature may import and inject **`OrdersApiService`** only and the minimal read-only order types/helpers needed for product-scoped order summaries (`UiOrder`, `orderToUiOrder`, `orderStatusLabel`). Do not import order pages, forms, or other services from `orders`.
 6. **Exception (suppliers / procurement)**: The `suppliers` feature may import and inject **`PurchaseOrdersApiService`** only (the typed HTTP API service) for supplier-scoped purchase order listing. It may import **`PurchaseOrderListComponent`** and the minimal read-only procurement types needed to drive that list (**`PurchaseOrder`**, **`ListPurchaseOrderRequest`** from `features/procurement`). Do not import procurement pages, forms, or other services from `procurement`.
 7. **Exception (dashboard / reports)**: The `dashboard` feature may import and inject the typed report API services only — **`CustomersApiService`**, **`ProductsApiService`**, **`OrdersApiService`**, **`SuppliersApiService`**, and **`PurchaseOrdersApiService`** — for report overview/metrics aggregation (live KPIs and trend charts). Do not import feature pages, forms, or mock services; rely solely on the report HTTP methods.
-8. **Shared Usage**: Features may import from `shared/` and `core/`.
-9. **Circular Dependencies**: Strictly forbidden; use `shared/entities` for common base classes.
+8. **Exception (receivables / orders)**: The `receivables` feature may `import type` only the order enum contracts — **`OrderStatus`** from [`order.entity.ts`](../src/app/features/orders/models/order.entity.ts) and **`PaymentType`** from [`order-payment.enums.ts`](../src/app/features/orders/models/order-payment.enums.ts) — to type the inline `Source` (`PublicOrderDto`) that the receivables API returns, aligned with the orders contract (see `ReceivableSource` in [`receivable.entity.ts`](../src/app/features/receivables/models/receivable.entity.ts)). Do not import order services, pages, forms, mock services, or full `Order` shapes.
+9. **Shared Usage**: Features may import from `shared/` and `core/`.
+10. **Circular Dependencies**: Strictly forbidden; use `shared/entities` for common base classes.
 
 ---
 
