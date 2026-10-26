@@ -19,8 +19,17 @@
           </div>
         </div>
         <div class="flex items-center justify-between pt-3 border-t border-border/50">
-          <div class="flex items-center gap-3 text-xs text-muted-foreground">
-            <span class="truncate max-w-[120px]" [pTooltip]="receivable.partyId">Order: {{ receivable.sourceId | slice:0:8 }}...</span>
+          <div class="flex flex-col gap-0.5 min-w-0 text-xs text-muted-foreground">
+            @if (receivable.party) {
+              <span class="truncate font-medium text-foreground" [pTooltip]="receivable.party.id">{{ receivable.party.name }}</span>
+            } @else {
+              <span class="truncate" [pTooltip]="receivable.partyId">Customer: {{ receivable.partyId | slice:0:8 }}...</span>
+            }
+            @if (receivable.source) {
+              <span class="truncate" [pTooltip]="receivable.source.id">Order: {{ receivable.source.orderNumber }}</span>
+            } @else {
+              <span class="truncate" [pTooltip]="receivable.sourceId">Order: {{ receivable.sourceId | slice:0:8 }}...</span>
+            }
           </div>
           <p-button
             label="View Details"
@@ -100,10 +109,26 @@
           <span class="text-sm font-semibold font-mono text-foreground">{{ receivable.id | slice:0:8 }}…</span>
         </td>
         <td class="px-4 py-5">
-          <span class="text-sm text-muted-foreground font-mono text-xs">{{ receivable.partyId | slice:0:12 }}...</span>
+          @if (receivable.party) {
+            <span
+              class="text-sm font-medium text-foreground truncate max-w-[180px] inline-block"
+              [pTooltip]="receivable.party.id"
+              tooltipPosition="top"
+            >{{ receivable.party.name }}</span>
+          } @else {
+            <span class="text-sm text-muted-foreground font-mono text-xs">{{ receivable.partyId | slice:0:12 }}...</span>
+          }
         </td>
         <td class="px-4 py-5">
-          <span class="text-sm text-muted-foreground font-mono text-xs">{{ receivable.sourceId | slice:0:12 }}...</span>
+          @if (receivable.source) {
+            <span
+              class="text-sm font-mono text-xs text-foreground"
+              [pTooltip]="receivable.source.id"
+              tooltipPosition="top"
+            >{{ receivable.source.orderNumber }}</span>
+          } @else {
+            <span class="text-sm text-muted-foreground font-mono text-xs">{{ receivable.sourceId | slice:0:12 }}...</span>
+          }
         </td>
         <td class="px-4 py-5 text-right">
           <span class="text-sm font-semibold tabular-nums">EGP {{ receivable.amount | number:'1.2-2' }}</span>

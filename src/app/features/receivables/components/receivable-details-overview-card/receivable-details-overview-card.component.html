@@ -28,9 +28,11 @@
             <div class="flex items-center gap-2">
             <a
               [routerLink]="['/customers', receivable().partyId]"
-              class="text-sm font-mono text-primary hover:text-primary-emphasis hover:underline transition-colors inline-flex items-center gap-1"
+              class="text-sm text-primary hover:text-primary-emphasis hover:underline transition-colors inline-flex items-center gap-1"
+              [pTooltip]="receivable().partyId"
+              tooltipPosition="left"
             >
-              {{ receivable().partyId }}
+              {{ receivable().party?.name ?? receivable().partyId }}
               <i class="pi pi-external-link text-xs"></i>
             </a>
             <p-button
@@ -51,9 +53,11 @@
             <div class="flex items-center gap-2">
             <a
               [routerLink]="['/orders', receivable().sourceId]"
-              class="text-sm font-mono text-primary hover:text-primary-emphasis hover:underline transition-colors inline-flex items-center gap-1"
+              class="text-sm text-primary hover:text-primary-emphasis hover:underline transition-colors inline-flex items-center gap-1"
+              [pTooltip]="receivable().sourceId"
+              tooltipPosition="left"
             >
-              {{ receivable().sourceId }}
+              {{ receivable().source?.orderNumber ?? receivable().sourceId }}
               <i class="pi pi-external-link text-xs"></i>
             </a>
             <p-button
