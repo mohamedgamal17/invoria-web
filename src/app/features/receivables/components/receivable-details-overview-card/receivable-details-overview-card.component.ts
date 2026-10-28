@@ -1,4 +1,4 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CardModule } from 'primeng/card';
@@ -33,6 +33,9 @@ import {
 export class ReceivableDetailsOverviewCardComponent {
   receivable = input.required<Receivable>();
   currencyCode = input<string>('EGP');
+
+  /** Emitted when the user wants to open the settle modal. */
+  settleRequest = output<void>();
 
   readonly copiedKey = signal<string | null>(null);
 

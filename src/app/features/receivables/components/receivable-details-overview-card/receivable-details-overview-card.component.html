@@ -97,7 +97,20 @@
         </div>
         <div class="flex items-center justify-between">
           <span class="text-xs font-bold text-foreground">Outstanding Amount</span>
-           <span class="text-lg font-bold tabular-nums text-accent">{{ currencyCode() }} {{ receivable().outstandingAmount | number:'1.2-2' }}</span>
+          <div class="flex items-center gap-3">
+            <span class="text-lg font-bold tabular-nums text-accent">{{ currencyCode() }} {{ receivable().outstandingAmount | number:'1.2-2' }}</span>
+            @if (receivable().outstandingAmount > 0) {
+              <p-button
+                (onClick)="settleRequest.emit()"
+                icon="pi pi-check-circle"
+                label="Settle"
+                size="small"
+                styleClass="rounded-lg px-3 py-1.5 text-xs font-bold"
+                pTooltip="Record a settlement"
+                tooltipPosition="left"
+              />
+            }
+          </div>
         </div>
       </div>
     </div>

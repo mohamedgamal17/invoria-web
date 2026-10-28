@@ -8,11 +8,22 @@
       styleClass="p-datatable-sm"
     >
       <ng-template pTemplate="caption">
-        <div class="flex items-center gap-2 px-2 py-3">
-          <i class="pi pi-list text-accent text-xs"></i>
-          <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            Settlements ({{ safeSettlements().length }})
-          </span>
+        <div class="flex items-center justify-between gap-2 px-2 py-3">
+          <div class="flex items-center gap-2">
+            <i class="pi pi-list text-accent text-xs"></i>
+            <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              Settlements ({{ safeSettlements().length }})
+            </span>
+          </div>
+          @if (outstandingAmount() > 0) {
+            <p-button
+              label="Record Settlement"
+              icon="pi pi-check-circle"
+              size="small"
+              styleClass="rounded-lg px-3 py-1.5 text-xs font-bold"
+              (onClick)="settleRequest.emit()"
+            />
+          }
         </div>
       </ng-template>
 
@@ -56,6 +67,15 @@
       <i class="pi pi-inbox text-4xl text-muted-foreground opacity-20"></i>
       <div class="text-base font-medium text-foreground">No settlements</div>
       <p class="text-sm text-muted-foreground">This receivable has no settlements yet.</p>
+      @if (outstandingAmount() > 0) {
+        <p-button
+          label="Record Settlement"
+          icon="pi pi-check-circle"
+          size="small"
+          styleClass="rounded-lg px-3 py-1.5 text-xs font-bold"
+          (onClick)="settleRequest.emit()"
+        />
+      }
     </div>
   }
 </app-surface-card>
