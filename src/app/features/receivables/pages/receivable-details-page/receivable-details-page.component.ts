@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, linkedSignal, signal, untracked } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, map, of } from 'rxjs';
+import { catchError, firstValueFrom, map, of } from 'rxjs';
 
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -17,6 +17,7 @@ import type { Receivable } from '../../models/receivable.entity';
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
 import { ReceivableDetailsOverviewCardComponent } from '../../components/receivable-details-overview-card/receivable-details-overview-card.component';
 import { ReceivableSettlementsTabComponent } from '../../components/receivable-settlements-tab/receivable-settlements-tab.component';
+import { ReceivableSettleModalComponent } from '../../components/receivable-settle-modal/receivable-settle-modal.component';
 
 const TAB_SLUGS = ['overview', 'settlements'] as const;
 
@@ -46,7 +47,8 @@ function indexToTabSlug(index: number): string {
     TabPanel,
     PageHeaderComponent,
     ReceivableDetailsOverviewCardComponent,
-    ReceivableSettlementsTabComponent
+    ReceivableSettlementsTabComponent,
+    ReceivableSettleModalComponent
   ],
   providers: [MessageService],
   templateUrl: './receivable-details-page.component.html'
@@ -70,6 +72,10 @@ export class ReceivableDetailsPageComponent {
   );
 
   readonly activeTab = signal(0);
+
+  /** Settle modal state (presentational modal + request lifecycle owned by this smart page). */
+  readonly settleModalVisible = signal(false);
+  readonly isSettling = signal(false);
 
   readonly receivableResource = rxResource<Receivable | null, string>({
     params: () => this.receivableId(),
@@ -130,6 +136,44 @@ export class ReceivableDetailsPageComponent {
 
   retry(): void {
     this.receivableResource.reload();
+  }
+
+  openSettleModal(): void {
+    this.settleModalVisible.set(true);
+  }
+
+  closeSettleModal(): void {
+    if (this.isSettling()) {
+      return;
+    }
+    this.settleModalVisible.set(false);
+  }
+
+  /** POST /receivables/{id}/settle — updates local state from the returned DTO (no reload). */
+  async onSettle(amount: number): Promise<void> {
+    const id = this.receivableId();
+    if (!id || this.isSettling()) {
+      return;
+    }
+    this.isSettling.set(true);
+    try {
+      const res = await firstValueFrom(this.receivablesApi.settleReceivable(id, { Amount: amount }));
+      if (res.isSuccess && res.result) {
+        this.displayReceivable.set({ ...res.result, settlements: [...(res.result.settlements ?? [])] });
+        this.settleModalVisible.set(false);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: `Settlement of ${this.currencyCode} ${amount.toFixed(2)} recorded.`
+        });
+      } else {
+        this.showApiError(res.error);
+      }
+    } catch (err) {
+      this.showApiError(err);
+    } finally {
+      this.isSettling.set(false);
+    }
   }
 
   onTabChange(value: string | number | undefined): void {

@@ -52,15 +52,33 @@
       <p-tabpanels>
         <p-tabpanel [value]="0">
           <div class="pt-5">
-            <app-receivable-details-overview-card [receivable]="receivable" [currencyCode]="currencyCode" />
+            <app-receivable-details-overview-card
+              [receivable]="receivable"
+              [currencyCode]="currencyCode"
+              (settleRequest)="openSettleModal()"
+            />
           </div>
         </p-tabpanel>
         <p-tabpanel [value]="1">
           <div class="pt-5">
-            <app-receivable-settlements-tab [settlements]="receivable.settlements" [currencyCode]="currencyCode" />
+            <app-receivable-settlements-tab
+              [settlements]="receivable.settlements"
+              [currencyCode]="currencyCode"
+              [outstandingAmount]="receivable.outstandingAmount"
+              (settleRequest)="openSettleModal()"
+            />
           </div>
         </p-tabpanel>
       </p-tabpanels>
     </p-tabs>
+
+    <app-receivable-settle-modal
+      [(visible)]="settleModalVisible"
+      [receivable]="receivable"
+      [currencyCode]="currencyCode"
+      [settling]="isSettling()"
+      (settle)="onSettle($event)"
+      (cancel)="closeSettleModal()"
+    />
   }
 </section>
