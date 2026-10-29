@@ -17,7 +17,6 @@ describe('SuppliersPageComponent', () => {
 
   const mockSupplier: Supplier = {
     id: 'sup_1',
-    supplierCode: 'ACME',
     name: 'Acme Supplies',
     createdAt: '2026-01-01T00:00:00.000Z'
   };

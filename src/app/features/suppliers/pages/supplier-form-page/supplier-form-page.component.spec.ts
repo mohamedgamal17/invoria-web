@@ -20,7 +20,6 @@ describe('SupplierFormPageComponent (create)', () => {
         isSuccess: true as const,
         result: {
           id: 'new_id',
-          supplierCode: 'X',
           name: 'Y',
           createdAt: '2026-01-01T00:00:00.000Z'
         }
@@ -64,7 +63,6 @@ describe('SupplierFormPageComponent (create)', () => {
 
   it('submit should call createSupplier when valid', () => {
     component.form.patchValue({
-      supplierCode: 'CODE1',
       name: 'Valid Name',
       contactEmail: '',
       phone: ''

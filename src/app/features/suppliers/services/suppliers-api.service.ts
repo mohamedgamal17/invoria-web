@@ -50,12 +50,12 @@ export class SuppliersApiService {
   }
 
   createSupplier(request: CreateSupplierRequest): Observable<ApiResponse<Supplier>> {
-    this.assertSupplierBody(request.SupplierCode, request.Name);
+    this.assertSupplierName(request.Name);
     return this.http.post<ApiResponse<Supplier>>(`${this.baseUrl}suppliers`, request);
   }
 
   updateSupplier(id: string, request: UpdateSupplierRequest): Observable<ApiResponse<Supplier>> {
-    this.assertSupplierBody(request.SupplierCode, request.Name);
+    this.assertSupplierName(request.Name);
     return this.http.put<ApiResponse<Supplier>>(
       `${this.baseUrl}suppliers/${encodeURIComponent(id)}`,
       request
@@ -109,10 +109,7 @@ export class SuppliersApiService {
     );
   }
 
-  private assertSupplierBody(supplierCode: string | undefined, name: string | undefined): void {
-    if (!(supplierCode ?? '').trim()) {
-      throw new Error('SupplierCode is required.');
-    }
+  private assertSupplierName(name: string | undefined): void {
     if (!(name ?? '').trim()) {
       throw new Error('Name is required.');
     }

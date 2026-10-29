@@ -10,7 +10,6 @@ describe('SupplierListComponent', () => {
 
   const supplier: Supplier = {
     id: 's1',
-    supplierCode: 'CODE',
     name: 'Test Supplier',
     createdAt: '2026-01-01T00:00:00.000Z'
   };

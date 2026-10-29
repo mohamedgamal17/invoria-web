@@ -2,7 +2,6 @@ import { Entity } from '../../../core/models/entity';
 
 /** Supplier from GET/POST/PUT (matches procurement SupplierDto / list rows). */
 export interface Supplier extends Entity {
-  supplierCode: string;
   name: string;
   contactEmail?: string | null;
   phone?: string | null;
