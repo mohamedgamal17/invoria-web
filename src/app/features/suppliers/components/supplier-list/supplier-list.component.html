@@ -8,7 +8,6 @@
         <div class="flex justify-between items-start mb-4">
           <div class="flex flex-col min-w-0">
             <span class="truncate text-base font-bold text-foreground">{{ supplier.name }}</span>
-            <span class="text-xs text-muted-foreground mt-0.5 font-mono">{{ supplier.supplierCode }}</span>
             <span class="text-xs text-muted-foreground mt-0.5">Since {{ supplier.createdAt | date:'shortDate' }}</span>
           </div>
           <div class="flex flex-col items-end gap-2 shrink-0">
@@ -64,7 +63,7 @@
     [loading]="isListLoading()"
     [showLoader]="false"
     [rowHover]="true"
-    [globalFilterFields]="['name', 'supplierCode', 'contactEmail', 'phone']"
+    [globalFilterFields]="['name', 'contactEmail', 'phone']"
     [stripedRows]="true"
     styleClass="p-datatable-sm"
   >
@@ -78,7 +77,6 @@
 
     <ng-template pTemplate="header">
       <tr>
-        <th class="px-4 py-5 font-bold uppercase tracking-wider">Code</th>
         <th class="px-4 py-5 font-bold uppercase tracking-wider">Name</th>
         <th class="px-4 py-5 font-bold uppercase tracking-wider">Contact</th>
         <th class="px-4 py-5 font-bold uppercase tracking-wider">Phone</th>
@@ -89,9 +87,6 @@
 
     <ng-template pTemplate="body" let-supplier>
       <tr>
-        <td class="px-4 py-5">
-          <span class="text-sm font-mono font-semibold text-foreground">{{ supplier.supplierCode }}</span>
-        </td>
         <td class="px-4 py-5">
           <span class="text-sm font-semibold text-foreground">{{ supplier.name }}</span>
         </td>

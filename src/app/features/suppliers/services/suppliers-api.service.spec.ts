@@ -13,19 +13,16 @@ describe('filterSuppliersByName', () => {
     {
       id: '1',
       name: 'Alpha Supplies',
-      supplierCode: 'A1',
       createdAt: '2026-01-01T00:00:00.000Z'
     },
     {
       id: '2',
       name: 'Beta Corp',
-      supplierCode: 'B1',
       createdAt: '2026-01-01T00:00:00.000Z'
     },
     {
       id: '3',
       name: 'alpha lowercase',
-      supplierCode: 'C1',
       createdAt: '2026-01-01T00:00:00.000Z'
     }
   ];
@@ -67,7 +64,7 @@ describe('SuppliersApiService', () => {
   });
 
   it('createSupplier posts body to suppliers', () => {
-    const body = { SupplierCode: 'X', Name: 'Y', ContactEmail: null, Phone: null };
+    const body = { Name: 'Y', ContactEmail: null, Phone: null };
     service.createSupplier(body).subscribe();
     const req = httpMock.expectOne(`${baseUrl}suppliers`);
     expect(req.request.method).toBe('POST');
@@ -76,7 +73,7 @@ describe('SuppliersApiService', () => {
   });
 
   it('updateSupplier puts body to suppliers/:id', () => {
-    const body = { SupplierCode: 'X', Name: 'Y', ContactEmail: null, Phone: null };
+    const body = { Name: 'Y', ContactEmail: null, Phone: null };
     service.updateSupplier('id1', body).subscribe();
     const req = httpMock.expectOne(`${baseUrl}suppliers/id1`);
     expect(req.request.method).toBe('PUT');
@@ -87,7 +84,6 @@ describe('SuppliersApiService', () => {
   const supplierRow: Supplier = {
     id: '1',
     name: 'Alpha Supplies',
-    supplierCode: 'A1',
     createdAt: '2026-01-01T00:00:00.000Z'
   };
 

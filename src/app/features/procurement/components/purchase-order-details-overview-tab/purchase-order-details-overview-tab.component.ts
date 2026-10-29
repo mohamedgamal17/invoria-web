@@ -17,7 +17,6 @@ export class PurchaseOrderDetailsOverviewTabComponent {
   @Input({ required: true }) po!: PurchaseOrder;
   @Input({ required: true }) currencyCode!: string;
   @Input({ required: true }) supplierLine!: string;
-  @Input() supplierCode: string | null = null;
 
   formatDateOrDash(value: string | null | undefined): string {
     if (!value?.trim()) {

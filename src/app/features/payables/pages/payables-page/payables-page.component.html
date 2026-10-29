@@ -1,0 +1,27 @@
+<p-toast />
+
+<section class="flex flex-col gap-8">
+  <app-payable-header />
+
+  <app-payables-filter-panel
+    [suppliers]="suppliersResource.value()"
+    [supplierId]="supplierIdFromRoute()"
+    [sourceId]="sourceIdFromRoute()"
+    [isPaid]="isPaidFromRoute()"
+    [loading]="payablesResource.isLoading()"
+    (filtersChange)="onFiltersChange($event)"
+    (clearFilters)="onClearFilters()"
+  />
+
+  <app-payable-list
+    [payables]="displayPayables()"
+    [isListLoading]="payablesResource.isLoading()"
+    [totalRecords]="displayPagingInfo().totalCount"
+    [first]="first()"
+    [pageSize]="pageSize()"
+    [pageSizeOptions]="pageSizeOptions"
+    (pageChange)="onPageChange($event)"
+    (clearFilters)="onClearFilters()"
+    (viewPayable)="goToDetails($event)"
+  />
+</section>

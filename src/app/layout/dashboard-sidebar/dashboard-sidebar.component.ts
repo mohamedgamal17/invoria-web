@@ -11,6 +11,7 @@ import {
 import { filter } from 'rxjs';
 import {
   BarChart3,
+  Banknote,
   ChevronDown,
   ClipboardList,
   ContactRound,
@@ -104,6 +105,13 @@ export class DashboardSidebarComponent {
         { label: 'Completion report', path: '/procurement/reports/completion', icon: Wallet },
         { label: 'Completion metrics', path: '/procurement/reports/completion/metrics', icon: Table2 },
         { label: 'Suppliers', path: '/suppliers', icon: Users }
+      ]
+    },
+    {
+      label: 'Financial', icon: Wallet,
+      children: [
+        { label: 'Receivables', path: '/receivables', icon: Receipt },
+        { label: 'Payables', path: '/payables', icon: Banknote }
       ]
     },
     {

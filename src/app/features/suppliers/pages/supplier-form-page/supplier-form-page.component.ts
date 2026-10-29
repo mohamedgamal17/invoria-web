@@ -17,7 +17,6 @@ import type { CreateSupplierRequest } from '../../models/create-supplier.request
 import type { UpdateSupplierRequest } from '../../models/update-supplier.request';
 
 /** Matches backend SupplierTableConsts / FluentValidation. */
-const SUPPLIER_CODE_MAX = 128;
 const NAME_MAX = 512;
 const NAME_MIN = 3;
 const EMAIL_MAX = 256;
@@ -55,10 +54,6 @@ export class SupplierFormPageComponent {
   readonly saving = signal(false);
 
   readonly form = this.formBuilder.group({
-    supplierCode: this.formBuilder.nonNullable.control('', [
-      Validators.required,
-      Validators.maxLength(SUPPLIER_CODE_MAX)
-    ]),
     name: this.formBuilder.nonNullable.control('', [
       Validators.required,
       Validators.minLength(NAME_MIN),
@@ -98,7 +93,6 @@ export class SupplierFormPageComponent {
     const emailTrim = raw.contactEmail.trim();
     const phoneTrim = raw.phone.trim();
     const body: CreateSupplierRequest = {
-      SupplierCode: raw.supplierCode.trim(),
       Name: raw.name.trim(),
       ContactEmail: emailTrim ? emailTrim : null,
       Phone: phoneTrim ? phoneTrim : null
@@ -188,7 +182,6 @@ export class SupplierFormPageComponent {
           }
           const s = res.result;
           this.form.reset({
-            supplierCode: s.supplierCode,
             name: s.name,
             contactEmail: s.contactEmail ?? '',
             phone: s.phone ?? ''

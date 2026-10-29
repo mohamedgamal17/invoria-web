@@ -50,7 +50,6 @@ describe('SupplierDetailsPageComponent', () => {
 
   const supplier: Supplier = {
     id: 'sup_1',
-    supplierCode: 'ACME',
     name: 'Acme',
     contactEmail: 'a@b.co',
     phone: '123',

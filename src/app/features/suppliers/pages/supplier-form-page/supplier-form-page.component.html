@@ -20,25 +20,6 @@
       <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-6 pt-2">
         <div class="space-y-5">
           <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider" for="supplierCode">
-              Supplier code
-            </label>
-            <input
-              id="supplierCode"
-              name="supplierCode"
-              type="text"
-              pInputText
-              formControlName="supplierCode"
-              class="w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all font-mono"
-              [disabled]="saving()"
-              placeholder="Unique supplier code"
-            />
-            @if (form.controls.supplierCode.invalid && form.controls.supplierCode.touched) {
-              <p-message severity="error" text="Supplier code is required." />
-            }
-          </div>
-
-          <div class="flex flex-col gap-1.5">
             <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider" for="supplierName">
               Name
             </label>

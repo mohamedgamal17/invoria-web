@@ -1,0 +1,26 @@
+<p-toast />
+
+<section class="flex flex-col gap-8">
+  <app-receivable-header />
+
+  <app-receivables-filter-panel
+    [partyId]="partyIdFromRoute()"
+    [sourceId]="sourceIdFromRoute()"
+    [isPaid]="isPaidFromRoute()"
+    [loading]="receivablesResource.isLoading()"
+    (filtersChange)="onFiltersChange($event)"
+    (clearFilters)="onClearFilters()"
+  />
+
+  <app-receivable-list
+    [receivables]="displayReceivables()"
+    [isListLoading]="receivablesResource.isLoading()"
+    [totalRecords]="displayPaging().totalCount"
+    [first]="first()"
+    [pageSize]="pageSize()"
+    [pageSizeOptions]="pageSizeOptions"
+    (pageChange)="onPageChange($event)"
+    (clearFilters)="onClearFilters()"
+    (viewReceivable)="goToDetails($event)"
+  />
+</section>
