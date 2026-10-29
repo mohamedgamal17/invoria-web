@@ -337,14 +337,4 @@ describe('PurchaseOrderDetailsPageComponent', () => {
     expect(component.formatDateOrDash('')).toBe('—');
     expect(component.formatDateOrDash('not-a-date')).toBe('—');
   });
-
-  it('supplierCodeLine should trim and return supplier code when present', () => {
-    const component = fixture.componentInstance;
-    const po: PurchaseOrder = {
-      ...mockPo,
-      supplier: { id: 'sup_1', name: 'Acme', supplierCode: '  SUP-01  ' }
-    };
-    expect(component.supplierCodeLine(po)).toBe('SUP-01');
-    expect(component.supplierCodeLine({ ...mockPo, supplier: { id: 'sup_1', name: 'Acme' } })).toBeNull();
-  });
 });

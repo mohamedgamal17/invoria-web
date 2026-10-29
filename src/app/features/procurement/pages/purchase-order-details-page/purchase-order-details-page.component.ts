@@ -250,12 +250,6 @@ export class PurchaseOrderDetailsPageComponent {
     return po.supplierId;
   }
 
-  /** Optional supplier code for display when the API includes it. */
-  supplierCodeLine(po: PurchaseOrder): string | null {
-    const code = po.supplier?.supplierCode?.trim();
-    return code ? code : null;
-  }
-
   /** Medium date for schedule fields, or an em dash when missing or invalid. */
   formatDateOrDash(value: string | null | undefined): string {
     if (!value?.trim()) {
