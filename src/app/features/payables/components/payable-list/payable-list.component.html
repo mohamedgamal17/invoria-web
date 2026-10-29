@@ -1,0 +1,185 @@
+<!-- Mobile View (Cards) -->
+<div class="block md:hidden space-y-4">
+  @if (isListLoading()) {
+    <app-payable-list-skeleton variant="mobile" [count]="pageSize()" />
+  } @else if (payables().length > 0) {
+    @for (payable of payables(); track payable.id) {
+      <div class="rounded-xl border border-border bg-surface p-4 shadow-sm hover:border-primary/30 transition-all active:scale-[0.98]">
+        <div class="flex justify-between items-start mb-4">
+          <div class="flex flex-col min-w-0">
+            <span class="truncate text-base font-bold text-foreground">{{ payable.id | slice:0:8 }}…</span>
+            <span class="text-xs text-muted-foreground mt-0.5">{{ payable.createdAt | date:'shortDate' }}</span>
+          </div>
+          <div class="flex flex-col items-end gap-2 shrink-0">
+            <span class="text-sm font-semibold tabular-nums">EGP {{ payable.amount | number:'1.2-2' }}</span>
+            <p-tag
+              [value]="statusLabel(payable.status)"
+              [severity]="statusSeverity(payable.status)"
+            />
+          </div>
+        </div>
+        <div class="flex items-center justify-between pt-3 border-t border-border/50">
+          <div class="flex flex-col gap-0.5 min-w-0 text-xs text-muted-foreground">
+            @if (payable.party) {
+              <span class="truncate font-medium text-foreground" [pTooltip]="payable.party.id">{{ payable.party.name }}</span>
+            } @else {
+              <span class="truncate" [pTooltip]="payable.partyId">Supplier: {{ payable.partyId | slice:0:8 }}...</span>
+            }
+            @if (payable.source) {
+              <span class="truncate" [pTooltip]="payable.source.id">Purchase order: {{ payable.source.purchaseNumber }}</span>
+            } @else {
+              <span class="truncate" [pTooltip]="payable.sourceId">Purchase order: {{ payable.sourceId | slice:0:8 }}...</span>
+            }
+          </div>
+          <p-button
+            label="View Details"
+            icon="pi pi-arrow-right"
+            size="small"
+            styleClass="h-9"
+            (onClick)="viewPayable.emit(payable)"
+          />
+        </div>
+      </div>
+    }
+  } @else {
+    <app-empty-state
+      icon="pi pi-file"
+      title="No payables found"
+      description="Try adjusting your filters."
+    >
+      <p-button label="Clear Filters" [link]="true" (onClick)="clearFilters.emit()" />
+    </app-empty-state>
+  }
+
+  <!-- Mobile Pagination -->
+  <div class="mt-8 pb-4">
+    <p-paginator
+      [first]="first()"
+      [rows]="pageSize()"
+      [totalRecords]="totalRecords()"
+      [rowsPerPageOptions]="pageSizeOptions()"
+      (onPageChange)="pageChange.emit($event)"
+      styleClass="bg-transparent border-none"
+    />
+  </div>
+</div>
+
+<!-- Desktop Table View -->
+<app-surface-card tone="neutral" class="hidden md:block overflow-visible">
+  <p-table
+    [value]="payables()"
+    dataKey="id"
+    [lazy]="true"
+    [paginator]="true"
+    [rows]="pageSize()"
+    [first]="first()"
+    [totalRecords]="totalRecords()"
+    [rowsPerPageOptions]="pageSizeOptions()"
+    (onPage)="pageChange.emit($event)"
+    [loading]="isListLoading()"
+    [showLoader]="false"
+    [rowHover]="true"
+    [stripedRows]="true"
+    styleClass="p-datatable-sm"
+  >
+    <ng-template pTemplate="caption">
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-4 px-2 py-3">
+        <div class="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          Displaying {{ payables().length }} of {{ totalRecords() }} payables
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider">ID</th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider">Supplier</th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider">Purchase Order</th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">Amount</th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">Outstanding</th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider">Status</th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider">Date</th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">View</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-payable>
+      <tr>
+        <td class="px-4 py-5">
+          <span class="text-sm font-semibold font-mono text-foreground">{{ payable.id | slice:0:8 }}…</span>
+        </td>
+        <td class="px-4 py-5">
+          @if (payable.party) {
+            <span
+              class="text-sm font-medium text-foreground truncate max-w-[180px] inline-block"
+              [pTooltip]="payable.party.id"
+              tooltipPosition="top"
+            >{{ payable.party.name }}</span>
+          } @else {
+            <span class="text-sm text-muted-foreground font-mono text-xs">{{ payable.partyId | slice:0:12 }}...</span>
+          }
+        </td>
+        <td class="px-4 py-5">
+          @if (payable.source) {
+            <span
+              class="text-sm font-mono text-xs text-foreground"
+              [pTooltip]="payable.source.id"
+              tooltipPosition="top"
+            >{{ payable.source.purchaseNumber }}</span>
+          } @else {
+            <span class="text-sm text-muted-foreground font-mono text-xs">{{ payable.sourceId | slice:0:12 }}...</span>
+          }
+        </td>
+        <td class="px-4 py-5 text-right">
+          <span class="text-sm font-semibold tabular-nums">EGP {{ payable.amount | number:'1.2-2' }}</span>
+        </td>
+        <td class="px-4 py-5 text-right">
+          <span class="text-sm font-semibold tabular-nums">EGP {{ payable.outstandingAmount | number:'1.2-2' }}</span>
+        </td>
+        <td class="px-4 py-5">
+          <p-tag
+            [value]="statusLabel(payable.status)"
+            [severity]="statusSeverity(payable.status)"
+          />
+        </td>
+        <td class="px-4 py-5">
+          <span class="text-sm text-muted-foreground">{{ payable.createdAt | date:'mediumDate' }}</span>
+        </td>
+        <td class="px-4 py-5 text-right">
+          <div class="flex justify-end gap-1">
+            <p-button
+              label="View"
+              icon="pi pi-arrow-right"
+              size="small"
+              pTooltip="View Payable"
+              tooltipPosition="top"
+              styleClass="h-8 px-3 mr-1"
+              (onClick)="viewPayable.emit(payable)"
+            />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="loadingbody">
+      <app-payable-list-skeleton variant="table" [count]="pageSize()" />
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="8" class="px-4 py-12 text-center">
+          <div class="flex flex-col items-center gap-3">
+            <i class="pi pi-file text-4xl text-muted-foreground opacity-20"></i>
+            <div class="text-base font-medium text-foreground">No payables found</div>
+            <p class="text-sm text-muted-foreground">Try adjusting your filters.</p>
+            <p-button
+              label="Clear Filters"
+              [link]="true"
+              (onClick)="clearFilters.emit()"
+            />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</app-surface-card>

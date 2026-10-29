@@ -1,0 +1,78 @@
+<p-dialog
+  header="Record Settlement"
+  [(visible)]="visible"
+  [modal]="true"
+  [dismissableMask]="true"
+  [draggable]="false"
+  [style]="{ width: '100%', maxWidth: '450px' }"
+  [breakpoints]="{ '960px': '75vw', '641px': '90vw' }"
+  (onHide)="onHide()"
+  styleClass="modern-dialog"
+>
+  <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-6 pt-2">
+    <div class="space-y-5">
+      <div class="rounded-xl border border-border/60 bg-surface-2 px-4 py-3 flex items-center justify-between">
+        <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Outstanding</span>
+        <span class="text-sm font-bold tabular-nums text-foreground">
+          {{ currencyCode() }} {{ maxAmount() | number: '1.2-2' }}
+        </span>
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider" for="settlementAmount">
+          Amount ({{ currencyCode() }})
+        </label>
+        <p-inputNumber
+          id="settlementAmount"
+          name="settlementAmount"
+          formControlName="amount"
+          [disabled]="settling()"
+          mode="decimal"
+          [minFractionDigits]="2"
+          [maxFractionDigits]="2"
+          [min]="0.01"
+          inputId="settlementAmount"
+          styleClass="w-full"
+          inputStyleClass="w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all tabular-nums"
+          placeholder="Enter settlement amount"
+        />
+        @if (form.controls.amount.invalid && form.controls.amount.touched) {
+          <p-message severity="error" text="Settlement amount must be greater than zero." />
+        } @else if (form.controls.amount.touched && exceedsOutstanding()) {
+          <p-message severity="error" text="Amount cannot exceed the outstanding balance." />
+        }
+        <div class="flex items-center justify-between">
+          <p class="text-xs text-muted-foreground">Validated against the outstanding balance.</p>
+          <button
+            type="button"
+            pButton
+            [disabled]="settling() || maxAmount() <= 0"
+            class="p-button-text p-button-sm text-accent"
+            label="Fill full amount"
+            (click)="fillOutstanding()"
+          ></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-5 border-t border-border mt-8">
+      <p-button
+        label="Cancel"
+        type="button"
+        [text]="true"
+        styleClass="w-full sm:w-auto px-4 py-2.5 text-sm font-semibold text-muted-foreground hover:bg-muted rounded-xl transition-all"
+        [disabled]="settling()"
+        (onClick)="cancel.emit()"
+      />
+
+      <p-button
+        label="Settle"
+        type="submit"
+        [disabled]="settling()"
+        [loading]="settling()"
+        icon="pi pi-check-circle"
+        styleClass="w-full sm:w-auto px-6 py-3 bg-primary text-primary-foreground text-sm font-bold rounded-xl shadow-md hover:opacity-90 transition-all focus:ring-2 focus:ring-focus active:scale-[0.98]"
+      />
+    </div>
+  </form>
+</p-dialog>
