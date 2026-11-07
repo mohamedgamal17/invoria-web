@@ -62,16 +62,18 @@ We follow a **Smart (Container) vs. Presentational (Dumb)** component pattern.
     - Communicate via `@Input()` and `@Output()`.
     - (Planned) Extracted from `pages/` as features grow.
 
-For a **concrete reference** of this split with modern signals—**`rxResource`**, **`linkedSignal`**, query-param pagination, and scoped **`MessageService`**—see [Component design rules](./component-design-rules.md) (Customers reference).
+For a **concrete reference** of this split with state in **NgRx feature store modules**, URL-adapter effects, query-param pagination, and shared error presentation—see [Component design rules](./component-design-rules.md) (Customers reference).
 
 ---
 
 ## 5. State Management
 
-- **Local State**: Component-level state is managed via class properties and RxJS.
-- **Global State**: (Planned) Core services or Signal-based stores for cross-feature data.
-- **Patterns**: Use of `firstValueFrom` to handle RxJS streams in an `async/await` fashion for complex UI flows (e.g., multiple sequential API calls).
-- **List pages** may instead use **Angular signals**, **`toSignal`/`computed`** for URL-derived params, and **`rxResource`** (with optional **`linkedSignal`** for view state that tracks server data). The Customers feature documents this pattern end-to-end in [Component design rules](./component-design-rules.md).
+- **Feature State (NgRx)**: List and detail pages own their state in **feature store modules** under `features/<feature>/store/` (e.g. `customers-list`, `customer-details`, `customer-details-orders`), each self-contained (`actions.ts`, `reducer.ts`, `selectors.ts`, `effects.ts`) and following the conventions in [component-design-rules.md](./component-design-rules.md) §3.
+- **Route-scoped providers**: Slices are attached in `customers.routes.ts` via `provideState(FEATURE_KEY, reducer)` / `provideEffects(...)` on the owning route entry; the router store (`RouterState.Minimal`, provided root-side in `app.config.ts`) feeds URL reads.
+- **URL-driven state**: Components only *write* the URL (`page` / `pageSize` / `q` / `tab` query params); `<feature>-url` adapter effects listen to `routerNavigatedAction` and apply normalized values into the store, so reducers no-op identical values (harmless round-trips).
+- **Request lifecycle**: Every async slice embeds the shared `AsyncRequestState` fragment (`status` / `error` / `failureNonce`) from `shared/models/async-request-state.ts`; data-only effects branch success/failure and forward errors to the global `AppErrorEffects` toast (`AppStateError` presentation), keeping reducers pure.
+- **Global State**: Root-provided store + router-store slice + global error presentation live in `app.config.ts`.
+- **Patterns**: Data-only effects use `withLatestFrom(state)` + `distinctUntilChanged` (state identity) + `switchMap` so superseded queries cancel in-flight requests; `fetchedQuery` identities duplicate-trigger-proof the funnels.
 
 ---
 
