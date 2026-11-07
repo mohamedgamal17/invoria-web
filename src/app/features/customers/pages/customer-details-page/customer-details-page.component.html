@@ -15,12 +15,12 @@
         <p-skeleton height="1rem" width="80%"></p-skeleton>
       </div>
     </p-card>
-  } @else if (error()) {
+  } @else if (error(); as inlineError) {
     <p-card styleClass="border border-destructive/30 rounded-2xl shadow-sm">
       <div class="flex flex-col gap-4 p-1 sm:flex-row sm:items-center sm:justify-between">
         <div class="space-y-1">
           <h2 class="text-base font-semibold text-foreground">Unable to load customer</h2>
-          <p class="text-sm text-destructive">{{ error() }}</p>
+          <p class="text-sm text-destructive">{{ inlineError }}</p>
         </div>
         <p-button
           label="Retry"
@@ -33,18 +33,32 @@
   } @else if (customer(); as c) {
     <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" [lazy]="true">
       <p-tablist>
-        <p-tab [value]="0">Profile</p-tab>
-        <p-tab [value]="1">Orders</p-tab>
+        <p-tab [value]="tabs.Profile">Profile</p-tab>
+        <p-tab [value]="tabs.Orders">Orders</p-tab>
       </p-tablist>
       <p-tabpanels>
-        <p-tabpanel [value]="0">
+        <p-tabpanel [value]="tabs.Profile">
           <div class="pt-5">
             <app-customer-details-profile [customer]="c" (edit)="goToEdit()" />
           </div>
         </p-tabpanel>
-        <p-tabpanel [value]="1">
+        <p-tabpanel [value]="tabs.Orders">
           <div class="pt-6">
-            <app-customer-details-orders-tab [customerId]="c.id" />
+            <app-customer-details-orders-tab
+              [orderNumber]="orderNumber()"
+              [orderStatusFilter]="orderStatusFilter()"
+              [paymentStatusFilter]="paymentStatusFilter()"
+              [paymentTypeFilter]="paymentTypeFilter()"
+              [orders]="orders()"
+              [paging]="paging()"
+              [first]="first()"
+              [pageSize]="pageSize()"
+              [loading]="ordersLoading()"
+              (pageChange)="onOrdersPageChange($event)"
+              (filtersChange)="onOrdersFiltersChange($event)"
+              (clearFilters)="onOrdersFiltersClear()"
+              (view)="goToOrderDetails($event)"
+            />
           </div>
         </p-tabpanel>
       </p-tabpanels>

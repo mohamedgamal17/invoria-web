@@ -1,4 +1,18 @@
 import { Routes } from '@angular/router';
+import { provideState } from '@ngrx/store';
+import { provideEffects } from '@ngrx/effects';
+
+import { CUSTOMER_DETAILS_FEATURE_KEY, customerDetailsReducer } from './store/customer-details/customer-details.reducer';
+import { CustomerDetailsEffects } from './store/customer-details/customer-details.effects';
+import { CUSTOMER_ORDERS_FEATURE_KEY, customerOrdersReducer } from './store/customer-details-orders/customer-details-orders.reducer';
+import { CustomerOrdersEffects } from './store/customer-details-orders/customer-details-orders.effects';
+import { CustomerDetailsUrlEffects } from './store/customer-details-url/customer-details-url.effects';
+
+const CUSTOMER_DETAILS_PROVIDERS = [
+  provideState(CUSTOMER_DETAILS_FEATURE_KEY, customerDetailsReducer),
+  provideState(CUSTOMER_ORDERS_FEATURE_KEY, customerOrdersReducer),
+  provideEffects(CustomerDetailsEffects, CustomerOrdersEffects, CustomerDetailsUrlEffects),
+];
 
 export const CUSTOMERS_ROUTES: Routes = [
   {
@@ -31,9 +45,9 @@ export const CUSTOMERS_ROUTES: Routes = [
         loadComponent: () =>
           import('./pages/customer-details-page/customer-details-page.component').then(
             (m) => m.CustomerDetailsPageComponent
-          )
+          ),
+        providers: CUSTOMER_DETAILS_PROVIDERS
       }
     ]
   }
 ];
-

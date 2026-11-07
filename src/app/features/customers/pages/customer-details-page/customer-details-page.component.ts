@@ -1,38 +1,43 @@
-import { CommonModule } from '@angular/common';
-import { Component, effect, inject, signal, untracked } from '@angular/core';
+import { Component, computed, effect, inject, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { finalize, map, take } from 'rxjs';
+import { map } from 'rxjs';
 
-import { MessageService } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
+import { Store } from '@ngrx/store';
+import {ButtonModule} from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
-import { presentApiError } from '../../../../core/http/api-error.presenter';
+import type { OrdersListFilters } from '../../../orders/components/orders-filter-panel/orders-filter-panel.component';
+import type { UiOrder } from '../../../orders/models/order-ui.model';
+import { PaginationService } from '../../../../shared/utils/pagination.service';
+import { type PaginatorPageEvent } from '../../../../shared/models/pagination';
+import { UrlStateService } from '../../../../shared/utils/url-state.service';
 import { CustomerDetailsOrdersTabComponent } from '../../components/customer-details-orders-tab/customer-details-orders-tab.component';
 import { CustomerDetailsProfileComponent } from '../../components/customer-details-profile/customer-details-profile.component';
 import { CustomerDetailsToolbarComponent } from '../../components/customer-details-toolbar/customer-details-toolbar.component';
-import type { Customer } from '../../models/customer.entity';
-import { CustomersApiService } from '../../services/customers-api.service';
+import { CUSTOMER_DETAILS_ACTIONS } from '../../store/customer-details/customer-details.actions';
+import { CustomerDetailsTab } from '../../store/customer-details/customer-details.reducer';
+import { customerDetailsSelectors } from '../../store/customer-details/customer-details.selectors';
+import { toCustomerDetailsTab } from '../../store/customer-details-url/customer-details-url.effects';
+import { CUSTOMER_ORDERS_ACTIONS } from '../../store/customer-details-orders/customer-details-orders.actions';
+import { customerOrdersSelectors } from '../../store/customer-details-orders/customer-details-orders.selectors';
 
-function tabSlugToIndex(tab: string | null): number | null {
-  if (tab === 'orders') {
-    return 1;
-  }
-  if (tab === 'profile' || tab === null || tab === '') {
-    return 0;
-  }
-  return null;
-}
-
+/**
+ * Smart page (container) for customer details. It owns only:
+ * - the NgRx state mapping (selectors → signals),
+ * - the URL write adapter (`tab` / `page` / `rows` query params via `replaceUrl`),
+ * - presentation glue (scroll behavior, page navigation).
+ * The URL *read* side lives in the `store/customer-details-url` effects
+ * (NgRx Router Store); all business logic lives in the
+ * `store/customer-details` and `store/customer-details-orders` state modules.
+ */
 @Component({
   selector: 'app-customer-details-page',
   standalone: true,
   imports: [
-    CommonModule,
     ButtonModule,
     CardModule,
     SkeletonModule,
@@ -46,47 +51,51 @@ function tabSlugToIndex(tab: string | null): number | null {
     CustomerDetailsProfileComponent,
     CustomerDetailsOrdersTabComponent
   ],
-  providers: [MessageService],
   templateUrl: './customer-details-page.component.html'
 })
 export class CustomerDetailsPageComponent {
-  private readonly customersApi = inject(CustomersApiService);
-  private readonly messageService = inject(MessageService);
+  readonly tabs = CustomerDetailsTab;
+  private readonly store = inject(Store);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly pagination = inject(PaginationService);
+  private readonly urlState = inject(UrlStateService);
 
-  private readonly customerId = toSignal(
+  // --- Details store (customer + activeTab) ---
+  readonly customer = this.store.selectSignal(customerDetailsSelectors.selectCustomer);
+  readonly loading = this.store.selectSignal(customerDetailsSelectors.selectIsLoading);
+  readonly error = this.store.selectSignal(customerDetailsSelectors.selectError);
+  readonly activeTab = this.store.selectSignal(customerDetailsSelectors.selectActiveTab);
+
+  // --- Orders store (URL-backed paging + current api page) ---
+  readonly orders = this.store.selectSignal(customerOrdersSelectors.selectOrders);
+  readonly paging = this.store.selectSignal(customerOrdersSelectors.selectPaging);
+  readonly first = this.store.selectSignal(customerOrdersSelectors.selectFirst);
+  readonly pageSize = this.store.selectSignal(customerOrdersSelectors.selectPageSize);
+  readonly pageIndex = this.store.selectSignal(customerOrdersSelectors.selectPageIndex);
+  readonly ordersTabOpened = this.store.selectSignal(customerOrdersSelectors.selectOrdersTabOpened);
+  readonly ordersLoading = this.store.selectSignal(customerOrdersSelectors.selectIsLoading);
+  readonly filters = this.store.selectSignal(customerOrdersSelectors.selectFilters);
+  readonly orderNumber = computed(() => this.filters().orderNumber);
+  readonly orderStatusFilter = computed(() => this.filters().status);
+  readonly paymentStatusFilter = computed(() => this.filters().paymentStatus);
+  readonly paymentTypeFilter = computed(() => this.filters().paymentType);
+
+  private readonly orderId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
     { initialValue: this.route.snapshot.paramMap.get('id') ?? '' }
   );
 
-  private readonly tabQuery = toSignal(this.route.queryParamMap.pipe(map((m) => m.get('tab'))), {
-    initialValue: this.route.snapshot.queryParamMap.get('tab')
-  });
-
-  readonly loading = signal(true);
-  readonly error = signal('');
-  readonly customer = signal<Customer | null>(null);
-  /** Active tab index (`0` = Profile, `1` = Orders). */
-  readonly activeTab = signal(0);
-
   constructor() {
+    // Trigger the details state module whenever the `:id` param changes.
     effect(() => {
-      this.loadCustomer(this.customerId());
-    });
-
-    effect(() => {
-      const tab = this.tabQuery();
-      const loaded = this.customer();
-      if (!loaded || this.loading()) {
+      const id = this.orderId();
+      if (!id) {
         return;
       }
-      untracked(() => {
-        const idx = tabSlugToIndex(tab);
-        if (idx !== null && this.activeTab() !== idx) {
-          this.activeTab.set(idx);
-        }
-      });
+      untracked(() =>
+        this.store.dispatch(CUSTOMER_DETAILS_ACTIONS.loadCustomer({ customerId: id }))
+      );
     });
   }
 
@@ -98,70 +107,67 @@ export class CustomerDetailsPageComponent {
     void this.router.navigate(['edit'], { relativeTo: this.route });
   }
 
+  retry(): void {
+    const id = untracked(this.orderId);
+    if (!id) {
+      return;
+    }
+    this.store.dispatch(CUSTOMER_DETAILS_ACTIONS.loadCustomer({ customerId: id }));
+  }
+
   onTabChange(value: string | number | undefined): void {
     if (value === undefined || value === null) {
       return;
     }
-    const n = typeof value === 'number' ? value : Number(value);
-    const next = Number.isFinite(n) ? n : 0;
-    this.activeTab.set(next);
-    const slug: 'profile' | 'orders' = next === 1 ? 'orders' : 'profile';
-    void this.router.navigate([], {
-      relativeTo: this.route,
-      replaceUrl: true,
-      queryParams: { tab: slug }
-    });
-  }
-
-  retry(): void {
-    this.loadCustomer();
-  }
-
-  private loadCustomer(idParam?: string): void {
-    const id = idParam ?? this.customerId();
-    if (!id) {
-      this.loading.set(false);
-      this.customer.set(null);
-      this.error.set('Missing customer id.');
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: this.error() });
+    const next = toCustomerDetailsTab(value);
+    if (next === null) {
       return;
     }
+    this.store.dispatch(CUSTOMER_DETAILS_ACTIONS.setActiveTab({ activeTab: next }));
+    if (next === CustomerDetailsTab.Orders) {
+      this.store.dispatch(CUSTOMER_ORDERS_ACTIONS.ordersTabOpened());
+    }
+    this.replaceUrlQuery(next);
+  }
 
-    this.loading.set(true);
-    this.error.set('');
-    this.customer.set(null);
+  onOrdersPageChange(event: PaginatorPageEvent): void {
+    const { pageIndex: newPageIndex, pageSize: rows } = this.pagination.pageIndexFromEvent(
+      event,
+      untracked(this.pageSize)
+    );
+    // Presentation glue only: page navigation scrolls to top; the state (reducer)
+    // decides whether the change is real and warrants an API call.
+    const isManualPageChange = newPageIndex !== untracked(this.pageIndex);
+    this.store.dispatch(
+      CUSTOMER_ORDERS_ACTIONS.pageChange({ pageIndex: newPageIndex, pageSize: rows })
+    );
+    if (isManualPageChange) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    this.replaceUrlQuery(untracked(this.activeTab), newPageIndex, rows);
+  }
 
-    this.customersApi
-      .getCustomer(id)
-      .pipe(
-        take(1),
-        finalize(() => this.loading.set(false))
-      )
-      .subscribe({
-        next: (res) => {
-          if (!res.isSuccess || !res.result) {
-            const presentation = presentApiError(res.error);
-            const detail = presentation.toast.detail ?? 'Failed to load customer.';
-            this.error.set(detail);
-            this.customer.set(null);
-            this.messageService.add(presentation.toast);
-            if (presentation.routeTarget) {
-              void this.router.navigate([presentation.routeTarget]);
-            }
-            return;
-          }
-          this.customer.set(res.result);
-        },
-        error: (err: unknown) => {
-          const presentation = presentApiError(err);
-          const detail = presentation.toast.detail ?? 'Failed to load customer.';
-          this.error.set(detail);
-          this.customer.set(null);
-          this.messageService.add(presentation.toast);
-          if (presentation.routeTarget) {
-            void this.router.navigate([presentation.routeTarget]);
-          }
-        }
-      });
+  onOrdersFiltersChange(filters: OrdersListFilters): void {
+    this.store.dispatch(CUSTOMER_ORDERS_ACTIONS.filtersChange({ filters }));
+  }
+
+  onOrdersFiltersClear(): void {
+    this.store.dispatch(CUSTOMER_ORDERS_ACTIONS.filtersClear());
+  }
+
+  goToOrderDetails(order: UiOrder): void {
+    void this.router.navigate(['/orders', order.id]);
+  }
+
+  private replaceUrlQuery(
+    tabValue: CustomerDetailsTab,
+    pageIndex = untracked(this.pageIndex),
+    pageSize = untracked(this.pageSize)
+  ): void {
+    void this.urlState.replaceQueryParams(this.route, {
+      tab: tabValue,
+      page: pageIndex,
+      rows: pageSize
+    });
   }
 }

@@ -4,18 +4,18 @@
     [status]="orderStatusFilter()"
     [paymentStatus]="paymentStatusFilter()"
     [paymentType]="paymentTypeFilter()"
-    [loading]="ordersResource.isLoading()"
+    [loading]="loading()"
     (filtersChange)="onFiltersChange($event)"
     (clearFilters)="onClearFilters()"
   />
 
   <app-order-list
-    [orders]="displayOrders()"
-    [totalRecords]="displayPaging().totalCount"
+    [orders]="orders()"
+    [totalRecords]="paging().totalCount"
     [first]="first()"
     [pageSize]="pageSize()"
     [pageSizeOptions]="pageSizeOptions"
-    [loading]="ordersResource.isLoading()"
+    [loading]="loading()"
     [showDelete]="false"
     (pageChange)="onPageChange($event)"
     (clearFilters)="onClearFilters()"
