@@ -7,6 +7,7 @@ import { PaginatorModule } from 'primeng/paginator';
 import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
 import { Batch, BatchState } from '../models/batch.entity';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../shared/models/pagination';
 
 @Component({
   selector: 'app-batch-list',
@@ -240,7 +241,7 @@ export class BatchListComponent {
   loading = input<boolean>(false);
   first = input(0);
   pageSize = input(25);
-  pageSizeOptions = input<number[]>([25, 50, 100, 200]);
+  pageSizeOptions = input<number[]>(DEFAULT_PAGE_SIZE_OPTIONS);
   currencyCode = input<string>('EGP');
 
   onPageChange = output<{ first?: number; rows?: number }>();

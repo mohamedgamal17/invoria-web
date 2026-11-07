@@ -22,6 +22,8 @@ import {
 } from '../../components/payables-filter-panel/payables-filter-panel.component';
 import type { PagingInfo } from '../../../../core/models/paging';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
+import { PaginationService } from '../../../../shared/utils/pagination.service';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
 
 const EMPTY_PAYABLES_TUPLE: [Payable[], PagingInfo] = [
   [],
@@ -71,8 +73,9 @@ function hydratePayable(
   templateUrl: './payables-page.component.html'
 })
 export class PayablesPageComponent {
-  readonly pageSizeOptions = [25, 50, 100, 200];
+  readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
 
+  private readonly pagination = inject(PaginationService);
   private readonly payablesApi = inject(PayablesApiService);
   private readonly referenceResolver = inject(PayableReferenceResolverService);
   private readonly suppliersApi = inject(SuppliersApiService);
@@ -93,11 +96,7 @@ export class PayablesPageComponent {
 
   readonly pageSize = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => {
-        const raw = m.get('pageSize');
-        const n = raw ? parseInt(raw, 10) : NaN;
-        return this.pageSizeOptions.includes(n) ? n : 25;
-      })
+      map((m) => this.pagination.pageSizeFromQuery(Number(m.get('pageSize'))))
     ),
     { initialValue: 25 }
   );

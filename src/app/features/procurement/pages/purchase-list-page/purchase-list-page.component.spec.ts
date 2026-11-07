@@ -119,7 +119,7 @@ describe('PurchaseListPageComponent', () => {
     const failApi = {
       listPurchaseOrders: vi
         .fn()
-        .mockReturnValue(of({ isSuccess: false as const, error: { message: 'Server error' } }))
+        .mockReturnValue(of({ isSuccess: false as const, error: { kind: 'api', title: 'Request failed', detail: 'Server error' } }))
     };
 
     TestBed.configureTestingModule({

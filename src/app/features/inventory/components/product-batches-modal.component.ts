@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import type { BatchesProductRef } from '../models/batches-product.ref';
 import { ProductBatchesPanelComponent } from './product-batches-panel.component';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../shared/models/pagination';
 
 @Component({
   selector: 'app-product-batches-modal',
@@ -55,7 +56,7 @@ export class ProductBatchesModalComponent {
   product = input<BatchesProductRef | null>(null);
   batchesMutated = output<void>();
 
-  readonly pageSizeOptions = [25, 50, 100, 200];
+  readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
   readonly first = signal(0);
   readonly pageSize = signal(25);
 

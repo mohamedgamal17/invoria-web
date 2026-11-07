@@ -19,6 +19,7 @@ import type { UiOrderItem } from '../../models/order-ui.model';
 import { PaymentType } from '../../models/order-payment.enums';
 import { draftItemsToLineItems, orderToUiOrder } from '../../models/order-ui.mapper';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
+import { ApiHttpError } from '../../../../core/http/api-http-error';
 
 /** Mirrors filter-panel name debounce (e.g. products-filter-panel). */
 const ORDER_FORM_AUTOCOMPLETE_DEBOUNCE_MS = 700;
@@ -145,7 +146,7 @@ export class OrderFormPageComponent {
           take(1),
           map((res) => {
             if (!res.isSuccess || !res.result) {
-              throw res.error ?? new Error('Failed to create order.');
+              throw res.error ? new ApiHttpError(res.error) : new Error('Failed to create order.');
             }
             return res.result;
           }),

@@ -114,7 +114,7 @@ describe('SupplierDetailsPageComponent', () => {
       if (id === 'sup_2') {
         return of({ isSuccess: true as const, result: supplier2 });
       }
-      return of({ isSuccess: false as const, error: { message: 'Not found' } });
+      return of({ isSuccess: false as const, error: { kind: 'api', title: 'Request failed', detail: 'Not found' } });
     });
 
     expect(component.supplier()?.id).toBe('sup_1');
@@ -135,7 +135,7 @@ describe('SupplierDetailsPageComponent', () => {
       getSupplier = vi.fn().mockReturnValue(
         of({
           isSuccess: false as const,
-          error: { message: 'Server error' }
+          error: { kind: 'api', title: 'Request failed', detail: 'Server error' }
         })
       );
 

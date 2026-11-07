@@ -22,6 +22,8 @@ import {
 } from '../../components/purchase-orders-filter-panel/purchase-orders-filter-panel.component';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
 import { parseOptionalEnumQueryParam } from '../../../../shared/navigation/query-param-parsers';
+import { PaginationService } from '../../../../shared/utils/pagination.service';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
 
 const EMPTY_PURCHASE_ORDERS_TUPLE: [PurchaseOrder[], PagingInfo] = [
   [],
@@ -46,8 +48,9 @@ const PURCHASE_STATE_VALUES = Object.values(PurchaseState).filter(
   templateUrl: './purchase-list-page.component.html'
 })
 export class PurchaseListPageComponent {
-  readonly pageSizeOptions = [25, 50, 100, 200];
+  readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
 
+  private readonly pagination = inject(PaginationService);
   private readonly purchaseOrdersApi = inject(PurchaseOrdersApiService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
@@ -68,11 +71,7 @@ export class PurchaseListPageComponent {
   /** Page size from `?pageSize=` (must be in pageSizeOptions; default 25). */
   readonly pageSize = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => {
-        const raw = m.get('pageSize');
-        const n = raw ? parseInt(raw, 10) : NaN;
-        return this.pageSizeOptions.includes(n) ? n : 25;
-      })
+      map((m) => this.pagination.pageSizeFromQuery(Number(m.get('pageSize'))))
     ),
     { initialValue: 25 }
   );

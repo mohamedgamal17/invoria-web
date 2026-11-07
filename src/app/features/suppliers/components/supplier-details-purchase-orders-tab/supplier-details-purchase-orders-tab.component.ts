@@ -8,6 +8,7 @@ import { MessageService } from 'primeng/api';
 
 import { presentApiError } from '../../../../core/http/api-error.presenter';
 import type { PagingInfo } from '../../../../core/models/paging';
+import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
 import { PurchaseOrderListComponent } from '../../../procurement/components/purchase-order-list/purchase-order-list.component';
 import {
   PurchaseOrdersFilterPanelComponent,
@@ -29,7 +30,7 @@ const EMPTY_PURCHASE_ORDERS_TUPLE: [PurchaseOrder[], PagingInfo] = [
   templateUrl: './supplier-details-purchase-orders-tab.component.html'
 })
 export class SupplierDetailsPurchaseOrdersTabComponent {
-  readonly pageSizeOptions = [25, 50, 100, 200];
+  readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
 
   private readonly purchaseOrdersApi = inject(PurchaseOrdersApiService);
   private readonly messageService = inject(MessageService);
@@ -93,7 +94,7 @@ export class SupplierDetailsPurchaseOrdersTabComponent {
     void this.router.navigate(['/procurement', po.id]);
   }
 
-  onPageChange(event: { first?: number; rows?: number; page?: number }): void {
+  onPageChange(event: PaginatorPageEvent): void {
     const firstEvt = event.first ?? 0;
     const rows = event.rows ?? this.pageSize();
     const newPageIndex =

@@ -11,6 +11,7 @@ import type { CreateBatchRequest } from '../models/create-batch.request';
 import type { UpdateBatchRequest } from '../models/update-batch.request';
 import { BatchListComponent } from './batch-list.component';
 import { BatchFormComponent } from './batch-form.component';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../shared/models/pagination';
 
 @Component({
   selector: 'app-product-batches-panel',
@@ -120,7 +121,7 @@ export class ProductBatchesPanelComponent {
   /** Page length for API and paginator. */
   pageSize = input(25);
 
-  pageSizeOptions = input<number[]>([25, 50, 100, 200]);
+  pageSizeOptions = input<number[]>(DEFAULT_PAGE_SIZE_OPTIONS);
 
   /** Bubble table/paginator events so the host can update the URL or local paging state. */
   pageChange = output<{ first?: number; rows?: number }>();
@@ -177,7 +178,7 @@ export class ProductBatchesPanelComponent {
             this.messageService.add({
               severity: 'error',
               summary: 'Error',
-              detail: body.error?.message ?? 'Failed to load batches'
+              detail: body.error?.detail ?? 'Failed to load batches'
             });
             return;
           }
@@ -221,7 +222,7 @@ export class ProductBatchesPanelComponent {
       this.batchesApi.updateBatch(batch.id, request).subscribe({
         next: (body) => {
           if (!body.isSuccess) {
-            this.handleError(body.error?.message ?? 'Failed to update batch');
+            this.handleError(body.error?.detail ?? 'Failed to update batch');
             return;
           }
           this.handleSuccess('Batch updated successfully');
@@ -237,7 +238,7 @@ export class ProductBatchesPanelComponent {
       this.batchesApi.createBatch(request).subscribe({
         next: (body) => {
           if (!body.isSuccess) {
-            this.handleError(body.error?.message ?? 'Failed to create batch');
+            this.handleError(body.error?.detail ?? 'Failed to create batch');
             return;
           }
           this.handleSuccess('Batch created successfully');

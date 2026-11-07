@@ -17,6 +17,7 @@ import {
 } from '../../models/payable-status.enum';
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
 
 @Component({
   selector: 'app-payable-list',
@@ -40,7 +41,7 @@ export class PayableListComponent {
   first = input.required<number>();
   pageSize = input.required<number>();
   isListLoading = input.required<boolean>();
-  pageSizeOptions = input<number[]>([25, 50, 100, 200]);
+  pageSizeOptions = input<number[]>(DEFAULT_PAGE_SIZE_OPTIONS);
 
   viewPayable = output<Payable>();
   pageChange = output<PaginatorState | TablePageEvent>();

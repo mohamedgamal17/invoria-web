@@ -20,6 +20,8 @@ import {
 import type { Invoice } from '../../models/invoice.entity';
 import type { PagingInfo } from '../../../../core/models/paging';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
+import { PaginationService } from '../../../../shared/utils/pagination.service';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
 
 const EMPTY_INVOICES_TUPLE: [Invoice[], PagingInfo] = [
   [],
@@ -40,8 +42,9 @@ const EMPTY_INVOICES_TUPLE: [Invoice[], PagingInfo] = [
   templateUrl: './invoices-page.component.html'
 })
 export class InvoicesPageComponent {
-  readonly pageSizeOptions = [25, 50, 100, 200];
+  readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
 
+  private readonly pagination = inject(PaginationService);
   private readonly invoicesApi = inject(InvoicesApiService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
@@ -60,11 +63,7 @@ export class InvoicesPageComponent {
 
   readonly pageSize = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => {
-        const raw = m.get('pageSize');
-        const n = raw ? parseInt(raw, 10) : NaN;
-        return this.pageSizeOptions.includes(n) ? n : 25;
-      })
+      map((m) => this.pagination.pageSizeFromQuery(Number(m.get('pageSize'))))
     ),
     { initialValue: 25 }
   );

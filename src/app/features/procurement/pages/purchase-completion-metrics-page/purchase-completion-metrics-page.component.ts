@@ -15,6 +15,8 @@ import type { PurchaseCompletionReportPeriod } from '../../models/purchase-order
 import type { ListPurchaseCompletionReportRequest } from '../../models/list-purchase-order-report.request';
 import type { PagingInfo } from '../../../../core/models/paging';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
+import { PaginationService } from '../../../../shared/utils/pagination.service';
+import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
 import {
   PurchaseCompletionMetricsFilterPanelComponent,
   type PurchaseCompletionMetricsFilters
@@ -49,8 +51,9 @@ function parsePeriodParam(raw: string | null): ReportPeriod | null {
   templateUrl: './purchase-completion-metrics-page.component.html'
 })
 export class PurchaseCompletionMetricsPageComponent {
-  readonly pageSizeOptions = [25, 50, 100, 200];
+  readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
 
+  private readonly pagination = inject(PaginationService);
   private readonly purchaseOrdersApi = inject(PurchaseOrdersApiService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
@@ -80,11 +83,7 @@ export class PurchaseCompletionMetricsPageComponent {
 
   readonly pageSize = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => {
-        const raw = m.get('pageSize');
-        const n = raw ? parseInt(raw, 10) : NaN;
-        return this.pageSizeOptions.includes(n) ? n : 25;
-      })
+      map((m) => this.pagination.pageSizeFromQuery(Number(m.get('pageSize'))))
     ),
     { initialValue: 25 }
   );
@@ -147,7 +146,7 @@ export class PurchaseCompletionMetricsPageComponent {
     });
   }
 
-  onPageChange(event: { first?: number; rows?: number; page?: number }): void {
+  onPageChange(event: PaginatorPageEvent): void {
     const firstEvt = event.first ?? 0;
     const rows = event.rows ?? this.pageSize();
     const newPageIndex = event.page !== undefined ? event.page : Math.floor(firstEvt / Math.max(rows, 1));

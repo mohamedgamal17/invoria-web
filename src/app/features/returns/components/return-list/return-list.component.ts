@@ -14,6 +14,7 @@ import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface
 import type { Return } from '../../models/return.entity';
 import { returnTypeLabel } from '../../models/return-type.enum';
 import { returnStatusUserLabel, returnStatusSeverity } from '../../models/return-status.enum';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
 
 @Component({
   selector: 'app-return-list',
@@ -36,7 +37,7 @@ export class ReturnListComponent {
   first = input.required<number>();
   pageSize = input.required<number>();
   isListLoading = input.required<boolean>();
-  pageSizeOptions = input<number[]>([25, 50, 100, 200]);
+  pageSizeOptions = input<number[]>(DEFAULT_PAGE_SIZE_OPTIONS);
 
   viewReturn = output<Return>();
   pageChange = output<PaginatorState | TablePageEvent>();

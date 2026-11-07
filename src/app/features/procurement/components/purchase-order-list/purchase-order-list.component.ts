@@ -10,6 +10,7 @@ import type { TablePageEvent } from 'primeng/table';
 
 import type { PurchaseOrder } from '../../models/purchase-order.entity';
 import { purchaseStateLabel, purchaseStateSeverity } from '../../models/purchase-state.display';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
 
 @Component({
   selector: 'app-purchase-order-list',
@@ -29,7 +30,7 @@ export class PurchaseOrderListComponent {
   totalRecords = input(0);
   first = input(0);
   pageSize = input(25);
-  pageSizeOptions = input([25, 50, 100, 200]);
+  pageSizeOptions = input(DEFAULT_PAGE_SIZE_OPTIONS);
   loading = input(false);
   /** When false, hides the supplier column (e.g. supplier-scoped embedded lists). */
   showSupplierColumn = input(true);

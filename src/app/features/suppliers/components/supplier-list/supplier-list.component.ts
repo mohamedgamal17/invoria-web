@@ -9,6 +9,7 @@ import type { TablePageEvent } from 'primeng/table';
 
 import { SupplierListSkeletonComponent } from '../supplier-list-skeleton/supplier-list-skeleton.component';
 import type { Supplier } from '../../models/supplier.entity';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
 
 @Component({
   selector: 'app-supplier-list',
@@ -29,7 +30,7 @@ export class SupplierListComponent {
   first = input.required<number>();
   pageSize = input.required<number>();
   isListLoading = input.required<boolean>();
-  pageSizeOptions = input<number[]>([25, 50, 100, 200]);
+  pageSizeOptions = input<number[]>(DEFAULT_PAGE_SIZE_OPTIONS);
 
   viewSupplier = output<Supplier>();
   pageChange = output<PaginatorState | TablePageEvent>();

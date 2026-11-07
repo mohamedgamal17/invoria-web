@@ -12,6 +12,8 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
+import { PaginationService } from '../../../../shared/utils/pagination.service';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
 import { ProductDetailsInfoPanelComponent } from '../../components/product-details-info-panel/product-details-info-panel.component';
 import { ProductDetailsToolbarComponent } from '../../components/product-details-toolbar/product-details-toolbar.component';
 import { ProductDetailsOrdersPanelComponent } from '../../components/product-details-orders-panel/product-details-orders-panel.component';
@@ -58,6 +60,7 @@ function indexToTabSlug(index: number): 'info' | 'batches' | 'orders' {
   templateUrl: './product-details-page.component.html',
 })
 export class ProductDetailsPageComponent {
+  private readonly pagination = inject(PaginationService);
   private readonly productsApi = inject(ProductsApiService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
@@ -86,7 +89,7 @@ export class ProductDetailsPageComponent {
     },
   );
 
-  readonly pageSizeOptions = [25, 50, 100, 200];
+  readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
 
   readonly loading = signal(true);
   readonly deleting = signal(false);

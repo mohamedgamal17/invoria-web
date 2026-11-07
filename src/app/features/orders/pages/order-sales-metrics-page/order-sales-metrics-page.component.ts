@@ -15,6 +15,8 @@ import type { OrderSalesReportPeriod } from '../../models/order-report.entity';
 import type { ListOrderSalesReportRequest } from '../../models/list-order-report.request';
 import type { PagingInfo } from '../../../../core/models/paging';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
+import { PaginationService } from '../../../../shared/utils/pagination.service';
+import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
 import {
   OrderSalesMetricsFilterPanelComponent,
   type SalesMetricsFilters
@@ -49,8 +51,9 @@ function parsePeriodParam(raw: string | null): ReportPeriod | null {
   templateUrl: './order-sales-metrics-page.component.html'
 })
 export class OrderSalesMetricsPageComponent {
-  readonly pageSizeOptions = [25, 50, 100, 200];
+  readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
 
+  private readonly pagination = inject(PaginationService);
   private readonly ordersApi = inject(OrdersApiService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
@@ -81,11 +84,7 @@ export class OrderSalesMetricsPageComponent {
 
   readonly pageSize = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => {
-        const raw = m.get('pageSize');
-        const n = raw ? parseInt(raw, 10) : NaN;
-        return this.pageSizeOptions.includes(n) ? n : 25;
-      })
+      map((m) => this.pagination.pageSizeFromQuery(Number(m.get('pageSize'))))
     ),
     { initialValue: 25 }
   );
@@ -149,7 +148,7 @@ export class OrderSalesMetricsPageComponent {
     });
   }
 
-  onPageChange(event: { first?: number; rows?: number; page?: number }): void {
+  onPageChange(event: PaginatorPageEvent): void {
     const firstEvt = event.first ?? 0;
     const rows = event.rows ?? this.pageSize();
     const newPageIndex = event.page !== undefined ? event.page : Math.floor(firstEvt / Math.max(rows, 1));

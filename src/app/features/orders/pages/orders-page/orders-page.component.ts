@@ -21,6 +21,8 @@ import {
 } from '../../components/orders-filter-panel/orders-filter-panel.component';
 import { OrderListComponent } from '../../components/order-list/order-list.component';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
+import { PaginationService } from '../../../../shared/utils/pagination.service';
+import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
 
 const EMPTY_ORDERS_TUPLE: [UiOrder[], PagingInfo] = [
   [],
@@ -44,8 +46,9 @@ const PAYMENT_TYPE_VALUES = Object.values(PaymentType).filter(
   templateUrl: './orders-page.component.html'
 })
 export class OrdersPageComponent {
-  readonly pageSizeOptions = [25, 50, 100, 200];
+  readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
 
+  private readonly pagination = inject(PaginationService);
   private readonly ordersApi = inject(OrdersApiService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
@@ -66,11 +69,7 @@ export class OrdersPageComponent {
   /** Page size from `?pageSize=` (must be in pageSizeOptions; default 25). */
   readonly pageSize = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => {
-        const raw = m.get('pageSize');
-        const n = raw ? parseInt(raw, 10) : NaN;
-        return this.pageSizeOptions.includes(n) ? n : 25;
-      })
+      map((m) => this.pagination.pageSizeFromQuery(Number(m.get('pageSize'))))
     ),
     { initialValue: 25 }
   );
@@ -177,7 +176,7 @@ export class OrdersPageComponent {
     void this.router.navigate([order.id], { relativeTo: this.route });
   }
 
-  onPageChange(event: { first?: number; rows?: number; page?: number }): void {
+  onPageChange(event: PaginatorPageEvent): void {
     const firstEvt = event.first ?? 0;
     const rows = event.rows ?? this.pageSize();
     const newPageIndex =
