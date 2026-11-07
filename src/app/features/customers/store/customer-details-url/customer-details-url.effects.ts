@@ -6,43 +6,14 @@ import { filter, map, mergeMap, of, withLatestFrom } from 'rxjs';
 
 import type { Params } from '@angular/router';
 import { PaginationService } from '../../../../shared/utils/pagination.service';
+import { numberParamValue, scalarParamValue } from '../../../../shared/utils/url-query-params';
+import { toCustomerDetailsTab } from '../../utils/customer-details-tab';
 import { CUSTOMER_DETAILS_ACTIONS } from '../customer-details/customer-details.actions';
 import { CustomerDetailsTab } from '../customer-details/customer-details.reducer';
 import { customerDetailsSelectors } from '../customer-details/customer-details.selectors';
 import { CUSTOMER_ORDERS_ACTIONS } from '../customer-details-orders/customer-details-orders.actions';
 
 const { selectQueryParams, selectRouteParams } = getRouterSelectors();
-
-const TAB_VALUES = Object.values(CustomerDetailsTab) as string[];
-
-/**
- * Returns a single scalar value for a query param, or `null` when the value
- * is absent or unusable (repeated params, non-scalar types).
- */
-function scalarParamValue(value: unknown): string | number | null {
-  if (value === null || value === undefined) {
-    return null;
-  }
-  if (Array.isArray(value)) {
-    return value.length === 1 ? scalarParamValue(value[0]) : null;
-  }
-  return typeof value === 'string' || typeof value === 'number' ? value : null;
-}
-
-/** Returns a numeric query-param value, or `null` when absent/invalid (parse helpers then apply defaults). */
-function numberParamValue(value: unknown): number | null {
-  const raw = scalarParamValue(value);
-  return raw === null ? null : Number(raw);
-}
-
-/** Validates a raw tab slug against `CustomerDetailsTab`; `null` → keep the default tab. */
-export function toCustomerDetailsTab(value: string | number | null): CustomerDetailsTab | null {
-  if (value === null) {
-    return null;
-  }
-  const raw = typeof value === 'number' ? String(value) : value;
-  return TAB_VALUES.includes(raw) ? (raw as CustomerDetailsTab) : null;
-}
 
 /**
  * URL adapter: applies the `tab` / `page` / `rows` query params of the

@@ -4,16 +4,16 @@
   <app-customer-header (create)="goToCreate()" />
 
   <app-customers-filter-panel
-    [name]="qFromRoute()"
-    [loading]="customersResource.isLoading()"
+    [name]="nameFilter()"
+    [loading]="listLoading()"
     (filtersChange)="onFiltersChange($event)"
     (clearFilters)="onClearFilters()"
   />
 
   <app-customer-list
-    [customers]="displayCustomers()"
-    [isListLoading]="customersResource.isLoading()"
-    [totalRecords]="displayPaging().totalCount"
+    [customers]="customers()"
+    [isListLoading]="listLoading()"
+    [totalRecords]="paging().totalCount"
     [first]="first()"
     [pageSize]="pageSize()"
     [pageSizeOptions]="pageSizeOptions"

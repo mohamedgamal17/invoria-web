@@ -21,7 +21,7 @@ import { CustomerDetailsToolbarComponent } from '../../components/customer-detai
 import { CUSTOMER_DETAILS_ACTIONS } from '../../store/customer-details/customer-details.actions';
 import { CustomerDetailsTab } from '../../store/customer-details/customer-details.reducer';
 import { customerDetailsSelectors } from '../../store/customer-details/customer-details.selectors';
-import { toCustomerDetailsTab } from '../../store/customer-details-url/customer-details-url.effects';
+import { toCustomerDetailsTab } from '../../utils/customer-details-tab';
 import { CUSTOMER_ORDERS_ACTIONS } from '../../store/customer-details-orders/customer-details-orders.actions';
 import { customerOrdersSelectors } from '../../store/customer-details-orders/customer-details-orders.selectors';
 

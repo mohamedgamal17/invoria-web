@@ -7,6 +7,14 @@ import { CustomerDetailsEffects } from './store/customer-details/customer-detail
 import { CUSTOMER_ORDERS_FEATURE_KEY, customerOrdersReducer } from './store/customer-details-orders/customer-details-orders.reducer';
 import { CustomerOrdersEffects } from './store/customer-details-orders/customer-details-orders.effects';
 import { CustomerDetailsUrlEffects } from './store/customer-details-url/customer-details-url.effects';
+import { CUSTOMERS_LIST_FEATURE_KEY, customersListReducer } from './store/customers-list/customers-list.reducer';
+import { CustomersListEffects } from './store/customers-list/customers-list.effects';
+import { CustomersListUrlEffects } from './store/customers-list-url/customers-list-url.effects';
+
+const CUSTOMERS_LIST_PROVIDERS = [
+  provideState(CUSTOMERS_LIST_FEATURE_KEY, customersListReducer),
+  provideEffects(CustomersListEffects, CustomersListUrlEffects),
+];
 
 const CUSTOMER_DETAILS_PROVIDERS = [
   provideState(CUSTOMER_DETAILS_FEATURE_KEY, customerDetailsReducer),
@@ -21,6 +29,7 @@ export const CUSTOMERS_ROUTES: Routes = [
       {
         path: '',
         pathMatch: 'full',
+        providers: CUSTOMERS_LIST_PROVIDERS,
         loadComponent: () =>
           import('./pages/customers-page/customers-page.component').then((m) => m.CustomersPageComponent)
       },

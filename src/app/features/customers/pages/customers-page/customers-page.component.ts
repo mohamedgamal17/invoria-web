@@ -1,125 +1,59 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, inject, linkedSignal } from '@angular/core';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { Component, inject, untracked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, map, of } from 'rxjs';
 
+import { Store } from '@ngrx/store';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import type { PaginatorState } from 'primeng/paginator';
 import type { TablePageEvent } from 'primeng/table';
 
-import { CustomersApiService } from '../../services/customers-api.service';
-import type { ListCustomerRequest } from '../../models/list-customer.request';
+import { PaginationService } from '../../../../shared/utils/pagination.service';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
+import { customersListSelectors } from '../../store/customers-list/customers-list.selectors';
+import type { Customer } from '../../models/customer.entity';
 import { CustomerListComponent } from '../../components/customer-list/customer-list.component';
 import { CustomerHeaderComponent } from '../../components/customer-header/customer-header.component';
 import {
   CustomersFilterPanelComponent,
   type CustomersListFilters
 } from '../../components/customers-filter-panel/customers-filter-panel.component';
-import type { Customer } from '../../models/customer.entity';
-import type { PagingInfo } from '../../../../core/models/paging';
-import { presentApiError } from '../../../../core/http/api-error.presenter';
-import { PaginationService } from '../../../../shared/utils/pagination.service';
-import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
 
-const EMPTY_CUSTOMERS_TUPLE: [Customer[], PagingInfo] = [
-  [],
-  { length: 0, skip: 0, totalCount: 0 }
-];
-
+/**
+ * Smart page (container) for the customers list. It owns only:
+ * - the NgRx state mapping (selectors → signals),
+ * - the URL write adapter (`page` / `pageSize` / `q` query params via merge),
+ * - presentation glue (scroll behavior, page navigation).
+ * The URL *read* side lives in the `store/customers-list-url` effects
+ * (NgRx Router Store); all business logic lives in the
+ * `store/customers-list` state module, including error presentation
+ * (global `AppErrorEffects` toast).
+ */
 @Component({
   selector: 'app-customers-page',
   standalone: true,
   imports: [
-    CommonModule,
     ToastModule,
     CustomerHeaderComponent,
     CustomersFilterPanelComponent,
     CustomerListComponent
   ],
-  providers: [MessageService],
   templateUrl: './customers-page.component.html'
 })
 export class CustomersPageComponent {
   readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
 
+  private readonly store = inject(Store);
   private readonly pagination = inject(PaginationService);
-  private readonly customersApi = inject(CustomersApiService);
-  private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  /** 1-based page number from `?page=` (default 1). */
-  private readonly pageFromRoute = toSignal(
-    this.route.queryParamMap.pipe(
-      map((m) => {
-        const raw = m.get('page');
-        const n = raw ? parseInt(raw, 10) : 1;
-        return Number.isFinite(n) && n >= 1 ? n : 1;
-      })
-    ),
-    { initialValue: 1 }
-  );
-
-  /** Page size from `?pageSize=` (must be in pageSizeOptions; default 25). */
-  readonly pageSize = toSignal(
-    this.route.queryParamMap.pipe(
-      map((m) => this.pagination.pageSizeFromQuery(Number(m.get('pageSize'))))
-    ),
-    { initialValue: 25 }
-  );
-
-  /** Name filter from `?q=` (trimmed; default empty). */
-  readonly qFromRoute = toSignal(
-    this.route.queryParamMap.pipe(
-      map((m) => {
-        const q = m.get('q')?.trim();
-        return q ? q : '';
-      })
-    ),
-    { initialValue: '' }
-  );
-
-  /** 0-based page index derived from the URL. */
-  readonly pageIndex = computed(() => Math.max(0, this.pageFromRoute() - 1));
-
-  readonly listRequest = computed((): ListCustomerRequest => ({
-    Skip: this.pageIndex() * this.pageSize(),
-    Length: this.pageSize(),
-    Name: this.qFromRoute() || null
-  }));
-
-  readonly first = computed(() => this.pageIndex() * this.pageSize());
-
-  readonly customersResource = rxResource<[Customer[], PagingInfo], ListCustomerRequest>({
-    params: () => this.listRequest(),
-    defaultValue: EMPTY_CUSTOMERS_TUPLE,
-    stream: ({ params }) =>
-      this.customersApi.listCustomers(params).pipe(
-        map((res) => {
-          if (!res.isSuccess || !res.result) {
-            this.showApiError(res.error);
-            return EMPTY_CUSTOMERS_TUPLE;
-          }
-          return [res.result.data, res.result.info] as [Customer[], PagingInfo];
-        }),
-        catchError((err: unknown) => {
-          this.showApiError(err);
-          return of(EMPTY_CUSTOMERS_TUPLE);
-        })
-      )
-  });
-
-  readonly displayCustomers = linkedSignal({
-    source: () => this.customersLinkSource(),
-    computation: (src) => [...src.customers]
-  });
-
-  readonly displayPaging = linkedSignal({
-    source: () => this.customersLinkSource(),
-    computation: (src) => ({ ...src.paging })
-  });
+  // --- Customers list store (URL-backed paging + name filter) ---
+  readonly customers = this.store.selectSignal(customersListSelectors.selectCustomers);
+  readonly paging = this.store.selectSignal(customersListSelectors.selectPaging);
+  readonly listLoading = this.store.selectSignal(customersListSelectors.selectIsLoading);
+  readonly pageIndex = this.store.selectSignal(customersListSelectors.selectPageIndex);
+  readonly pageSize = this.store.selectSignal(customersListSelectors.selectPageSize);
+  readonly nameFilter = this.store.selectSignal(customersListSelectors.selectNameFilter);
+  readonly first = this.store.selectSignal(customersListSelectors.selectFirst);
 
   goToCreate(): void {
     void this.router.navigate(['new'], { relativeTo: this.route });
@@ -130,40 +64,40 @@ export class CustomersPageComponent {
   }
 
   onPageChange(event: PaginatorState | TablePageEvent): void {
-    const firstEvt = event.first ?? 0;
-    const rows = event.rows ?? this.pageSize();
-    const newPageIndex = Math.floor(firstEvt / Math.max(rows, 1));
+    const { pageIndex, pageSize } = this.pagination.pageIndexFromEvent(
+      event,
+      untracked(this.pageSize)
+    );
+    // Presentation glue only: page navigation scrolls to top; the state
+    // (reducer) decides whether the change is real and warrants an API call.
+    const isManualPageChange = pageIndex !== untracked(this.pageIndex);
 
-    if (this.pageIndex() !== newPageIndex || this.pageSize() !== rows) {
-      const isManualPageChange = this.pageIndex() !== newPageIndex;
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page: pageIndex + 1, pageSize },
+      queryParamsHandling: 'merge'
+    });
 
-      void this.router.navigate([], {
-        relativeTo: this.route,
-        queryParams: { page: newPageIndex + 1, pageSize: rows },
-        queryParamsHandling: 'merge'
-      });
-
-      if (isManualPageChange) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
+    if (isManualPageChange) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
   onFiltersChange(filters: CustomersListFilters): void {
-    const normalized = filters.name.trim();
-    if (normalized === this.qFromRoute()) {
+    const nameFilter = filters.name.trim();
+    if (nameFilter === untracked(this.nameFilter)) {
       return;
     }
 
     void this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { q: normalized || null, page: 1 },
+      queryParams: { q: nameFilter || null, page: 1 },
       queryParamsHandling: 'merge'
     });
   }
 
   onClearFilters(): void {
-    if (!this.qFromRoute()) {
+    if (!untracked(this.nameFilter)) {
       return;
     }
 
@@ -172,26 +106,5 @@ export class CustomersPageComponent {
       queryParams: { q: null, page: 1 },
       queryParamsHandling: 'merge'
     });
-  }
-
-  private customersLinkSource(): {
-    request: ListCustomerRequest;
-    customers: Customer[];
-    paging: PagingInfo;
-  } {
-    const [customers, paging] = this.customersResource.value();
-    return {
-      request: this.listRequest(),
-      customers,
-      paging
-    };
-  }
-
-  private showApiError(error: unknown): void {
-    const presentation = presentApiError(error);
-    this.messageService.add(presentation.toast);
-    if (presentation.routeTarget) {
-      void this.router.navigate([presentation.routeTarget]);
-    }
   }
 }

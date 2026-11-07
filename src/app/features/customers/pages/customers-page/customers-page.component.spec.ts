@@ -1,19 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
-import { BehaviorSubject, of } from 'rxjs';
-
+import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
+import { Store, provideStore, provideState } from '@ngrx/store';
 
 import { CustomersPageComponent } from './customers-page.component';
-import { CustomersApiService } from '../../services/customers-api.service';
 import type { Customer } from '../../models/customer.entity';
+import {
+  CUSTOMERS_LIST_FEATURE_KEY,
+  CUSTOMERS_LIST_INITIAL_STATE,
+  customersListReducer,
+} from '../../store/customers-list/customers-list.reducer';
+import { CUSTOMERS_LIST_ACTIONS } from '../../store/customers-list/customers-list.actions';
 
 describe('CustomersPageComponent', () => {
   let component: CustomersPageComponent;
   let fixture: ComponentFixture<CustomersPageComponent>;
-  let mockCustomersApi: { listCustomers: ReturnType<typeof vi.fn> };
+  let store: Store;
+  let scrollToSpy: { mockClear: () => void };
 
   const mockCustomer: Customer = {
     id: 'cust_1',
@@ -21,39 +26,21 @@ describe('CustomersPageComponent', () => {
     createdAt: '2026-01-01T00:00:00.000Z'
   };
 
-  const listResponse = {
-    isSuccess: true as const,
-    result: {
-      data: [mockCustomer],
-      info: { length: 25, skip: 0, totalCount: 1 }
-    }
-  };
-
-  function setupWithQueryParams(
-    page: string,
-    pageSize = '25',
-    q = ''
-  ): BehaviorSubject<ReturnType<typeof convertToParamMap>> {
-    return new BehaviorSubject(convertToParamMap({ page, pageSize, q }));
-  }
-
-  async function createFixture(paramMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>) {
+  async function createFixture(
+    query = { pageIndex: 0, pageSize: 25, nameFilter: '' }
+  ): Promise<void> {
     TestBed.resetTestingModule();
-    mockCustomersApi = {
-      listCustomers: vi.fn().mockReturnValue(of(listResponse))
-    };
+    scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
 
     await TestBed.configureTestingModule({
       imports: [CustomersPageComponent, NoopAnimationsModule],
       providers: [
         MessageService,
-        { provide: CustomersApiService, useValue: mockCustomersApi },
+        provideStore({}),
+        provideState(CUSTOMERS_LIST_FEATURE_KEY, customersListReducer),
         {
           provide: ActivatedRoute,
-          useValue: {
-            queryParamMap: paramMap$.asObservable(),
-            parent: { snapshot: { url: [] } }
-          }
+          useValue: { parent: { snapshot: { url: [] } } }
         },
         {
           provide: Router,
@@ -64,27 +51,35 @@ describe('CustomersPageComponent', () => {
 
     fixture = TestBed.createComponent(CustomersPageComponent);
     component = fixture.componentInstance;
+    store = TestBed.inject(Store);
+
+    store.dispatch(CUSTOMERS_LIST_ACTIONS.setQueryFromUrl(query));
     fixture.detectChanges();
   }
 
   beforeEach(async () => {
-    await createFixture(setupWithQueryParams('1'));
+    await createFixture();
   });
 
-  it('should create and load customers', () => {
+  it('should create with idle list state', () => {
     expect(component).toBeTruthy();
-    expect(mockCustomersApi.listCustomers).toHaveBeenCalled();
+    expect(component.customers()).toEqual([]);
+    expect(component.paging().totalCount).toBe(0);
+    expect(component.listLoading()).toBe(false);
   });
 
-  it('should include q from route in list request', async () => {
-    const paramMap$ = setupWithQueryParams('1', '25', 'acme');
-    await createFixture(paramMap$);
+  it('should expose customers loaded through the store selectors', () => {
+    store.dispatch(
+      CUSTOMERS_LIST_ACTIONS.loadCustomersSuccess({
+        customers: [mockCustomer],
+        info: { length: 25, skip: 0, totalCount: 1 }
+      })
+    );
+    fixture.detectChanges();
 
-    expect(mockCustomersApi.listCustomers).toHaveBeenLastCalledWith({
-      Skip: 0,
-      Length: 25,
-      Name: 'acme'
-    });
+    expect(component.customers()).toEqual([mockCustomer]);
+    expect(component.paging().totalCount).toBe(1);
+    expect(component.first()).toBe(0);
   });
 
   it('goToCreate should navigate to new relative to route', () => {
@@ -99,6 +94,26 @@ describe('CustomersPageComponent', () => {
     const route = TestBed.inject(ActivatedRoute);
     component.goToDetails(mockCustomer);
     expect(router.navigate).toHaveBeenCalledWith([mockCustomer.id], { relativeTo: route });
+  });
+
+  it('onPageChange should sync page/pageSize to route and scroll on manual page change', () => {
+    const router = TestBed.inject(Router);
+    const route = TestBed.inject(ActivatedRoute);
+
+    component.onPageChange({ first: 100, rows: 25, page: 4 });
+
+    expect(router.navigate).toHaveBeenCalledWith([], {
+      relativeTo: route,
+      queryParams: { page: 5, pageSize: 25 },
+      queryParamsHandling: 'merge'
+    });
+    expect(scrollToSpy).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
+  });
+
+  it('onPageChange should scroll only when the page index really changes', () => {
+    scrollToSpy.mockClear();
+    component.onPageChange({ first: 0, rows: 50, page: 0 });
+    expect(scrollToSpy).not.toHaveBeenCalled();
   });
 
   it('onFiltersChange should sync q to route and reset page', () => {
@@ -124,10 +139,10 @@ describe('CustomersPageComponent', () => {
   });
 
   it('onClearFilters should clear q and reset page', async () => {
-    await createFixture(setupWithQueryParams('1', '25', 'acme'));
+    await createFixture({ pageIndex: 0, pageSize: 25, nameFilter: 'acme' });
     const router = TestBed.inject(Router);
     const route = TestBed.inject(ActivatedRoute);
-    expect(component.qFromRoute()).toBe('acme');
+    expect(component.nameFilter()).toBe('acme');
     vi.mocked(router.navigate).mockClear();
 
     component.onClearFilters();
@@ -139,12 +154,18 @@ describe('CustomersPageComponent', () => {
     });
   });
 
-  it('onClearFilters should no-op when q already empty', () => {
+  it('onClearFilters should no-op when name filter already empty', () => {
     const router = TestBed.inject(Router);
     vi.mocked(router.navigate).mockClear();
 
     component.onClearFilters();
 
     expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it('should sync name filter from the store (URL effect applies the state)', async () => {
+    await createFixture({ pageIndex: 0, pageSize: 25, nameFilter: 'acme' });
+    expect(component.nameFilter()).toBe('acme');
+    expect(CUSTOMERS_LIST_INITIAL_STATE.pageSize).toBe(25);
   });
 });
