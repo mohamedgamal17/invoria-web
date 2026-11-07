@@ -18,6 +18,7 @@ Shared contracts live in:
 - [`src/app/core/models/api-response.ts`](../src/app/core/models/api-response.ts) — `ApiResponse<T>` (`result`, `isSuccess`, `error`).
 - [`src/app/core/models/paging.ts`](../src/app/core/models/paging.ts) — `Paging<T>`, `PagingInfo`.
 - [`src/app/core/models/entity.ts`](../src/app/core/models/entity.ts) — `Entity` base fields (`id`, `createdAt`, `createdBy`, audit fields).
+- [`src/app/shared/models/pagination.ts`](../src/app/shared/models/pagination.ts) — pagination UI contracts: `DEFAULT_PAGE_SIZE`, `DEFAULT_PAGE_SIZE_OPTIONS`, `PaginatorPageEvent`, `PageState`. Feature pages must import these instead of re-declaring `[25, 50, 100, 200]`; runtime paging helpers (`pageSizeFromQuery`, `normalizePageSize`, `pageIndexFromEvent`) live in [`pagination.service.ts`](../src/app/shared/utils/pagination.service.ts) and take **numbers only** (parse helpers return concrete defaults: `0` for indices, `DEFAULT_PAGE_SIZE` for sizes).
 
 ---
 
