@@ -64,7 +64,7 @@ function tryExtractProblemDetails(payload: unknown): ApiNormalizedError | undefi
   return undefined;
 }
 
-function tryExtractApiResponseFailure(payload: unknown): ApiNormalizedError | undefined {
+export function tryExtractApiResponseFailure(payload: unknown): ApiNormalizedError | undefined {
   // Some backends return 200 + { isSuccess:false, error: ... }.
   if (!isRecord(payload)) return undefined;
   if (typeof payload['isSuccess'] !== 'boolean') return undefined;
@@ -72,7 +72,7 @@ function tryExtractApiResponseFailure(payload: unknown): ApiNormalizedError | un
   const body = payload as unknown as ApiResponse<unknown>;
   if (body.isSuccess) return undefined;
 
-  const error = body.error;
+  const error = body.error as unknown;
   if (typeof error === 'string') {
     return { kind: 'api', title: 'Request failed', detail: error, raw: payload };
   }
@@ -92,6 +92,10 @@ function tryExtractApiResponseFailure(payload: unknown): ApiNormalizedError | un
   return { kind: 'api', title: 'Request failed', detail: safeJson(error), raw: payload };
 }
 
+export function normalizeApiResponseFailure(payload: unknown): ApiNormalizedError | undefined {
+  return tryExtractApiResponseFailure(payload);
+}
+
 function safeJson(v: unknown): string {
   try {
     return typeof v === 'string' ? v : JSON.stringify(v);
@@ -109,7 +113,19 @@ function classifyByStatus(status?: number, hasValidationErrors = false): ApiNorm
   return 'api';
 }
 
+const API_ERROR_KINDS = new Set(['validation', 'not-found', 'internal', 'service-unavailable', 'offline', 'api']);
+
 export function normalizeApiError(err: unknown): ApiNormalizedError {
+  // Already normalized envelope error? (ApiResponse.failure bodies carry these.)
+  if (
+    isRecord(err) &&
+    typeof err['kind'] === 'string' &&
+    typeof err['title'] === 'string' &&
+    API_ERROR_KINDS.has(err['kind'])
+  ) {
+    return err as ApiNormalizedError;
+  }
+
   // Already normalized?
   if (isRecord(err) && err['name'] === 'ApiHttpError' && isRecord(err['normalized'])) {
     return (err as any).normalized as ApiNormalizedError;

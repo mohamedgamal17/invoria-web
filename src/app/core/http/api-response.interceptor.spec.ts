@@ -36,5 +36,34 @@ describe('apiResponseInterceptor', () => {
     expect(seenError).toBeInstanceOf(Error);
     expect((seenError as Error).message).toMatch(/Empty response/i);
   });
+
+  it('should normalize raw error payloads on 200 envelope failures', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(withInterceptors([apiResponseInterceptor])),
+        provideHttpClientTesting()
+      ]
+    });
+
+    const http = TestBed.inject(HttpClient);
+    const ctrl = TestBed.inject(HttpTestingController);
+    const apiUrl = `${environment.apiUrl.replace(/\s+/g, '').replace(/\/+$/, '')}/customers`;
+
+    type Envelope = { isSuccess: boolean; error?: unknown };
+    let body: Envelope | undefined;
+    http.get<Envelope>(apiUrl).subscribe((res) => {
+      body = res;
+    });
+
+    const req = ctrl.expectOne(apiUrl);
+    req.flush({ isSuccess: false, error: 'boom' });
+    ctrl.verify();
+
+    expect(body?.isSuccess).toBe(false);
+    const err = body?.error as { kind?: string; title?: string; detail?: string };
+    expect(err.kind).toBe('api');
+    expect(err.title).toBe('Request failed');
+    expect(err.detail).toBe('boom');
+  });
 });
 
