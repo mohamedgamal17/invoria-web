@@ -8,10 +8,21 @@ import {
 } from './store/orders-list/orders-list.reducer';
 import { OrdersListEffects } from './store/orders-list/orders-list.effects';
 import { OrdersListUrlEffects } from './store/orders-list-url/orders-list-url.effects';
+import {
+  ORDER_DETAILS_FEATURE_KEY,
+  orderDetailsReducer,
+} from './store/order-details/order-details.reducer';
+import { OrderDetailsEffects } from './store/order-details/order-details.effects';
+import { OrderDetailsUrlEffects } from './store/order-details-url/order-details-url.effects';
 
 const ORDERS_LIST_PROVIDERS = [
   provideState(ORDERS_LIST_FEATURE_KEY, ordersListReducer),
   provideEffects(OrdersListEffects, OrdersListUrlEffects),
+];
+
+const ORDER_DETAILS_PROVIDERS = [
+  provideState(ORDER_DETAILS_FEATURE_KEY, orderDetailsReducer),
+  provideEffects(OrderDetailsEffects, OrderDetailsUrlEffects),
 ];
 
 export const ORDERS_ROUTES: Routes = [
@@ -76,7 +87,10 @@ export const ORDERS_ROUTES: Routes = [
         loadComponent: () =>
           import('./pages/order-details-page/order-details-page.component').then(
             (module) => module.OrderDetailsPageComponent
-          )
+          ),
+        // Details slice is scoped to the page so it resets when the page unmounts,
+        // in line with the `product-details` registration.
+        providers: [...ORDER_DETAILS_PROVIDERS]
       },
       {
         path: ':id/edit',
