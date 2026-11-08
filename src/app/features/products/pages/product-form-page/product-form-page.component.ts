@@ -3,6 +3,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, take } from 'rxjs';
+import { Store } from '@ngrx/store';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -11,6 +12,9 @@ import { MessageModule } from 'primeng/message';
 import { MessageService } from 'primeng/api';
 
 import { presentApiError } from '../../../../core/http/api-error.presenter';
+import { LOAD_STATUS } from '../../../../shared/models/load-status';
+import { PRODUCT_MUTATIONS_ACTIONS } from '../../store/products-mutations/products-mutations.actions';
+import { productsMutationsFeature } from '../../store/products-mutations/products-mutations.reducer';
 import { ProductsBreadcrumbComponent } from '../../components/products-breadcrumb/products-breadcrumb.component';
 import { ProductsApiService } from '../../services/products-api.service';
 import type { CreateProductRequest } from '../../models/create-product.request';
@@ -27,11 +31,12 @@ import type { UpdateProductRequest } from '../../models/update-product.request';
     InputTextModule,
     InputNumberModule,
     MessageModule,
-    ProductsBreadcrumbComponent
+    ProductsBreadcrumbComponent,
   ],
-  templateUrl: './product-form-page.component.html'
+  templateUrl: './product-form-page.component.html',
 })
 export class ProductFormPageComponent {
+  private readonly store = inject(Store);
   private readonly productsApi = inject(ProductsApiService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
@@ -39,32 +44,44 @@ export class ProductFormPageComponent {
   private readonly formBuilder = inject(FormBuilder);
 
   readonly mode = computed<'create' | 'edit'>(() =>
-    this.route.snapshot.data['mode'] === 'edit' ? 'edit' : 'create'
+    this.route.snapshot.data['mode'] === 'edit' ? 'edit' : 'create',
   );
 
   readonly productId = computed(() => this.route.snapshot.paramMap.get('id'));
 
   readonly loading = signal(false);
-  readonly saving = signal(false);
+  private readonly createRequest = this.store.selectSignal(
+    productsMutationsFeature.selectCreateRequest,
+  );
+  private readonly updateRequest = this.store.selectSignal(
+    productsMutationsFeature.selectUpdateRequest,
+  );
+
+  /** Saving state is owned by the store: create/update put their request in flight. */
+  readonly saving = computed(
+    () =>
+      this.createRequest().status === LOAD_STATUS.Loading ||
+      this.updateRequest().status === LOAD_STATUS.Loading,
+  );
 
   readonly form = this.formBuilder.group({
-    name: this.formBuilder.nonNullable.control('', [Validators.required, Validators.maxLength(120)]),
-    price: this.formBuilder.nonNullable.control(0, [Validators.required, Validators.min(0.01)])
+    name: this.formBuilder.nonNullable.control('', [
+      Validators.required,
+      Validators.maxLength(120),
+    ]),
+    price: this.formBuilder.nonNullable.control(0, [Validators.required, Validators.min(0.01)]),
   });
 
   readonly breadcrumbItems = computed(() => {
     const m = this.mode();
     if (m === 'create') {
-      return [
-        { label: 'Products', routerLink: ['/products'] as string[] },
-        { label: 'Create' }
-      ];
+      return [{ label: 'Products', routerLink: ['/products'] as string[] }, { label: 'Create' }];
     }
     const name = this.loadedName();
     return [
       { label: 'Products', routerLink: ['/products'] as string[] },
       { label: name || 'Product', routerLink: ['/products', this.productId() ?? ''] },
-      { label: 'Edit' }
+      { label: 'Edit' },
     ];
   });
 
@@ -92,84 +109,40 @@ export class ProductFormPageComponent {
     const raw = this.form.getRawValue();
     const body: CreateProductRequest = {
       Name: raw.name.trim(),
-      Price: raw.price
+      Price: raw.price,
     };
 
-    this.saving.set(true);
-    const currentMode = this.mode();
+    if (this.mode() === 'create') {
+      this.store.dispatch(PRODUCT_MUTATIONS_ACTIONS.createProduct({ request: body }));
+      return;
+    }
+
     const id = this.productId();
-
-    if (currentMode === 'create') {
-      this.productsApi
-        .createProduct(body)
-        .pipe(
-          take(1),
-          finalize(() => this.saving.set(false))
-        )
-        .subscribe({
-          next: (res) => {
-            if (!res.isSuccess || res.result === undefined) {
-              this.messageService.add({
-                ...presentApiError(res.error).toast
-              });
-              return;
-            }
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Success',
-              detail: 'Product created successfully.'
-            });
-            void this.router.navigate([res.result.id], { relativeTo: this.route.parent });
-          },
-          error: (err: unknown) => {
-            this.messageService.add({ ...presentApiError(err).toast });
-          }
-        });
-      return;
-    }
-
     if (!id) {
-      this.saving.set(false);
       return;
     }
 
-    this.productsApi
-      .updateProduct(id, body satisfies UpdateProductRequest)
-      .pipe(
-        take(1),
-        finalize(() => this.saving.set(false))
-      )
-      .subscribe({
-        next: (res) => {
-          if (!res.isSuccess || res.result === undefined) {
-            this.messageService.add({
-              ...presentApiError(res.error).toast
-            });
-            return;
-          }
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Product updated successfully.'
-          });
-          void this.router.navigate(['../'], { relativeTo: this.route });
-        },
-        error: (err: unknown) => {
-          this.messageService.add({ ...presentApiError(err).toast });
-        }
-      });
+    this.store.dispatch(
+      PRODUCT_MUTATIONS_ACTIONS.updateProduct({
+        id,
+        request: body satisfies UpdateProductRequest,
+      }),
+    );
   }
 
   private loadProduct(id: string): void {
     this.loading.set(true);
     this.productsApi
       .getProduct(id)
-      .pipe(take(1), finalize(() => this.loading.set(false)))
+      .pipe(
+        take(1),
+        finalize(() => this.loading.set(false)),
+      )
       .subscribe({
         next: (res) => {
           if (!res.isSuccess || !res.result) {
             this.messageService.add({
-              ...presentApiError(res.error).toast
+              ...presentApiError(res.error).toast,
             });
             void this.router.navigate(['/products']);
             return;
@@ -178,13 +151,13 @@ export class ProductFormPageComponent {
           this.loadedName.set(p.name);
           this.form.reset({
             name: p.name,
-            price: p.price
+            price: p.price,
           });
         },
         error: (err: unknown) => {
           this.messageService.add({ ...presentApiError(err).toast });
           void this.router.navigate(['/products']);
-        }
+        },
       });
   }
 }

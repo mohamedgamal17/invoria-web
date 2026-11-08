@@ -1,211 +1,114 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, inject, linkedSignal } from '@angular/core';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { Component, inject, untracked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, map, of } from 'rxjs';
 
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
+import { Store } from '@ngrx/store';
 import type { PaginatorState } from 'primeng/paginator';
 import type { TablePageEvent } from 'primeng/table';
 
-import type { PagingInfo } from '../../../../core/models/paging';
+import { PaginationService } from '../../../../shared/utils/pagination.service';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
+import { productsListSelectors } from '../../store/products-list/products-list.selectors';
+import type { Product } from '../../models/product.entity';
 import { ProductHeaderComponent } from '../../components/product-header/product-header.component';
 import {
   ProductsFilterPanelComponent,
-  type ProductsListFilters
+  type ProductsListFilters,
 } from '../../components/products-filter-panel/products-filter-panel.component';
 import { ProductListComponent } from '../../components/product-list/product-list.component';
 import {
   ProductsBreadcrumbComponent,
-  type ProductsBreadcrumbItem
+  type ProductsBreadcrumbItem,
 } from '../../components/products-breadcrumb/products-breadcrumb.component';
 
-import { ProductsApiService } from '../../services/products-api.service';
-import type { Product } from '../../models/product.entity';
-import type { ListProductRequest } from '../../models/list-product.request';
-import { presentApiError } from '../../../../core/http/api-error.presenter';
-import { PaginationService } from '../../../../shared/utils/pagination.service';
-import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
-
-const EMPTY_PRODUCTS_TUPLE: [Product[], PagingInfo] = [
-  [],
-  { length: 0, skip: 0, totalCount: 0 }
-];
-
+/**
+ * Smart page (container) for the products list. It owns only:
+ * - the NgRx state mapping (selectors → signals),
+ * - the URL write adapter (`page` / `pageSize` / `name` query params via merge),
+ * - presentation glue (scroll behavior, page navigation).
+ * The URL *read* side lives in the `store/products-list-url` effects
+ * (NgRx Router Store); all business logic lives in the
+ * `store/products-list` state module, including error presentation
+ * (global `AppErrorEffects` toast).
+ */
 @Component({
   selector: 'app-products-page',
   standalone: true,
   imports: [
-    CommonModule,
-    ToastModule,
     ProductHeaderComponent,
     ProductsFilterPanelComponent,
     ProductListComponent,
-    ProductsBreadcrumbComponent
+    ProductsBreadcrumbComponent,
   ],
-  templateUrl: './products-page.component.html'
+  templateUrl: './products-page.component.html',
 })
 export class ProductsPageComponent {
   readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
+  readonly breadcrumbItems: ProductsBreadcrumbItem[] = [{ label: 'Products' }];
 
+  private readonly store = inject(Store);
   private readonly pagination = inject(PaginationService);
-  private readonly productsApi = inject(ProductsApiService);
-  private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  readonly breadcrumbItems: ProductsBreadcrumbItem[] = [{ label: 'Products' }];
+  // --- Products list store (URL-backed paging + name filter) ---
+  readonly products = this.store.selectSignal(productsListSelectors.selectProducts);
+  readonly paging = this.store.selectSignal(productsListSelectors.selectPaging);
+  readonly listLoading = this.store.selectSignal(productsListSelectors.selectIsLoading);
+  readonly pageIndex = this.store.selectSignal(productsListSelectors.selectPageIndex);
+  readonly pageSize = this.store.selectSignal(productsListSelectors.selectPageSize);
+  readonly nameFilter = this.store.selectSignal(productsListSelectors.selectNameFilter);
+  readonly first = this.store.selectSignal(productsListSelectors.selectFirst);
 
-  /** 1-based page number from `?page=` (default 1). */
-  private readonly pageFromRoute = toSignal(
-    this.route.queryParamMap.pipe(
-      map((m) => {
-        const raw = m.get('page');
-        const n = raw ? parseInt(raw, 10) : 1;
-        return Number.isFinite(n) && n >= 1 ? n : 1;
-      })
-    ),
-    { initialValue: 1 }
-  );
-
-  /** Page size from `?pageSize=` (must be in pageSizeOptions; default 25). */
-  readonly pageSize = toSignal(
-    this.route.queryParamMap.pipe(
-      map((m) => this.pagination.pageSizeFromQuery(Number(m.get('pageSize'))))
-    ),
-    { initialValue: 25 }
-  );
-
-  /** Name filter from `?name=` (trimmed for API; empty means no filter). */
-  readonly nameSearch = toSignal(
-    this.route.queryParamMap.pipe(map((m) => (m.get('name') ?? '').trim())),
-    { initialValue: '' }
-  );
-
-  /** 0-based page index derived from the URL. */
-  readonly pageIndex = computed(() => Math.max(0, this.pageFromRoute() - 1));
-
-  readonly listRequest = computed((): ListProductRequest => {
-    const name = this.nameSearch().trim();
-    return {
-      Skip: this.pageIndex() * this.pageSize(),
-      Length: this.pageSize(),
-      ...(name ? { Name: name } : {})
-    };
-  });
-
-  readonly first = computed(() => this.pageIndex() * this.pageSize());
-
-  readonly productsResource = rxResource<[Product[], PagingInfo], ListProductRequest>({
-    params: () => this.listRequest(),
-    defaultValue: EMPTY_PRODUCTS_TUPLE,
-    stream: ({ params }) =>
-      this.productsApi.listProducts(params).pipe(
-        map((res) => {
-          if (!res.isSuccess || !res.result) {
-            this.showApiError(res.error);
-            return EMPTY_PRODUCTS_TUPLE;
-          }
-          return [res.result.data, res.result.info] as [Product[], PagingInfo];
-        }),
-        catchError((err: unknown) => {
-          this.showApiError(err);
-          return of(EMPTY_PRODUCTS_TUPLE);
-        })
-      )
-  });
-
-  readonly displayProducts = linkedSignal({
-    source: () => this.productsLinkSource(),
-    computation: (src) => [...src.products]
-  });
-
-  readonly displayPaging = linkedSignal({
-    source: () => this.productsLinkSource(),
-    computation: (src) => ({ ...src.paging })
-  });
-
-  navigateToCreate(): void {
+  goToCreate(): void {
     void this.router.navigate(['new'], { relativeTo: this.route.parent });
   }
 
-  viewProduct(product: Product): void {
+  goToDetails(product: Product): void {
     void this.router.navigate([product.id], { relativeTo: this.route.parent });
   }
 
+  onPageChange(event: PaginatorState | TablePageEvent): void {
+    const { pageIndex, pageSize } = this.pagination.pageIndexFromEvent(
+      event,
+      untracked(this.pageSize),
+    );
+    // Presentation glue only: page navigation scrolls to top; the state
+    // (reducer) decides whether the change is real and warrants an API call.
+    const isManualPageChange = pageIndex !== untracked(this.pageIndex);
+
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page: pageIndex + 1, pageSize },
+      queryParamsHandling: 'merge',
+    });
+
+    if (isManualPageChange) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
   onFiltersChange(filters: ProductsListFilters): void {
-    const normalized = filters.name.trim();
-    if (normalized === this.nameSearch()) {
+    const nameFilter = filters.name.trim();
+    if (nameFilter === untracked(this.nameFilter)) {
       return;
     }
 
     void this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: {
-        name: normalized || null,
-        page: 1
-      },
-      queryParamsHandling: 'merge'
+      queryParams: { name: nameFilter || null, page: 1 },
+      queryParamsHandling: 'merge',
     });
   }
 
   onClearFilters(): void {
-    if (!this.nameSearch()) {
+    if (!untracked(this.nameFilter)) {
       return;
     }
 
     void this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: {
-        name: null,
-        page: 1
-      },
-      queryParamsHandling: 'merge'
+      queryParams: { name: null, page: 1 },
+      queryParamsHandling: 'merge',
     });
-  }
-
-  onPageChange(event: PaginatorState | TablePageEvent): void {
-    const firstEvt = event.first ?? 0;
-    const rows = event.rows ?? this.pageSize();
-    const newPageIndex = Math.floor(firstEvt / Math.max(rows, 1));
-
-    if (this.pageIndex() !== newPageIndex || this.pageSize() !== rows) {
-      const isManualPageChange = this.pageIndex() !== newPageIndex;
-
-      void this.router.navigate([], {
-        relativeTo: this.route,
-        queryParams: {
-          page: newPageIndex + 1,
-          pageSize: rows
-        },
-        queryParamsHandling: 'merge'
-      });
-
-      if (isManualPageChange) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    }
-  }
-
-  private productsLinkSource(): {
-    request: ListProductRequest;
-    products: Product[];
-    paging: PagingInfo;
-  } {
-    const [products, paging] = this.productsResource.value();
-    return {
-      request: this.listRequest(),
-      products,
-      paging
-    };
-  }
-
-  private showApiError(error: unknown): void {
-    const presentation = presentApiError(error);
-    this.messageService.add(presentation.toast);
-    if (presentation.routeTarget) {
-      void this.router.navigate([presentation.routeTarget]);
-    }
   }
 }

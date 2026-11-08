@@ -1,23 +1,23 @@
 <section class="flex flex-col gap-8">
   <app-products-breadcrumb [items]="breadcrumbItems" />
 
-  <app-product-header (create)="navigateToCreate()" />
+  <app-product-header (create)="goToCreate()" />
 
   <app-products-filter-panel
-    [name]="nameSearch()"
-    [loading]="productsResource.isLoading()"
+    [name]="nameFilter()"
+    [loading]="listLoading()"
     (filtersChange)="onFiltersChange($event)"
     (clearFilters)="onClearFilters()"
   />
 
   <app-product-list
-    [products]="displayProducts()"
-    [totalRecords]="displayPaging().totalCount"
+    [products]="products()"
+    [totalRecords]="paging().totalCount"
     [first]="first()"
     [pageSize]="pageSize()"
-    [isListLoading]="productsResource.isLoading()"
+    [isListLoading]="listLoading()"
     [pageSizeOptions]="pageSizeOptions"
-    (viewProduct)="viewProduct($event)"
+    (viewProduct)="goToDetails($event)"
     (pageChange)="onPageChange($event)"
     (clearFilters)="onClearFilters()"
   />
