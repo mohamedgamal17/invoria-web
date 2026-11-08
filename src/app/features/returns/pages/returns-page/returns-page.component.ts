@@ -26,7 +26,7 @@ import {
 import { ReturnListComponent } from '../../components/return-list/return-list.component';
 
 const RETURN_TYPE_VALUES = Object.values(ReturnType).filter(
-  (v): v is number => typeof v === 'number'
+  (value): value is number => typeof value === 'number'
 );
 
 const EMPTY_RETURNS_TUPLE: [Return[], PagingInfo] = [
@@ -59,10 +59,10 @@ export class ReturnsPageComponent {
   /** 1-based page number from ?page= (default 1). */
   private readonly pageFromRoute = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => {
-        const raw = m.get('page');
-        const n = raw ? parseInt(raw, 10) : 1;
-        return Number.isFinite(n) && n >= 1 ? n : 1;
+      map((paramMap) => {
+        const raw = paramMap.get('page');
+        const pageNumber = raw ? parseInt(raw, 10) : 1;
+        return Number.isFinite(pageNumber) && pageNumber >= 1 ? pageNumber : 1;
       })
     ),
     { initialValue: 1 }
@@ -71,7 +71,7 @@ export class ReturnsPageComponent {
   /** Page size from ?pageSize= (must be in pageSizeOptions; default 25). */
   readonly pageSize = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => this.pagination.pageSizeFromQuery(Number(m.get('pageSize'))))
+      map((paramMap) => this.pagination.pageSizeFromQuery(Number(paramMap.get('pageSize'))))
     ),
     { initialValue: 25 }
   );
@@ -79,7 +79,7 @@ export class ReturnsPageComponent {
   /** Return type filter from ?type= (optional enum). */
   readonly typeFilterFromRoute = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => parseOptionalEnumQueryParam(m, 'type', RETURN_TYPE_VALUES))
+      map((paramMap) => parseOptionalEnumQueryParam(paramMap, 'type', RETURN_TYPE_VALUES))
     ),
     { initialValue: null as number | null }
   );

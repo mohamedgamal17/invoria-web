@@ -2,10 +2,10 @@ import type { CreateOrderLineItemRequest } from './create-order-line-item.reques
 import type { Order, OrderItem, OrderReturnItem } from './order.entity';
 import type { UiOrder, UiOrderItem, UiReturnItem } from './order-ui.model';
 
-function toNumber(v: unknown): number {
-  if (v === null || v === undefined || v === '') return 0;
-  const n = typeof v === 'string' ? Number(v) : (v as number);
-  return Number.isFinite(n) ? n : 0;
+function toNumber(value: unknown): number {
+  if (value === null || value === undefined || value === '') return 0;
+  const numericValue = typeof value === 'string' ? Number(value) : (value as number);
+  return Number.isFinite(numericValue) ? numericValue : 0;
 }
 
 function readNumber(raw: any, camel: string, pascal: string): number {
@@ -24,14 +24,14 @@ function orderItemToUiItem(line: any): UiOrderItem {
 
 function mapReturnItems(items: any[]): UiReturnItem[] {
   if (!Array.isArray(items)) return [];
-  return items.map((r: any) => ({
-    orderItemId: r.orderItemId ?? r.OrderItemId ?? '',
-    productName: r.product?.name?.trim() ?? r.Product?.Name?.trim() ?? r.productId ?? r.ProductId ?? '',
-    productId: r.productId ?? r.ProductId ?? '',
-    quantity: toNumber(r.quantity ?? r.Quantity),
-    orderedQuantity: toNumber(r.orderedQuantity ?? r.OrderedQuantity),
-    unitPrice: toNumber(r.unitPrice ?? r.UnitPrice),
-    lineReturnTotal: toNumber(r.lineReturnTotal ?? r.LineReturnTotal)
+  return items.map((orderItem: any) => ({
+    orderItemId: orderItem.orderItemId ?? orderItem.OrderItemId ?? '',
+    productName: orderItem.product?.name?.trim() ?? orderItem.Product?.Name?.trim() ?? orderItem.productId ?? orderItem.ProductId ?? '',
+    productId: orderItem.productId ?? orderItem.ProductId ?? '',
+    quantity: toNumber(orderItem.quantity ?? orderItem.Quantity),
+    orderedQuantity: toNumber(orderItem.orderedQuantity ?? orderItem.OrderedQuantity),
+    unitPrice: toNumber(orderItem.unitPrice ?? orderItem.UnitPrice),
+    lineReturnTotal: toNumber(orderItem.lineReturnTotal ?? orderItem.LineReturnTotal)
   }));
 }
 
@@ -78,9 +78,9 @@ export function orderToUiOrder(order: Order): UiOrder {
 }
 
 export function draftItemsToLineItems(items: UiOrderItem[]): CreateOrderLineItemRequest[] {
-  return items.map((i) => ({
-    ProductId: i.productId,
-    Quantity: i.quantity,
-    Price: i.price
+  return items.map((item) => ({
+    ProductId: item.productId,
+    Quantity: item.quantity,
+    Price: item.price
   }));
 }

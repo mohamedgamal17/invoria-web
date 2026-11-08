@@ -30,13 +30,13 @@ const EMPTY_ORDERS_TUPLE: [UiOrder[], PagingInfo] = [
 ];
 
 const ORDER_STATUS_VALUES = Object.values(OrderStatus).filter(
-  (v): v is number => typeof v === 'number'
+  (value): value is number => typeof value === 'number'
 );
 const PAYMENT_STATUS_VALUES = Object.values(PaymentStatus).filter(
-  (v): v is number => typeof v === 'number'
+  (value): value is number => typeof value === 'number'
 );
 const PAYMENT_TYPE_VALUES = Object.values(PaymentType).filter(
-  (v): v is number => typeof v === 'number'
+  (value): value is number => typeof value === 'number'
 );
 
 @Component({
@@ -57,10 +57,10 @@ export class OrdersPageComponent {
   /** 1-based page number from `?page=` (default 1). */
   private readonly pageFromRoute = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => {
-        const raw = m.get('page');
-        const n = raw ? parseInt(raw, 10) : 1;
-        return Number.isFinite(n) && n >= 1 ? n : 1;
+      map((paramMap) => {
+        const raw = paramMap.get('page');
+        const pageNumber = raw ? parseInt(raw, 10) : 1;
+        return Number.isFinite(pageNumber) && pageNumber >= 1 ? pageNumber : 1;
       })
     ),
     { initialValue: 1 }
@@ -69,7 +69,7 @@ export class OrdersPageComponent {
   /** Page size from `?pageSize=` (must be in pageSizeOptions; default 25). */
   readonly pageSize = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => this.pagination.pageSizeFromQuery(Number(m.get('pageSize'))))
+      map((paramMap) => this.pagination.pageSizeFromQuery(Number(paramMap.get('pageSize'))))
     ),
     { initialValue: 25 }
   );
@@ -77,9 +77,9 @@ export class OrdersPageComponent {
   /** Order number filter from `?q=` (server-side `OrderNumber`). */
   readonly qFromRoute = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => {
-        const q = m.get('q')?.trim();
-        return q ? q : '';
+      map((paramMap) => {
+        const query = paramMap.get('q')?.trim();
+        return query ? query : '';
       })
     ),
     { initialValue: '' }
@@ -88,7 +88,7 @@ export class OrdersPageComponent {
   /** `OrderStatus` filter from `?status=` (server-side `Status`). */
   readonly orderStatusFilterFromRoute = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => parseOptionalEnumQueryParam(m, 'status', ORDER_STATUS_VALUES))
+      map((paramMap) => parseOptionalEnumQueryParam(paramMap, 'status', ORDER_STATUS_VALUES))
     ),
     { initialValue: null as number | null }
   );
@@ -96,8 +96,8 @@ export class OrdersPageComponent {
   /** Payment status filter from `?paymentStatus=`. */
   readonly paymentStatusFilterFromRoute = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) =>
-        parseOptionalEnumQueryParam(m, 'paymentStatus', PAYMENT_STATUS_VALUES)
+      map((paramMap) =>
+        parseOptionalEnumQueryParam(paramMap, 'paymentStatus', PAYMENT_STATUS_VALUES)
       )
     ),
     { initialValue: null as number | null }
@@ -106,7 +106,7 @@ export class OrdersPageComponent {
   /** Payment type filter from `?paymentType=`. */
   readonly paymentTypeFilterFromRoute = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => parseOptionalEnumQueryParam(m, 'paymentType', PAYMENT_TYPE_VALUES))
+      map((paramMap) => parseOptionalEnumQueryParam(paramMap, 'paymentType', PAYMENT_TYPE_VALUES))
     ),
     { initialValue: null as number | null }
   );
@@ -214,7 +214,7 @@ export class OrdersPageComponent {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {
-        q: normalized || null,
+        query: normalized || null,
         status: filters.status != null ? String(filters.status) : null,
         paymentStatus:
           filters.paymentStatus != null ? String(filters.paymentStatus) : null,
@@ -238,7 +238,7 @@ export class OrdersPageComponent {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {
-        q: null,
+        query: null,
         status: null,
         paymentStatus: null,
         paymentType: null,

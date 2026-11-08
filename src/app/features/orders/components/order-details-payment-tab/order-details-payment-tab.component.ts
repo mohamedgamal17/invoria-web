@@ -60,18 +60,18 @@ export class OrderDetailsPaymentTabComponent {
    * Immediate: cap is order total (amount is fixed to total).
    */
   readonly recordPaidAmountMax = computed((): number => {
-    const o = this.order();
-    if (o.paymentType === PaymentType.Immediate) {
-      return o.netOfTotalOrderAmount;
+    const order = this.order();
+    if (order.paymentType === PaymentType.Immediate) {
+      return order.netOfTotalOrderAmount;
     }
-    if (o.paymentType === PaymentType.Debt) {
-      const outstanding = o.amountOutstanding ?? 0;
+    if (order.paymentType === PaymentType.Debt) {
+      const outstanding = order.amountOutstanding ?? 0;
       if (outstanding > MONEY_EPS) {
         return outstanding;
       }
-      return o.netOfTotalOrderAmount;
+      return order.netOfTotalOrderAmount;
     }
-    return o.netOfTotalOrderAmount;
+    return order.netOfTotalOrderAmount;
   });
 
   readonly recordPaidAmountMin = computed((): number => {
@@ -85,17 +85,19 @@ export class OrderDetailsPaymentTabComponent {
   readonly Math = Math;
 
   readonly paidPercent = computed(() => {
-    const o = this.order();
-    if (o.amountPaid == null || !Number.isFinite(o.netOfTotalOrderAmount) || o.netOfTotalOrderAmount <= 0) return null;
-    return (o.amountPaid / o.netOfTotalOrderAmount) * 100;
+    const order = this.order();
+    if (order.amountPaid == null || !Number.isFinite(order.netOfTotalOrderAmount) || order.netOfTotalOrderAmount <= 0) return null;
+    return (order.amountPaid / order.netOfTotalOrderAmount) * 100;
   });
 
   readonly paymentFiguresAligned = computed(() => {
-    const o = this.order();
-    if (o.amountPaid == null || o.amountOutstanding == null) {
+    const order = this.order();
+    if (order.amountPaid == null || order.amountOutstanding == null) {
       return true;
     }
-    return Math.abs(o.amountPaid + o.amountOutstanding - o.netOfTotalOrderAmount) <= 0.02;
+    return Math.abs(
+      order.amountPaid + order.amountOutstanding - order.netOfTotalOrderAmount
+    ) <= 0.02;
   });
 
   private readonly ordersApi = inject(OrdersApiService);
@@ -151,11 +153,11 @@ export class OrderDetailsPaymentTabComponent {
   }
 
   private initRecordForm(): void {
-    const o = this.order();
-    if (o.paymentType === PaymentType.Immediate) {
-      this.recordPaidAmount = o.netOfTotalOrderAmount;
-    } else if (o.paymentType === PaymentType.Debt) {
-      const outstanding = o.amountOutstanding ?? 0;
+    const order = this.order();
+    if (order.paymentType === PaymentType.Immediate) {
+      this.recordPaidAmount = order.netOfTotalOrderAmount;
+    } else if (order.paymentType === PaymentType.Debt) {
+      const outstanding = order.amountOutstanding ?? 0;
       this.recordPaidAmount = outstanding > MONEY_EPS ? outstanding : null;
     } else {
       this.recordPaidAmount = null;
@@ -181,12 +183,12 @@ export class OrderDetailsPaymentTabComponent {
   }
 
   submitPayment(): void {
-    const o = this.order();
-    const id = o.id;
+    const order = this.order();
+    const id = order.id;
     const amount = this.recordPaidAmount;
 
-    if (o.paymentType === PaymentType.Immediate) {
-      const expected = o.netOfTotalOrderAmount;
+    if (order.paymentType === PaymentType.Immediate) {
+      const expected = order.netOfTotalOrderAmount;
       if (
         amount === null ||
         !Number.isFinite(amount) ||
@@ -199,7 +201,7 @@ export class OrderDetailsPaymentTabComponent {
         });
         return;
       }
-    } else if (o.paymentType === PaymentType.Debt) {
+    } else if (order.paymentType === PaymentType.Debt) {
       const max = this.recordPaidAmountMax();
       const min = this.recordPaidAmountMin();
       if (amount === null || !Number.isFinite(amount)) {
@@ -211,7 +213,7 @@ export class OrderDetailsPaymentTabComponent {
         return;
       }
       if (amount < min - MONEY_EPS || amount > max + MONEY_EPS) {
-        const outstanding = o.amountOutstanding ?? 0;
+        const outstanding = order.amountOutstanding ?? 0;
         const capIsTotal = outstanding <= MONEY_EPS;
         this.messageService.add({
           severity: 'warn',

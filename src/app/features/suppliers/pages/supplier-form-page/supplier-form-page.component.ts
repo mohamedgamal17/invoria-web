@@ -180,11 +180,11 @@ export class SupplierFormPageComponent {
             void this.router.navigate(['/suppliers']);
             return;
           }
-          const s = res.result;
+          const supplierResult = res.result;
           this.form.reset({
-            name: s.name,
-            contactEmail: s.contactEmail ?? '',
-            phone: s.phone ?? ''
+            name: supplierResult.name,
+            contactEmail: supplierResult.contactEmail ?? '',
+            phone: supplierResult.phone ?? ''
           });
         },
         error: (err: unknown) => {

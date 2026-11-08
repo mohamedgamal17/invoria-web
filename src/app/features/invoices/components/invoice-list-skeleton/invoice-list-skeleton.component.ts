@@ -16,5 +16,5 @@ export class InvoiceListSkeletonComponent {
   variant = input<InvoiceListSkeletonVariant>('mobile');
   count = input(10);
 
-  protected rowIndices = computed(() => Array.from({ length: this.count() }, (_, i) => i));
+  protected rowIndices = computed(() => Array.from({ length: this.count() }, (_, index) => index));
 }

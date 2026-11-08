@@ -131,8 +131,8 @@ export class CustomerFormPageComponent {
             void this.router.navigate(['/customers']);
             return;
           }
-          const c = res.result;
-          this.form.reset({ name: c.name });
+          const customerResult = res.result;
+          this.form.reset({ name: customerResult.name });
         },
         error: (err: unknown) => {
           this.messageService.add({ ...presentApiError(err).toast });

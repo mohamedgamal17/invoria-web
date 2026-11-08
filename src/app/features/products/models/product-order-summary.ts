@@ -110,7 +110,7 @@ export function summarizeProductOrders(
   const rows = orders
     .map((order) => buildProductOrderRowSummary(order, productId, statusLabelFn(order), order.status))
     .filter((row): row is ProductOrderRowSummary => row !== null)
-    .sort((a, b) => a.orderNumber.localeCompare(b.orderNumber));
+    .sort((left, right) => left.orderNumber.localeCompare(right.orderNumber));
 
   return {
     rows,

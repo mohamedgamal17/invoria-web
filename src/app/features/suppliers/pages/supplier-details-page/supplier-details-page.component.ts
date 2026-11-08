@@ -60,9 +60,10 @@ export class SupplierDetailsPageComponent {
     { initialValue: this.route.snapshot.paramMap.get('id') ?? '' }
   );
 
-  private readonly tabQuery = toSignal(this.route.queryParamMap.pipe(map((m) => m.get('tab'))), {
-    initialValue: this.route.snapshot.queryParamMap.get('tab')
-  });
+  private readonly tabQuery = toSignal(
+    this.route.queryParamMap.pipe(map((paramMap) => paramMap.get('tab'))),
+    { initialValue: this.route.snapshot.queryParamMap.get('tab') }
+  );
 
   readonly loading = signal(true);
   readonly error = signal('');
@@ -102,8 +103,8 @@ export class SupplierDetailsPageComponent {
     if (value === undefined || value === null) {
       return;
     }
-    const n = typeof value === 'number' ? value : Number(value);
-    const next = Number.isFinite(n) ? n : 0;
+    const numericValue = typeof value === 'number' ? value : Number(value);
+    const next = Number.isFinite(numericValue) ? numericValue : 0;
     this.activeTab.set(next);
     const slug: 'profile' | 'purchase-orders' = next === 1 ? 'purchase-orders' : 'profile';
     void this.router.navigate([], {

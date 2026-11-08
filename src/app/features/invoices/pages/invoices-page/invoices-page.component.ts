@@ -52,10 +52,10 @@ export class InvoicesPageComponent {
 
   private readonly pageFromRoute = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => {
-        const raw = m.get('page');
-        const n = raw ? parseInt(raw, 10) : 1;
-        return Number.isFinite(n) && n >= 1 ? n : 1;
+      map((paramMap) => {
+        const raw = paramMap.get('page');
+        const pageNumber = raw ? parseInt(raw, 10) : 1;
+        return Number.isFinite(pageNumber) && pageNumber >= 1 ? pageNumber : 1;
       })
     ),
     { initialValue: 1 }
@@ -63,16 +63,16 @@ export class InvoicesPageComponent {
 
   readonly pageSize = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => this.pagination.pageSizeFromQuery(Number(m.get('pageSize'))))
+      map((paramMap) => this.pagination.pageSizeFromQuery(Number(paramMap.get('pageSize'))))
     ),
     { initialValue: 25 }
   );
 
   readonly customerIdFromRoute = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => {
-        const q = m.get('customerId')?.trim();
-        return q ? q : '';
+      map((paramMap) => {
+        const customerId = paramMap.get('customerId')?.trim();
+        return customerId ? customerId : '';
       })
     ),
     { initialValue: '' }
@@ -80,9 +80,9 @@ export class InvoicesPageComponent {
 
   readonly orderIdFromRoute = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => {
-        const q = m.get('orderId')?.trim();
-        return q ? q : '';
+      map((paramMap) => {
+        const orderId = paramMap.get('orderId')?.trim();
+        return orderId ? orderId : '';
       })
     ),
     { initialValue: '' }

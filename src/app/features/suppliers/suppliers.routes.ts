@@ -8,13 +8,13 @@ export const SUPPLIERS_ROUTES: Routes = [
         path: '',
         pathMatch: 'full',
         loadComponent: () =>
-          import('./pages/suppliers-page/suppliers-page.component').then((m) => m.SuppliersPageComponent)
+          import('./pages/suppliers-page/suppliers-page.component').then((module) => module.SuppliersPageComponent)
       },
       {
         path: 'new',
         loadComponent: () =>
           import('./pages/supplier-form-page/supplier-form-page.component').then(
-            (m) => m.SupplierFormPageComponent
+            (module) => module.SupplierFormPageComponent
           ),
         data: { mode: 'create' }
       },
@@ -22,7 +22,7 @@ export const SUPPLIERS_ROUTES: Routes = [
         path: ':id/edit',
         loadComponent: () =>
           import('./pages/supplier-form-page/supplier-form-page.component').then(
-            (m) => m.SupplierFormPageComponent
+            (module) => module.SupplierFormPageComponent
           ),
         data: { mode: 'edit' }
       },
@@ -30,7 +30,7 @@ export const SUPPLIERS_ROUTES: Routes = [
         path: ':id',
         loadComponent: () =>
           import('./pages/supplier-details-page/supplier-details-page.component').then(
-            (m) => m.SupplierDetailsPageComponent
+            (module) => module.SupplierDetailsPageComponent
           )
       }
     ]

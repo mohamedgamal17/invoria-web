@@ -20,15 +20,15 @@ export class OrderDetailsLineItemsTabComponent {
     return item.price * item.quantity;
   }
 
-  subtotal(o: UiOrder): number {
-    return o.items.reduce((acc, item) => acc + this.lineTotal(item), 0);
+  subtotal(order: UiOrder): number {
+    return order.items.reduce((acc, item) => acc + this.lineTotal(item), 0);
   }
 
-  itemCount(o: UiOrder): number {
-    return o.items.length;
+  itemCount(order: UiOrder): number {
+    return order.items.length;
   }
 
-  subtotalDiffersFromTotal(o: UiOrder): boolean {
-    return Math.abs(this.subtotal(o) - o.netOfTotalOrderAmount) > 0.01;
+  subtotalDiffersFromTotal(order: UiOrder): boolean {
+    return Math.abs(this.subtotal(order) - order.netOfTotalOrderAmount) > 0.01;
   }
 }

@@ -44,9 +44,9 @@ export class PurchaseCompletionReportPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   readonly ReportPeriod = ReportPeriod;
-  readonly periodOptions = REPORT_SERIES_PERIODS.map((v) => ({
-    label: REPORT_PERIOD_LABELS[v],
-    value: v
+  readonly periodOptions = REPORT_SERIES_PERIODS.map((periodValue) => ({
+    label: REPORT_PERIOD_LABELS[periodValue],
+    value: periodValue
   }));
 
   // Icons — completion semantics
@@ -79,7 +79,7 @@ export class PurchaseCompletionReportPageComponent implements OnInit {
     if (!data.length) return null;
     const chronological = [...data].reverse();
     const period = this.selectedPeriod();
-    const labels = chronological.map((d) => formatPeriodLabel(d.date, period));
+    const labels = chronological.map((point) => formatPeriodLabel(point.date, period));
     return {
       tooltip: { trigger: 'axis' },
       legend: { data: ['Completed orders'], bottom: 0, textStyle: { fontSize: 11 } },
@@ -97,7 +97,7 @@ export class PurchaseCompletionReportPageComponent implements OnInit {
           type: 'bar',
           barMaxWidth: 32,
           itemStyle: { borderRadius: [6, 6, 0, 0] },
-          data: chronological.map((d) => d.totalCount)
+          data: chronological.map((point) => point.totalCount)
         }
       ],
       color: [ECHARTS_PALETTE.success]
@@ -118,8 +118,8 @@ export class PurchaseCompletionReportPageComponent implements OnInit {
 
   refresh(): void {
     this.loadOverview();
-    this.metricsCache.update((m) => {
-      const next = new Map(m);
+    this.metricsCache.update((current) => {
+      const next = new Map(current);
       next.delete(this.selectedPeriod());
       return next;
     });
@@ -141,8 +141,8 @@ export class PurchaseCompletionReportPageComponent implements OnInit {
 
   private loadOverview(): void {
     this.isOverviewLoading.set(true);
-    this.purchaseOrdersApi.getPurchaseCompletionReportOverview().pipe(catchError((e) => {
-      this.handleError(e);
+    this.purchaseOrdersApi.getPurchaseCompletionReportOverview().pipe(catchError((error) => {
+      this.handleError(error);
       return of(null);
     })).subscribe({
       next: (res) => {
@@ -162,30 +162,30 @@ export class PurchaseCompletionReportPageComponent implements OnInit {
     if (this.metricsCache().has(period)) return;
     if (this.metricsLoadingSet().has(period)) return;
 
-    this.metricsLoadingSet.update((s) => new Set(s).add(period));
+    this.metricsLoadingSet.update((current) => new Set(current).add(period));
     const req = { Period: period, Skip: 0, Length: 14 } as const;
 
-    this.purchaseOrdersApi.listPurchaseCompletionReportMetrics(req).pipe(catchError((e) => {
-      this.handleError(e);
+    this.purchaseOrdersApi.listPurchaseCompletionReportMetrics(req).pipe(catchError((error) => {
+      this.handleError(error);
       return of(null);
     })).subscribe({
       next: (res) => {
         if (res?.isSuccess && res.result) {
           const copy = [...(res.result.data ?? [])];
-          this.metricsCache.update((m) => new Map(m).set(period, copy));
+          this.metricsCache.update((current) => new Map(current).set(period, copy));
         } else {
           if (res && !res.isSuccess) this.handleError(res.error);
         }
-        this.metricsLoadingSet.update((s) => {
-          const next = new Set(s);
+        this.metricsLoadingSet.update((current) => {
+          const next = new Set(current);
           next.delete(period);
           return next;
         });
       },
       error: (err) => {
         this.handleError(err);
-        this.metricsLoadingSet.update((s) => {
-          const next = new Set(s);
+        this.metricsLoadingSet.update((current) => {
+          const next = new Set(current);
           next.delete(period);
           return next;
         });

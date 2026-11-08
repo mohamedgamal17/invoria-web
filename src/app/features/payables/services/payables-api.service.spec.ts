@@ -43,7 +43,7 @@ describe('PayablesApiService', () => {
       .subscribe();
 
     const req = httpMock.expectOne(
-      (r) => r.url === `${baseUrl}payables` && r.params.get('PartyId') === null
+      (request) => request.url === `${baseUrl}payables` && request.params.get('PartyId') === null
     );
     expect(req.request.method).toBe('GET');
     expect(req.request.params.get('Skip')).toBe('25');
@@ -55,7 +55,7 @@ describe('PayablesApiService', () => {
   it('listPayables sends IsPaid when provided', () => {
     service.listPayables({ Skip: 0, Length: 25, IsPaid: true }).subscribe();
 
-    const req = httpMock.expectOne((r) => r.url === `${baseUrl}payables`);
+    const req = httpMock.expectOne((request) => request.url === `${baseUrl}payables`);
     expect(req.request.method).toBe('GET');
     expect(req.request.params.get('IsPaid')).toBe('true');
     req.flush({ isSuccess: true, result: null });
@@ -63,11 +63,11 @@ describe('PayablesApiService', () => {
 
   it('listPayables throws on invalid paging', () => {
     let error: unknown;
-    service.listPayables({ Skip: -1, Length: 25 }).subscribe({ error: (e) => (error = e) });
+    service.listPayables({ Skip: -1, Length: 25 }).subscribe({ error: (err) => (error = err) });
     expect(String(error)).toContain('Invalid Skip.');
 
     let lengthError: unknown;
-    service.listPayables({ Skip: 0, Length: 0 }).subscribe({ error: (e) => (lengthError = e) });
+    service.listPayables({ Skip: 0, Length: 0 }).subscribe({ error: (err) => (lengthError = err) });
     expect(String(lengthError)).toContain('Invalid Length.');
   });
 
@@ -81,11 +81,11 @@ describe('PayablesApiService', () => {
 
   it('settlePayable throws on invalid id or amount', () => {
     let error: unknown;
-    service.settlePayable('   ', { Amount: 1 }).subscribe({ error: (e) => (error = e) });
+    service.settlePayable('   ', { Amount: 1 }).subscribe({ error: (err) => (error = err) });
     expect(String(error)).toContain('Invalid payable id.');
 
     let amountError: unknown;
-    service.settlePayable('pay_1', { Amount: 0 }).subscribe({ error: (e) => (amountError = e) });
+    service.settlePayable('pay_1', { Amount: 0 }).subscribe({ error: (err) => (amountError = err) });
     expect(String(amountError)).toContain('Invalid settlement amount.');
   });
 });

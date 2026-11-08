@@ -44,7 +44,7 @@ export class PurchaseOrderListComponent {
   readonly stateSeverity = purchaseStateSeverity;
 
   get skeletonRows(): number[] {
-    return Array.from({ length: this.pageSize() }, (_, i) => i);
+    return Array.from({ length: this.pageSize() }, (_, index) => index);
   }
 
   supplierDisplay(row: PurchaseOrder): string {

@@ -44,7 +44,7 @@ export class ReturnListComponent {
   clearFilters = output<void>();
 
   get skeletonRows(): number[] {
-    return Array.from({ length: this.pageSize() }, (_, i) => i);
+    return Array.from({ length: this.pageSize() }, (_, index) => index);
   }
 
   protected readonly returnTypeLabel = returnTypeLabel;

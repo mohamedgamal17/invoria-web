@@ -73,8 +73,8 @@ export class ProductFormPageComponent {
   });
 
   readonly breadcrumbItems = computed(() => {
-    const m = this.mode();
-    if (m === 'create') {
+    const mode = this.mode();
+    if (mode === 'create') {
       return [{ label: 'Products', routerLink: ['/products'] as string[] }, { label: 'Create' }];
     }
     const name = this.loadedName();
@@ -147,11 +147,11 @@ export class ProductFormPageComponent {
             void this.router.navigate(['/products']);
             return;
           }
-          const p = res.result;
-          this.loadedName.set(p.name);
+          const productResult = res.result;
+          this.loadedName.set(productResult.name);
           this.form.reset({
-            name: p.name,
-            price: p.price,
+            name: productResult.name,
+            price: productResult.price,
           });
         },
         error: (err: unknown) => {

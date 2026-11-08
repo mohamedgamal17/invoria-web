@@ -12,9 +12,9 @@ export function parseOptionalEnumQueryParam(
   if (raw == null || raw.trim() === '') {
     return null;
   }
-  const n = Number.parseInt(raw, 10);
-  if (!Number.isFinite(n) || !allowed.includes(n)) {
+  const parsedValue = Number.parseInt(raw, 10);
+  if (!Number.isFinite(parsedValue) || !allowed.includes(parsedValue)) {
     return null;
   }
-  return n;
+  return parsedValue;
 }

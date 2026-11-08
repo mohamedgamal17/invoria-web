@@ -13,8 +13,8 @@ export type ReturnsListFilters = {
 
 type FilterOption = { label: string; value: number | null };
 
-function numericEnumValues<T extends Record<string, string | number>>(e: T): number[] {
-  return Object.values(e).filter((v): v is number => typeof v === 'number');
+function numericEnumValues<T extends Record<string, string | number>>(enumMap: T): number[] {
+  return Object.values(enumMap).filter((value): value is number => typeof value === 'number');
 }
 
 @Component({
@@ -38,9 +38,9 @@ export class ReturnsFilterPanelComponent {
 
   readonly typeOptions: FilterOption[] = [
     { label: 'All types', value: null },
-    ...numericEnumValues(ReturnType).map((v) => ({
-      label: returnTypeLabel(v),
-      value: v
+    ...numericEnumValues(ReturnType).map((value) => ({
+      label: returnTypeLabel(value),
+      value: value
     }))
   ];
 

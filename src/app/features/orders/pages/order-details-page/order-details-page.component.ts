@@ -118,7 +118,7 @@ export class OrderDetailsPageComponent {
   );
 
   private readonly tabQuery = toSignal(
-    this.route.queryParamMap.pipe(map((m) => m.get('tab'))),
+    this.route.queryParamMap.pipe(map((paramMap) => paramMap.get('tab'))),
     { initialValue: this.route.snapshot.queryParamMap.get('tab') }
   );
 
@@ -169,11 +169,11 @@ export class OrderDetailsPageComponent {
   });
 
   readonly canRecordPayment = computed(() => {
-    const o = this.displayOrder();
-    return !!o
-      && o.status === OrderStatus.Completed
-      && o.paymentType !== undefined && o.paymentType !== null
-      && (o.amountOutstanding ?? 0) > 0.005;
+    const order = this.displayOrder();
+    return !!order
+      && order.status === OrderStatus.Completed
+      && order.paymentType !== undefined && order.paymentType !== null
+      && (order.amountOutstanding ?? 0) > 0.005;
   });
 
   private readonly revisionSnapshotKey = computed(
@@ -192,9 +192,11 @@ export class OrderDetailsPageComponent {
       if (order.netOfTotalOrderAmount !== snapshot.netOfTotalOrderAmount) return true;
       if (order.customerName !== snapshot.customerName) return true;
       if (order.items.length !== snapshot.items.length) return true;
-      return order.items.some((item, i) => {
-        const s = snapshot.items[i];
-        return !s || item.quantity !== s.quantity || item.price !== s.price;
+      return order.items.some((item, index) => {
+        const snapshotItem = snapshot.items[index];
+        return !snapshotItem
+          || item.quantity !== snapshotItem.quantity
+          || item.price !== snapshotItem.price;
       });
     } catch {
       return false;
@@ -253,7 +255,9 @@ export class OrderDetailsPageComponent {
       if (order.status === OrderStatus.Revision) {
         if (!sessionStorage.getItem(key)) {
           sessionStorage.setItem(key, JSON.stringify({
-            items: order.items.map(i => ({ id: i.id, quantity: i.quantity, price: i.price })),
+            items: order.items.map((item) => ({
+              id: item.id, quantity: item.quantity, price: item.price
+            })),
             netOfTotalOrderAmount: order.netOfTotalOrderAmount,
             customerName: order.customerName
           }));
@@ -318,8 +322,8 @@ export class OrderDetailsPageComponent {
     if (value === undefined || value === null) {
       return;
     }
-    const n = typeof value === 'number' ? value : Number(value);
-    const next = Number.isFinite(n) ? n : 0;
+    const numericValue = typeof value === 'number' ? value : Number(value);
+    const next = Number.isFinite(numericValue) ? numericValue : 0;
     this.activeTab.set(next);
     void this.router.navigate([], {
       relativeTo: this.route,
@@ -387,7 +391,7 @@ export class OrderDetailsPageComponent {
 
   private spawnConfetti(): void {
     const colors = ['#f44336', '#e91e63', '#9c27b0', '#3f51b5', '#03a9f4', '#009688', '#8bc34a', '#ffeb3b', '#ff9800'];
-    for (let i = 0; i < 40; i++) {
+    for (let attempt = 0; attempt < 40; attempt++) {
       const el = document.createElement('div');
       el.className = 'confetti-piece';
       el.style.left = Math.random() * 100 + 'vw';

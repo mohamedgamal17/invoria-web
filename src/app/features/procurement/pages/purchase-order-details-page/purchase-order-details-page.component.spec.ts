@@ -244,11 +244,11 @@ describe('PurchaseOrderDetailsPageComponent', () => {
       ]
     }).compileComponents();
 
-    const f = TestBed.createComponent(PurchaseOrderDetailsPageComponent);
-    f.detectChanges();
-    await f.whenStable();
+    const fixture = TestBed.createComponent(PurchaseOrderDetailsPageComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
 
-    expect(f.componentInstance.activeTab()).toBe(1);
+    expect(fixture.componentInstance.activeTab()).toBe(1);
   });
 
   it('should produce empty stateTimelineEvents when stateHistory is absent', async () => {

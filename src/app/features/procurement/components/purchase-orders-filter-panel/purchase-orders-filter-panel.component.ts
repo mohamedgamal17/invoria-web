@@ -21,8 +21,8 @@ export type PurchaseOrdersListFilters = {
 
 type FilterOption = { label: string; value: number | null };
 
-function numericEnumValues<T extends Record<string, string | number>>(e: T): number[] {
-  return Object.values(e).filter((v): v is number => typeof v === 'number');
+function numericEnumValues<T extends Record<string, string | number>>(enumMap: T): number[] {
+  return Object.values(enumMap).filter((value): value is number => typeof value === 'number');
 }
 
 const PURCHASE_NUMBER_FILTER_DEBOUNCE_MS = 700;
@@ -74,9 +74,9 @@ export class PurchaseOrdersFilterPanelComponent {
 
   readonly statusOptions: FilterOption[] = [
     { label: 'All statuses', value: null },
-    ...numericEnumValues(PurchaseState).map((v) => ({
-      label: purchaseStateLabel(v),
-      value: v
+    ...numericEnumValues(PurchaseState).map((value) => ({
+      label: purchaseStateLabel(value),
+      value: value
     }))
   ];
 

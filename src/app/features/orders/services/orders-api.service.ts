@@ -202,7 +202,7 @@ export class OrdersApiService {
       throw new Error('PaidAmount must be a positive number.');
     }
     const methods = new Set(
-      Object.values(OrderPaymentMethod).filter((v): v is OrderPaymentMethod => typeof v === 'number')
+      Object.values(OrderPaymentMethod).filter((value): value is OrderPaymentMethod => typeof value === 'number')
     );
     if (!methods.has(request.PaymentMethod)) {
       throw new Error('PaymentMethod is invalid.');

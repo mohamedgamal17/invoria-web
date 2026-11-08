@@ -74,10 +74,10 @@ export class ProductDetailsPageComponent {
 
   private readonly queryParamsSig = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => ({
-        tab: m.get('tab'),
-        page: m.get('page'),
-        pageSize: m.get('pageSize'),
+      map((paramMap) => ({
+        tab: paramMap.get('tab'),
+        page: paramMap.get('page'),
+        pageSize: paramMap.get('pageSize'),
       })),
     ),
     {
@@ -106,16 +106,16 @@ export class ProductDetailsPageComponent {
   readonly first = computed(() => this.pageIndex() * this.pageSize());
 
   readonly batchesProductRef = computed((): BatchesProductRef | null => {
-    const p = this.product();
-    if (!p) {
+    const product = this.product();
+    if (!product) {
       return null;
     }
-    return { id: p.id, name: p.name };
+    return { id: product.id, name: product.name };
   });
 
   readonly breadcrumbItems = computed(() => {
-    const p = this.product();
-    const label = p ? p.name.trim() || 'Product' : 'Product';
+    const product = this.product();
+    const label = product ? product.name.trim() || 'Product' : 'Product';
     return [{ label: 'Products', routerLink: ['/products'] as string[] }, { label }];
   });
 
@@ -126,8 +126,8 @@ export class ProductDetailsPageComponent {
 
     effect(() => {
       const qp = this.queryParamsSig();
-      const p = this.product();
-      if (!p || this.loading()) {
+      const product = this.product();
+      if (!product || this.loading()) {
         return;
       }
       untracked(() => this.applyBatchQueryParams(qp));
@@ -146,8 +146,8 @@ export class ProductDetailsPageComponent {
     if (value === undefined || value === null) {
       return;
     }
-    const n = typeof value === 'number' ? value : Number(value);
-    const next = Number.isFinite(n) ? n : 0;
+    const numericValue = typeof value === 'number' ? value : Number(value);
+    const next = Number.isFinite(numericValue) ? numericValue : 0;
     this.activeTab.set(next);
     const tabSlug = indexToTabSlug(next);
 
@@ -170,19 +170,19 @@ export class ProductDetailsPageComponent {
   }
 
   deleteProduct(): void {
-    const p = this.product();
-    if (!p || this.deleting()) {
+    const product = this.product();
+    if (!product || this.deleting()) {
       return;
     }
     this.confirmationService.confirm({
       header: 'Delete Product',
-      message: `Are you sure you want to delete "${p.name}"?`,
+      message: `Are you sure you want to delete "${product.name}"?`,
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => {
         this.deleting.set(true);
         this.productsApi
-          .deleteProduct(p.id)
+          .deleteProduct(product.id)
           .pipe(
             take(1),
             finalize(() => this.deleting.set(false)),

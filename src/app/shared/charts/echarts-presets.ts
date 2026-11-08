@@ -65,10 +65,10 @@ export function chartToken(name: string, fallback: string): string {
 }
 
 export function formatPeriodLabel(iso: string, period: number): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso.slice(0, 10);
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso.slice(0, 10);
   // ReportPeriod values: Daily=5, Monthly=10, Yearly=15
-  if (period === 10) return d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
-  if (period === 15) return String(d.getFullYear());
-  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  if (period === 10) return date.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+  if (period === 15) return String(date.getFullYear());
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }

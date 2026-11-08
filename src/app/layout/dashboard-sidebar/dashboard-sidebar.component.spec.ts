@@ -27,7 +27,7 @@ describe('DashboardSidebarComponent', () => {
   let router: Router;
 
   function sidebar(): DashboardSidebarComponent {
-    const debug = fixture.debugElement.children.find((c) => c.componentInstance instanceof DashboardSidebarComponent);
+    const debug = fixture.debugElement.children.find((child) => child.componentInstance instanceof DashboardSidebarComponent);
     return debug!.componentInstance as DashboardSidebarComponent;
   }
 
@@ -44,44 +44,44 @@ describe('DashboardSidebarComponent', () => {
   });
 
   it('toggles expanded group via toggleGroup', async () => {
-    const s = sidebar();
-    expect(s['isGroupExpanded']('Inventory')).toBe(false);
-    s['toggleGroup']('Inventory');
-    expect(s['isGroupExpanded']('Inventory')).toBe(true);
-    expect(s['expandedGroup']()).toBe('Inventory');
-    s['toggleGroup']('Inventory');
-    expect(s['isGroupExpanded']('Inventory')).toBe(false);
-    expect(s['expandedGroup']()).toBeNull();
+    const sidebarInstance = sidebar();
+    expect(sidebarInstance['isGroupExpanded']('Inventory')).toBe(false);
+    sidebarInstance['toggleGroup']('Inventory');
+    expect(sidebarInstance['isGroupExpanded']('Inventory')).toBe(true);
+    expect(sidebarInstance['expandedGroup']()).toBe('Inventory');
+    sidebarInstance['toggleGroup']('Inventory');
+    expect(sidebarInstance['isGroupExpanded']('Inventory')).toBe(false);
+    expect(sidebarInstance['expandedGroup']()).toBeNull();
   });
 
   it('auto-expands CRM when navigating to customers route', async () => {
     await router.navigateByUrl('/customers');
     fixture.detectChanges();
     await fixture.whenStable();
-    const s = sidebar();
-    expect(s['expandedGroup']()).toBe('CRM');
-    expect(s['activeGroupLabel']()).toBe('CRM');
-    expect(s['isGroupActive']('CRM')).toBe(true);
-    expect(s['isGroupExpanded']('CRM')).toBe(true);
+    const sidebarInstance = sidebar();
+    expect(sidebarInstance['expandedGroup']()).toBe('CRM');
+    expect(sidebarInstance['activeGroupLabel']()).toBe('CRM');
+    expect(sidebarInstance['isGroupActive']('CRM')).toBe(true);
+    expect(sidebarInstance['isGroupExpanded']('CRM')).toBe(true);
   });
 
   it('keeps query params ignored for active group detection', async () => {
     await router.navigateByUrl('/customers?page=2&pageSize=25');
     fixture.detectChanges();
     await fixture.whenStable();
-    const s = sidebar();
-    expect(s['activeGroupLabel']()).toBe('CRM');
-    expect(s['isGroupActive']('CRM')).toBe(true);
+    const sidebarInstance = sidebar();
+    expect(sidebarInstance['activeGroupLabel']()).toBe('CRM');
+    expect(sidebarInstance['isGroupActive']('CRM')).toBe(true);
   });
 
   it('expands parent group on child detail route and keeps it active', async () => {
     await router.navigateByUrl('/customers/cust_1');
     fixture.detectChanges();
     await fixture.whenStable();
-    const s = sidebar();
-    expect(s['expandedGroup']()).toBe('CRM');
-    expect(s['activeGroupLabel']()).toBe('CRM');
-    expect(s['isGroupExpanded']('CRM')).toBe(true);
+    const sidebarInstance = sidebar();
+    expect(sidebarInstance['expandedGroup']()).toBe('CRM');
+    expect(sidebarInstance['activeGroupLabel']()).toBe('CRM');
+    expect(sidebarInstance['isGroupExpanded']('CRM')).toBe(true);
   });
 
   it('accordion behavior - navigating to another group updates expandedGroup', async () => {
@@ -100,9 +100,9 @@ describe('DashboardSidebarComponent', () => {
     await router.navigateByUrl('/');
     fixture.detectChanges();
     await fixture.whenStable();
-    const s = sidebar();
-    expect(s['activeGroupLabel']()).toBeNull();
-    expect(s['isGroupActive']('CRM')).toBe(false);
-    expect(s['isGroupActive']('Inventory')).toBe(false);
+    const sidebarInstance = sidebar();
+    expect(sidebarInstance['activeGroupLabel']()).toBeNull();
+    expect(sidebarInstance['isGroupActive']('CRM')).toBe(false);
+    expect(sidebarInstance['isGroupActive']('Inventory')).toBe(false);
   });
 });

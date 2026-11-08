@@ -53,7 +53,7 @@ export class PayablesFilterPanelComponent {
   readonly localSourceId = signal('');
 
   readonly supplierOptions = computed<SupplierFilterOption[]>(() =>
-    this.suppliers().map((s) => ({ label: s.name, value: s.id }))
+    this.suppliers().map((supplier) => ({ label: supplier.name, value: supplier.id }))
   );
 
   filtersChange = output<PayablesListFilters>();

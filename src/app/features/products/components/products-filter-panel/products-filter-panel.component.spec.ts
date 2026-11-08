@@ -29,8 +29,8 @@ describe('ProductsFilterPanelComponent', () => {
     vi.useFakeTimers();
 
     const emissions: Array<{ name: string }> = [];
-    const sub = outputToObservable(fixture.componentInstance.filtersChange).subscribe((f) =>
-      emissions.push(f)
+    const sub = outputToObservable(fixture.componentInstance.filtersChange).subscribe((filter) =>
+      emissions.push(filter)
     );
 
     fixture.componentInstance.onNameInput('x');

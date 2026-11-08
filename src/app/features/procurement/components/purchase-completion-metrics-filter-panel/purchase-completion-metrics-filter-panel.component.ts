@@ -27,9 +27,9 @@ export class PurchaseCompletionMetricsFilterPanelComponent {
 
   readonly ReportPeriod = ReportPeriod;
 
-  readonly periodOptions = REPORT_SERIES_PERIODS.map((v) => ({
-    label: REPORT_PERIOD_LABELS[v],
-    value: v
+  readonly periodOptions = REPORT_SERIES_PERIODS.map((periodValue) => ({
+    label: REPORT_PERIOD_LABELS[periodValue],
+    value: periodValue
   }));
 
   onPeriodChange(value: ReportPeriod | null | undefined): void {

@@ -81,6 +81,6 @@ export class CustomersListEffects {
 
 /** Stable identity of one fetch round: a real start/failure creates new state references,
  *  while a no-oped duplicate `Load Customers` keeps the current ones untouched. */
-function sameFetchRound(a: CustomersListState, b: CustomersListState): boolean {
-  return a === b;
+function sameFetchRound(left: CustomersListState, right: CustomersListState): boolean {
+  return left === right;
 }

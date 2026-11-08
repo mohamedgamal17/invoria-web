@@ -90,6 +90,6 @@ export class ProductsListEffects {
 
 /** Stable identity of one fetch round: a real start/failure creates new state references,
  *  while a no-oped duplicate `Load Products` keeps the current ones untouched. */
-function sameFetchRound(a: ProductsListState, b: ProductsListState): boolean {
-  return a === b;
+function sameFetchRound(left: ProductsListState, right: ProductsListState): boolean {
+  return left === right;
 }

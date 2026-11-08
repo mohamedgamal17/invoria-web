@@ -33,7 +33,7 @@ export class PurchaseCompletionMetricsListComponent {
   clearFilters = output<void>();
 
   get skeletonRows(): number[] {
-    return Array.from({ length: this.pageSize() }, (_, i) => i);
+    return Array.from({ length: this.pageSize() }, (_, index) => index);
   }
 
   formatPeriod(dateIso: string): string {

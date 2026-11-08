@@ -192,7 +192,7 @@ describe('productsListReducer', () => {
       const next = productsListReducer(state, {
         ...PRODUCTS_LIST_ACTIONS.productCreated({ product: NEW_PRODUCT }),
       });
-      expect(next.products.map((p) => p.id)).toEqual(['prd_2', 'prd_1']);
+      expect(next.products.map((product) => product.id)).toEqual(['prd_2', 'prd_1']);
       expect(next.info?.totalCount).toBe(2);
       expect(next.info?.length).toBe(2);
       expect(next.request).toBe(state.request);
@@ -200,7 +200,10 @@ describe('productsListReducer', () => {
     });
 
     it('trims to pageSize when the page is full', () => {
-      const full = Array.from({ length: 25 }, (_, i) => ({ ...PRODUCT, id: `prd_full_${i}` }));
+      const full = Array.from(
+        { length: 25 },
+        (_, index) => ({ ...PRODUCT, id: `prd_full_${index}` })
+      );
       const state = loadedState({
         products: full,
         info: { length: 25, skip: 0, totalCount: 25 },
@@ -210,7 +213,7 @@ describe('productsListReducer', () => {
       });
       expect(next.products).toHaveLength(25);
       expect(next.products[0].id).toBe('prd_2');
-      expect(next.products.some((p) => p.id === 'prd_full_24')).toBe(false);
+      expect(next.products.some((product) => product.id === 'prd_full_24')).toBe(false);
       expect(next.info?.totalCount).toBe(26);
       expect(next.info?.length).toBe(25);
     });

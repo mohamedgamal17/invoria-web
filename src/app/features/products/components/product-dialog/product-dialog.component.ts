@@ -49,11 +49,11 @@ export class ProductDialogComponent {
 
   constructor() {
     effect(() => {
-      const p = this.product();
-      if (p) {
+      const product = this.product();
+      if (product) {
         this.form.reset({
-          name: p.name,
-          price: p.price
+          name: product.name,
+          price: product.price
         });
       } else {
         this.form.reset({

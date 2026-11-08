@@ -18,5 +18,5 @@ export class ProductListSkeletonComponent {
   /** Number of skeleton cards or table rows. */
   count = input(10);
 
-  protected rowIndices = computed(() => Array.from({ length: this.count() }, (_, i) => i));
+  protected rowIndices = computed(() => Array.from({ length: this.count() }, (_, index) => index));
 }

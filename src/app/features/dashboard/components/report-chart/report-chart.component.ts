@@ -37,7 +37,10 @@ export class ReportChartComponent {
   showPeriodSelector = input(false);
   selectedPeriod = input<ReportPeriod | null>(null);
   periodOptions = input<{ label: string; value: ReportPeriod }[]>(
-    REPORT_SERIES_PERIODS.map((v) => ({ label: REPORT_PERIOD_LABELS[v], value: v }))
+    REPORT_SERIES_PERIODS.map((periodValue) => ({
+      label: REPORT_PERIOD_LABELS[periodValue],
+      value: periodValue
+    }))
   );
   periodChange = output<ReportPeriod>();
 

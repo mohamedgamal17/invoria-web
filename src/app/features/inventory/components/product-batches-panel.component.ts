@@ -161,13 +161,13 @@ export class ProductBatchesPanelComponent {
   }
 
   loadBatches(): void {
-    const p = this.product();
-    if (!p) return;
+    const product = this.product();
+    if (!product) return;
 
     this.loading.set(true);
     this.batchesApi
       .listBatches({
-        ProductId: p.id,
+        ProductId: product.id,
         Skip: this.first(),
         Length: this.pageSize()
       })
@@ -208,8 +208,8 @@ export class ProductBatchesPanelComponent {
   }
 
   onSave(data: BatchFormSavePayload): void {
-    const p = this.product();
-    if (!p) return;
+    const product = this.product();
+    if (!product) return;
 
     this.formLoading.set(true);
     const batch = this.selectedBatch();
@@ -231,7 +231,7 @@ export class ProductBatchesPanelComponent {
       });
     } else {
       const request: CreateBatchRequest = {
-        ProductId: p.id,
+        ProductId: product.id,
         Quantity: data.quantity,
         PurchasePrice: data.purchasePrice
       };

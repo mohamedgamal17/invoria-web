@@ -61,7 +61,7 @@ describe('OrdersApiService', () => {
         })
         .subscribe();
 
-      const req = httpMock.expectOne((r) => r.url === `${baseUrl}orders`);
+      const req = httpMock.expectOne((request) => request.url === `${baseUrl}orders`);
       expect(req.request.method).toBe('GET');
       expect(req.request.params.get('Skip')).toBe('0');
       expect(req.request.params.get('Length')).toBe('25');

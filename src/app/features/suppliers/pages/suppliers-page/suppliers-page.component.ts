@@ -53,10 +53,10 @@ export class SuppliersPageComponent {
   /** 1-based page number from `?page=` (default 1). */
   private readonly pageFromRoute = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => {
-        const raw = m.get('page');
-        const n = raw ? parseInt(raw, 10) : 1;
-        return Number.isFinite(n) && n >= 1 ? n : 1;
+      map((paramMap) => {
+        const raw = paramMap.get('page');
+        const pageNumber = raw ? parseInt(raw, 10) : 1;
+        return Number.isFinite(pageNumber) && pageNumber >= 1 ? pageNumber : 1;
       })
     ),
     { initialValue: 1 }
@@ -65,7 +65,7 @@ export class SuppliersPageComponent {
   /** Page size from `?pageSize=` (must be in pageSizeOptions; default 25). */
   readonly pageSize = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => this.pagination.pageSizeFromQuery(Number(m.get('pageSize'))))
+      map((paramMap) => this.pagination.pageSizeFromQuery(Number(paramMap.get('pageSize'))))
     ),
     { initialValue: 25 }
   );
@@ -73,9 +73,9 @@ export class SuppliersPageComponent {
   /** Name filter from `?q=` (trimmed; default empty). */
   readonly qFromRoute = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => {
-        const q = m.get('q')?.trim();
-        return q ? q : '';
+      map((paramMap) => {
+        const query = paramMap.get('q')?.trim();
+        return query ? query : '';
       })
     ),
     { initialValue: '' }

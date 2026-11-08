@@ -8,13 +8,13 @@ export const INVOICES_ROUTES: Routes = [
         path: '',
         pathMatch: 'full',
         loadComponent: () =>
-          import('./pages/invoices-page/invoices-page.component').then((m) => m.InvoicesPageComponent)
+          import('./pages/invoices-page/invoices-page.component').then((module) => module.InvoicesPageComponent)
       },
       {
         path: ':id',
         loadComponent: () =>
           import('./pages/invoice-details-page/invoice-details-page.component').then(
-            (m) => m.InvoiceDetailsPageComponent
+            (module) => module.InvoiceDetailsPageComponent
           )
       }
     ]

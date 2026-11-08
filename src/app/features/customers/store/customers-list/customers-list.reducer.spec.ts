@@ -188,7 +188,7 @@ describe('customersListReducer', () => {
       const next = customersListReducer(state, {
         ...CUSTOMERS_LIST_ACTIONS.customerCreated({ customer: NEW_CUSTOMER }),
       });
-      expect(next.customers.map((c) => c.id)).toEqual(['cust_2', 'cust_1']);
+      expect(next.customers.map((customer) => customer.id)).toEqual(['cust_2', 'cust_1']);
       expect(next.info?.totalCount).toBe(2);
       expect(next.info?.length).toBe(2);
       expect(next.request).toBe(state.request);
@@ -196,7 +196,10 @@ describe('customersListReducer', () => {
     });
 
     it('trims to pageSize when the page is full', () => {
-      const full = Array.from({ length: 25 }, (_, i) => ({ ...CUSTOMER, id: `cust_full_${i}` }));
+      const full = Array.from(
+        { length: 25 },
+        (_, index) => ({ ...CUSTOMER, id: `cust_full_${index}` })
+      );
       const state = loadedState({
         customers: full,
         info: { length: 25, skip: 0, totalCount: 25 },
@@ -206,7 +209,7 @@ describe('customersListReducer', () => {
       });
       expect(next.customers).toHaveLength(25);
       expect(next.customers[0].id).toBe('cust_2');
-      expect(next.customers.some((c) => c.id === 'cust_full_24')).toBe(false);
+      expect(next.customers.some((customer) => customer.id === 'cust_full_24')).toBe(false);
       expect(next.info?.totalCount).toBe(26);
       expect(next.info?.length).toBe(25);
     });

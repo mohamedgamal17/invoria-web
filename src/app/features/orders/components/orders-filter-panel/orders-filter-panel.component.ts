@@ -29,8 +29,8 @@ export type OrdersListFilters = {
 
 type FilterOption = { label: string; value: number | null };
 
-function numericEnumValues<T extends Record<string, string | number>>(e: T): number[] {
-  return Object.values(e).filter((v): v is number => typeof v === 'number');
+function numericEnumValues<T extends Record<string, string | number>>(enumMap: T): number[] {
+  return Object.values(enumMap).filter((value): value is number => typeof value === 'number');
 }
 
 const ORDER_NUMBER_FILTER_DEBOUNCE_MS = 700;
@@ -84,25 +84,25 @@ export class OrdersFilterPanelComponent {
 
   readonly statusOptions: FilterOption[] = [
     { label: 'All statuses', value: null },
-    ...numericEnumValues(OrderStatus).map((v) => ({
-      label: orderStatusLabel(v),
-      value: v
+    ...numericEnumValues(OrderStatus).map((value) => ({
+      label: orderStatusLabel(value),
+      value: value
     }))
   ];
 
   readonly paymentStatusOptions: FilterOption[] = [
     { label: 'All payment statuses', value: null },
-    ...numericEnumValues(PaymentStatus).map((v) => ({
-      label: paymentStatusLabel(v),
-      value: v
+    ...numericEnumValues(PaymentStatus).map((value) => ({
+      label: paymentStatusLabel(value),
+      value: value
     }))
   ];
 
   readonly paymentTypeOptions: FilterOption[] = [
     { label: 'All payment types', value: null },
-    ...numericEnumValues(PaymentType).map((v) => ({
-      label: paymentTypeLabel(v),
-      value: v
+    ...numericEnumValues(PaymentType).map((value) => ({
+      label: paymentTypeLabel(value),
+      value: value
     }))
   ];
 

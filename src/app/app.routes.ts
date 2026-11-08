@@ -5,7 +5,7 @@ export const routes: Routes = [
     path: '',
     loadComponent: () =>
       import('./layout/dashboard-shell/dashboard-shell.component').then(
-        (m) => m.DashboardShellComponent
+        (module) => module.DashboardShellComponent
       ),
     children: [
       {
@@ -14,57 +14,61 @@ export const routes: Routes = [
         loadComponent: () =>
           import(
             './features/dashboard/pages/dashboard-page/dashboard-page.component'
-          ).then((m) => m.DashboardPageComponent)
+          ).then((module) => module.DashboardPageComponent)
       },
       {
         path: 'orders',
         loadChildren: () =>
-          import('./features/orders/orders.routes').then((m) => m.ORDERS_ROUTES)
+          import('./features/orders/orders.routes').then((module) => module.ORDERS_ROUTES)
       },
       {
         path: 'suppliers',
         loadChildren: () =>
-          import('./features/suppliers/suppliers.routes').then((m) => m.SUPPLIERS_ROUTES)
+          import('./features/suppliers/suppliers.routes').then((module) => module.SUPPLIERS_ROUTES)
       },
       {
         path: 'procurement',
         loadChildren: () =>
-          import('./features/procurement/procurement.routes').then((m) => m.PROCUREMENT_ROUTES)
+          import('./features/procurement/procurement.routes').then(
+            (module) => module.PROCUREMENT_ROUTES
+          )
       },
       {
         path: 'customers',
         loadChildren: () =>
-          import('./features/customers/customers.routes').then((m) => m.CUSTOMERS_ROUTES)
+          import('./features/customers/customers.routes').then((module) => module.CUSTOMERS_ROUTES)
       },
       {
         path: 'products',
         loadChildren: () =>
-          import('./features/products/products.routes').then((m) => m.PRODUCTS_ROUTES)
+          import('./features/products/products.routes').then((module) => module.PRODUCTS_ROUTES)
       },
       {
         path: 'returns',
         loadChildren: () =>
-          import('./features/returns/returns.routes').then((m) => m.RETURNS_ROUTES)
+          import('./features/returns/returns.routes').then((module) => module.RETURNS_ROUTES)
       },
       {
         path: 'invoices',
         loadChildren: () =>
-          import('./features/invoices/invoices.routes').then((m) => m.INVOICES_ROUTES)
+          import('./features/invoices/invoices.routes').then((module) => module.INVOICES_ROUTES)
       },
       {
         path: 'receivables',
         loadChildren: () =>
-          import('./features/receivables/receivables.routes').then((m) => m.RECEIVABLES_ROUTES)
+          import('./features/receivables/receivables.routes').then(
+            (module) => module.RECEIVABLES_ROUTES
+          )
       },
       {
         path: 'payables',
         loadChildren: () =>
-          import('./features/payables/payables.routes').then((m) => m.PAYABLES_ROUTES)
+          import('./features/payables/payables.routes').then((module) => module.PAYABLES_ROUTES)
       }
     ]
   },
-  { path: 'not-found', loadComponent: () => import('./features/error-pages/pages/not-found-page/not-found-page.component').then((m) => m.NotFoundPageComponent) },
-  { path: 'internal-error', loadComponent: () => import('./features/error-pages/pages/internal-error-page/internal-error-page.component').then((m) => m.InternalErrorPageComponent) },
-  { path: 'service-unavailable', loadComponent: () => import('./features/error-pages/pages/service-unavailable-page/service-unavailable-page.component').then((m) => m.ServiceUnavailablePageComponent) },
+  { path: 'not-found', loadComponent: () => import('./features/error-pages/pages/not-found-page/not-found-page.component').then((module) => module.NotFoundPageComponent) },
+  { path: 'internal-error', loadComponent: () => import('./features/error-pages/pages/internal-error-page/internal-error-page.component').then((module) => module.InternalErrorPageComponent) },
+  { path: 'service-unavailable', loadComponent: () => import('./features/error-pages/pages/service-unavailable-page/service-unavailable-page.component').then((module) => module.ServiceUnavailablePageComponent) },
   { path: '**', redirectTo: 'not-found' }
 ];

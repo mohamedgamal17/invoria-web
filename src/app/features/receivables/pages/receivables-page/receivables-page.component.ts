@@ -58,10 +58,10 @@ export class ReceivablesPageComponent {
 
   private readonly pageFromRoute = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => {
-        const raw = m.get('page');
-        const n = raw ? parseInt(raw, 10) : 1;
-        return Number.isFinite(n) && n >= 1 ? n : 1;
+      map((paramMap) => {
+        const raw = paramMap.get('page');
+        const pageNumber = raw ? parseInt(raw, 10) : 1;
+        return Number.isFinite(pageNumber) && pageNumber >= 1 ? pageNumber : 1;
       })
     ),
     { initialValue: 1 }
@@ -69,16 +69,16 @@ export class ReceivablesPageComponent {
 
   readonly pageSize = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => this.pagination.pageSizeFromQuery(Number(m.get('pageSize'))))
+      map((paramMap) => this.pagination.pageSizeFromQuery(Number(paramMap.get('pageSize'))))
     ),
     { initialValue: 25 }
   );
 
   readonly partyIdFromRoute = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => {
-        const q = m.get('partyId')?.trim();
-        return q ? q : '';
+      map((paramMap) => {
+        const partyId = paramMap.get('partyId')?.trim();
+        return partyId ? partyId : '';
       })
     ),
     { initialValue: '' }
@@ -86,16 +86,16 @@ export class ReceivablesPageComponent {
 
   readonly sourceIdFromRoute = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => {
-        const q = m.get('sourceId')?.trim();
-        return q ? q : '';
+      map((paramMap) => {
+        const sourceId = paramMap.get('sourceId')?.trim();
+        return sourceId ? sourceId : '';
       })
     ),
     { initialValue: '' }
   );
 
   readonly isPaidFromRoute = toSignal(
-    this.route.queryParamMap.pipe(map((m) => parseIsPaid(m.get('isPaid')))),
+    this.route.queryParamMap.pipe(map((paramMap) => parseIsPaid(paramMap.get('isPaid')))),
     { initialValue: null }
   );
 

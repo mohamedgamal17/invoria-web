@@ -107,15 +107,15 @@ export class BatchFormComponent {
 
   constructor() {
     effect(() => {
-      const b = this.batch();
+      const batch = this.batch();
       const qtyControl = this.batchForm.get('quantity');
       const priceControl = this.batchForm.get('purchasePrice');
 
-      if (b) {
+      if (batch) {
         qtyControl?.setValidators([Validators.required, Validators.min(0)]);
         qtyControl?.updateValueAndValidity({ emitEvent: false });
 
-        this.batchForm.patchValue({ quantity: b.quantity ?? 0, purchasePrice: b.purchasePrice ?? 1 }, { emitEvent: false });
+        this.batchForm.patchValue({ quantity: batch.quantity ?? 0, purchasePrice: batch.purchasePrice ?? 1 }, { emitEvent: false });
         priceControl?.enable({ emitEvent: false });
       } else {
         qtyControl?.setValidators([Validators.required, Validators.min(1)]);

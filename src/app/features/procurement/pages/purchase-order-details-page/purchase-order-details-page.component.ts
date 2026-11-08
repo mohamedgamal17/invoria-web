@@ -87,7 +87,7 @@ export class PurchaseOrderDetailsPageComponent {
   );
 
   private readonly tabQuery = toSignal(
-    this.route.queryParamMap.pipe(map((m) => m.get('tab'))),
+    this.route.queryParamMap.pipe(map((paramMap) => paramMap.get('tab'))),
     { initialValue: this.route.snapshot.queryParamMap.get('tab') }
   );
 
@@ -127,7 +127,7 @@ export class PurchaseOrderDetailsPageComponent {
       return [];
     }
     const sorted = [...raw].sort(
-      (a, b) => this.transitionInstantMs(a) - this.transitionInstantMs(b)
+      (left, right) => this.transitionInstantMs(left) - this.transitionInstantMs(right)
     );
     return sorted.map((entry) => ({
       fromLabel: entry?.fromState != null ? purchaseStateLabel(entry.fromState) : '—',
@@ -160,8 +160,8 @@ export class PurchaseOrderDetailsPageComponent {
     if (value === undefined || value === null) {
       return;
     }
-    const n = typeof value === 'number' ? value : Number(value);
-    const next = Number.isFinite(n) ? n : 0;
+    const numericValue = typeof value === 'number' ? value : Number(value);
+    const next = Number.isFinite(numericValue) ? numericValue : 0;
     this.activeTab.set(next);
     const slug: 'overview' | 'lines' | 'history' =
       next === 2 ? 'history' : next === 1 ? 'lines' : 'overview';
@@ -255,11 +255,11 @@ export class PurchaseOrderDetailsPageComponent {
     if (!value?.trim()) {
       return '—';
     }
-    const d = new Date(value);
-    if (Number.isNaN(d.getTime())) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
       return '—';
     }
-    return formatDate(d, 'medium', this.locale);
+    return formatDate(date, 'medium', this.locale);
   }
 
   /** Prefer API line `productName`, then catalog lookup, then `productId`. */
@@ -365,17 +365,17 @@ export class PurchaseOrderDetailsPageComponent {
       });
   }
 
-  private transitionInstantMs(e: PurchaseOrderStateTransition): number {
-    const t = Date.parse(e.changedAt);
-    return Number.isNaN(t) ? 0 : t;
+  private transitionInstantMs(transition: PurchaseOrderStateTransition): number {
+    const timestamp = Date.parse(transition.changedAt);
+    return Number.isNaN(timestamp) ? 0 : timestamp;
   }
 
   private resolveProductNames(po: PurchaseOrder): void {
     const items = po.purchaseOrderItems ?? [];
-    const uniqueIds = [...new Set(items.map((i) => i.productId))];
+    const uniqueIds = [...new Set(items.map((item) => item.productId))];
     const fromLines = new Map<string, string>();
     for (const id of uniqueIds) {
-      const line = items.find((x) => x.productId === id);
+      const line = items.find((item) => item.productId === id);
       const name = line?.productName?.trim();
       if (name) {
         fromLines.set(id, name);

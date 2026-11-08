@@ -140,8 +140,8 @@ export class PurchaseOrderFormPageComponent {
     let body: CreatePurchaseOrderRequest;
     try {
       body = this.buildRequestBody();
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Invalid form.';
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Invalid form.';
       this.messageService.add({ severity: 'warn', summary: 'Validation', detail: msg });
       return;
     }
@@ -259,7 +259,7 @@ export class PurchaseOrderFormPageComponent {
     }
 
     this.draftItems.update((items) => {
-      const existingIndex = items.findIndex((i) => i.productId === product.id);
+      const existingIndex = items.findIndex((item) => item.productId === product.id);
       if (existingIndex > -1) {
         const next = [...items];
         next[existingIndex] = {
@@ -286,7 +286,7 @@ export class PurchaseOrderFormPageComponent {
   }
 
   removeItem(index: number): void {
-    this.draftItems.update((items) => items.filter((_, i) => i !== index));
+    this.draftItems.update((items) => items.filter((_, itemIndex) => itemIndex !== index));
     this.calculateSubTotal();
   }
 
@@ -369,7 +369,7 @@ export class PurchaseOrderFormPageComponent {
     lines: PurchaseOrderItem[],
     uiItems: UiPurchaseOrderItem[]
   ): void {
-    const needsName = lines.filter((l) => !l.productName?.trim()).map((l) => l.productId);
+      const needsName = lines.filter((line) => !line.productName?.trim()).map((line) => line.productId);
     const uniqueIds = [...new Set(needsName.filter(Boolean))];
     if (uniqueIds.length === 0) {
       return;
@@ -389,7 +389,7 @@ export class PurchaseOrderFormPageComponent {
     )
       .pipe(take(1))
       .subscribe((rows) => {
-        const nameById = new Map(rows.map((r) => [r.productId, r.name]));
+        const nameById = new Map(rows.map((row) => [row.productId, row.name]));
         this.draftItems.set(
           uiItems.map((item) => {
             const resolved = nameById.get(item.productId);

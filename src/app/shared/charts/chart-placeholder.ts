@@ -4,7 +4,7 @@ import { formatPeriodLabel } from './echarts-presets';
 /**
  * Generates contextual placeholder category labels when chart data is empty.
  * Goal: keep axes/grids visible so the user can see period structure (x) and scale (y)
- * even without marks. See `ai/charts.md` convention: period = Daily|Monthly|Yearly (5|10|15).
+ * even without marks. See `.opencode/skills/charts/SKILL.md` convention: period = Daily|Monthly|Yearly (5|10|15).
  *
  * - Daily  : `Mon\nAug 19` (weekday on line 1, month+day on line 2) – last `count` days incl. today
  * - Monthly: `Aug 2025` etc. – last `count` months incl. current month (via formatPeriodLabel)
@@ -20,11 +20,11 @@ export function generatePlaceholderCategoryLabels(
   if (period === ReportPeriod.Daily) {
     return Array.from({ length: safeCount }, (_, idx) => {
       const offset = safeCount - 1 - idx;
-      const d = new Date(now);
-      d.setHours(0, 0, 0, 0);
-      d.setDate(d.getDate() - offset);
-      const weekday = d.toLocaleDateString(undefined, { weekday: 'short' });
-      const monthDay = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      const date = new Date(now);
+      date.setHours(0, 0, 0, 0);
+      date.setDate(date.getDate() - offset);
+      const weekday = date.toLocaleDateString(undefined, { weekday: 'short' });
+      const monthDay = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
       return `${weekday}\n${monthDay}`;
     });
   }
@@ -32,29 +32,29 @@ export function generatePlaceholderCategoryLabels(
   if (period === ReportPeriod.Monthly) {
     return Array.from({ length: safeCount }, (_, idx) => {
       const offset = safeCount - 1 - idx;
-      const d = new Date(now);
-      d.setHours(0, 0, 0, 0);
-      d.setDate(1);
-      d.setMonth(d.getMonth() - offset);
+      const date = new Date(now);
+      date.setHours(0, 0, 0, 0);
+      date.setDate(1);
+      date.setMonth(date.getMonth() - offset);
       // Reuse canonical formatter for locale parity
-      return formatPeriodLabel(d.toISOString(), ReportPeriod.Monthly);
+      return formatPeriodLabel(date.toISOString(), ReportPeriod.Monthly);
     });
   }
 
   if (period === ReportPeriod.Yearly) {
     return Array.from({ length: safeCount }, (_, idx) => {
       const offset = safeCount - 1 - idx;
-      const d = new Date(now);
-      d.setHours(0, 0, 0, 0);
-      d.setMonth(0, 1);
-      d.setFullYear(d.getFullYear() - offset);
-      return formatPeriodLabel(d.toISOString(), ReportPeriod.Yearly);
+      const date = new Date(now);
+      date.setHours(0, 0, 0, 0);
+      date.setMonth(0, 1);
+      date.setFullYear(date.getFullYear() - offset);
+      return formatPeriodLabel(date.toISOString(), ReportPeriod.Yearly);
     });
   }
 
   // Generic / AllTime fallback – no temporal progression, just indexed placeholders
   // Keeps xAxis populated so grid renders.
-  return Array.from({ length: safeCount }, (_, i) => String(i + 1));
+  return Array.from({ length: safeCount }, (_, index) => String(index + 1));
 }
 
 export type PlaceholderYKind = 'currency' | 'count';

@@ -56,7 +56,7 @@ export const PRODUCTS_ROUTES: Routes = [
     providers: [...PRODUCTS_LIST_PROVIDERS, ...PRODUCTS_MUTATIONS_PROVIDERS],
     loadComponent: () =>
       import('./pages/products-shell-page/products-shell-page.component').then(
-        (m) => m.ProductsShellPageComponent,
+        (module) => module.ProductsShellPageComponent,
       ),
     children: [
       {
@@ -64,14 +64,14 @@ export const PRODUCTS_ROUTES: Routes = [
         pathMatch: 'full',
         loadComponent: () =>
           import('./pages/products-page/products-page.component').then(
-            (m) => m.ProductsPageComponent,
+            (module) => module.ProductsPageComponent,
           ),
       },
       {
         path: 'new',
         loadComponent: () =>
           import('./pages/product-form-page/product-form-page.component').then(
-            (m) => m.ProductFormPageComponent,
+            (module) => module.ProductFormPageComponent,
           ),
         data: { mode: 'create' },
       },
@@ -79,7 +79,7 @@ export const PRODUCTS_ROUTES: Routes = [
         path: ':id/edit',
         loadComponent: () =>
           import('./pages/product-form-page/product-form-page.component').then(
-            (m) => m.ProductFormPageComponent,
+            (module) => module.ProductFormPageComponent,
           ),
         data: { mode: 'edit' },
       },
@@ -91,7 +91,7 @@ export const PRODUCTS_ROUTES: Routes = [
         path: ':id',
         loadComponent: () =>
           import('./pages/product-details-page/product-details-page.component').then(
-            (m) => m.ProductDetailsPageComponent,
+            (module) => module.ProductDetailsPageComponent,
           ),
       },
     ],

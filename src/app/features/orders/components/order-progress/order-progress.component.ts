@@ -84,12 +84,12 @@ export class OrderProgressComponent {
   readonly orderStatusUserLabel = orderStatusUserLabel;
 
   readonly steps = computed(() => {
-    const s = this.status();
+    const status = this.status();
     const allocated = this.orderAllocated();
 
-    const showAllocating = s === OrderStatus.Processing && !allocated;
+    const showAllocating = status === OrderStatus.Processing && !allocated;
 
-    const lastStep: Step = s === OrderStatus.Cancelled
+    const lastStep: Step = status === OrderStatus.Cancelled
       ? { status: OrderStatus.Cancelled, label: 'Cancelled', icon: 'pi pi-ban', severity: 'danger' }
       : { status: OrderStatus.Completed, label: 'Completed', icon: 'pi pi-check-circle' };
 
@@ -104,11 +104,11 @@ export class OrderProgressComponent {
       lastStep
     ];
 
-    if (s === OrderStatus.RevisionPending || s === OrderStatus.Revision) {
+    if (status === OrderStatus.RevisionPending || status === OrderStatus.Revision) {
       steps.splice(1, 0, {
-        status: s,
+        status: status,
         label: 'Revision',
-        icon: s === OrderStatus.RevisionPending ? 'pi pi-hourglass' : 'pi pi-pen-to-square'
+        icon: status === OrderStatus.RevisionPending ? 'pi pi-hourglass' : 'pi pi-pen-to-square'
       });
     }
 
@@ -116,15 +116,15 @@ export class OrderProgressComponent {
   });
 
   readonly currentStepIndex = computed(() => {
-    const s = this.status();
+    const status = this.status();
     const stepList = this.steps();
 
-    if (s === OrderStatus.Processing) {
+    if (status === OrderStatus.Processing) {
       const allocationIdx = stepList.findIndex((st) => st.status === 'allocation');
       return allocationIdx >= 0 ? allocationIdx : 0;
     }
 
-    const idx = stepList.findIndex((st) => st.status === s);
+    const idx = stepList.findIndex((st) => st.status === status);
     if (idx >= 0) return idx;
 
     return 0;

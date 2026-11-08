@@ -44,9 +44,9 @@ export class OrderSalesReportPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   readonly ReportPeriod = ReportPeriod;
-  readonly periodOptions = REPORT_SERIES_PERIODS.map((v) => ({
-    label: REPORT_PERIOD_LABELS[v],
-    value: v
+  readonly periodOptions = REPORT_SERIES_PERIODS.map((value) => ({
+    label: REPORT_PERIOD_LABELS[value],
+    value: value
   }));
 
   // Icons
@@ -64,7 +64,7 @@ export class OrderSalesReportPageComponent implements OnInit {
 
   readonly isOverviewLoading = signal(true);
 
-  // Per-period metrics cache — successful loads only, per ARCHITECTURE.md:70 local signal pattern.
+  // Per-period metrics cache — successful loads only, per docs/architecture/overview.md local signal pattern.
   // Mirrors productSearchCache Map precedent in orders/procurement features.
   private readonly metricsCache = signal<Map<ReportPeriod, OrderSalesReportPeriod[]>>(new Map());
   private readonly metricsLoadingSet = signal<Set<ReportPeriod>>(new Set());
@@ -84,7 +84,7 @@ export class OrderSalesReportPageComponent implements OnInit {
     if (!data.length) return null;
     const chronological = [...data].reverse();
     const period = this.selectedPeriod();
-    const labels = chronological.map((d) => formatPeriodLabel(d.date, period));
+    const labels = chronological.map((point) => formatPeriodLabel(point.date, period));
     return {
       tooltip: { trigger: 'axis' },
       legend: { data: ['Gross sales', 'Net sales', 'Returns'], bottom: 0, textStyle: { fontSize: 11 } },
@@ -102,21 +102,21 @@ export class OrderSalesReportPageComponent implements OnInit {
           type: 'bar',
           barMaxWidth: 28,
           itemStyle: { borderRadius: [6, 6, 0, 0] },
-          data: chronological.map((d) => d.totalAmount)
+          data: chronological.map((point) => point.totalAmount)
         },
         {
           name: 'Net sales',
           type: 'bar',
           barMaxWidth: 28,
           itemStyle: { borderRadius: [6, 6, 0, 0], opacity: 0.85 },
-          data: chronological.map((d) => d.totalNetAmount)
+          data: chronological.map((point) => point.totalNetAmount)
         },
         {
           name: 'Returns',
           type: 'bar',
           barMaxWidth: 28,
           itemStyle: { borderRadius: [6, 6, 0, 0], opacity: 0.55 },
-          data: chronological.map((d) => d.totalReturnAmount)
+          data: chronological.map((point) => point.totalReturnAmount)
         }
       ],
       color: [ECHARTS_PALETTE.info, ECHARTS_PALETTE.success, ECHARTS_PALETTE.danger]
@@ -138,8 +138,8 @@ export class OrderSalesReportPageComponent implements OnInit {
   refresh(): void {
     this.loadOverview();
     // Invalidate current period only so next ensureMetrics re-fetches; successful cache stays for other periods
-    this.metricsCache.update((m) => {
-      const next = new Map(m);
+    this.metricsCache.update((current) => {
+      const next = new Map(current);
       next.delete(this.selectedPeriod());
       return next;
     });
@@ -166,8 +166,8 @@ export class OrderSalesReportPageComponent implements OnInit {
 
   private loadOverview(): void {
     this.isOverviewLoading.set(true);
-    this.ordersApi.getOrderSalesReportOverview().pipe(catchError((e) => {
-      this.handleError(e);
+    this.ordersApi.getOrderSalesReportOverview().pipe(catchError((error) => {
+      this.handleError(error);
       return of(null);
     })).subscribe({
       next: (res) => {
@@ -187,32 +187,32 @@ export class OrderSalesReportPageComponent implements OnInit {
     if (this.metricsCache().has(period)) return;
     if (this.metricsLoadingSet().has(period)) return;
 
-    this.metricsLoadingSet.update((s) => new Set(s).add(period));
+    this.metricsLoadingSet.update((current) => new Set(current).add(period));
     const req = { Period: period, Skip: 0, Length: 14 } as const;
 
     // Metrics endpoint is paged; for trend we fetch last 14 periods chronologically reversed on server.
-    this.ordersApi.listOrderSalesReportMetrics(req).pipe(catchError((e) => {
-      this.handleError(e);
+    this.ordersApi.listOrderSalesReportMetrics(req).pipe(catchError((error) => {
+      this.handleError(error);
       return of(null);
     })).subscribe({
       next: (res) => {
         if (res?.isSuccess && res.result) {
           const copy = [...(res.result.data ?? [])];
-          this.metricsCache.update((m) => new Map(m).set(period, copy));
+          this.metricsCache.update((current) => new Map(current).set(period, copy));
         } else {
           if (res && !res.isSuccess) this.handleError(res.error);
           // Do not cache error/empty — allows retry on next selection per spec
         }
-        this.metricsLoadingSet.update((s) => {
-          const next = new Set(s);
+        this.metricsLoadingSet.update((current) => {
+          const next = new Set(current);
           next.delete(period);
           return next;
         });
       },
       error: (err) => {
         this.handleError(err);
-        this.metricsLoadingSet.update((s) => {
-          const next = new Set(s);
+        this.metricsLoadingSet.update((current) => {
+          const next = new Set(current);
           next.delete(period);
           return next;
         });

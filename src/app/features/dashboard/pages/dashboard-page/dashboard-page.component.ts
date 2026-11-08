@@ -67,9 +67,9 @@ export class DashboardPageComponent implements OnInit {
   private readonly messageService = inject(MessageService);
 
   readonly ReportPeriod = ReportPeriod;
-  readonly periodOptions = REPORT_SERIES_PERIODS.map((v) => ({
-    label: REPORT_PERIOD_LABELS[v],
-    value: v
+  readonly periodOptions = REPORT_SERIES_PERIODS.map((periodValue) => ({
+    label: REPORT_PERIOD_LABELS[periodValue],
+    value: periodValue
   }));
 
   // Icons for modern KPI cards
@@ -125,7 +125,7 @@ export class DashboardPageComponent implements OnInit {
     const data = this.salesProfitSeries();
     if (!data.length) return null;
     const chronological = [...data].reverse();
-    const labels = chronological.map((d) => this.formatDateLabel(d.date));
+    const labels = chronological.map((point) => this.formatDateLabel(point.date));
     return {
       tooltip: { trigger: 'axis' },
       legend: { data: ['Revenue', 'Cost', 'Profit'], bottom: 0, textStyle: { fontSize: 11 } },
@@ -139,7 +139,7 @@ export class DashboardPageComponent implements OnInit {
           smooth: true,
           areaStyle: { opacity: 0.15 },
           lineStyle: { width: 2 },
-          data: chronological.map((d) => d.totalRevenue)
+          data: chronological.map((point) => point.totalRevenue)
         },
         {
           name: 'Cost',
@@ -147,7 +147,7 @@ export class DashboardPageComponent implements OnInit {
           smooth: true,
           areaStyle: { opacity: 0.08 },
           lineStyle: { width: 2 },
-          data: chronological.map((d) => d.totalCost)
+          data: chronological.map((point) => point.totalCost)
         },
         {
           name: 'Profit',
@@ -156,7 +156,7 @@ export class DashboardPageComponent implements OnInit {
           areaStyle: { opacity: 0.18 },
           lineStyle: { width: 2.5 },
           emphasis: { focus: 'series' },
-          data: chronological.map((d) => d.totalProfit)
+          data: chronological.map((point) => point.totalProfit)
         }
       ],
       color: [...ECHARTS_COLORS.revenueCostProfit]
@@ -167,7 +167,7 @@ export class DashboardPageComponent implements OnInit {
     const data = this.salesSeries();
     if (!data.length) return null;
     const chronological = [...data].reverse();
-    const labels = chronological.map((d) => this.formatDateLabel(d.date));
+    const labels = chronological.map((point) => this.formatDateLabel(point.date));
     return {
       tooltip: { trigger: 'axis' },
       grid: { left: 16, right: 16, top: 16, bottom: 24, containLabel: true },
@@ -179,14 +179,14 @@ export class DashboardPageComponent implements OnInit {
           type: 'bar',
           barMaxWidth: 28,
           itemStyle: { borderRadius: [6, 6, 0, 0] },
-          data: chronological.map((d) => d.totalAmount)
+          data: chronological.map((point) => point.totalAmount)
         },
         {
           name: 'Returns',
           type: 'bar',
           barMaxWidth: 28,
           itemStyle: { borderRadius: [6, 6, 0, 0], opacity: 0.55 },
-          data: chronological.map((d) => d.totalReturnAmount)
+          data: chronological.map((point) => point.totalReturnAmount)
         }
       ],
       color: [...ECHARTS_COLORS.salesReturns]
@@ -209,15 +209,15 @@ export class DashboardPageComponent implements OnInit {
 
   refresh(): void {
     this.loadOverviews();
-    this.salesProfitCache.update((m) => {
-      const n = new Map(m);
-      n.delete(this.selectedPeriod());
-      return n;
+    this.salesProfitCache.update((current) => {
+      const copy = new Map(current);
+      copy.delete(this.selectedPeriod());
+      return copy;
     });
-    this.salesCache.update((m) => {
-      const n = new Map(m);
-      n.delete(this.selectedPeriod());
-      return n;
+    this.salesCache.update((current) => {
+      const copy = new Map(current);
+      copy.delete(this.selectedPeriod());
+      return copy;
     });
     this.ensureMetrics(this.selectedPeriod());
   }
@@ -233,16 +233,16 @@ export class DashboardPageComponent implements OnInit {
   }
 
   private formatDateLabel(iso: string): string {
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return iso.slice(0, 10);
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return iso.slice(0, 10);
     const period = this.selectedPeriod();
     if (period === ReportPeriod.Monthly) {
-      return d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+      return date.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
     }
     if (period === ReportPeriod.Yearly) {
-      return d.getFullYear().toString();
+      return date.getFullYear().toString();
     }
-    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   }
 
   private loadOverviews(): void {
@@ -250,13 +250,13 @@ export class DashboardPageComponent implements OnInit {
     this.hasOverviewError.set(false);
 
     forkJoin({
-      customers: this.customersApi.getCustomerCreationReportOverview().pipe(catchError((e) => { this.handleError(e); return of(null); })),
-      products: this.productsApi.getProductCreationReportOverview().pipe(catchError((e) => { this.handleError(e); return of(null); })),
-      suppliers: this.suppliersApi.getSupplierCreationReportOverview().pipe(catchError((e) => { this.handleError(e); return of(null); })),
-      orderSales: this.ordersApi.getOrderSalesReportOverview().pipe(catchError((e) => { this.handleError(e); return of(null); })),
-      orderProfit: this.ordersApi.getOrderSalesProfitReportOverview().pipe(catchError((e) => { this.handleError(e); return of(null); })),
-      orderCompletion: this.ordersApi.getOrderCompletionReportOverview().pipe(catchError((e) => { this.handleError(e); return of(null); })),
-      purchaseSales: this.purchaseOrdersApi.getPurchaseSalesReportOverview().pipe(catchError((e) => { this.handleError(e); return of(null); }))
+      customers: this.customersApi.getCustomerCreationReportOverview().pipe(catchError((error) => { this.handleError(error); return of(null); })),
+      products: this.productsApi.getProductCreationReportOverview().pipe(catchError((error) => { this.handleError(error); return of(null); })),
+      suppliers: this.suppliersApi.getSupplierCreationReportOverview().pipe(catchError((error) => { this.handleError(error); return of(null); })),
+      orderSales: this.ordersApi.getOrderSalesReportOverview().pipe(catchError((error) => { this.handleError(error); return of(null); })),
+      orderProfit: this.ordersApi.getOrderSalesProfitReportOverview().pipe(catchError((error) => { this.handleError(error); return of(null); })),
+      orderCompletion: this.ordersApi.getOrderCompletionReportOverview().pipe(catchError((error) => { this.handleError(error); return of(null); })),
+      purchaseSales: this.purchaseOrdersApi.getPurchaseSalesReportOverview().pipe(catchError((error) => { this.handleError(error); return of(null); }))
     }).subscribe({
       next: (res) => {
         if (res.customers?.isSuccess && res.customers.result) this.customerOverview.set(res.customers.result);
@@ -284,50 +284,50 @@ export class DashboardPageComponent implements OnInit {
     const req = { Period: period, Skip: 0, Length: 14 } as const;
 
     if (needProfit) {
-      this.profitLoadingSet.update((s) => new Set(s).add(period));
-      this.ordersApi.listOrderSalesProfitReportMetrics(req).pipe(catchError((e) => { this.handleError(e); return of(null); })).subscribe({
+      this.profitLoadingSet.update((current) => new Set(current).add(period));
+      this.ordersApi.listOrderSalesProfitReportMetrics(req).pipe(catchError((error) => { this.handleError(error); return of(null); })).subscribe({
         next: (res) => {
           if (res?.isSuccess && res.result) {
             const copy = [...(res.result.data ?? [])];
-            this.salesProfitCache.update((m) => new Map(m).set(period, copy));
+            this.salesProfitCache.update((current) => new Map(current).set(period, copy));
           } else if (res && !res.isSuccess) this.handleError(res.error);
-          this.profitLoadingSet.update((s) => {
-            const n = new Set(s);
-            n.delete(period);
-            return n;
+          this.profitLoadingSet.update((current) => {
+            const copy = new Set(current);
+            copy.delete(period);
+            return copy;
           });
         },
         error: (err) => {
           this.handleError(err);
-          this.profitLoadingSet.update((s) => {
-            const n = new Set(s);
-            n.delete(period);
-            return n;
+          this.profitLoadingSet.update((current) => {
+            const copy = new Set(current);
+            copy.delete(period);
+            return copy;
           });
         }
       });
     }
 
     if (needSales) {
-      this.salesLoadingSet.update((s) => new Set(s).add(period));
-      this.ordersApi.listOrderSalesReportMetrics(req).pipe(catchError((e) => { this.handleError(e); return of(null); })).subscribe({
+      this.salesLoadingSet.update((current) => new Set(current).add(period));
+      this.ordersApi.listOrderSalesReportMetrics(req).pipe(catchError((error) => { this.handleError(error); return of(null); })).subscribe({
         next: (res) => {
           if (res?.isSuccess && res.result) {
             const copy = [...(res.result.data ?? [])];
-            this.salesCache.update((m) => new Map(m).set(period, copy));
+            this.salesCache.update((current) => new Map(current).set(period, copy));
           } else if (res && !res.isSuccess) this.handleError(res.error);
-          this.salesLoadingSet.update((s) => {
-            const n = new Set(s);
-            n.delete(period);
-            return n;
+          this.salesLoadingSet.update((current) => {
+            const copy = new Set(current);
+            copy.delete(period);
+            return copy;
           });
         },
         error: (err) => {
           this.handleError(err);
-          this.salesLoadingSet.update((s) => {
-            const n = new Set(s);
-            n.delete(period);
-            return n;
+          this.salesLoadingSet.update((current) => {
+            const copy = new Set(current);
+            copy.delete(period);
+            return copy;
           });
         }
       });

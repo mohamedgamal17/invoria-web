@@ -24,13 +24,13 @@ export class ReceivableSettlementsTabComponent {
   /** Newest first, so freshly recorded settlements appear at the top. */
   readonly safeSettlements = computed(() =>
     [...(this.settlements() ?? [])].sort(
-      (a: ReceivableSettlement, b: ReceivableSettlement) =>
-        new Date(b.settledAt).getTime() - new Date(a.settledAt).getTime()
+      (left: ReceivableSettlement, right: ReceivableSettlement) =>
+        new Date(right.settledAt).getTime() - new Date(left.settledAt).getTime()
     )
   );
 
   readonly totalSettled = computed(() =>
-    this.safeSettlements().reduce((sum, s) => sum + s.amount, 0)
+    this.safeSettlements().reduce((sum, settlement) => sum + settlement.amount, 0)
   );
 
   readonly hasSettlements = computed(() => this.safeSettlements().length > 0);

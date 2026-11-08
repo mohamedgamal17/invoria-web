@@ -8,13 +8,15 @@ export const RETURNS_ROUTES: Routes = [
         path: '',
         pathMatch: 'full',
         loadComponent: () =>
-          import('./pages/returns-page/returns-page.component').then((m) => m.ReturnsPageComponent)
+          import('./pages/returns-page/returns-page.component').then(
+            (module) => module.ReturnsPageComponent
+          )
       },
       {
         path: ':id',
         loadComponent: () =>
           import('./pages/return-details-page/return-details-page.component').then(
-            (m) => m.ReturnDetailsPageComponent
+            (module) => module.ReturnDetailsPageComponent
           )
       }
     ]

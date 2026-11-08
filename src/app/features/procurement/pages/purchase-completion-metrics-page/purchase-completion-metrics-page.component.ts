@@ -28,12 +28,12 @@ const EMPTY_COMPLETION_TUPLE: [PurchaseCompletionReportPeriod[], PagingInfo] = [
   { length: 0, skip: 0, totalCount: 0 }
 ];
 
-const REPORT_PERIOD_VALUES = Object.values(ReportPeriod).filter((v): v is number => typeof v === 'number');
+const REPORT_PERIOD_VALUES = Object.values(ReportPeriod).filter((value): value is number => typeof value === 'number');
 
 function parsePeriodParam(raw: string | null): ReportPeriod | null {
   if (!raw) return null;
-  const n = parseInt(raw, 10);
-  return REPORT_PERIOD_VALUES.includes(n) && REPORT_SERIES_PERIODS.includes(n as ReportPeriod) ? (n as ReportPeriod) : null;
+  const parsedPeriod = parseInt(raw, 10);
+  return REPORT_PERIOD_VALUES.includes(parsedPeriod) && REPORT_SERIES_PERIODS.includes(parsedPeriod as ReportPeriod) ? (parsedPeriod as ReportPeriod) : null;
 }
 
 @Component({
@@ -63,7 +63,7 @@ export class PurchaseCompletionMetricsPageComponent {
 
   private readonly periodFromRoute = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => parsePeriodParam(m.get('period')) ?? ReportPeriod.Daily)
+      map((paramMap) => parsePeriodParam(paramMap.get('period')) ?? ReportPeriod.Daily)
     ),
     { initialValue: ReportPeriod.Daily }
   );
@@ -72,10 +72,10 @@ export class PurchaseCompletionMetricsPageComponent {
 
   private readonly pageFromRoute = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => {
-        const raw = m.get('page');
-        const n = raw ? parseInt(raw, 10) : 1;
-        return Number.isFinite(n) && n >= 1 ? n : 1;
+      map((paramMap) => {
+        const raw = paramMap.get('page');
+        const pageNumber = raw ? parseInt(raw, 10) : 1;
+        return Number.isFinite(pageNumber) && pageNumber >= 1 ? pageNumber : 1;
       })
     ),
     { initialValue: 1 }
@@ -83,7 +83,7 @@ export class PurchaseCompletionMetricsPageComponent {
 
   readonly pageSize = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => this.pagination.pageSizeFromQuery(Number(m.get('pageSize'))))
+      map((paramMap) => this.pagination.pageSizeFromQuery(Number(paramMap.get('pageSize'))))
     ),
     { initialValue: 25 }
   );

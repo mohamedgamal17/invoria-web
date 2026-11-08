@@ -85,10 +85,10 @@ export class PayablesPageComponent {
 
   private readonly pageFromRoute = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => {
-        const raw = m.get('page');
-        const n = raw ? parseInt(raw, 10) : 1;
-        return Number.isFinite(n) && n >= 1 ? n : 1;
+      map((paramMap) => {
+        const raw = paramMap.get('page');
+        const pageNumber = raw ? parseInt(raw, 10) : 1;
+        return Number.isFinite(pageNumber) && pageNumber >= 1 ? pageNumber : 1;
       })
     ),
     { initialValue: 1 }
@@ -96,16 +96,16 @@ export class PayablesPageComponent {
 
   readonly pageSize = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => this.pagination.pageSizeFromQuery(Number(m.get('pageSize'))))
+      map((paramMap) => this.pagination.pageSizeFromQuery(Number(paramMap.get('pageSize'))))
     ),
     { initialValue: 25 }
   );
 
   readonly supplierIdFromRoute = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => {
-        const q = m.get('supplierId')?.trim() ?? m.get('partyId')?.trim();
-        return q ? q : '';
+      map((paramMap) => {
+        const supplierId = paramMap.get('supplierId')?.trim() ?? paramMap.get('partyId')?.trim();
+        return supplierId ? supplierId : '';
       })
     ),
     { initialValue: '' }
@@ -113,16 +113,16 @@ export class PayablesPageComponent {
 
   readonly sourceIdFromRoute = toSignal(
     this.route.queryParamMap.pipe(
-      map((m) => {
-        const q = m.get('sourceId')?.trim();
-        return q ? q : '';
+      map((paramMap) => {
+        const sourceId = paramMap.get('sourceId')?.trim();
+        return sourceId ? sourceId : '';
       })
     ),
     { initialValue: '' }
   );
 
   readonly isPaidFromRoute = toSignal(
-    this.route.queryParamMap.pipe(map((m) => parseIsPaid(m.get('isPaid')))),
+    this.route.queryParamMap.pipe(map((paramMap) => parseIsPaid(paramMap.get('isPaid')))),
     { initialValue: null }
   );
 
@@ -147,7 +147,7 @@ export class PayablesPageComponent {
     defaultValue: [],
     stream: () =>
       this.suppliersApi.searchSuppliers({ Skip: 0, Length: SUPPLIER_OPTIONS_PAGE_SIZE }).pipe(
-        map((suppliers) => suppliers.map((s) => ({ id: s.id, name: s.name }))),
+        map((suppliers) => suppliers.map((supplier) => ({ id: supplier.id, name: supplier.name }))),
         catchError(() => of([]))
       )
   });
@@ -175,8 +175,8 @@ export class PayablesPageComponent {
   private readonly pageRefsRequest = computed(() => {
     const [payables] = this.payablesResource.value();
     return {
-      partyIds: [...new Set(payables.map((p) => p.partyId))],
-      sourceIds: [...new Set(payables.map((p) => p.sourceId))]
+      partyIds: [...new Set(payables.map((payable) => payable.partyId))],
+      sourceIds: [...new Set(payables.map((payable) => payable.sourceId))]
     };
   });
 
@@ -195,8 +195,10 @@ export class PayablesPageComponent {
           Promise.all(params.partyIds.map((id) => this.referenceResolver.getPartyName(id))),
           Promise.all(params.sourceIds.map((id) => this.referenceResolver.getPurchaseOrderNumber(id)))
         ]).then(([partyNames, sourceNumbers]) => ({
-          parties: Object.fromEntries(params.partyIds.map((id, i) => [id, partyNames[i]])),
-          sources: Object.fromEntries(params.sourceIds.map((id, i) => [id, sourceNumbers[i]]))
+          parties: Object.fromEntries(params.partyIds.map((id, index) => [id, partyNames[index]])),
+          sources: Object.fromEntries(
+            params.sourceIds.map((id, index) => [id, sourceNumbers[index]])
+          )
         }))
       );
     }

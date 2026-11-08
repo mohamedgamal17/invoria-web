@@ -22,10 +22,10 @@ export class PurchaseOrderDetailsOverviewTabComponent {
     if (!value?.trim()) {
       return '—';
     }
-    const d = new Date(value);
-    if (Number.isNaN(d.getTime())) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
       return '—';
     }
-    return formatDate(d, 'medium', this.locale);
+    return formatDate(date, 'medium', this.locale);
   }
 }

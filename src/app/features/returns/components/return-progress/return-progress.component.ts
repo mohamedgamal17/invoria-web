@@ -82,9 +82,9 @@ export class ReturnProgressComponent {
   readonly returnStatusUserLabel = returnStatusUserLabel;
 
   readonly steps = computed(() => {
-    const s = this.status();
+    const status = this.status();
 
-    const isRejected = s === ReturnStatus.Rejected;
+    const isRejected = status === ReturnStatus.Rejected;
 
     const terminalStep: Step = isRejected
       ? { status: ReturnStatus.Rejected, label: 'Rejected', icon: 'pi pi-ban', severity: 'danger' }
@@ -98,14 +98,14 @@ export class ReturnProgressComponent {
   });
 
   readonly currentStepIndex = computed(() => {
-    const s = this.status();
+    const status = this.status();
     const stepList = this.steps();
 
-    if (s === ReturnStatus.Rejected) {
+    if (status === ReturnStatus.Rejected) {
       return stepList.length - 1;
     }
 
-    const idx = stepList.findIndex((st) => st.status === s);
+    const idx = stepList.findIndex((st) => st.status === status);
     if (idx >= 0) return idx;
     return 0;
   });

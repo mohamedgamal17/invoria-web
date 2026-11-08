@@ -23,8 +23,8 @@ describe('apiResponseInterceptor', () => {
     let seenError: unknown;
     http.get(apiUrl).subscribe({
       next: () => {},
-      error: (e) => {
-        seenError = e;
+      error: (error) => {
+        seenError = error;
       }
     });
 

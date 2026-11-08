@@ -77,12 +77,12 @@ export function mergeReturnDraftLine(
   line: { orderItemId: string; productName: string; quantity: number; maxQuantity: number }
 ): ReturnDraftLine[] {
   const quantity = clampReturnQuantity(line.quantity, line.maxQuantity);
-  const existing = draft.find((d) => d.orderItemId === line.orderItemId);
+  const existing = draft.find((draftLine) => draftLine.orderItemId === line.orderItemId);
   if (existing) {
-    return draft.map((d) =>
-      d.orderItemId === line.orderItemId
-        ? { ...d, quantity, productName: line.productName, maxQuantity: line.maxQuantity }
-        : d
+    return draft.map((draftLine) =>
+      draftLine.orderItemId === line.orderItemId
+        ? { ...draftLine, quantity, productName: line.productName, maxQuantity: line.maxQuantity }
+        : draftLine
     );
   }
   return [...draft, { orderItemId: line.orderItemId, productName: line.productName, quantity, maxQuantity: line.maxQuantity }];

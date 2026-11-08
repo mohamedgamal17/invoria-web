@@ -94,8 +94,8 @@ describe('order-return-items', () => {
     const items = [line('l1', 'p1', 'A', 2), line('l2', 'p2', 'B', 1)];
     const draft = addAllOrderLinesToReturnDraft([], items);
     expect(draft).toHaveLength(2);
-    expect(draft.find((d) => d.orderItemId === 'l1')?.quantity).toBe(2);
-    expect(draft.find((d) => d.orderItemId === 'l2')?.quantity).toBe(1);
+    expect(draft.find((draftLine) => draftLine.orderItemId === 'l1')?.quantity).toBe(2);
+    expect(draft.find((draftLine) => draftLine.orderItemId === 'l2')?.quantity).toBe(1);
     expect(isReturnDraftValid(draft)).toBe(true);
   });
 

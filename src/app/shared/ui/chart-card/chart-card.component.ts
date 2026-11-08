@@ -22,7 +22,7 @@ import { ThemeService } from '../../../core/theme/theme.service';
  * Canonical ECharts wrapper for the app.
  * Prefer this over raw <div echarts> or PrimeNG Chart.
  * Smart pages compute `EChartsCoreOption` via `computed()` and pass via [options].
- * See `ai/charts.md` for the full convention.
+ * See `.opencode/skills/charts/SKILL.md` for the full convention.
  *
  * Period selector is encapsulated here for reuse across reports (Daily/Monthly/Yearly).
  * Use [showPeriodSelector]="true" + [selectedPeriod]/ (periodChange) for one-line integration.
@@ -47,7 +47,10 @@ export class ChartCardComponent {
   showPeriodSelector = input(false);
   selectedPeriod = input<ReportPeriod | null>(null);
   periodOptions = input<{ label: string; value: ReportPeriod }[]>(
-    REPORT_SERIES_PERIODS.map((v) => ({ label: REPORT_PERIOD_LABELS[v], value: v }))
+    REPORT_SERIES_PERIODS.map((periodValue) => ({
+      label: REPORT_PERIOD_LABELS[periodValue],
+      value: periodValue
+    }))
   );
   periodChange = output<ReportPeriod>();
 

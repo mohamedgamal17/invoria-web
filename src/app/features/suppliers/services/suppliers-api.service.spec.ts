@@ -94,7 +94,7 @@ describe('SuppliersApiService', () => {
     });
 
     const req = httpMock.expectOne(
-      (r) => r.url === `${baseUrl}suppliers` && r.params.get('Name') === null
+      (request) => request.url === `${baseUrl}suppliers` && request.params.get('Name') === null
     );
     expect(req.request.params.get('Skip')).toBe('0');
     expect(req.request.params.get('Length')).toBe('50');
@@ -113,7 +113,7 @@ describe('SuppliersApiService', () => {
     });
 
     const req = httpMock.expectOne(
-      (r) => r.url === `${baseUrl}suppliers` && r.params.get('Name') === 'alpha'
+      (request) => request.url === `${baseUrl}suppliers` && request.params.get('Name') === 'alpha'
     );
     req.flush({
       isSuccess: true,

@@ -44,12 +44,12 @@ function queryFromState(state: CustomersListState): CustomersListQuery {
   };
 }
 
-export function sameQuery(a: CustomersListQuery | null, b: CustomersListQuery): boolean {
+export function sameQuery(left: CustomersListQuery | null, right: CustomersListQuery): boolean {
   return (
-    a !== null &&
-    a.pageIndex === b.pageIndex &&
-    a.pageSize === b.pageSize &&
-    a.nameFilter === b.nameFilter
+    left !== null &&
+    left.pageIndex === right.pageIndex &&
+    left.pageSize === right.pageSize &&
+    left.nameFilter === right.nameFilter
   );
 }
 

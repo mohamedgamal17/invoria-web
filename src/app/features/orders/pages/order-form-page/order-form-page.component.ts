@@ -234,7 +234,7 @@ export class OrderFormPageComponent {
     if (!product) return;
     const quantity = this.itemQuantity() > 0 ? this.itemQuantity() : 1;
     this.draftItems.update((items) => {
-      const existingIndex = items.findIndex((i) => i.productId === product.id);
+      const existingIndex = items.findIndex((item) => item.productId === product.id);
       if (existingIndex > -1) {
         const next = [...items];
         next[existingIndex] = {
@@ -260,7 +260,7 @@ export class OrderFormPageComponent {
   }
 
   removeItem(index: number): void {
-    this.draftItems.update((items) => items.filter((_, i) => i !== index));
+    this.draftItems.update((items) => items.filter((_, item) => item !== index));
     this.calculateTotal();
   }
 

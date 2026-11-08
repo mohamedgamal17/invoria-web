@@ -55,14 +55,14 @@ export const CUSTOMERS_ROUTES: Routes = [
         pathMatch: 'full',
         loadComponent: () =>
           import('./pages/customers-page/customers-page.component').then(
-            (m) => m.CustomersPageComponent,
+            (module) => module.CustomersPageComponent,
           ),
       },
       {
         path: 'new',
         loadComponent: () =>
           import('./pages/customer-form-page/customer-form-page.component').then(
-            (m) => m.CustomerFormPageComponent,
+            (module) => module.CustomerFormPageComponent,
           ),
         data: { mode: 'create' },
       },
@@ -70,7 +70,7 @@ export const CUSTOMERS_ROUTES: Routes = [
         path: ':id/edit',
         loadComponent: () =>
           import('./pages/customer-form-page/customer-form-page.component').then(
-            (m) => m.CustomerFormPageComponent,
+            (module) => module.CustomerFormPageComponent,
           ),
         data: { mode: 'edit' },
       },
@@ -78,7 +78,7 @@ export const CUSTOMERS_ROUTES: Routes = [
         path: ':id',
         loadComponent: () =>
           import('./pages/customer-details-page/customer-details-page.component').then(
-            (m) => m.CustomerDetailsPageComponent,
+            (module) => module.CustomerDetailsPageComponent,
           ),
         providers: CUSTOMER_DETAILS_PROVIDERS,
       },

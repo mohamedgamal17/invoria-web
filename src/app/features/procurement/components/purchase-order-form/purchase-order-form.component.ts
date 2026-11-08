@@ -171,7 +171,7 @@ export class PurchaseOrderFormComponent {
     if (!this.draftItems().length) {
       return 'Add at least one line item before continuing.';
     }
-    const invalid = this.draftItems().find((i) => i.quantity <= 0 || i.unitPrice <= 0);
+    const invalid = this.draftItems().find((item) => item.quantity <= 0 || item.unitPrice <= 0);
     if (invalid) {
       return 'Each line must have quantity and unit price greater than zero.';
     }

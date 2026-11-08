@@ -6,7 +6,7 @@ import type { FinancialObligationStatus } from './payable-status.enum';
  * (`SupplierDto`) that the payables UI hydrates client-side.
  * `PayableDto` wires `PartyId`/`SourceId` only — no inline
  * party/source — so these refs are resolved via the suppliers
- * and purchase orders API services (see ARCHITECTURE.md exceptions).
+ * and purchase orders API services (see docs/architecture/overview.md exceptions).
  */
 export interface PayablePartyRef {
   id: string;

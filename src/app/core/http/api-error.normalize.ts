@@ -10,16 +10,16 @@ type ProblemDetailsLike = {
   errors?: unknown;
 };
 
-function isRecord(v: unknown): v is Record<string, unknown> {
-  return typeof v === 'object' && v !== null && !Array.isArray(v);
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function toStringOrUndefined(v: unknown): string | undefined {
-  return typeof v === 'string' ? v : undefined;
+function toStringOrUndefined(value: unknown): string | undefined {
+  return typeof value === 'string' ? value : undefined;
 }
 
-function toNumberOrUndefined(v: unknown): number | undefined {
-  return typeof v === 'number' && Number.isFinite(v) ? v : undefined;
+function toNumberOrUndefined(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
 }
 
 function tryExtractValidationErrors(payload: unknown): ValidationErrors | undefined {
@@ -33,7 +33,7 @@ function tryExtractValidationErrors(payload: unknown): ValidationErrors | undefi
   const out: ValidationErrors = {};
   for (const [key, value] of Object.entries(candidate)) {
     if (Array.isArray(value)) {
-      const msgs = value.filter((x) => typeof x === 'string') as string[];
+      const msgs = value.filter((item) => typeof item === 'string') as string[];
       if (msgs.length) out[key] = msgs;
     } else if (typeof value === 'string') {
       out[key] = [value];
@@ -96,9 +96,9 @@ export function normalizeApiResponseFailure(payload: unknown): ApiNormalizedErro
   return tryExtractApiResponseFailure(payload);
 }
 
-function safeJson(v: unknown): string {
+function safeJson(value: unknown): string {
   try {
-    return typeof v === 'string' ? v : JSON.stringify(v);
+    return typeof value === 'string' ? value : JSON.stringify(value);
   } catch {
     return 'Request failed.';
   }

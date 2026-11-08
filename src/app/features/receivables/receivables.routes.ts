@@ -9,14 +9,14 @@ export const RECEIVABLES_ROUTES: Routes = [
         pathMatch: 'full',
         loadComponent: () =>
           import('./pages/receivables-page/receivables-page.component').then(
-            (m) => m.ReceivablesPageComponent
+            (module) => module.ReceivablesPageComponent
           )
       },
       {
         path: ':id',
         loadComponent: () =>
           import('./pages/receivable-details-page/receivable-details-page.component').then(
-            (m) => m.ReceivableDetailsPageComponent
+            (module) => module.ReceivableDetailsPageComponent
           )
       }
     ]

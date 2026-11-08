@@ -29,8 +29,8 @@ describe('OrdersFilterPanelComponent', () => {
     vi.useFakeTimers();
 
     const emissions: Array<{ orderNumber: string }> = [];
-    const sub = outputToObservable(fixture.componentInstance.filtersChange).subscribe((f) =>
-      emissions.push(f)
+    const sub = outputToObservable(fixture.componentInstance.filtersChange).subscribe((filters) =>
+      emissions.push(filters)
     );
 
     fixture.componentInstance.onOrderNumberInput('x');

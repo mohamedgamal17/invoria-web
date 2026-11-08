@@ -18,11 +18,11 @@ describe('normalizeApiError', () => {
       }
     });
 
-    const n = normalizeApiError(err);
-    expect(n.status).toBe(400);
-    expect(n.kind).toBe('validation');
-    expect(n.validationErrors?.['Name']?.[0]).toBe('Name is required.');
-    expect(n.validationErrors?.['Price']?.[0]).toBe('Price must be non-negative.');
+    const normalized = normalizeApiError(err);
+    expect(normalized.status).toBe(400);
+    expect(normalized.kind).toBe('validation');
+    expect(normalized.validationErrors?.['Name']?.[0]).toBe('Name is required.');
+    expect(normalized.validationErrors?.['Price']?.[0]).toBe('Price must be non-negative.');
   });
 
   it('should classify 404 as not-found', () => {
@@ -32,8 +32,8 @@ describe('normalizeApiError', () => {
       error: { title: 'Not found' }
     });
 
-    const n = normalizeApiError(err);
-    expect(n.kind).toBe('not-found');
+    const normalized = normalizeApiError(err);
+    expect(normalized.kind).toBe('not-found');
   });
 
   it('should classify 503 as service-unavailable', () => {
@@ -43,8 +43,8 @@ describe('normalizeApiError', () => {
       error: { title: 'Service unavailable' }
     });
 
-    const n = normalizeApiError(err);
-    expect(n.kind).toBe('service-unavailable');
+    const normalized = normalizeApiError(err);
+    expect(normalized.kind).toBe('service-unavailable');
   });
 
   it('should classify status 0 as offline', () => {
@@ -54,8 +54,8 @@ describe('normalizeApiError', () => {
       error: 'Network error'
     });
 
-    const n = normalizeApiError(err);
-    expect(n.kind).toBe('offline');
+    const normalized = normalizeApiError(err);
+    expect(normalized.kind).toBe('offline');
   });
 });
 

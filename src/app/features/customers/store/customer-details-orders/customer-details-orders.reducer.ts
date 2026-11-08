@@ -50,21 +50,21 @@ function queryFromState(state: CustomerOrdersState): CustomerOrdersQuery {
   };
 }
 
-export function sameFilters(a: OrdersListFilters, b: OrdersListFilters): boolean {
+export function sameFilters(left: OrdersListFilters, right: OrdersListFilters): boolean {
   return (
-    a.orderNumber.trim() === b.orderNumber.trim() &&
-    a.status === b.status &&
-    a.paymentStatus === b.paymentStatus &&
-    a.paymentType === b.paymentType
+    left.orderNumber.trim() === right.orderNumber.trim() &&
+    left.status === right.status &&
+    left.paymentStatus === right.paymentStatus &&
+    left.paymentType === right.paymentType
   );
 }
 
-export function sameQuery(a: CustomerOrdersQuery | null, b: CustomerOrdersQuery): boolean {
+export function sameQuery(left: CustomerOrdersQuery | null, right: CustomerOrdersQuery): boolean {
   return (
-    a !== null &&
-    a.pageIndex === b.pageIndex &&
-    a.pageSize === b.pageSize &&
-    sameFilters(a.filters, b.filters)
+    left !== null &&
+    left.pageIndex === right.pageIndex &&
+    left.pageSize === right.pageSize &&
+    sameFilters(left.filters, right.filters)
   );
 }
 

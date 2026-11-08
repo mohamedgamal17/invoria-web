@@ -77,7 +77,9 @@ export class OrderReturnItemsDialogComponent {
     if (!hasDuplicateProductNamesInDraft(this.draftLines())) {
       return false;
     }
-    return this.draftLines().filter((d) => d.productName === row.productName).length > 1;
+    return this.draftLines().filter(
+      (draftLine) => draftLine.productName === row.productName
+    ).length > 1;
   }
 
   onDialogShow(): void {
@@ -140,7 +142,9 @@ export class OrderReturnItemsDialogComponent {
   }
 
   removeLine(orderItemId: string): void {
-    this.draftLines.update((draft) => draft.filter((d) => d.orderItemId !== orderItemId));
+    this.draftLines.update((draft) =>
+      draft.filter((draftLine) => draftLine.orderItemId !== orderItemId)
+    );
   }
 
   updateDraftQuantity(orderItemId: string, quantity: number | null): void {

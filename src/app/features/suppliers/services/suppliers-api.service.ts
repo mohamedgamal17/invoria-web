@@ -16,11 +16,11 @@ import type { ReportOverview } from '../../../shared/models/report-overview';
 
 /** Client-side name filter helper (retained for unit tests). */
 export function filterSuppliersByName(suppliers: Supplier[], nameFilter: string | undefined): Supplier[] {
-  const q = (nameFilter ?? '').trim().toLowerCase();
-  if (!q) {
+  const query = (nameFilter ?? '').trim().toLowerCase();
+  if (!query) {
     return suppliers;
   }
-  return suppliers.filter((s) => (s.name || '').toLowerCase().includes(q));
+  return suppliers.filter((supplier) => (supplier.name || '').toLowerCase().includes(query));
 }
 
 @Injectable({
