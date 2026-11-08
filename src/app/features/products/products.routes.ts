@@ -14,6 +14,17 @@ import {
   productsMutationsReducer,
 } from './store/products-mutations/products-mutations.reducer';
 import { ProductsMutationsEffects } from './store/products-mutations/products-mutations.effects';
+import {
+  PRODUCT_DETAILS_FEATURE_KEY,
+  productDetailsReducer,
+} from './store/product-details/product-details.reducer';
+import { ProductDetailsEffects } from './store/product-details/product-details.effects';
+import {
+  PRODUCT_BATCHES_FEATURE_KEY,
+  productBatchesReducer,
+} from './store/product-details-batches/product-details-batches.reducer';
+import { ProductBatchesEffects } from './store/product-details-batches/product-details-batches.effects';
+import { ProductDetailsUrlEffects } from './store/product-details-url/product-details-url.effects';
 
 const PRODUCTS_LIST_PROVIDERS = [
   provideState(PRODUCTS_LIST_FEATURE_KEY, productsListReducer),
@@ -23,6 +34,12 @@ const PRODUCTS_LIST_PROVIDERS = [
 const PRODUCTS_MUTATIONS_PROVIDERS = [
   provideState(PRODUCTS_MUTATIONS_FEATURE_KEY, productsMutationsReducer),
   provideEffects(ProductsMutationsEffects),
+];
+
+const PRODUCT_DETAILS_PROVIDERS = [
+  provideState(PRODUCT_DETAILS_FEATURE_KEY, productDetailsReducer),
+  provideState(PRODUCT_BATCHES_FEATURE_KEY, productBatchesReducer),
+  provideEffects(ProductDetailsEffects, ProductBatchesEffects, ProductDetailsUrlEffects),
 ];
 
 /** Legacy `/products/:id/batches` → `/products/:id?tab=batches` (+ optional page / pageSize). */
@@ -93,6 +110,7 @@ export const PRODUCTS_ROUTES: Routes = [
           import('./pages/product-details-page/product-details-page.component').then(
             (module) => module.ProductDetailsPageComponent,
           ),
+        providers: PRODUCT_DETAILS_PROVIDERS,
       },
     ],
   },
