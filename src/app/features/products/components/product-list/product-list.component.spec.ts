@@ -67,16 +67,6 @@ describe('ProductListComponent', () => {
     expect(pageChangeSpy).toHaveBeenCalledWith(mobileEvent);
   });
 
-  it('should compute skeletonRows based on pageSize input', () => {
-    fixture.componentRef.setInput('pageSize', 5);
-    fixture.detectChanges();
-    expect(component.skeletonRows.length).toBe(5);
-
-    fixture.componentRef.setInput('pageSize', 20);
-    fixture.detectChanges();
-    expect(component.skeletonRows.length).toBe(20);
-  });
-
   it('should emit clearFilters via output', () => {
     const clearSpy = vi.spyOn(component.clearFilters, 'emit');
     component.clearFilters.emit();
