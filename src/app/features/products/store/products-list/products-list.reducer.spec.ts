@@ -302,4 +302,54 @@ describe('productsListReducer', () => {
       expect(next).toBe(PRODUCTS_LIST_INITIAL_STATE);
     });
   });
+
+  describe('productDeleted (local sync, no refetch)', () => {
+    function loadedState(overrides: Partial<ProductsListState> = {}): ProductsListState {
+      let state = productsListReducer(PRODUCTS_LIST_INITIAL_STATE, {
+        ...PRODUCTS_LIST_ACTIONS.loadProducts(),
+      });
+      state = productsListReducer(state, {
+        ...PRODUCTS_LIST_ACTIONS.loadProductsSuccess({
+          products: [PRODUCT],
+          info: { length: 1, skip: 0, totalCount: 1 },
+        }),
+      });
+      return { ...state, ...overrides };
+    }
+
+    it('removes the product from the current page and silently decrements totalCount', () => {
+      const state = loadedState();
+      const next = productsListReducer(state, {
+        ...PRODUCTS_LIST_ACTIONS.productDeleted({ id: 'prd_1' }),
+      });
+      expect(next.products).toEqual([]);
+      expect(next.info?.totalCount).toBe(0);
+      expect(next.info?.length).toBe(0);
+      expect(next.request).toBe(state.request);
+      expect(next.fetchedQuery).toBe(state.fetchedQuery);
+    });
+
+    it('never decrements totalCount below zero', () => {
+      const state = loadedState({ info: { length: 0, skip: 0, totalCount: 0 } });
+      const next = productsListReducer(state, {
+        ...PRODUCTS_LIST_ACTIONS.productDeleted({ id: 'prd_1' }),
+      });
+      expect(next.info?.totalCount).toBe(0);
+    });
+
+    it('returns the same state when the product is not on the current page', () => {
+      const state = loadedState();
+      const next = productsListReducer(state, {
+        ...PRODUCTS_LIST_ACTIONS.productDeleted({ id: 'prd_missing' }),
+      });
+      expect(next).toBe(state);
+    });
+
+    it('returns the same state when the page was never loaded', () => {
+      const next = productsListReducer(PRODUCTS_LIST_INITIAL_STATE, {
+        ...PRODUCTS_LIST_ACTIONS.productDeleted({ id: 'prd_1' }),
+      });
+      expect(next).toBe(PRODUCTS_LIST_INITIAL_STATE);
+    });
+  });
 });

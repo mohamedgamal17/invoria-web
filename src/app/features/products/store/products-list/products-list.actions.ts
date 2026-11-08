@@ -32,4 +32,7 @@ export const PRODUCTS_LIST_ACTIONS = {
 
   /** Local sync: a product was updated via the API (form page); replace in place if present. */
   productUpdated: createAction('[Products List] Product Updated', props<{ product: Product }>()),
+
+  /** Local sync: a product was deleted via the API (details page); remove silently, no refetch. */
+  productDeleted: createAction('[Products List] Product Deleted', props<{ id: string }>()),
 } as const;

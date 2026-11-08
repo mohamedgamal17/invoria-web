@@ -144,6 +144,27 @@ export const productsListReducer = createReducer(
       products: state.products.map((item) => (item.id === product.id ? product : item)),
     };
   }),
+
+  // Local mutation sync: remove the deleted product from the current page if
+  // present (the next fetch will not include it); the paging total is decremented silently.
+  on(PRODUCTS_LIST_ACTIONS.productDeleted, (state, { id }) => {
+    if (state.info === null) {
+      return state;
+    }
+    if (!state.products.some((item) => item.id === id)) {
+      return state;
+    }
+    const products = state.products.filter((item) => item.id !== id);
+    return {
+      ...state,
+      products,
+      info: {
+        ...state.info,
+        totalCount: Math.max(state.info.totalCount - 1, 0),
+        length: Math.min(products.length, state.pageSize),
+      },
+    };
+  }),
 );
 
 export const productsListFeature = createFeature({

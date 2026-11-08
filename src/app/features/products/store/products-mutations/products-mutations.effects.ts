@@ -113,4 +113,50 @@ export class ProductsMutationsEffects {
       ),
     { dispatch: false },
   );
+
+  readonly deleteProduct$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(PRODUCT_MUTATIONS_ACTIONS.deleteProduct),
+      exhaustMap(({ id }) =>
+        this.productsApi.deleteProduct(id).pipe(
+          mergeMap((res) => {
+            if (res.isSuccess) {
+              return of(
+                PRODUCT_MUTATIONS_ACTIONS.deleteProductSuccess({ id }),
+                PRODUCTS_LIST_ACTIONS.productDeleted({ id }),
+              );
+            }
+            const error = res.error ?? new Error('Failed to delete the product.');
+            return of(
+              PRODUCT_MUTATIONS_ACTIONS.deleteProductFailure({ error }),
+              APP_ERROR_ACTIONS.apiError({ error }),
+            );
+          }),
+          catchError((error: unknown) =>
+            of(
+              PRODUCT_MUTATIONS_ACTIONS.deleteProductFailure({ error }),
+              APP_ERROR_ACTIONS.apiError({ error }),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+
+  /** Success presentation: toast on the shell `p-toast`, then land on the products list. */
+  readonly presentDeleteSuccess$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(PRODUCT_MUTATIONS_ACTIONS.deleteProductSuccess),
+        tap(() => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Product deleted successfully.',
+          });
+          void this.router.navigate(['/products']);
+        }),
+      ),
+    { dispatch: false },
+  );
 }

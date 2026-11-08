@@ -122,4 +122,54 @@ describe('productsMutationsReducer', () => {
       expect(next.createRequest).toBe(PRODUCTS_MUTATIONS_INITIAL_STATE.createRequest);
     });
   });
+
+  describe('delete flow', () => {
+    it('starts the delete request and leaves the other fragments untouched', () => {
+      const next = productsMutationsReducer(PRODUCTS_MUTATIONS_INITIAL_STATE, {
+        ...PRODUCT_MUTATIONS_ACTIONS.deleteProduct({ id: 'prd_1' }),
+      });
+      expect(next.deleteRequest.status).toBe(LOAD_STATUS.Loading);
+      expect(next.createRequest).toBe(PRODUCTS_MUTATIONS_INITIAL_STATE.createRequest);
+      expect(next.updateRequest).toBe(PRODUCTS_MUTATIONS_INITIAL_STATE.updateRequest);
+    });
+
+    it('ignores a repeated delete while one is in flight (same state reference)', () => {
+      let state = productsMutationsReducer(PRODUCTS_MUTATIONS_INITIAL_STATE, {
+        ...PRODUCT_MUTATIONS_ACTIONS.deleteProduct({ id: 'prd_1' }),
+      });
+      const next = productsMutationsReducer(state, {
+        ...PRODUCT_MUTATIONS_ACTIONS.deleteProduct({ id: 'prd_2' }),
+      });
+      expect(next).toBe(state);
+      expect(next.deleteRequest.status).toBe(LOAD_STATUS.Loading);
+    });
+
+    it('marks the delete request loaded on success', () => {
+      let state = productsMutationsReducer(PRODUCTS_MUTATIONS_INITIAL_STATE, {
+        ...PRODUCT_MUTATIONS_ACTIONS.deleteProduct({ id: 'prd_1' }),
+      });
+      const next = productsMutationsReducer(state, {
+        ...PRODUCT_MUTATIONS_ACTIONS.deleteProductSuccess({ id: 'prd_1' }),
+      });
+      expect(next.deleteRequest.status).toBe(LOAD_STATUS.Loaded);
+      expect(next.deleteRequest.error).toBeNull();
+    });
+
+    it('applies the failure to the delete request and allows a retry', () => {
+      let state = productsMutationsReducer(PRODUCTS_MUTATIONS_INITIAL_STATE, {
+        ...PRODUCT_MUTATIONS_ACTIONS.deleteProduct({ id: 'prd_1' }),
+      });
+      state = productsMutationsReducer(state, {
+        ...PRODUCT_MUTATIONS_ACTIONS.deleteProductFailure({ error: new Error('boom') }),
+      });
+      expect(state.deleteRequest.status).toBe(LOAD_STATUS.Error);
+      expect(state.deleteRequest.failureNonce).toBe(1);
+
+      const next = productsMutationsReducer(state, {
+        ...PRODUCT_MUTATIONS_ACTIONS.deleteProduct({ id: 'prd_1' }),
+      });
+      expect(next.deleteRequest.status).toBe(LOAD_STATUS.Loading);
+      expect(next.deleteRequest.error).toBeNull();
+    });
+  });
 });

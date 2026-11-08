@@ -16,11 +16,14 @@ export interface ProductsMutationsState {
   createRequest: AsyncRequestState;
   /** The update request fragment (form-side saving spinner + inline error). */
   updateRequest: AsyncRequestState;
+  /** The delete request fragment (details-page deleting spinner + inline error handled globally). */
+  deleteRequest: AsyncRequestState;
 }
 
 export const PRODUCTS_MUTATIONS_INITIAL_STATE: ProductsMutationsState = {
   createRequest: INITIAL_ASYNC_REQUEST_STATE,
   updateRequest: INITIAL_ASYNC_REQUEST_STATE,
+  deleteRequest: INITIAL_ASYNC_REQUEST_STATE,
 };
 
 /** A repeated submit for the same request is a no-op: one request in flight. */
@@ -61,6 +64,22 @@ export const productsMutationsReducer = createReducer(
   on(PRODUCT_MUTATIONS_ACTIONS.updateProductFailure, (state, { error }) => ({
     ...state,
     updateRequest: applyFailure(state.updateRequest, error),
+  })),
+
+  on(PRODUCT_MUTATIONS_ACTIONS.deleteProduct, (state) =>
+    inFlight(state.deleteRequest)
+      ? state
+      : { ...state, deleteRequest: startLoading(state.deleteRequest) },
+  ),
+
+  on(PRODUCT_MUTATIONS_ACTIONS.deleteProductSuccess, (state) => ({
+    ...state,
+    deleteRequest: { ...state.deleteRequest, status: LOAD_STATUS.Loaded },
+  })),
+
+  on(PRODUCT_MUTATIONS_ACTIONS.deleteProductFailure, (state, { error }) => ({
+    ...state,
+    deleteRequest: applyFailure(state.deleteRequest, error),
   })),
 );
 

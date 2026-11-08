@@ -42,4 +42,14 @@ export const PRODUCT_MUTATIONS_ACTIONS = {
     '[Products] Update Product Failure',
     props<{ error: unknown }>(),
   ),
+
+  /** Details-page confirmation dialog accepted: start a delete request. */
+  deleteProduct: createAction('[Products] Delete Product', props<{ id: string }>()),
+
+  deleteProductSuccess: createAction('[Products] Delete Product Success', props<{ id: string }>()),
+
+  deleteProductFailure: createAction(
+    '[Products] Delete Product Failure',
+    props<{ error: unknown }>(),
+  ),
 } as const;
