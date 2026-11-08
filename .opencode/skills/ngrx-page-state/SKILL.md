@@ -18,7 +18,7 @@ NgRx feature store slices. Follow the reference implementation; do not invent ne
 | Paging parse/normalize helpers | `src/app/shared/utils/pagination.service.ts` |
 | Request lifecycle helpers | `src/app/shared/models/async-request-state.ts`, `src/app/shared/models/load-status.ts` |
 | API paging types | `src/app/core/models/paging.ts` (`PagingInfo`) |
-| Query-param contract + page size options | `docs/frontend-list-conventions.md` |
+| Query-param contract + page size options | `docs/guides/frontend-list-conventions.md` |
 
 If the target feature needs a new paged list, scaffold it by mirroring
 `customer-details-orders` (same file names, same action/reducer/effect taxonomy), renamed per feature.

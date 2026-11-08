@@ -24,7 +24,7 @@ local-sync actions. Follow the reference implementation; do not invent new shape
 | Global error presentation                            | `src/app/shared/store/app-error.effects.ts` (`APP_ERROR_ACTIONS.apiError`)                                                                                                |
 | Paging types                                         | `src/app/core/models/paging.ts` (`PagingInfo`)                                                                                                                            |
 | Request fragment                                     | `src/app/shared/models/async-request-state.ts` (`AsyncRequestState`, `startLoading`, `applyFailure`)                                                                      |
-| Paging conventions (page size options, URL contract) | `docs/frontend-list-conventions.md`, skill `ngrx-page-state`                                                                                                              |
+| Paging conventions (page size options, URL contract) | `docs/guides/frontend-list-conventions.md`, skill `ngrx-page-state`                                                                                                              |
 
 ## 2. Action taxonomy
 

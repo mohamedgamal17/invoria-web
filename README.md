@@ -2,6 +2,12 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.0.
 
+## Documentation
+
+The docs map starts at [docs/README.md](docs/README.md): it links per-folder indexes
+(`docs/architecture/README.md`, `docs/guides/README.md`), which list every doc with
+per-section anchors. Agent-facing rules are in [`.opencode/AGENTS.md`](.opencode/AGENTS.md).
+
 ## Design tokens (Tailwind v4)
 
 Tokens live in:

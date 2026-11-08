@@ -3,7 +3,7 @@
 ## Purpose
 
 This file defines enforceable UI consistency rules for the project.  
-Use it with `ai/ui-library.md` and `ai/ARCHITECTURE.md` to avoid design drift, reduce unmanaged custom styling, and keep feature UIs predictable across teams.
+Use it with the [docs index](../README.md) and [Architecture overview](./overview.md) to avoid design drift, reduce unmanaged custom styling, and keep feature UIs predictable across teams.
 
 ## Mandatory UI Stack Rules
 

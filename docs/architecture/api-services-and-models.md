@@ -2,7 +2,7 @@
 
 This document defines how we structure **HTTP API services**, **domain entities**, and **request types** in Invoria Web. Follow it when adding a new backend integration or refactoring a mock service.
 
-For broader architecture context, see [ARCHITECTURE.md](./ARCHITECTURE.md).
+For broader architecture context, see [Architecture overview](./overview.md).
 
 ---
 
@@ -15,10 +15,10 @@ These conventions apply to:
 
 Shared contracts live in:
 
-- [`src/app/core/models/api-response.ts`](../src/app/core/models/api-response.ts) — `ApiResponse<T>` (`result`, `isSuccess`, `error`).
-- [`src/app/core/models/paging.ts`](../src/app/core/models/paging.ts) — `Paging<T>`, `PagingInfo`.
-- [`src/app/core/models/entity.ts`](../src/app/core/models/entity.ts) — `Entity` base fields (`id`, `createdAt`, `createdBy`, audit fields).
-- [`src/app/shared/models/pagination.ts`](../src/app/shared/models/pagination.ts) — pagination UI contracts: `DEFAULT_PAGE_SIZE`, `DEFAULT_PAGE_SIZE_OPTIONS`, `PaginatorPageEvent`, `PageState`. Feature pages must import these instead of re-declaring `[25, 50, 100, 200]`; runtime paging helpers (`pageSizeFromQuery`, `normalizePageSize`, `pageIndexFromEvent`) live in [`pagination.service.ts`](../src/app/shared/utils/pagination.service.ts) and take **numbers only** (parse helpers return concrete defaults: `0` for indices, `DEFAULT_PAGE_SIZE` for sizes).
+- [`src/app/core/models/api-response.ts`](../../src/app/core/models/api-response.ts) — `ApiResponse<T>` (`result`, `isSuccess`, `error`).
+- [`src/app/core/models/paging.ts`](../../src/app/core/models/paging.ts) — `Paging<T>`, `PagingInfo`.
+- [`src/app/core/models/entity.ts`](../../src/app/core/models/entity.ts) — `Entity` base fields (`id`, `createdAt`, `createdBy`, audit fields).
+- [`src/app/shared/models/pagination.ts`](../../src/app/shared/models/pagination.ts) — pagination UI contracts: `DEFAULT_PAGE_SIZE`, `DEFAULT_PAGE_SIZE_OPTIONS`, `PaginatorPageEvent`, `PageState`. Feature pages must import these instead of re-declaring `[25, 50, 100, 200]`; runtime paging helpers (`pageSizeFromQuery`, `normalizePageSize`, `pageIndexFromEvent`) live in [`pagination.service.ts`](../../src/app/shared/utils/pagination.service.ts) and take **numbers only** (parse helpers return concrete defaults: `0` for indices, `DEFAULT_PAGE_SIZE` for sizes).
 
 ---
 
@@ -47,18 +47,18 @@ Optional convenience aliases (e.g. `Pick<Entity, 'name'>` for form drafts) may l
 ## Shared request bases
 
 - **Location**: `src/app/shared/requests/` for cross-feature query or body fragments.
-- **Example**: [`paging-query.request.ts`](../src/app/shared/requests/paging-query.request.ts) defines `PagingQueryRequest` (`Skip`, `Length`). Feature list requests **extend** it (e.g. `ListCustomerRequest extends PagingQueryRequest`).
+- **Example**: [`paging-query.request.ts`](../../src/app/shared/requests/paging-query.request.ts) defines `PagingQueryRequest` (`Skip`, `Length`). Feature list requests **extend** it (e.g. `ListCustomerRequest extends PagingQueryRequest`).
 - **Constants**: For repeated fixed queries (e.g. autocomplete fetch window), export a named constant next to the list request type (e.g. `customerSearchListRequest`).
 
-Features may import from `shared/` per dependency rules in [ARCHITECTURE.md](./ARCHITECTURE.md).
+Features may import from `shared/` per dependency rules in [Architecture overview](./overview.md).
 
 ---
 
 ## API services (`*-api.service.ts`)
 
 - **Injectable**: `providedIn: 'root'`.
-- **HTTP**: `inject(HttpClient)`; ensure [`provideHttpClient()`](../src/app/app.config.ts) is registered in `app.config.ts`.
-- **Base URL**: `environment.apiUrl` from [`src/environments/environment.ts`](../src/environments/environment.ts), normalized so paths concatenate without double slashes.
+- **HTTP**: `inject(HttpClient)`; ensure [`provideHttpClient()`](../../src/app/app.config.ts) is registered in `app.config.ts`.
+- **Base URL**: `environment.apiUrl` from [`src/environments/environment.ts`](../../src/environments/environment.ts), normalized so paths concatenate without double slashes.
 - **Method signatures**:
   - Accept **request interfaces** (`CreateXRequest`, `ListXRequest`, etc.), not ad-hoc `Pick` of entity fields.
   - Return `Observable<ApiResponse<T>>` where `T` is the domain entity, `Paging<Entity>`, or another agreed contract.
@@ -84,7 +84,7 @@ If the wire format cannot be aligned with `Entity` / domain types, **prefer chan
 
 Use the **customers** feature as the canonical example:
 
-- Service: [`src/app/features/customers/services/customers-api.service.ts`](../src/app/features/customers/services/customers-api.service.ts)
-- Models: [`src/app/features/customers/models/`](../src/app/features/customers/models/) (`customer.entity.ts`, `create-customer.request.ts`, `update-customer.request.ts`, `list-customer.request.ts`)
+- Service: [`src/app/features/customers/services/customers-api.service.ts`](../../src/app/features/customers/services/customers-api.service.ts)
+- Models: [`src/app/features/customers/models/`](../../src/app/features/customers/models/) (`customer.entity.ts`, `create-customer.request.ts`, `update-customer.request.ts`, `list-customer.request.ts`)
 
-The **products** feature follows the same layout: entity and requests only (e.g. [`product.entity.ts`](../src/app/features/products/models/product.entity.ts), `create-product.request.ts`, `list-product.request.ts`), with no aggregating `models/product.ts` barrel.
+The **products** feature follows the same layout: entity and requests only (e.g. [`product.entity.ts`](../../src/app/features/products/models/product.entity.ts), `create-product.request.ts`, `list-product.request.ts`), with no aggregating `models/product.ts` barrel.

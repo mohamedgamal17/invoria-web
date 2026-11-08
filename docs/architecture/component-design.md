@@ -1,6 +1,13 @@
 # Component design rules
 
-These rules describe **conventions for smart vs presentational components**, URL-driven list state, NgRx state modules, and API boundaries. The **Customers** feature (`src/app/features/customers/`) is the **reference implementation**: an NgRx-backed list page with query-param pagination, URL adapter effects, and presentational component children.
+These rules describe **conventions for smart vs presentational components**, URL-driven list state, state patterns, and API boundaries.
+
+**Two state patterns exist; the developer chooses per page by complexity** (see [overview.md §5](./overview.md#5-state-management)):
+
+- **Signals-based pages** (`rxResource` + `linkedSignal`, component-local state) — §9 — orders/suppliers reference.
+- **NgRx feature store modules** (URL adapter effects, `AsyncRequestState`, mutation-synced lists) — §2–3 — **customers** reference.
+
+[§2–§8](#2-smart-page-customerspagecomponent) document the NgRx pattern; [§9](#9-signals-based-smart-pages-orderssuppliers-reference) documents the signals-based pattern. List UI conventions (row actions, `page`/`pageSize` query contract) are in [frontend-list-conventions.md](../guides/frontend-list-conventions.md).
 
 It complements [api-services-and-models.md](./api-services-and-models.md) for HTTP types (`ApiResponse`, `Paging`, `Entity`), request naming, and service structure.
 
@@ -100,7 +107,7 @@ Follows `core/` `provideStore`/`provideRouterStore` plus **route-scoped state**:
 - Expose methods returning **`Observable<ApiResponse<...>>`**.
 - Use a small feature-local helper for **`HttpParams`** (e.g. **`Skip`** / **`Length`** for list).
 - Validate obvious bad input with **`throwError`** before calling HTTP where appropriate.
-- Pages **never** inject API services for their own list flows — only state-module effects do. (Exceptions are feature cross-imports documented in [ARCHITECTURE.md](./ARCHITECTURE.md) §7, which allow the typed API services for autocomplete/report flows.)
+- Pages **never** inject API services for their own list flows — only state-module effects do. (Exceptions are feature cross-imports documented in ./overview.md) §7, which allow the typed API services for autocomplete/report flows.)
 
 ---
 
@@ -129,3 +136,28 @@ Follows `core/` `provideStore`/`provideRouterStore` plus **route-scoped state**:
 | API | `src/app/features/customers/services/customers-api.service.ts` |
 | Models | `src/app/features/customers/models/` |
 | Global error presentation | `src/app/shared/store/app-error.effects.ts` |
+
+---
+
+## 8. Identifier naming
+
+- **No single-character identifiers** — every variable, parameter, function, and method name is at least 2 characters and describes its **role**, not its type. This applies to **all** arrow-callback parameters (`.map`, `.filter`, `.find`, `.some`, `subscribe({ next, error })`, comparators) in pages, components, services, effects, reducers, and specs — short scopes are not an excuse.
+- Role vocabulary (canonical examples): `paramMap`, `query`/`nameFilter`/`tabQuery` (search text), `pageNumber`, `pageIndex`/`itemIndex`/`index` (iteration), `value` (guarded values; type guards keep the param name: `(value): value is X`), `error`/`err` (error callbacks; `err` when an outer `error` variable exists), `attempt` (retry loops), `snapshotItem`, `left`/`right` (comparators), `fixture` (tests), `point`/`date` (chart data).
+- **Only exemptions**: `_` unused placeholder, generic type parameters `T`/`E`, and **string/URL keys** named `q` (e.g. `paramMap.get('q')`, `queryParams: { q: null }`) which mirror the URL contract and must not be renamed.
+- Full detail + self-audit scan commands: [`.opencode/skills/ts-naming-conventions/SKILL.md`](../../.opencode/skills/ts-naming-conventions/SKILL.md).
+
+---
+
+## 9. Signals-based smart pages (orders/suppliers reference)
+
+Simple pages keep state **component-local** — no NgRx slice, no store injection:
+
+- **Fetch chain**: `toSignal(route.queryParamMap, { initialValue })` → `computed(listRequest)` → **`rxResource`** → **`linkedSignal`** for display state.
+- **Page size**: defaults/options import from [`shared/models/pagination.ts`](../../src/app/shared/models/pagination.ts) (`DEFAULT_PAGE_SIZE`, `DEFAULT_PAGE_SIZE_OPTIONS`) — never re-declare `[25, 50, 100, 200]`; 1-based `?page=` validated, fallback to default.
+- **Filters**: debounced ~700ms **on the page**; the list/filter components emit `filtersChange` / `clearFilters`.
+- **Primary row action**: **View** (desktop table) / **View Details** (mobile cards) — [frontend-list-conventions.md](../guides/frontend-list-conventions.md).
+- **Errors**: `presentApiError()` from `core/http`; toasts via a **scoped `MessageService`** (`providers: [MessageService]` on the page component).
+- **Mutations**: navigate with `queryParamsHandling: 'merge'`; `window.scrollTo({ top: 0, behavior: 'smooth' })` on manual page change.
+- **Escalation rule**: when a page needs state shared across pages, silent create/update sync into a paged list, or duplicate-cancel fetch funnels — move it to the NgRx pattern ([§2–3](#2-smart-page-customerspagecomponent)) plus the `ngrx-page-state` / `ngrx-list-mutations` skills.
+
+Reference implementations: [`orders-page`](../../src/app/features/orders/pages/orders-page/orders-page.component.ts), [`suppliers-page`](../../src/app/features/suppliers/pages/suppliers-page/suppliers-page.component.ts).

@@ -2,6 +2,8 @@
 
 This document describes the architectural patterns, project structure, and technical conventions of the **Invoria Web** application.
 
+Folder index with per-doc/section anchors: [architecture/README.md](./README.md).
+
 ## 1. Architecture Style
 Invoria Web follows a **Feature-Based Angular Architecture** using **Standalone Components**. The application is designed for high cohesion within features and low coupling between them.
 
@@ -10,7 +12,7 @@ Invoria Web follows a **Feature-Based Angular Architecture** using **Standalone 
 - **Standalone by Default**: All components are standalone, eliminating the need for `NgModules`.
 - **Reactive State**: State is managed via RxJS observables and processed using `firstValueFrom` where async/await is preferred for readability in components.
 - **Unified Design System**: A single source of truth for design tokens (CSS variables) is shared between Tailwind CSS 4 and PrimeNG.
-- **List and paging UX**: Shared conventions for data tables (query-param paging, row actions, paginator templates) are documented in [docs/frontend-list-conventions.md](../docs/frontend-list-conventions.md). That doc references the broader Invoria solution **`Invoria/ai/Architecture.md`** for backend module context where needed.
+- **List and paging UX**: Shared conventions for data tables (query-param paging, row actions, paginator templates) are documented in [docs/guides/frontend-list-conventions.md](../guides/frontend-list-conventions.md). That doc references the broader Invoria solution **`Invoria/ai/Architecture.md`** for backend module context where needed.
 
 ---
 
@@ -62,13 +64,23 @@ We follow a **Smart (Container) vs. Presentational (Dumb)** component pattern.
     - Communicate via `@Input()` and `@Output()`.
     - (Planned) Extracted from `pages/` as features grow.
 
-For a **concrete reference** of this split with state in **NgRx feature store modules**, URL-adapter effects, query-param pagination, and shared error presentation—see [Component design rules](./component-design-rules.md) (Customers reference).
+For a **concrete reference** of this split with state in **NgRx feature store modules**, URL-adapter effects, query-param pagination, and shared error presentation—see [Component design rules](./component-design.md) (Customers reference).
 
 ---
 
 ## 5. State Management
 
-- **Feature State (NgRx)**: List and detail pages own their state in **feature store modules** under `features/<feature>/store/` (e.g. `customers-list`, `customer-details`, `customer-details-orders`), each self-contained (`actions.ts`, `reducer.ts`, `selectors.ts`, `effects.ts`) and following the conventions in [component-design-rules.md](./component-design-rules.md) §3.
+### State pattern selection (developer decision, by complexity)
+
+The developer decides per page which state pattern applies; the judge is **complexity**, not preference:
+
+- **Simple state** — one self-contained list/detail/report page, no cross-page sharing: **component-local signals** (`rxResource` for fetching, `linkedSignal` for display state, scoped `MessageService`). Rules + reference implementations: [component-design.md §9](./component-design.md#9-signals-based-smart-pages-orderssuppliers-reference) (**orders / suppliers**).
+- **Complex state** — state shared across pages/slices, silent mutation sync into paged lists, duplicate-query cancel/dedupe funnels, URL-adapter round-trips: **NgRx feature store modules** (Customers/Products reference). NgRx state must stay **CRUD-compatible**: create/update mutations sync into existing lists without a refetch — see [component-design.md §2–3](./component-design.md#2-smart-page-customerspagecomponent) and the skills `ngrx-page-state` / `ngrx-list-mutations`.
+- Both patterns share the same URL contract (`page` / `pageSize` / filter query params — [frontend-list-conventions.md](../guides/frontend-list-conventions.md)).
+
+### NgRx details (complex-state pattern)
+
+- **Feature State (NgRx)**: list and detail pages own their state in **feature store modules** under `features/<feature>/store/` (e.g. `customers-list`, `customer-details`, `customer-details-orders`), each self-contained (`actions.ts`, `reducer.ts`, `selectors.ts`, `effects.ts`) and following the conventions in [component-design.md](./component-design.md) §3.
 - **Route-scoped providers**: Slices are attached in `customers.routes.ts` via `provideState(FEATURE_KEY, reducer)` / `provideEffects(...)` on the owning route entry; the router store (`RouterState.Minimal`, provided root-side in `app.config.ts`) feeds URL reads.
 - **URL-driven state**: Components only *write* the URL (`page` / `pageSize` / `q` / `tab` query params); `<feature>-url` adapter effects listen to `routerNavigatedAction` and apply normalized values into the store, so reducers no-op identical values (harmless round-trips).
 - **Request lifecycle**: Every async slice embeds the shared `AsyncRequestState` fragment (`status` / `error` / `failureNonce`) from `shared/models/async-request-state.ts`; data-only effects branch success/failure and forward errors to the global `AppErrorEffects` toast (`AppStateError` presentation), keeping reducers pure.
@@ -100,14 +112,14 @@ graph TD
 ## 7. Dependency Rules
 
 1. **Isolation**: Features must not import from other features.
-2. **Exception (orders)**: The `orders` feature may use **`import type` only** from `features/customers` and `features/products` for `Order` nested DTOs (`Customer`, `Product`) in [`order.entity.ts`](../src/app/features/orders/models/order.entity.ts), aligned with the API. Additionally, `orders` may import and inject **`CustomersApiService`** and **`ProductsApiService`** only (the typed HTTP API services) for order UI flows such as autocomplete that must match the backend; do not import other modules, components, or mock services from those features into `orders`.
+2. **Exception (orders)**: The `orders` feature may use **`import type` only** from `features/customers` and `features/products` for `Order` nested DTOs (`Customer`, `Product`) in [`order.entity.ts`](../../src/app/features/orders/models/order.entity.ts), aligned with the API. Additionally, `orders` may import and inject **`CustomersApiService`** and **`ProductsApiService`** only (the typed HTTP API services) for order UI flows such as autocomplete that must match the backend; do not import other modules, components, or mock services from those features into `orders`.
 3. **Exception (customers / orders)**: The `customers` feature may import and inject **`OrdersApiService`** only (the typed HTTP API service) for customer-scoped order listing. It may import **`OrderListComponent`** and the minimal read-only order UI pieces needed to drive that list (**`UiOrder`**, **`orderToUiOrder`** from `features/orders`). Do not import order pages, forms, or other services from `orders`.
 4. **Exception (products / inventory)**: The `products` feature may import `features/inventory` for product batch UI (`ProductBatchesModalComponent` and related batch models/services). The `inventory` feature must not import from `products`; use `BatchesProductRef` (or similar) instead of `Product` entity types to keep the dependency one-way.
 5. **Exception (products / orders)**: The `products` feature may import and inject **`OrdersApiService`** only and the minimal read-only order types/helpers needed for product-scoped order summaries (`UiOrder`, `orderToUiOrder`, `orderStatusLabel`). Do not import order pages, forms, or other services from `orders`.
 6. **Exception (suppliers / procurement)**: The `suppliers` feature may import and inject **`PurchaseOrdersApiService`** only (the typed HTTP API service) for supplier-scoped purchase order listing. It may import **`PurchaseOrderListComponent`** and the minimal read-only procurement types needed to drive that list (**`PurchaseOrder`**, **`ListPurchaseOrderRequest`** from `features/procurement`). Do not import procurement pages, forms, or other services from `procurement`.
 7. **Exception (dashboard / reports)**: The `dashboard` feature may import and inject the typed report API services only — **`CustomersApiService`**, **`ProductsApiService`**, **`OrdersApiService`**, **`SuppliersApiService`**, and **`PurchaseOrdersApiService`** — for report overview/metrics aggregation (live KPIs and trend charts). Do not import feature pages, forms, or mock services; rely solely on the report HTTP methods.
-8. **Exception (receivables / orders)**: The `receivables` feature may `import type` only the order enum contracts — **`OrderStatus`** from [`order.entity.ts`](../src/app/features/orders/models/order.entity.ts) and **`PaymentType`** from [`order-payment.enums.ts`](../src/app/features/orders/models/order-payment.enums.ts) — to type the inline `Source` (`PublicOrderDto`) that the receivables API returns, aligned with the orders contract (see `ReceivableSource` in [`receivable.entity.ts`](../src/app/features/receivables/models/receivable.entity.ts)). Do not import order services, pages, forms, mock services, or full `Order` shapes.
-9. **Exception (payables / suppliers / procurement)**: The `payables` feature may import and inject **`SuppliersApiService`** and **`PurchaseOrdersApiService`** only (the typed HTTP API services) for client-side party/source enrichment — the payables API returns only raw `PartyId`/`SourceId` references (no inline party or source DTOs), so supplier names (`PayablePartyRef`) and purchase order numbers (`PayableSourceRef`) in [`payable.entity.ts`](../src/app/features/payables/models/payable.entity.ts) are resolved on the client via the `payables`-owned [`PayableReferenceResolverService`](../src/app/features/payables/services/payable-reference-resolver.service.ts). Do not import feature pages, forms, mock services, or full entity shapes from `suppliers` or `procurement`.
+8. **Exception (receivables / orders)**: The `receivables` feature may `import type` only the order enum contracts — **`OrderStatus`** from [`order.entity.ts`](../../src/app/features/orders/models/order.entity.ts) and **`PaymentType`** from [`order-payment.enums.ts`](../../src/app/features/orders/models/order-payment.enums.ts) — to type the inline `Source` (`PublicOrderDto`) that the receivables API returns, aligned with the orders contract (see `ReceivableSource` in [`receivable.entity.ts`](../../src/app/features/receivables/models/receivable.entity.ts)). Do not import order services, pages, forms, mock services, or full `Order` shapes.
+9. **Exception (payables / suppliers / procurement)**: The `payables` feature may import and inject **`SuppliersApiService`** and **`PurchaseOrdersApiService`** only (the typed HTTP API services) for client-side party/source enrichment — the payables API returns only raw `PartyId`/`SourceId` references (no inline party or source DTOs), so supplier names (`PayablePartyRef`) and purchase order numbers (`PayableSourceRef`) in [`payable.entity.ts`](../../src/app/features/payables/models/payable.entity.ts) are resolved on the client via the `payables`-owned [`PayableReferenceResolverService`](../../src/app/features/payables/services/payable-reference-resolver.service.ts). Do not import feature pages, forms, mock services, or full entity shapes from `suppliers` or `procurement`.
 10. **Shared Usage**: Features may import from `shared/` and `core/`.
 11. **Circular Dependencies**: Strictly forbidden; use `shared/entities` for common base classes.
 
@@ -129,7 +141,7 @@ The application uses **Tailwind CSS 4** with a CSS-first configuration.
 - **Stack**: `echarts` + `ngx-echarts` (`provideEchartsCore` in `src/app/app.config.ts:10`, tree-shaken via `echarts.use(...)`). One-time registration; do not add per-component providers.
 - **Wrapper**: `src/app/shared/ui/chart-card/chart-card.component.ts:1` (`app-chart-card` / legacy `app-report-chart`) — inputs `title`, `subtitle`, `options: EChartsCoreOption | null`, `loading`, `heightClass`. Smart pages compute `EChartsCoreOption` via `computed()` and pass to the card (see `src/app/features/dashboard/pages/dashboard-page/dashboard-page.component.ts:124`).
 - **Helpers**: `src/app/shared/charts/echarts-presets.ts:1` (`ECHARTS_PALETTE`, `ECHARTS_GRID_COMPACT`, `formatPeriodLabel`).
-- **Convention**: All future charts must use this wrapper. See `ai/charts.md`.
+- **Convention**: All future charts must use this wrapper. See the `charts` skill (`.opencode/skills/charts/SKILL.md`).
 
 ---
 

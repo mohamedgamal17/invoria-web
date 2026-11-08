@@ -1,11 +1,21 @@
-# Report Page Rules — Invoria Web
+---
+name: report-page-scaffold
+description: Use when creating or modifying any reports/<feat> page (Sales/Profit report or metrics scaffolds) — required files, models, KPI/overview pattern, per-period metrics cache, chart-card period selector contract, routing/sidebar placement, sales-vs-profit diffs, and anti-patterns for report pages.
+compatibility: Invoria Web (Angular 21, echarts 6, ngx-echarts 22)
+---
 
-> Canonical checklist for creating any `reports/<feat>` page (Sales/Profit are the reference). Complements `ARCHITECTURE.md`, `component-design-rules.md`, and `charts.md`. Treat as preference for agents.
+# Report page scaffold (canonical checklist for `reports/<feat>` pages)
 
-## 1) Reference Scaffold
-Duplicate `order-sales-report-page` (or `order-profit-report-page` — identical scaffolds, differ only in entity/KPI semantics/chart type).
+Sales and Profit report pages are the reference scaffolds (identical layout, differ only in
+entity/KPI semantics and chart type). Complements `docs/architecture/overview.md` and the
+`charts` skill.
 
-## 2) Required Files
+## 1) Reference scaffold
+
+Duplicate `order-sales-report-page` or `order-profit-report-page`.
+
+## 2) Required files
+
 ```
 features/<domain>/models/<feat>-report.entity.ts                // {date, total*, period: ReportPeriod} — extend ReportOverview<T>
 features/<domain>/models/list-<feat>-report.request.ts          // {Period: ReportPeriod} & PagingQueryRequest {Skip,Length}
@@ -13,18 +23,19 @@ features/<domain>/services/<domain>-api.service.ts              // get<Feat>Repo
 features/<domain>/pages/order-<feat>-report-page/               // .ts + .html (smart page) — source of truth
 features/<domain>/pages/order-<feat>-metrics-page/              // table page — rxResource + URL queryParams (period/page/pageSize)
 features/<domain>/components/<feat>-metrics-filter-panel|list/  // presentational filter/table for metrics page
-shared/ui/chart-card/chart-card.component.ts|html               // canonical ECharts wrapper (use this, not report-chart except on dashboard)
+shared/ui/chart-card/chart-card.component.ts|html               // canonical ECharts wrapper (not report-chart except on dashboard)
 shared/ui/page-header/page-header.component.ts                  // no controls projection for reports
 features/dashboard/components/kpi-card/kpi-card.component.ts    // KPI display
 ```
 
-## 3) Models & Constants
+## 3) Models and constants
+
 - `shared/models/report-period.ts`: `enum ReportPeriod { Daily=5, Monthly=10, Yearly=15, AllTime=20 }`, `REPORT_PERIOD_LABELS`, `REPORT_SERIES_PERIODS = [Daily, Monthly, Yearly]`
 - `shared/models/report-overview.ts`: `interface ReportOverview<T> { thisDay, thisMonth, thisYear, allTime: T }`
 - `shared/charts/echarts-presets.ts`: `ECHARTS_PALETTE`, `ECHARTS_GRID_COMPACT`, `formatPeriodLabel(iso, period)` — use for all period labels
 - `shared/requests/paging-query.request.ts`: `{Skip,Length}`
 
-## 4) Component Contract (TS)
+## 4) Component contract (TS)
 
 ```ts
 @Component({
@@ -40,7 +51,7 @@ export class Order<Feat>ReportPageComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  readonly periodOptions = REPORT_SERIES_PERIODS.map(v => ({ label: REPORT_PERIOD_LABELS[v], value: v }));
+  readonly periodOptions = REPORT_SERIES_PERIODS.map((value) => ({ label: REPORT_PERIOD_LABELS[value], value }));
   readonly selectedPeriod = signal<ReportPeriod>(ReportPeriod.Daily);
   readonly isOverviewLoading = signal(true);
   // Per-period cache — success only (matches productSearchCache precedent)
@@ -54,33 +65,34 @@ export class Order<Feat>ReportPageComponent implements OnInit {
   readonly chartOptions = computed<EChartsCoreOption | null>(() => {
     const data = this.series(); if (!data.length) return null;
     const chronological = [...data].reverse(); // API returns most-recent first
-    const labels = chronological.map(d => formatPeriodLabel(d.date, this.selectedPeriod()));
+    const labels = chronological.map((point) => formatPeriodLabel(point.date, this.selectedPeriod()));
     return { tooltip:{trigger:'axis'}, legend:{data:[...], bottom:0}, grid:{left:16,right:16,top:16,bottom:36,containLabel:true},
              xAxis:{type:'category', data:labels}, yAxis:{type:'value'}, series:[...], color:[ECHARTS_PALETTE.*] };
   });
 
   ngOnInit(){ this.loadOverview(); this.ensureMetrics(this.selectedPeriod()); }
-  onPeriodChange(p:ReportPeriod){ if(this.selectedPeriod()===p && this.metricsCache().has(p)) return; this.selectedPeriod.set(p); this.ensureMetrics(p); }
-  refresh(){ this.loadOverview(); this.metricsCache.update(m=>{ const n=new Map(m); n.delete(this.selectedPeriod()); return n;}); this.ensureMetrics(this.selectedPeriod()); }
+  onPeriodChange(period){ if(this.selectedPeriod()===period && this.metricsCache().has(period)) return; this.selectedPeriod.set(period); this.ensureMetrics(period); }
+  refresh(){ this.loadOverview(); this.metricsCache.update((mapCache) => { const next = new Map(mapCache); next.delete(this.selectedPeriod()); return next;}); this.ensureMetrics(this.selectedPeriod()); }
   goToMetrics(){ void this.router.navigate(['metrics'], { relativeTo:this.route, queryParams:{period:this.selectedPeriod()}, queryParamsHandling:'merge'}); }
 
   private ensureMetrics(period:ReportPeriod){
     if(this.metricsCache.has(period)||this.metricsLoadingSet.has(period)) return;
-    this.metricsLoadingSet.update(s=>new Set(s).add(period));
-    const req={Period:period, Skip:0, Length:14} as const;
-    this.api.list<Feat>ReportMetrics(req).pipe(catchError(e=>{ this.handleError(e); return of(null)}))
-      .subscribe({ next:res=>{ if(res?.isSuccess&&res.result){ const copy=[...(res.result.data??[])]; this.metricsCache.update(m=>new Map(m).set(period,copy)); } else if(res&&!res.isSuccess) this.handleError(res.error); /* do not cache error */ this.metricsLoadingSet.update(s=>{const n=new Set(s); n.delete(period); return n;})},
-                 error:err=>{ this.handleError(err); this.metricsLoadingSet.update(s=>{const n=new Set(s); n.delete(period); return n;})}});
+    this.metricsLoadingSet.update((loadingSet) => new Set(loadingSet).add(period));
+    const request={Period:period, Skip:0, Length:14} as const;
+    this.api.list<Feat>ReportMetrics(request).pipe(catchError((error) => { this.handleError(error); return of(null)}))
+      .subscribe({ next:result=>{ if(result?.isSuccess&&result.result){ const copy=[...(result.result.data??[])]; this.metricsCache.update((mapCache) => new Map(mapCache).set(period, copy)); } else if(result&&!result.isSuccess) this.handleError(result.error); /* do not cache error */ this.metricsLoadingSet.update((loadingSet) => { const next=new Set(loadingSet); next.delete(period); return next;})},
+                 error:err=>{ this.handleError(err); this.metricsLoadingSet.update((loadingSet) => { const next=new Set(loadingSet); next.delete(period); return next;})}});
   }
-  private handleError(e:unknown){ const p=presentApiError(e); this.messageService.add(p.toast); if(p.routeTarget) void this.router.navigate([p.routeTarget]); }
-  formatCurrency(v:number|null){ if(v==null) return '—'; return new Intl.NumberFormat(undefined,{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v); }
-  formatNumber(v:number|null){ if(v==null) return '—'; return new Intl.NumberFormat().format(v); }
+  private handleError(error:unknown){ const presented=presentApiError(error); this.messageService.add(presented.toast); if(presented.routeTarget) void this.router.navigate([presented.routeTarget]); }
+  formatCurrency(value:number|null){ if(value==null) return '—'; return new Intl.NumberFormat(undefined,{style:'currency',currency:'USD',maximumFractionDigits:0}).format(value); }
+  formatNumber(value:number|null){ if(value==null) return '—'; return new Intl.NumberFormat().format(value); }
 }
 ```
 
-Rules: `Length:14` fixed; cache only on `isSuccess && result`; never cache error; swallow duplicate in-flight with `metricsLoadingSet`.
+Rules: `Length:14` fixed; cache only on `isSuccess && result`; **never cache error**;
+swallow duplicate in-flight via `metricsLoadingSet`. (Naming per `ts-naming-conventions`.)
 
-## 5) HTML Order & Classes
+## 5) HTML order and classes
 
 ```html
 <p-toast/>
@@ -96,7 +108,7 @@ Rules: `Length:14` fixed; cache only on `isSuccess && result`; never cache error
   <section class="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-6">
     <!-- 3× app-kpi-card title="Today|This month|This year" [value]="overview()?.thisDay|Month|Year.* ? formatCurrency(): '—'" [hint]="Gross·Returns / Revenue·Cost" tone=success|primary|warning [loading]=isOverviewLoading [icon]=todayIcon|monthIcon|yearIcon (Calendar|CalendarRange|Clock) -->
   </section>
-  <app-chart-card title="…" subtitle="Aggregation: +periodOptions.find(p=>p.value===selectedPeriod())!.label+' · Last 14 periods'" [options]=chartOptions [loading]=isMetricsLoading heightClass="h-[24rem]" [showPeriodSelector]=true [selectedPeriod]=selectedPeriod [periodOptions]=periodOptions (periodChange)=onPeriodChange>
+  <app-chart-card title="…" subtitle="Aggregation: +periodOptions.find(periodOption=>periodOption.value===selectedPeriod())!.label+' · Last 14 periods'" [options]=chartOptions [loading]=isMetricsLoading heightClass="h-[24rem]" [showPeriodSelector]=true [selectedPeriod]=selectedPeriod [periodOptions]=periodOptions (periodChange)=onPeriodChange>
     <p-button label="View full metrics table" icon="pi pi-table" severity="secondary" [outlined]="true" (onClick)=goToMetrics />
   </app-chart-card>
 </section>
@@ -106,16 +118,17 @@ Rules: `Length:14` fixed; cache only on `isSuccess && result`; never cache error
 - `KpiCard` chrome `rounded-2xl border p-5 shadow-sm`, icon `h-14 w-14 rounded-2xl` tone classes.
 - `PageHeader` `invoria-gradient-surface rounded-2xl border border-border/80 px-5 py-6 sm:px-6 sm:py-7 gap-4 sm:gap-6`.
 
-## 6) ChartCard Contract
+## 6) ChartCard contract
 
 `shared/ui/chart-card` (`host:{class:'block w-full'}`):
 `title!:string, subtitle?:string, options:EChartsCoreOption|null, loading:boolean, heightClass='h-72'→override 'h-[24rem]', showPeriodSelector:boolean, selectedPeriod:ReportPeriod|null, periodOptions, periodChange:Output<ReportPeriod>, emptyText:string, emptyOptions:computed (tooltip hidden, grid 16/16/16/36, xAxis category data:[], yAxis value dashed #f1f5f9)`.
 
 Template: header `rounded-xl border p-4` with `p-selectButton [allowEmpty]=false styleClass="text-sm"` + `<ng-content/>` for action + pulse dot; body `@if(loading){ div [class]='w-full '+heightClass() → p-skeleton h-full } @else { div echarts [options]="(options()??emptyOptions())!" }`.
 
-Rules: compute `EChartsCoreOption` in page via `computed()`, type `EChartsCoreOption` never `any`, use `ECHARTS_PALETTE` + `formatPeriodLabel`, do not `import * as echarts`.
+Rules: compute `EChartsCoreOption` in the page via `computed()`, type it `EChartsCoreOption`
+never `any`, use `ECHARTS_PALETTE` + `formatPeriodLabel`, never `import * as echarts`.
 
-## 7) Routing & Sidebar
+## 7) Routing and sidebar
 
 ```ts
 // features/orders/orders.routes.ts — reports BEFORE :id
@@ -138,7 +151,7 @@ linkActiveOptions(_path:string):IsActiveMatchOptions{
 } // prevents subset double-active (Orders vs reports, sales vs sales/metrics)
 ```
 
-## 8) Sales vs Profit Diffs (copy the right one)
+## 8) Sales vs Profit diffs (copy the right one)
 
 |  | Sales | Profit |
 |--|-------|--------|
@@ -148,11 +161,15 @@ linkActiveOptions(_path:string):IsActiveMatchOptions{
 | Chart | Bar 3× `barMaxWidth28 radius[6,6,0,0]` Gross/Net(0.85)/Returns(0.55) `color info/success/danger` boundaryGap true rotate18 | Line smooth area Revenue 0.15 / Cost 0.08 / Profit 0.18 width2.5 `color primary/warning/success` boundaryGap false |
 | API | `getOrderSalesReportOverview` + `listOrderSalesReportMetrics` | `getOrderSalesProfitReportOverview` + `listOrderSalesProfitReportMetrics` |
 
-## 9) Metrics Page & Filter Panels
+## 9) Metrics pages and filter panels
 
-Metrics table pages use `rxResource` + `toSignal(route.queryParamMap)` for `period/page/pageSize`, `linkedSignal` for display, `router.navigate([],{queryParams, queryParamsHandling:'merge'})` on page/filter change. Filter panel is presentational `input()/output()` with `p-select` for `periodOptions`; list component is dumb `input(loading, rows, totalRecords) / output(pageChange)`.
+Metrics table pages use `rxResource` + `toSignal(route.queryParamMap)` for
+`period/page/pageSize`, `linkedSignal` for display,
+`router.navigate([],{queryParams, queryParamsHandling:'merge'})` on page/filter change.
+Filter panel is presentational `input()/output()` with `p-select` for `periodOptions`; list
+component is dumb `input(loading, rows, totalRecords) / output(pageChange)`.
 
-## 10) Anti-Patterns
+## 10) Anti-patterns
 
 - Do not project `p-select`/`Refresh` into `app-page-header` — use `chart-card` header.
 - Do not `paths:'subset'` for reports (use `exact`).
@@ -160,12 +177,12 @@ Metrics table pages use `rxResource` + `toSignal(route.queryParamMap)` for `peri
 - Do not hardcode hex colors — use `ECHARTS_PALETTE`/`ECHARTS_GRID_COMPACT`.
 - Do not register `provideEchartsCore` outside `app.config.ts`.
 
-## 11) Quick Start (new Completion report)
+## 11) Quick start (e.g. new Completion report)
 
 1. Add `order-completion-report.entity.ts` + `list-order-completion.request.ts`
 2. Add `getOrderCompletionReportOverview` + `listOrderCompletionReportMetrics` to `OrdersApiService`
 3. Duplicate `order-sales-report-page` → `order-completion-report-page` (keep cache/signals, swap entity/chart type)
-4. Add `reports/completion` + `reports/completion/metrics` routes before `:id`
+4. Add `reports/completion` + `reports/completion/metrics` routes **before** `:id`
 5. Add sidebar entries `Completion report` (`BarChart3`) + `Completion metrics` (`Table2`) under Sales
 6. Create metrics page + filter/list (reuse sales-metrics scaffold with `ReportPeriod` param)
 
