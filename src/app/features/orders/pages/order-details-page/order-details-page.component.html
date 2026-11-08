@@ -10,7 +10,7 @@
     (onClick)="backToList()"
   />
 
-  @if (orderResource.isLoading()) {
+  @if (loading()) {
     <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
       <div class="space-y-5 p-1">
         <p-skeleton height="2rem" width="45%"></p-skeleton>

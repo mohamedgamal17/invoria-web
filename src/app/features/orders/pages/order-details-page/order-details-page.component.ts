@@ -1,18 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, linkedSignal, signal, untracked } from '@angular/core';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { catchError, finalize, map, of, take } from 'rxjs';
+import { map } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DialogModule } from 'primeng/dialog';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
-import { presentApiError } from '../../../../core/http/api-error.presenter';
 import {
   canEditOrder,
   getAvailableOrderActions,
@@ -25,8 +25,6 @@ import {
 } from '../../models/order-actions';
 import { OrderStatus } from '../../models/order.entity';
 import { PaymentType } from '../../models/order-payment.enums';
-import { orderToUiOrder } from '../../models/order-ui.mapper';
-import { OrderActionFacade, type OrderTransitionAction } from '../../services/order-action.facade';
 import { OrderDetailsLineItemsTabComponent } from '../../components/order-details-line-items-tab/order-details-line-items-tab.component';
 import { OrderDetailsPaymentTabComponent } from '../../components/order-details-payment-tab/order-details-payment-tab.component';
 import { OrderDetailsReturnItemsTabComponent } from '../../components/order-details-return-items-tab/order-details-return-items-tab.component';
@@ -35,26 +33,25 @@ import { OrderProgressComponent } from '../../components/order-progress/order-pr
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
 import type { CompleteOrderRequest } from '../../models/complete-order.request';
 import type { AddReturnItemsRequest } from '../../models/add-return-items.request';
-import type { UiOrder } from '../../models/order-ui.model';
+import type { OrderTransitionAction } from '../../services/order-action.facade';
 import { OrderReturnItemsDialogComponent } from '../../components/order-return-items-dialog/order-return-items-dialog.component';
-import { OrdersApiService } from '../../services/orders-api.service';
-import { ORDERS_LIST_ACTIONS } from '../../store/orders-list/orders-list.actions';
-import { DialogModule } from 'primeng/dialog';
+import { UrlStateService } from '../../../../shared/utils/url-state.service';
+import { ORDER_DETAILS_ACTIONS } from '../../store/order-details/order-details.actions';
+import { orderDetailsSelectors } from '../../store/order-details/order-details.selectors';
+import {
+  orderDetailsTabToSlug,
+  toOrderDetailsTab,
+} from '../../utils/order-details-tab';
 
-const TAB_SLUGS = ['summary', 'lineItems', 'payment', 'returns'] as const;
-
-function tabSlugToIndex(tab: string | null): number | null {
-  if (tab === 'lineItems') return 1;
-  if (tab === 'payment') return 2;
-  if (tab === 'returns') return 3;
-  if (tab === 'summary' || tab === 'overview' || tab === null || tab === '') return 0;
-  return null;
-}
-
-function indexToTabSlug(index: number): string {
-  return TAB_SLUGS[index] ?? 'summary';
-}
-
+/**
+ * Smart page (container) for order details. It owns only:
+ * - the NgRx state mapping (selectors → signals),
+ * - the URL write adapter (`tab` query param via `replaceUrl`),
+ * - presentation glue (dialogs, revision-snapshot comparison, confirmations,
+ *   success toasts/confetti).
+ * The URL *read* side lives in the `store/order-details-url` effects (NgRx
+ * Router Store); all API calls live in the `store/order-details` slice.
+ */
 @Component({
   selector: 'app-order-details-page',
   standalone: true,
@@ -107,11 +104,10 @@ function indexToTabSlug(index: number): string {
 })
 export class OrderDetailsPageComponent {
   readonly currencyCode = 'EGP' as const;
-  private readonly ordersApi = inject(OrdersApiService);
-  private readonly orderActionFacade = inject(OrderActionFacade);
   private readonly store = inject(Store);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
+  private readonly urlState = inject(UrlStateService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -120,48 +116,28 @@ export class OrderDetailsPageComponent {
     { initialValue: this.route.snapshot.paramMap.get('id') ?? '' }
   );
 
-  private readonly tabQuery = toSignal(
-    this.route.queryParamMap.pipe(map((paramMap) => paramMap.get('tab'))),
-    { initialValue: this.route.snapshot.queryParamMap.get('tab') }
+  // --- Details store (order + activeTab + transition requests) --------------
+  readonly displayOrder = this.store.selectSignal(orderDetailsSelectors.selectOrder);
+  readonly loading = this.store.selectSignal(orderDetailsSelectors.selectIsLoading);
+  readonly errorDetail = this.store.selectSignal(orderDetailsSelectors.selectError);
+  readonly activeTab = this.store.selectSignal(orderDetailsSelectors.selectActiveTab);
+  readonly actionSaving = this.store.selectSignal(orderDetailsSelectors.selectIsSaving);
+
+  private readonly savingSuccessNonce = this.store.selectSignal(
+    orderDetailsSelectors.selectSuccessNonce,
   );
+  private readonly lastAction = this.store.selectSignal(orderDetailsSelectors.selectLastAction);
 
-  readonly actionSaving = signal(false);
-  readonly activeTab = signal(0);
+  // --- View-only signals ----------------------------------------------------
   readonly paymentDialogVisible = signal(false);
-
-  readonly orderResource = rxResource<UiOrder | null, string>({
-    params: () => this.orderId(),
-    defaultValue: null,
-    stream: ({ params: id }) => {
-      if (!id) {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Missing order id.' });
-        return of(null);
-      }
-      return this.ordersApi.getOrder(id).pipe(
-        map((res) => {
-          if (!res.isSuccess || !res.result) {
-            this.showApiError(res.error);
-            return null;
-          }
-          return orderToUiOrder(res.result);
-        }),
-        catchError((err: unknown) => {
-          this.showApiError(err);
-          return of(null);
-        })
-      );
-    }
-  });
-
-  readonly displayOrder = linkedSignal({
-    source: () => this.orderResource.value(),
-    computation: (order) => (order ? { ...order } : null)
-  });
+  readonly showCompleteOptionDialog = signal(false);
+  readonly showReturnDialogOnComplete = signal(false);
+  readonly returnSaving = signal(false);
 
   readonly error = computed<string>(() => {
     if (!this.orderId()) return 'Missing order id.';
-    if (this.orderResource.isLoading()) return '';
-    if (!this.displayOrder()) return 'Failed to load order.';
+    if (this.loading()) return '';
+    if (!this.displayOrder()) return this.errorDetail() || 'Failed to load order.';
     return '';
   });
 
@@ -216,10 +192,6 @@ export class OrderDetailsPageComponent {
     };
   });
 
-  readonly showCompleteOptionDialog = signal(false);
-  readonly showReturnDialogOnComplete = signal(false);
-  readonly returnSaving = signal(false);
-
   readonly pulseTarget = computed(() => {
     const order = this.displayOrder();
     if (!order) return null;
@@ -236,18 +208,15 @@ export class OrderDetailsPageComponent {
   readonly orderStatusUserLabel = orderStatusUserLabel;
 
   constructor() {
+    // Trigger the details state module whenever the `:id` param changes.
     effect(() => {
-      const tab = this.tabQuery();
-      const loaded = this.displayOrder();
-      if (!loaded || this.orderResource.isLoading()) {
+      const id = this.orderId();
+      if (!id) {
         return;
       }
-      untracked(() => {
-        const idx = tabSlugToIndex(tab);
-        if (idx !== null && this.activeTab() !== idx) {
-          this.activeTab.set(idx);
-        }
-      });
+      untracked(() =>
+        this.store.dispatch(ORDER_DETAILS_ACTIONS.loadOrder({ orderId: id })),
+      );
     });
 
     effect(() => {
@@ -269,6 +238,29 @@ export class OrderDetailsPageComponent {
         sessionStorage.removeItem(key);
       }
     });
+
+    // Success presentation replay: once per `recordActionSuccess`.
+    let presentedNonce = -1;
+    effect(() => {
+      const nonce = this.savingSuccessNonce();
+      if (nonce === presentedNonce) {
+        return;
+      }
+      presentedNonce = nonce;
+      if (nonce === 0) {
+        return;
+      }
+      const action = untracked(this.lastAction);
+      if (action === 'complete') {
+        this.showCompleteSuccess();
+      } else if (action) {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: `${ORDER_ACTION_UI[action].label} action completed.`
+        });
+      }
+    });
   }
 
   backToList(): void {
@@ -284,7 +276,7 @@ export class OrderDetailsPageComponent {
   onRecordPayment(): void {
     const order = this.displayOrder();
     if (!order) return;
-    this.activeTab.set(2);
+    this.store.dispatch(ORDER_DETAILS_ACTIONS.setActiveTab({ activeTab: 2 }));
     setTimeout(() => this.paymentDialogVisible.set(true));
   }
 
@@ -296,14 +288,14 @@ export class OrderDetailsPageComponent {
       return;
     }
 
-    const meta = this.orderActionFacade.meta(action as OrderTransitionAction);
+    const meta = ORDER_ACTION_UI[action as OrderTransitionAction];
     this.confirmationService.confirm({
       header: 'Confirm Action',
       message: `Are you sure you want to ${meta.label.replace(/[^a-zA-Z ]/g, '').trim().toLowerCase()} this order?`,
       icon: 'pi pi-exclamation-triangle',
       acceptButtonProps: { label: meta.label, severity: meta.severity },
       rejectButtonProps: { label: 'Cancel', severity: 'secondary', outlined: true },
-      accept: () => this.executeAction(action)
+      accept: () => this.recordAction(action as OrderTransitionAction)
     });
   }
 
@@ -314,38 +306,41 @@ export class OrderDetailsPageComponent {
 
   onCompleteWithoutReturns(): void {
     this.showCompleteOptionDialog.set(false);
-    this.executeAction('complete');
+    this.recordAction('complete');
   }
 
   retry(): void {
-    this.orderResource.reload();
+    this.loadOrder();
   }
 
   onTabChange(value: string | number | undefined): void {
     if (value === undefined || value === null) {
       return;
     }
-    const numericValue = typeof value === 'number' ? value : Number(value);
-    const next = Number.isFinite(numericValue) ? numericValue : 0;
-    this.activeTab.set(next);
-    void this.router.navigate([], {
-      relativeTo: this.route,
-      replaceUrl: true,
-      queryParams: { tab: indexToTabSlug(next) }
-    });
+    const next = toOrderDetailsTab(value) ?? 0;
+    this.store.dispatch(ORDER_DETAILS_ACTIONS.setActiveTab({ activeTab: next }));
+    void this.urlState.replaceQueryParams(this.route, { tab: orderDetailsTabToSlug(next) });
   }
 
   loadOrder(): void {
-    this.orderResource.reload();
+    const id = this.orderId();
+    if (!id) return;
+    this.store.dispatch(ORDER_DETAILS_ACTIONS.refreshOrder({ orderId: id }));
   }
 
   onReturnSubmitComplete(request: AddReturnItemsRequest): void {
     this.showReturnDialogOnComplete.set(false);
-    this.executeAction('complete', { ReturnItems: request.Items });
+    this.recordAction('complete', { ReturnItems: request.Items });
   }
 
   onReturnDialogCancel(): void {
     this.showReturnDialogOnComplete.set(false);
+  }
+
+  private recordAction(action: OrderTransitionAction, body?: CompleteOrderRequest): void {
+    const id = this.orderId();
+    if (!id) return;
+    this.store.dispatch(ORDER_DETAILS_ACTIONS.recordAction({ action, orderId: id, body }));
   }
 
   private showCompleteSuccess(): void {
@@ -355,64 +350,6 @@ export class OrderDetailsPageComponent {
       detail: 'The order has been delivered successfully!'
     });
     this.spawnConfetti();
-  }
-
-  private executeAction(action: OrderTransitionAction, body?: CompleteOrderRequest): void {
-    const id = this.orderId();
-    if (!id) return;
-
-    this.actionSaving.set(true);
-    this.orderActionFacade
-      .execute(action, id, body)
-      .pipe(
-        take(1),
-        finalize(() => this.actionSaving.set(false))
-      )
-      .subscribe({
-        next: (res) => {
-          if (!res.isSuccess || !res.result) {
-            this.messageService.add(presentApiError(res.error).toast);
-            return;
-          }
-          const uiOrder = orderToUiOrder(res.result);
-          this.displayOrder.set(uiOrder);
-          const syncAction = this.ordersSyncAction(action, uiOrder);
-          if (syncAction) {
-            this.store.dispatch(syncAction);
-          }
-
-          if (action === 'complete') {
-            this.showCompleteSuccess();
-          } else {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Success',
-              detail: `${this.orderActionFacade.meta(action).label} action completed.`
-            });
-          }
-        },
-        error: (err: unknown) => {
-          this.messageService.add(presentApiError(err).toast);
-        }
-      });
-  }
-
-  private ordersSyncAction(
-    action: OrderTransitionAction,
-    order: UiOrder,
-  ): { type: string } | null {
-    switch (action) {
-      case 'accept':
-        return ORDERS_LIST_ACTIONS.orderAccepted({ order });
-      case 'requestRevision':
-        return ORDERS_LIST_ACTIONS.orderRevisionRequested({ order });
-      case 'complete':
-        return ORDERS_LIST_ACTIONS.orderCompleted({ order });
-      case 'cancel':
-        return ORDERS_LIST_ACTIONS.orderCancelled({ order });
-      default:
-        return null;
-    }
   }
 
   private spawnConfetti(): void {
@@ -429,14 +366,6 @@ export class OrderDetailsPageComponent {
       el.style.height = (4 + Math.random() * 8) + 'px';
       document.body.appendChild(el);
       setTimeout(() => el.remove(), 2500);
-    }
-  }
-
-  private showApiError(error: unknown): void {
-    const presentation = presentApiError(error);
-    this.messageService.add(presentation.toast);
-    if (presentation.routeTarget) {
-      void this.router.navigate([presentation.routeTarget]);
     }
   }
 }

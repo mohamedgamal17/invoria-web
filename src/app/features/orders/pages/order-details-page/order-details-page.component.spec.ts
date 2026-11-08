@@ -13,6 +13,7 @@ if (!globalThis.ResizeObserver) {
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { of, EMPTY } from 'rxjs';
 import { provideStore, provideState } from '@ngrx/store';
+import { provideEffects } from '@ngrx/effects';
 
 import { ConfirmationService, MessageService } from 'primeng/api';
 
@@ -20,6 +21,12 @@ import {
   ORDERS_LIST_FEATURE_KEY,
   ordersListReducer,
 } from '../../store/orders-list/orders-list.reducer';
+import {
+  ORDER_DETAILS_FEATURE_KEY,
+  orderDetailsReducer,
+} from '../../store/order-details/order-details.reducer';
+import { OrderDetailsEffects } from '../../store/order-details/order-details.effects';
+import { OrderDetailsUrlEffects } from '../../store/order-details-url/order-details-url.effects';
 
 import { OrderDetailsPageComponent } from './order-details-page.component';
 import { OrdersApiService } from '../../services/orders-api.service';
@@ -90,6 +97,8 @@ describe('OrderDetailsPageComponent', () => {
         ConfirmationService,
         provideStore({}),
         provideState(ORDERS_LIST_FEATURE_KEY, ordersListReducer),
+        provideState(ORDER_DETAILS_FEATURE_KEY, orderDetailsReducer),
+        provideEffects(OrderDetailsEffects, OrderDetailsUrlEffects),
         { provide: OrdersApiService, useValue: { getOrder } },
         { provide: OrderActionFacade, useValue: mockFacade },
         {
@@ -124,7 +133,7 @@ describe('OrderDetailsPageComponent', () => {
   it('loads order from route id', () => {
     expect(getOrder).toHaveBeenCalledWith('ord_1');
     expect(component.displayOrder()?.orderNumber).toBe('ORD-42');
-    expect(component.orderResource.isLoading()).toBe(false);
+    expect(component.loading()).toBe(false);
   });
 
   it('sets error when order id missing', async () => {
