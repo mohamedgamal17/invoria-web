@@ -1,172 +1,47 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, inject, linkedSignal } from '@angular/core';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { Component, inject, untracked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, map, of } from 'rxjs';
 
-import { MessageService } from 'primeng/api';
+import { Store } from '@ngrx/store';
 
-import type { PagingInfo } from '../../../../core/models/paging';
-import type { ListOrderRequest } from '../../models/list-order.request';
-import { OrderStatus } from '../../models/order.entity';
+import { PaginationService } from '../../../../shared/utils/pagination.service';
+import {
+  DEFAULT_PAGE_SIZE_OPTIONS,
+  type PaginatorPageEvent
+} from '../../../../shared/models/pagination';
+import { ordersListSelectors } from '../../store/orders-list/orders-list.selectors';
 import type { UiOrder } from '../../models/order-ui.model';
-import { orderToUiOrder } from '../../models/order-ui.mapper';
-import { PaymentStatus, PaymentType } from '../../models/order-payment.enums';
-import { parseOptionalEnumQueryParam } from '../../../../shared/navigation/query-param-parsers';
-import { OrdersApiService } from '../../services/orders-api.service';
 import { OrderHeaderComponent } from '../../components/order-header/order-header.component';
 import {
   OrdersFilterPanelComponent,
   type OrdersListFilters
 } from '../../components/orders-filter-panel/orders-filter-panel.component';
 import { OrderListComponent } from '../../components/order-list/order-list.component';
-import { presentApiError } from '../../../../core/http/api-error.presenter';
-import { PaginationService } from '../../../../shared/utils/pagination.service';
-import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
-
-const EMPTY_ORDERS_TUPLE: [UiOrder[], PagingInfo] = [
-  [],
-  { length: 0, skip: 0, totalCount: 0 }
-];
-
-const ORDER_STATUS_VALUES = Object.values(OrderStatus).filter(
-  (value): value is number => typeof value === 'number'
-);
-const PAYMENT_STATUS_VALUES = Object.values(PaymentStatus).filter(
-  (value): value is number => typeof value === 'number'
-);
-const PAYMENT_TYPE_VALUES = Object.values(PaymentType).filter(
-  (value): value is number => typeof value === 'number'
-);
 
 @Component({
   selector: 'app-orders-page',
   standalone: true,
-  imports: [CommonModule, OrderHeaderComponent, OrdersFilterPanelComponent, OrderListComponent],
+  imports: [OrderHeaderComponent, OrdersFilterPanelComponent, OrderListComponent],
   templateUrl: './orders-page.component.html'
 })
 export class OrdersPageComponent {
   readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
 
+  private readonly store = inject(Store);
   private readonly pagination = inject(PaginationService);
-  private readonly ordersApi = inject(OrdersApiService);
-  private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  /** 1-based page number from `?page=` (default 1). */
-  private readonly pageFromRoute = toSignal(
-    this.route.queryParamMap.pipe(
-      map((paramMap) => {
-        const raw = paramMap.get('page');
-        const pageNumber = raw ? parseInt(raw, 10) : 1;
-        return Number.isFinite(pageNumber) && pageNumber >= 1 ? pageNumber : 1;
-      })
-    ),
-    { initialValue: 1 }
-  );
-
-  /** Page size from `?pageSize=` (must be in pageSizeOptions; default 25). */
-  readonly pageSize = toSignal(
-    this.route.queryParamMap.pipe(
-      map((paramMap) => this.pagination.pageSizeFromQuery(Number(paramMap.get('pageSize'))))
-    ),
-    { initialValue: 25 }
-  );
-
-  /** Order number filter from `?q=` (server-side `OrderNumber`). */
-  readonly qFromRoute = toSignal(
-    this.route.queryParamMap.pipe(
-      map((paramMap) => {
-        const query = paramMap.get('q')?.trim();
-        return query ? query : '';
-      })
-    ),
-    { initialValue: '' }
-  );
-
-  /** `OrderStatus` filter from `?status=` (server-side `Status`). */
-  readonly orderStatusFilterFromRoute = toSignal(
-    this.route.queryParamMap.pipe(
-      map((paramMap) => parseOptionalEnumQueryParam(paramMap, 'status', ORDER_STATUS_VALUES))
-    ),
-    { initialValue: null as number | null }
-  );
-
-  /** Payment status filter from `?paymentStatus=`. */
-  readonly paymentStatusFilterFromRoute = toSignal(
-    this.route.queryParamMap.pipe(
-      map((paramMap) =>
-        parseOptionalEnumQueryParam(paramMap, 'paymentStatus', PAYMENT_STATUS_VALUES)
-      )
-    ),
-    { initialValue: null as number | null }
-  );
-
-  /** Payment type filter from `?paymentType=`. */
-  readonly paymentTypeFilterFromRoute = toSignal(
-    this.route.queryParamMap.pipe(
-      map((paramMap) => parseOptionalEnumQueryParam(paramMap, 'paymentType', PAYMENT_TYPE_VALUES))
-    ),
-    { initialValue: null as number | null }
-  );
-
-  /** 0-based page index derived from the URL. */
-  readonly pageIndex = computed(() => Math.max(0, this.pageFromRoute() - 1));
-
-  readonly first = computed(() => this.pageIndex() * this.pageSize());
-
-  readonly listRequest = computed((): ListOrderRequest => {
-    const req: ListOrderRequest = {
-      Skip: this.pageIndex() * this.pageSize(),
-      Length: this.pageSize(),
-      IncludeOrderItems: true,
-      OrderNumber: this.qFromRoute() || null
-    };
-    const st = this.orderStatusFilterFromRoute();
-    const ps = this.paymentStatusFilterFromRoute();
-    const pt = this.paymentTypeFilterFromRoute();
-    if (st != null) {
-      req.Status = st;
-    }
-    if (ps != null) {
-      req.PaymentStatus = ps;
-    }
-    if (pt != null) {
-      req.PaymentType = pt;
-    }
-    return req;
-  });
-
-  readonly ordersResource = rxResource<[UiOrder[], PagingInfo], ListOrderRequest>({
-    params: () => this.listRequest(),
-    defaultValue: EMPTY_ORDERS_TUPLE,
-    stream: ({ params }) =>
-      this.ordersApi.listOrders(params).pipe(
-        map((res) => {
-          if (!res.isSuccess || !res.result) {
-            this.showApiError(res.error);
-            return EMPTY_ORDERS_TUPLE;
-          }
-          const uiRows = res.result.data.map(orderToUiOrder);
-          return [uiRows, res.result.info] as [UiOrder[], PagingInfo];
-        }),
-        catchError((err: unknown) => {
-          this.showApiError(err);
-          return of(EMPTY_ORDERS_TUPLE);
-        })
-      )
-  });
-
-  readonly displayOrders = linkedSignal({
-    source: () => this.ordersLinkSource(),
-    computation: (src) => [...src.orders]
-  });
-
-  readonly displayPaging = linkedSignal({
-    source: () => this.ordersLinkSource(),
-    computation: (src) => ({ ...src.paging })
-  });
+  // --- Orders list store (URL-backed paging + filters) ---
+  readonly orders = this.store.selectSignal(ordersListSelectors.selectOrders);
+  readonly paging = this.store.selectSignal(ordersListSelectors.selectPaging);
+  readonly listLoading = this.store.selectSignal(ordersListSelectors.selectIsLoading);
+  readonly pageIndex = this.store.selectSignal(ordersListSelectors.selectPageIndex);
+  readonly pageSize = this.store.selectSignal(ordersListSelectors.selectPageSize);
+  readonly orderNumberFilter = this.store.selectSignal(ordersListSelectors.selectOrderNumberFilter);
+  readonly statusFilter = this.store.selectSignal(ordersListSelectors.selectStatusFilter);
+  readonly paymentStatusFilter = this.store.selectSignal(ordersListSelectors.selectPaymentStatusFilter);
+  readonly paymentTypeFilter = this.store.selectSignal(ordersListSelectors.selectPaymentTypeFilter);
+  readonly first = this.store.selectSignal(ordersListSelectors.selectFirst);
 
   goToCreatePage(): void {
     void this.router.navigate(['new'], { relativeTo: this.route });
@@ -177,36 +52,32 @@ export class OrdersPageComponent {
   }
 
   onPageChange(event: PaginatorPageEvent): void {
-    const firstEvt = event.first ?? 0;
-    const rows = event.rows ?? this.pageSize();
-    const newPageIndex =
-      event.page !== undefined ? event.page : Math.floor(firstEvt / Math.max(rows, 1));
+    const { pageIndex, pageSize } = this.pagination.pageIndexFromEvent(
+      event,
+      untracked(this.pageSize),
+    );
+    // Presentation glue only: page navigation scrolls to top; the state
+    // (reducer) decides whether the change is real and warrants an API call.
+    const isManualPageChange = pageIndex !== untracked(this.pageIndex);
 
-    if (this.pageIndex() !== newPageIndex || this.pageSize() !== rows) {
-      const isManualPageChange = this.pageIndex() !== newPageIndex;
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page: pageIndex + 1, pageSize },
+      queryParamsHandling: 'merge'
+    });
 
-      void this.router.navigate([], {
-        relativeTo: this.route,
-        queryParams: {
-          page: newPageIndex + 1,
-          pageSize: rows
-        },
-        queryParamsHandling: 'merge'
-      });
-
-      if (isManualPageChange) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
+    if (isManualPageChange) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
   onFiltersChange(filters: OrdersListFilters): void {
     const normalized = filters.orderNumber.trim();
     if (
-      normalized === this.qFromRoute() &&
-      filters.status === this.orderStatusFilterFromRoute() &&
-      filters.paymentStatus === this.paymentStatusFilterFromRoute() &&
-      filters.paymentType === this.paymentTypeFilterFromRoute()
+      normalized === untracked(this.orderNumberFilter) &&
+      filters.status === untracked(this.statusFilter) &&
+      filters.paymentStatus === untracked(this.paymentStatusFilter) &&
+      filters.paymentType === untracked(this.paymentTypeFilter)
     ) {
       return;
     }
@@ -214,7 +85,7 @@ export class OrdersPageComponent {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {
-        query: normalized || null,
+        q: normalized || null,
         status: filters.status != null ? String(filters.status) : null,
         paymentStatus:
           filters.paymentStatus != null ? String(filters.paymentStatus) : null,
@@ -227,10 +98,10 @@ export class OrdersPageComponent {
 
   onClearFilters(): void {
     if (
-      !this.qFromRoute() &&
-      this.orderStatusFilterFromRoute() == null &&
-      this.paymentStatusFilterFromRoute() == null &&
-      this.paymentTypeFilterFromRoute() == null
+      !untracked(this.orderNumberFilter) &&
+      untracked(this.statusFilter) == null &&
+      untracked(this.paymentStatusFilter) == null &&
+      untracked(this.paymentTypeFilter) == null
     ) {
       return;
     }
@@ -238,7 +109,7 @@ export class OrdersPageComponent {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {
-        query: null,
+        q: null,
         status: null,
         paymentStatus: null,
         paymentType: null,
@@ -246,26 +117,5 @@ export class OrdersPageComponent {
       },
       queryParamsHandling: 'merge'
     });
-  }
-
-  private ordersLinkSource(): {
-    request: ListOrderRequest;
-    orders: UiOrder[];
-    paging: PagingInfo;
-  } {
-    const [orders, paging] = this.ordersResource.value();
-    return {
-      request: this.listRequest(),
-      orders,
-      paging
-    };
-  }
-
-  private showApiError(error: unknown): void {
-    const presentation = presentApiError(error);
-    this.messageService.add(presentation.toast);
-    if (presentation.routeTarget) {
-      void this.router.navigate([presentation.routeTarget]);
-    }
   }
 }

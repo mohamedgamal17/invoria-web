@@ -8,6 +8,8 @@ import { CardModule } from 'primeng/card';
 import { MessageService } from 'primeng/api';
 
 import { OrdersApiService } from '../../services/orders-api.service';
+import { Store } from '@ngrx/store';
+import { ORDERS_LIST_ACTIONS } from '../../store/orders-list/orders-list.actions';
 import { OrderFormComponent } from '../../components/order-form/order-form.component';
 import type { Customer } from '../../../customers/models/customer.entity';
 import { customerSearchListRequest } from '../../../customers/models/list-customer.request';
@@ -33,6 +35,7 @@ const ORDER_FORM_AUTOCOMPLETE_DEBOUNCE_MS = 700;
 export class OrderFormPageComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly ordersApi = inject(OrdersApiService);
+  private readonly store = inject(Store);
   private readonly productsApi = inject(ProductsApiService);
   private readonly customersApi = inject(CustomersApiService);
   private readonly messageService = inject(MessageService);
@@ -157,6 +160,7 @@ export class OrderFormPageComponent {
           finalize(() => this.saving.set(false))
         )
         .subscribe((result) => {
+            this.store.dispatch(ORDERS_LIST_ACTIONS.orderCreated({ order: orderToUiOrder(result) }));
             this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order created successfully.' });
             void this.router.navigate(['../', result.id], { relativeTo: this.route });
         });
@@ -175,6 +179,7 @@ export class OrderFormPageComponent {
             this.messageService.add({ ...presentApiError(res.error).toast });
             return;
           }
+          this.store.dispatch(ORDERS_LIST_ACTIONS.orderUpdated({ order: orderToUiOrder(res.result) }));
           this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order updated successfully.' });
           void this.router.navigate(['../../', res.result.id], { relativeTo: this.route });
         },

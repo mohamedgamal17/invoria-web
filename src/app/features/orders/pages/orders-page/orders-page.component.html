@@ -4,22 +4,22 @@
   />
 
   <app-orders-filter-panel
-    [orderNumber]="qFromRoute()"
-    [status]="orderStatusFilterFromRoute()"
-    [paymentStatus]="paymentStatusFilterFromRoute()"
-    [paymentType]="paymentTypeFilterFromRoute()"
-    [loading]="ordersResource.isLoading()"
+    [orderNumber]="orderNumberFilter()"
+    [status]="statusFilter()"
+    [paymentStatus]="paymentStatusFilter()"
+    [paymentType]="paymentTypeFilter()"
+    [loading]="listLoading()"
     (filtersChange)="onFiltersChange($event)"
     (clearFilters)="onClearFilters()"
   />
 
   <app-order-list
-    [orders]="displayOrders()"
-    [totalRecords]="displayPaging().totalCount"
+    [orders]="orders()"
+    [totalRecords]="paging().totalCount"
     [first]="first()"
     [pageSize]="pageSize()"
     [pageSizeOptions]="pageSizeOptions"
-    [loading]="ordersResource.isLoading()"
+    [loading]="listLoading()"
     [showDelete]="false"
     (pageChange)="onPageChange($event)"
     (clearFilters)="onClearFilters()"

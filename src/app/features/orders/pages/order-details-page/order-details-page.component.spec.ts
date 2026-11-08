@@ -12,8 +12,14 @@ if (!globalThis.ResizeObserver) {
 }
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { of, EMPTY } from 'rxjs';
+import { provideStore, provideState } from '@ngrx/store';
 
 import { ConfirmationService, MessageService } from 'primeng/api';
+
+import {
+  ORDERS_LIST_FEATURE_KEY,
+  ordersListReducer,
+} from '../../store/orders-list/orders-list.reducer';
 
 import { OrderDetailsPageComponent } from './order-details-page.component';
 import { OrdersApiService } from '../../services/orders-api.service';
@@ -82,6 +88,8 @@ describe('OrderDetailsPageComponent', () => {
       providers: [
         MessageService,
         ConfirmationService,
+        provideStore({}),
+        provideState(ORDERS_LIST_FEATURE_KEY, ordersListReducer),
         { provide: OrdersApiService, useValue: { getOrder } },
         { provide: OrderActionFacade, useValue: mockFacade },
         {

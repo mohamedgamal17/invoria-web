@@ -1,139 +1,221 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
-import { BehaviorSubject, of } from 'rxjs';
-
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ActivatedRoute, Router, provideRouter } from '@angular/router';
+import { Store, provideStore, provideState } from '@ngrx/store';
 
 import { OrdersPageComponent } from './orders-page.component';
-import { OrdersApiService } from '../../services/orders-api.service';
-import type { Order } from '../../models/order.entity';
+import type { UiOrder } from '../../models/order-ui.model';
 import { OrderStatus } from '../../models/order.entity';
 import { PaymentStatus, PaymentType } from '../../models/order-payment.enums';
+import {
+  ORDERS_LIST_FEATURE_KEY,
+  ORDERS_LIST_INITIAL_STATE,
+  ordersListReducer,
+} from '../../store/orders-list/orders-list.reducer';
+import { ORDERS_LIST_ACTIONS } from '../../store/orders-list/orders-list.actions';
 
 describe('OrdersPageComponent', () => {
   let component: OrdersPageComponent;
   let fixture: ComponentFixture<OrdersPageComponent>;
-  let mockOrdersApi: {
-    listOrders: ReturnType<typeof vi.fn>;
-    createOrder: ReturnType<typeof vi.fn>;
-    getOrder: ReturnType<typeof vi.fn>;
-    updateOrderItems: ReturnType<typeof vi.fn>;
-    acceptOrder: ReturnType<typeof vi.fn>;
-    requestRevisionOrder: ReturnType<typeof vi.fn>;
-    completeOrder: ReturnType<typeof vi.fn>;
-    cancelOrder: ReturnType<typeof vi.fn>;
-  };
+  let store: Store;
+  let router: Router;
+  let scrollToSpy: { mockClear: () => void };
 
-  const emptyListResponse = {
-    isSuccess: true as const,
-    result: {
-      data: [] as Order[],
-      info: { length: 10, skip: 0, totalCount: 0 }
-    }
-  };
-
-  const mockCreatedOrder: Order = {
-    id: 'ord_new_1',
+  const mockOrder: UiOrder = {
+    id: 'ord_1',
     createdAt: '2026-04-01T12:00:00.000Z',
-    createdBy: 'tester',
-    lastModifiedAt: '2026-04-01T12:00:00.000Z',
-    lastModifiedBy: 'tester',
     orderNumber: 'ORD-10001',
-    customerId: 'cust_1',
-    customer: { id: 'cust_1', name: 'Alice', createdAt: '2026-01-01T00:00:00.000Z' },
+    customerName: 'Alice',
+    netOfTotalOrderAmount: 21,
+    returnsTotal: 0,
     status: OrderStatus.Pending,
     paymentType: PaymentType.Immediate,
     paymentStatus: PaymentStatus.Paid,
-    amountPaid: 21,
-    amountOutstanding: 0,
+    orderDate: '2026-04-01T12:00:00.000Z',
+    items: [{ id: 'line-1', productId: 'prd_1', productName: 'Widget', quantity: 2, price: 10.5 }],
     returnItems: [],
-    subtotalAmount: 21,
-    netOrderAmount: 21,
-    returnsAmount: 0,
-    amountDue: 0,
-    payments: [],
-    orderAllocated: true,
-    items: [{ id: 'line-1', productId: 'prd_1', quantity: 2, price: 10.5 }]
+    orderAllocated: false,
   };
 
-  function setupWithQueryParams(page: string, pageSize = '10'): BehaviorSubject<ReturnType<typeof convertToParamMap>> {
-    return new BehaviorSubject(convertToParamMap({ page, pageSize }));
-  }
+  type UrlQuery = {
+    pageIndex: number;
+    pageSize: number;
+    orderNumberFilter: string;
+    statusFilter: number | null;
+    paymentStatusFilter: number | null;
+    paymentTypeFilter: number | null;
+  };
 
-  async function createFixture(paramMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>) {
+  async function createFixture(query: UrlQuery = {
+    pageIndex: 0,
+    pageSize: 25,
+    orderNumberFilter: '',
+    statusFilter: null,
+    paymentStatusFilter: null,
+    paymentTypeFilter: null,
+  }): Promise<void> {
     TestBed.resetTestingModule();
-    mockOrdersApi = {
-      listOrders: vi.fn().mockReturnValue(of(emptyListResponse)),
-      createOrder: vi.fn().mockReturnValue(
-        of({
-          isSuccess: true as const,
-          result: mockCreatedOrder
-        })
-      ),
-      getOrder: vi.fn(),
-      updateOrderItems: vi.fn(),
-      acceptOrder: vi.fn(),
-      requestRevisionOrder: vi.fn(),
-      completeOrder: vi.fn(),
-      cancelOrder: vi.fn()
-    };
+    scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
 
     await TestBed.configureTestingModule({
       imports: [OrdersPageComponent, NoopAnimationsModule],
       providers: [
-        MessageService,
-        ConfirmationService,
-        { provide: OrdersApiService, useValue: mockOrdersApi },
+        provideStore({}),
+        provideState(ORDERS_LIST_FEATURE_KEY, ordersListReducer),
+        provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: { queryParamMap: paramMap$.asObservable() }
+          useValue: {},
         },
-        {
-          provide: Router,
-          useValue: {
-            navigate: vi.fn().mockResolvedValue(true)
-          }
-        }
       ],
-      schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
 
     fixture = TestBed.createComponent(OrdersPageComponent);
     component = fixture.componentInstance;
+    store = TestBed.inject(Store);
+    router = TestBed.inject(Router);
+    vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+    store.dispatch(ORDERS_LIST_ACTIONS.setQueryFromUrl(query));
     fixture.detectChanges();
-    await fixture.whenStable();
   }
 
   beforeEach(async () => {
-    const paramMap$ = setupWithQueryParams('1');
-    await createFixture(paramMap$);
+    await createFixture();
   });
 
-  it('should create', () => {
+  it('should create with idle list state', () => {
     expect(component).toBeTruthy();
-    expect(mockOrdersApi.listOrders).toHaveBeenCalled();
+    expect(component.orders()).toEqual([]);
+    expect(component.paging().totalCount).toBe(0);
+    expect(component.listLoading()).toBe(false);
   });
 
-  it('passes Status and payment filters to listOrders when query params are set', async () => {
-    const paramMap$ = new BehaviorSubject(
-      convertToParamMap({
-        page: '1',
-        pageSize: '25',
-        status: String(OrderStatus.Processing),
+  it('should expose orders loaded through the store selectors', () => {
+    store.dispatch(
+      ORDERS_LIST_ACTIONS.loadOrdersSuccess({
+        orders: [mockOrder],
+        info: { length: 25, skip: 0, totalCount: 1 },
+      }),
+    );
+    fixture.detectChanges();
+
+    expect(component.orders()).toEqual([mockOrder]);
+    expect(component.paging().totalCount).toBe(1);
+    expect(component.first()).toBe(0);
+  });
+
+  it('goToCreatePage should navigate to new relative to the list route', () => {
+    const route = TestBed.inject(ActivatedRoute);
+    component.goToCreatePage();
+    expect(router.navigate).toHaveBeenCalledWith(['new'], { relativeTo: route });
+  });
+
+  it('goToDetails should navigate to order id', () => {
+    const route = TestBed.inject(ActivatedRoute);
+    component.goToDetails(mockOrder);
+    expect(router.navigate).toHaveBeenCalledWith([mockOrder.id], { relativeTo: route });
+  });
+
+  it('onPageChange should sync page/pageSize to route and scroll on manual page change', () => {
+    const route = TestBed.inject(ActivatedRoute);
+
+    component.onPageChange({ first: 100, rows: 25, page: 4 });
+
+    expect(router.navigate).toHaveBeenCalledWith([], {
+      relativeTo: route,
+      queryParams: { page: 5, pageSize: 25 },
+      queryParamsHandling: 'merge',
+    });
+    expect(scrollToSpy).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
+  });
+
+  it('onPageChange should scroll only when the page index really changes', () => {
+    scrollToSpy.mockClear();
+    component.onPageChange({ first: 0, rows: 50, page: 0 });
+    expect(scrollToSpy).not.toHaveBeenCalled();
+  });
+
+  it('onFiltersChange should sync all filters to route (under `q`) and reset page', () => {
+    const route = TestBed.inject(ActivatedRoute);
+
+    component.onFiltersChange({
+      orderNumber: 'ORD-10001',
+      status: OrderStatus.Pending,
+      paymentStatus: PaymentStatus.Paid,
+      paymentType: PaymentType.Immediate,
+    });
+
+    expect(router.navigate).toHaveBeenCalledWith([], {
+      relativeTo: route,
+      queryParams: {
+        q: 'ORD-10001',
+        status: String(OrderStatus.Pending),
         paymentStatus: String(PaymentStatus.Paid),
-        paymentType: String(PaymentType.Immediate)
-      })
-    );
-    await createFixture(paramMap$);
-    expect(mockOrdersApi.listOrders).toHaveBeenCalledWith(
-      expect.objectContaining({
-        Status: OrderStatus.Processing,
-        PaymentStatus: PaymentStatus.Paid,
-        PaymentType: PaymentType.Immediate
-      })
-    );
+        paymentType: String(PaymentType.Immediate),
+        page: 1,
+      },
+      queryParamsHandling: 'merge',
+    });
+  });
+
+  it('onFiltersChange should no-op when the filters are unchanged', () => {
+    vi.mocked(router.navigate).mockClear();
+
+    component.onFiltersChange({
+      orderNumber: '',
+      status: null,
+      paymentStatus: null,
+      paymentType: null,
+    });
+
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it('onClearFilters should clear all filters and reset page', async () => {
+    await createFixture({
+      pageIndex: 0,
+      pageSize: 25,
+      orderNumberFilter: 'ORD-1',
+      statusFilter: OrderStatus.Pending,
+      paymentStatusFilter: null,
+      paymentTypeFilter: null,
+    });
+    const route = TestBed.inject(ActivatedRoute);
+    expect(component.orderNumberFilter()).toBe('ORD-1');
+    vi.mocked(router.navigate).mockClear();
+
+    component.onClearFilters();
+
+    expect(router.navigate).toHaveBeenCalledWith([], {
+      relativeTo: route,
+      queryParams: { q: null, status: null, paymentStatus: null, paymentType: null, page: 1 },
+      queryParamsHandling: 'merge',
+    });
+  });
+
+  it('onClearFilters should no-op when the filters are already clear', () => {
+    vi.mocked(router.navigate).mockClear();
+
+    component.onClearFilters();
+
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it('should read filters from the store (the URL effect applies the state)', async () => {
+    await createFixture({
+      pageIndex: 0,
+      pageSize: 25,
+      orderNumberFilter: 'ORD-1',
+      statusFilter: OrderStatus.Processing,
+      paymentStatusFilter: PaymentStatus.Paid,
+      paymentTypeFilter: PaymentType.Immediate,
+    });
+    expect(component.orderNumberFilter()).toBe('ORD-1');
+    expect(component.statusFilter()).toBe(OrderStatus.Processing);
+    expect(component.paymentStatusFilter()).toBe(PaymentStatus.Paid);
+    expect(component.paymentTypeFilter()).toBe(PaymentType.Immediate);
+    expect(ORDERS_LIST_INITIAL_STATE.pageSize).toBe(25);
   });
 });

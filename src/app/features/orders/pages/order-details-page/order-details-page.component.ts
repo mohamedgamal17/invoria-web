@@ -3,6 +3,7 @@ import { Component, computed, effect, inject, linkedSignal, signal, untracked } 
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, finalize, map, of, take } from 'rxjs';
+import { Store } from '@ngrx/store';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -37,6 +38,7 @@ import type { AddReturnItemsRequest } from '../../models/add-return-items.reques
 import type { UiOrder } from '../../models/order-ui.model';
 import { OrderReturnItemsDialogComponent } from '../../components/order-return-items-dialog/order-return-items-dialog.component';
 import { OrdersApiService } from '../../services/orders-api.service';
+import { ORDERS_LIST_ACTIONS } from '../../store/orders-list/orders-list.actions';
 import { DialogModule } from 'primeng/dialog';
 
 const TAB_SLUGS = ['summary', 'lineItems', 'payment', 'returns'] as const;
@@ -107,6 +109,7 @@ export class OrderDetailsPageComponent {
   readonly currencyCode = 'EGP' as const;
   private readonly ordersApi = inject(OrdersApiService);
   private readonly orderActionFacade = inject(OrderActionFacade);
+  private readonly store = inject(Store);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly route = inject(ActivatedRoute);
@@ -371,7 +374,12 @@ export class OrderDetailsPageComponent {
             this.messageService.add(presentApiError(res.error).toast);
             return;
           }
-          this.displayOrder.set(orderToUiOrder(res.result));
+          const uiOrder = orderToUiOrder(res.result);
+          this.displayOrder.set(uiOrder);
+          const syncAction = this.ordersSyncAction(action, uiOrder);
+          if (syncAction) {
+            this.store.dispatch(syncAction);
+          }
 
           if (action === 'complete') {
             this.showCompleteSuccess();
@@ -387,6 +395,24 @@ export class OrderDetailsPageComponent {
           this.messageService.add(presentApiError(err).toast);
         }
       });
+  }
+
+  private ordersSyncAction(
+    action: OrderTransitionAction,
+    order: UiOrder,
+  ): { type: string } | null {
+    switch (action) {
+      case 'accept':
+        return ORDERS_LIST_ACTIONS.orderAccepted({ order });
+      case 'requestRevision':
+        return ORDERS_LIST_ACTIONS.orderRevisionRequested({ order });
+      case 'complete':
+        return ORDERS_LIST_ACTIONS.orderCompleted({ order });
+      case 'cancel':
+        return ORDERS_LIST_ACTIONS.orderCancelled({ order });
+      default:
+        return null;
+    }
   }
 
   private spawnConfetti(): void {

@@ -4,6 +4,12 @@ import { CommonModule } from '@angular/common';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { of } from 'rxjs';
+import { provideStore, provideState } from '@ngrx/store';
+
+import {
+  ORDERS_LIST_FEATURE_KEY,
+  ordersListReducer,
+} from '../../store/orders-list/orders-list.reducer';
 
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -92,6 +98,8 @@ describe('OrderFormPageComponent', () => {
       imports: [OrderFormPageComponent, NoopAnimationsModule],
       providers: [
         { provide: MessageService, useValue: { add: messageAdd } },
+        provideStore({}),
+        provideState(ORDERS_LIST_FEATURE_KEY, ordersListReducer),
         {
           provide: OrdersApiService,
           useValue: {
