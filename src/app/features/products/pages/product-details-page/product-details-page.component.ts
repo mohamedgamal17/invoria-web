@@ -1,46 +1,50 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { Component, computed, effect, inject, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { finalize, map, take } from 'rxjs';
-import type { PaginatorState } from 'primeng/paginator';
-import type { TablePageEvent } from 'primeng/table';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { map } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
-import { presentApiError } from '../../../../core/http/api-error.presenter';
+import type { TablePageEvent } from 'primeng/table';
+import type { PaginatorState } from 'primeng/paginator';
+
+import { LOAD_STATUS } from '../../../../shared/models/load-status';
 import { PaginationService } from '../../../../shared/utils/pagination.service';
-import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
-import { ProductDetailsInfoPanelComponent } from '../../components/product-details-info-panel/product-details-info-panel.component';
+import { UrlStateService } from '../../../../shared/utils/url-state.service';
+import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
+import { ProductsBreadcrumbComponent } from '../../components/products-breadcrumb/products-breadcrumb.component';
 import { ProductDetailsToolbarComponent } from '../../components/product-details-toolbar/product-details-toolbar.component';
+import { ProductDetailsInfoPanelComponent } from '../../components/product-details-info-panel/product-details-info-panel.component';
 import { ProductDetailsOrdersPanelComponent } from '../../components/product-details-orders-panel/product-details-orders-panel.component';
 import { ProductBatchesPanelComponent } from '../../../inventory/components/product-batches-panel.component';
-import type { BatchesProductRef } from '../../../inventory/models/batches-product.ref';
-import { ProductsBreadcrumbComponent } from '../../components/products-breadcrumb/products-breadcrumb.component';
+import type { SaveBatchEvent } from '../../../inventory/models/save-batch.event';
 import type { Product } from '../../models/product.entity';
-import { ProductsApiService } from '../../services/products-api.service';
+import { productsMutationsFeature } from '../../store/products-mutations/products-mutations.reducer';
+import { PRODUCT_MUTATIONS_ACTIONS } from '../../store/products-mutations/products-mutations.actions';
+import { PRODUCT_DETAILS_ACTIONS } from '../../store/product-details/product-details.actions';
+import { ProductDetailsTab } from '../../store/product-details/product-details.reducer';
+import { productDetailsSelectors } from '../../store/product-details/product-details.selectors';
+import { PRODUCT_BATCHES_ACTIONS } from '../../store/product-details-batches/product-details-batches.actions';
+import { productBatchesSelectors } from '../../store/product-details-batches/product-details-batches.selectors';
+import { toProductDetailsTab } from '../../utils/product-details-tab';
 
-function tabSlugToIndex(tab: string | null): number | null {
-  if (tab === 'batches') return 1;
-  if (tab === 'orders') return 2;
-  if (tab === 'info' || tab === null || tab === '') return 0;
-  return null;
-}
-
-function indexToTabSlug(index: number): 'info' | 'batches' | 'orders' {
-  if (index === 1) return 'batches';
-  if (index === 2) return 'orders';
-  return 'info';
-}
-
+/**
+ * Smart page (container) for product details. It owns only:
+ * - the NgRx state mapping (selectors → signals),
+ * - the URL write adapter (`tab` / `page` / `pageSize` query params via `replaceUrl`),
+ * - presentation glue (scroll behavior, navigation, delete confirmation dialog).
+ * The URL *read* side lives in the `store/product-details-url` effects
+ * (NgRx Router Store); all API calls live in the `store/product-details`,
+ * `store/product-details-batches` and `store/products-mutations` state modules.
+ */
 @Component({
   selector: 'app-product-details-page',
   standalone: true,
   imports: [
-    CommonModule,
     ButtonModule,
     CardModule,
     SkeletonModule,
@@ -56,62 +60,42 @@ function indexToTabSlug(index: number): 'info' | 'batches' | 'orders' {
     ProductBatchesPanelComponent,
     ProductDetailsOrdersPanelComponent,
   ],
-  providers: [MessageService],
   templateUrl: './product-details-page.component.html',
 })
 export class ProductDetailsPageComponent {
+  readonly tabs = ProductDetailsTab;
+  private readonly store = inject(Store);
   private readonly pagination = inject(PaginationService);
-  private readonly productsApi = inject(ProductsApiService);
   private readonly confirmationService = inject(ConfirmationService);
-  private readonly messageService = inject(MessageService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-
-  private readonly productId = toSignal(
-    this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
-    { initialValue: this.route.snapshot.paramMap.get('id') ?? '' },
-  );
-
-  private readonly queryParamsSig = toSignal(
-    this.route.queryParamMap.pipe(
-      map((paramMap) => ({
-        tab: paramMap.get('tab'),
-        page: paramMap.get('page'),
-        pageSize: paramMap.get('pageSize'),
-      })),
-    ),
-    {
-      initialValue: {
-        tab: this.route.snapshot.queryParamMap.get('tab'),
-        page: this.route.snapshot.queryParamMap.get('page'),
-        pageSize: this.route.snapshot.queryParamMap.get('pageSize'),
-      },
-    },
-  );
+  private readonly urlState = inject(UrlStateService);
 
   readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
 
-  readonly loading = signal(true);
-  readonly deleting = signal(false);
-  readonly error = signal('');
-  readonly product = signal<Product | null>(null);
-  readonly hasProduct = computed(() => !!this.product());
-  readonly actionsDisabled = computed(
-    () => this.loading() || this.deleting() || !!this.error() || !this.hasProduct(),
+  // --- Details store (product + activeTab) ---------------------------------
+  readonly product = this.store.selectSignal(productDetailsSelectors.selectProduct);
+  readonly loading = this.store.selectSignal(productDetailsSelectors.selectIsLoading);
+  readonly error = this.store.selectSignal(productDetailsSelectors.selectError);
+  readonly activeTab = this.store.selectSignal(productDetailsSelectors.selectActiveTab);
+
+  // --- Mutations store (delete request) ------------------------------------
+  private readonly deleteRequest = this.store.selectSignal(
+    productsMutationsFeature.selectDeleteRequest,
   );
+  readonly deleting = computed(() => this.deleteRequest().status === LOAD_STATUS.Loading);
 
-  readonly activeTab = signal(0);
-  readonly pageIndex = signal(0);
-  readonly pageSize = signal(25);
-  readonly first = computed(() => this.pageIndex() * this.pageSize());
+  // --- Batches store (URL-backed paging + current api page + mutations) ----
+  readonly batches = this.store.selectSignal(productBatchesSelectors.selectBatches);
+  readonly batchesLoading = this.store.selectSignal(productBatchesSelectors.selectIsLoading);
+  readonly batchesSaving = this.store.selectSignal(productBatchesSelectors.selectIsSaving);
+  readonly batchesSaveStatus = this.store.selectSignal(productBatchesSelectors.selectSaveStatus);
+  readonly batchesPaging = this.store.selectSignal(productBatchesSelectors.selectPaging);
+  readonly first = this.store.selectSignal(productBatchesSelectors.selectFirst);
+  readonly pageSize = this.store.selectSignal(productBatchesSelectors.selectPageSize);
+  readonly pageIndex = this.store.selectSignal(productBatchesSelectors.selectPageIndex);
 
-  readonly batchesProductRef = computed((): BatchesProductRef | null => {
-    const product = this.product();
-    if (!product) {
-      return null;
-    }
-    return { id: product.id, name: product.name };
-  });
+  readonly totalRecords = computed(() => this.batchesPaging().totalCount);
 
   readonly breadcrumbItems = computed(() => {
     const product = this.product();
@@ -119,18 +103,21 @@ export class ProductDetailsPageComponent {
     return [{ label: 'Products', routerLink: ['/products'] as string[] }, { label }];
   });
 
-  constructor() {
-    effect(() => {
-      this.loadProduct(this.productId());
-    });
+  private readonly productId = toSignal(
+    this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
+    { initialValue: this.route.snapshot.paramMap.get('id') ?? '' },
+  );
 
+  constructor() {
+    // Trigger the details state module whenever the `:id` param changes.
     effect(() => {
-      const qp = this.queryParamsSig();
-      const product = this.product();
-      if (!product || this.loading()) {
+      const id = this.productId();
+      if (!id) {
         return;
       }
-      untracked(() => this.applyBatchQueryParams(qp));
+      untracked(() =>
+        this.store.dispatch(PRODUCT_DETAILS_ACTIONS.loadProduct({ productId: id })),
+      );
     });
   }
 
@@ -142,31 +129,53 @@ export class ProductDetailsPageComponent {
     void this.router.navigate(['edit'], { relativeTo: this.route });
   }
 
+  retry(): void {
+    const id = untracked(this.productId);
+    if (!id) {
+      return;
+    }
+    this.store.dispatch(PRODUCT_DETAILS_ACTIONS.loadProduct({ productId: id }));
+  }
+
   onTabChange(value: string | number | undefined): void {
     if (value === undefined || value === null) {
       return;
     }
-    const numericValue = typeof value === 'number' ? value : Number(value);
-    const next = Number.isFinite(numericValue) ? numericValue : 0;
-    this.activeTab.set(next);
-    const tabSlug = indexToTabSlug(next);
+    const next = toProductDetailsTab(value);
+    if (next === null) {
+      return;
+    }
+    this.store.dispatch(PRODUCT_DETAILS_ACTIONS.setActiveTab({ activeTab: next }));
+    if (next === ProductDetailsTab.Batches) {
+      this.store.dispatch(PRODUCT_BATCHES_ACTIONS.batchesTabOpened());
+    }
+    this.replaceUrlQuery(next);
+  }
 
-    void this.router.navigate([], {
-      relativeTo: this.route,
-      replaceUrl: true,
-      queryParams:
-        tabSlug === 'batches'
-          ? {
-              tab: 'batches',
-              page: this.pageIndex() + 1,
-              pageSize: this.pageSize(),
-            }
-          : tabSlug === 'orders'
-            ? { tab: 'orders' }
-            : {
-                tab: 'info',
-              },
-    });
+  onBatchesPageChange(event: PaginatorState | TablePageEvent): void {
+    const rows = this.pagination.normalizePageSize(event.rows ?? untracked(this.pageSize));
+    const newPageIndex =
+      (event as PaginatorPageEvent).page ?? Math.floor((event.first ?? 0) / Math.max(rows, 1));
+    // Presentation glue only: page navigation scrolls to top; the state (reducer)
+    // decides whether the change is real and warrants an API call.
+    const isManualPageChange = newPageIndex !== untracked(this.pageIndex);
+    this.store.dispatch(
+      PRODUCT_BATCHES_ACTIONS.pageChange({ pageIndex: newPageIndex, pageSize: rows }),
+    );
+    if (isManualPageChange) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    this.replaceUrlQuery(untracked(this.activeTab), newPageIndex, rows);
+  }
+
+  onBatchesSave(event: SaveBatchEvent): void {
+    if (event.batch === null) {
+      this.store.dispatch(PRODUCT_BATCHES_ACTIONS.createBatch({ payload: event.payload }));
+    } else {
+      this.store.dispatch(
+        PRODUCT_BATCHES_ACTIONS.updateBatch({ id: event.batch.id, payload: event.payload }),
+      );
+    }
   }
 
   deleteProduct(): void {
@@ -180,140 +189,22 @@ export class ProductDetailsPageComponent {
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => {
-        this.deleting.set(true);
-        this.productsApi
-          .deleteProduct(product.id)
-          .pipe(
-            take(1),
-            finalize(() => this.deleting.set(false)),
-          )
-          .subscribe({
-            next: (res) => {
-              if (!res.isSuccess) {
-                const presentation = presentApiError(res.error);
-                this.messageService.add({
-                  ...presentation.toast,
-                  detail: `Could not delete product. ${presentation.toast.detail}`,
-                });
-                return;
-              }
-              this.messageService.add({
-                severity: 'success',
-                summary: 'Success',
-                detail: 'Product deleted successfully.',
-              });
-              void this.router.navigate(['/products']);
-            },
-            error: (err: unknown) => {
-              const presentation = presentApiError(err);
-              this.messageService.add({
-                ...presentation.toast,
-                detail: `Could not delete product. ${presentation.toast.detail}`,
-              });
-            },
-          });
+        this.store.dispatch(PRODUCT_MUTATIONS_ACTIONS.deleteProduct({ id: product.id }));
       },
     });
   }
 
-  retry(): void {
-    this.loadProduct();
-  }
-
-  onPageChange(event: PaginatorState | TablePageEvent): void {
-    const firstEvt = event.first ?? 0;
-    const rows = event.rows ?? this.pageSize();
-    const newPageIndex = Math.floor(firstEvt / Math.max(rows, 1));
-
-    if (this.pageIndex() !== newPageIndex || this.pageSize() !== rows) {
-      const isManualPageChange = this.pageIndex() !== newPageIndex;
-      this.pageSize.set(rows);
-      this.pageIndex.set(newPageIndex);
-      void this.router.navigate([], {
-        relativeTo: this.route,
-        replaceUrl: true,
-        queryParams: {
-          tab: indexToTabSlug(this.activeTab()),
-          page: newPageIndex + 1,
-          pageSize: rows,
-        },
-        queryParamsHandling: 'merge',
-      });
-      if (isManualPageChange) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    }
-  }
-
-  onBatchesMutated(): void {
-    this.loadProduct(this.productId());
-  }
-
-  private applyBatchQueryParams(qp: {
-    tab: string | null;
-    page: string | null;
-    pageSize: string | null;
-  }): void {
-    const idx = tabSlugToIndex(qp.tab?.toLowerCase() ?? qp.tab);
-    if (idx !== null && this.activeTab() !== idx) {
-      this.activeTab.set(idx);
-    }
-
-    const isBatchesTab = (idx ?? this.activeTab()) === 1;
-
-    // Only honor page/pageSize when batches tab is active to avoid polluting other tabs' URLs
-    if (isBatchesTab) {
-      if (qp.page !== null) {
-        const pn = parseInt(qp.page, 10);
-        if (Number.isFinite(pn) && pn >= 1) {
-          this.pageIndex.set(pn - 1);
-        }
-      }
-      if (qp.pageSize !== null) {
-        const psz = parseInt(qp.pageSize, 10);
-        if (Number.isFinite(psz) && this.pageSizeOptions.includes(psz)) {
-          this.pageSize.set(psz);
-        }
-      }
-    }
-  }
-
-  private loadProduct(idParam?: string): void {
-    const id = idParam ?? this.productId();
-    if (!id) {
-      this.loading.set(false);
-      this.product.set(null);
-      this.error.set('Product id is missing from the route.');
-      return;
-    }
-    this.loading.set(true);
-    this.error.set('');
-    this.product.set(null);
-    this.productsApi
-      .getProduct(id)
-      .pipe(
-        take(1),
-        finalize(() => this.loading.set(false)),
-      )
-      .subscribe({
-        next: (res) => {
-          if (!res.isSuccess || !res.result) {
-            const presentation = presentApiError(res.error);
-            this.error.set(`Could not load product details. ${presentation.toast.detail}`);
-            if (presentation.routeTarget) {
-              void this.router.navigate([presentation.routeTarget]);
-            }
-            return;
-          }
-          this.product.set(res.result);
-        },
-        error: (err: unknown) => {
-          const presentation = presentApiError(err);
-          this.error.set(`Could not load product details. ${presentation.toast.detail}`);
-          if (presentation.routeTarget) {
-            void this.router.navigate([presentation.routeTarget]);
-          }
-        },
-      });
+  private replaceUrlQuery(
+    tabValue: ProductDetailsTab,
+    pageIndex = untracked(this.pageIndex),
+    pageSize = untracked(this.pageSize),
+  ): void {
+    // `page`/`pageSize` are only meaningful on the batches tab — keep other
+    // tabs' URLs clean (mirror of the legacy `/products/:id/batches` redirect).
+    const queryParams =
+      tabValue === ProductDetailsTab.Batches
+        ? { tab: tabValue, page: pageIndex + 1, pageSize }
+        : { tab: tabValue };
+    void this.urlState.replaceQueryParams(this.route, queryParams);
   }
 }

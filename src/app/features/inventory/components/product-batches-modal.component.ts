@@ -4,7 +4,6 @@ import {
   computed,
   input,
   model,
-  output,
   signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -13,6 +12,11 @@ import type { BatchesProductRef } from '../models/batches-product.ref';
 import { ProductBatchesPanelComponent } from './product-batches-panel.component';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../shared/models/pagination';
 
+/**
+ * Stateless batches modal. The batches fetch/mutations live in the host
+ * page's store; this dialog only hosts the presentational panel with local
+ * dialog paging state. (Currently navigable nowhere — kept as legacy UI.)
+ */
 @Component({
   selector: 'app-product-batches-modal',
   standalone: true,
@@ -39,13 +43,10 @@ import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../shared/models/pagination';
       </ng-template>
 
       <app-product-batches-panel
-        [product]="product()"
-        [active]="panelActive()"
         [first]="first()"
         [pageSize]="pageSize()"
         [pageSizeOptions]="pageSizeOptions"
         (pageChange)="onPanelPageChange($event)"
-        (batchesMutated)="batchesMutated.emit()"
       />
     </p-dialog>
   `,
@@ -54,7 +55,6 @@ import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../shared/models/pagination';
 export class ProductBatchesModalComponent {
   visible = model(false);
   product = input<BatchesProductRef | null>(null);
-  batchesMutated = output<void>();
 
   readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
   readonly first = signal(0);

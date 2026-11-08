@@ -1,11 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { MessageService } from 'primeng/api';
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { of } from 'rxjs';
+import { describe, expect, it, beforeEach } from 'vitest';
 import { ProductBatchesModalComponent } from './product-batches-modal.component';
 import type { BatchesProductRef } from '../models/batches-product.ref';
-import { BatchesApiService } from '../services/batches-api.service';
 
 describe('ProductBatchesModalComponent', () => {
   let fixture: ComponentFixture<ProductBatchesModalComponent>;
@@ -15,25 +12,9 @@ describe('ProductBatchesModalComponent', () => {
     name: 'Product A'
   };
 
-  const batchesApiMock = {
-    listBatches: vi.fn(() =>
-      of({
-        isSuccess: true as const,
-        result: { data: [], info: { length: 5, skip: 0, totalCount: 0 } }
-      })
-    )
-  };
-
-  const messageServiceMock = { add: vi.fn() };
-
   beforeEach(async () => {
-    vi.clearAllMocks();
     await TestBed.configureTestingModule({
-      imports: [ProductBatchesModalComponent, NoopAnimationsModule],
-      providers: [
-        { provide: BatchesApiService, useValue: batchesApiMock },
-        { provide: MessageService, useValue: messageServiceMock }
-      ]
+      imports: [ProductBatchesModalComponent, NoopAnimationsModule]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProductBatchesModalComponent);

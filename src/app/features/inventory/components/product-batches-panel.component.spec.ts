@@ -1,12 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { MessageService } from 'primeng/api';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { of, throwError } from 'rxjs';
 import { ProductBatchesPanelComponent } from './product-batches-panel.component';
-import { BatchesApiService } from '../services/batches-api.service';
 import { Batch, BatchState } from '../models/batch.entity';
-import type { BatchesProductRef } from '../models/batches-product.ref';
 
 describe('ProductBatchesPanelComponent', () => {
   let component: ProductBatchesPanelComponent;
@@ -22,38 +18,9 @@ describe('ProductBatchesPanelComponent', () => {
     purchasePrice: 13
   };
 
-  const mockProduct: BatchesProductRef = {
-    id: 'prd_1',
-    name: 'Product A'
-  };
-
-  const listSuccessBody = {
-    isSuccess: true as const,
-    result: {
-      data: [mockBatch],
-      info: { length: 5, skip: 0, totalCount: 1 }
-    }
-  };
-
-  const batchesApiMock = {
-    listBatches: vi.fn(() => of(listSuccessBody)),
-    createBatch: vi.fn(() => of({ isSuccess: true as const, result: mockBatch })),
-    updateBatch: vi.fn(() => of({ isSuccess: true as const, result: mockBatch }))
-  };
-
-  const messageServiceMock = {
-    add: vi.fn()
-  };
-
   beforeEach(async () => {
-    vi.clearAllMocks();
-
     await TestBed.configureTestingModule({
-      imports: [ProductBatchesPanelComponent, NoopAnimationsModule],
-      providers: [
-        { provide: BatchesApiService, useValue: batchesApiMock },
-        { provide: MessageService, useValue: messageServiceMock }
-      ]
+      imports: [ProductBatchesPanelComponent, NoopAnimationsModule]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProductBatchesPanelComponent);
@@ -65,21 +32,16 @@ describe('ProductBatchesPanelComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should load batches when active and product are set', () => {
-    fixture.componentRef.setInput('product', mockProduct);
-    fixture.componentRef.setInput('active', true);
+  it('should render the batches page passed in from the host store', () => {
+    fixture.componentRef.setInput('batches', [mockBatch]);
+    fixture.componentRef.setInput('totalRecords', 1);
     fixture.detectChanges();
 
-    expect(batchesApiMock.listBatches).toHaveBeenCalledWith({
-      ProductId: mockProduct.id,
-      Skip: 0,
-      Length: 25
-    });
     expect(component.batches().length).toBe(1);
     expect(component.totalRecords()).toBe(1);
   });
 
-  it('should open add and edit form states', () => {
+  it('should toggle between add and edit form states', () => {
     component.openAddForm();
     expect(component.showForm()).toBe(true);
     expect(component.selectedBatch()).toBeNull();
@@ -87,65 +49,59 @@ describe('ProductBatchesPanelComponent', () => {
     component.openEditForm(mockBatch);
     expect(component.showForm()).toBe(true);
     expect(component.selectedBatch()).toEqual(mockBatch);
-  });
 
-  it('should call create service path when saving without selected batch', () => {
-    fixture.componentRef.setInput('product', mockProduct);
-    fixture.componentRef.setInput('active', true);
-    fixture.detectChanges();
-
-    const loadSpy = vi.spyOn(component, 'loadBatches');
-    component.showForm.set(true);
-    component.onSave({ quantity: 5, purchasePrice: 20 });
-
-    expect(batchesApiMock.createBatch).toHaveBeenCalledWith({
-      ProductId: mockProduct.id,
-      Quantity: 5,
-      PurchasePrice: 20
-    });
-    expect(messageServiceMock.add).toHaveBeenCalledWith(
-      expect.objectContaining({ severity: 'success' })
-    );
-    expect(component.showForm()).toBe(false);
-    expect(loadSpy).toHaveBeenCalled();
-  });
-
-  it('should call update service path when saving with selected batch', () => {
-    fixture.componentRef.setInput('product', mockProduct);
-    fixture.componentRef.setInput('active', true);
-    fixture.detectChanges();
-
-    const loadSpy = vi.spyOn(component, 'loadBatches');
-    component.selectedBatch.set(mockBatch);
-    component.showForm.set(true);
-    component.onSave({ quantity: 9, purchasePrice: 11 });
-
-    expect(batchesApiMock.updateBatch).toHaveBeenCalledWith(mockBatch.id, {
-      Quantity: 9,
-      PurchasePrice: 11
-    });
-    expect(messageServiceMock.add).toHaveBeenCalledWith(
-      expect.objectContaining({ severity: 'success' })
-    );
+    component.closeForm();
     expect(component.showForm()).toBe(false);
     expect(component.selectedBatch()).toBeNull();
-    expect(loadSpy).toHaveBeenCalled();
   });
 
-  it('should keep batch form modal open and show error message on save failure', () => {
-    batchesApiMock.updateBatch.mockReturnValueOnce(throwError(() => new Error('failed')));
-    fixture.componentRef.setInput('product', mockProduct);
-    fixture.componentRef.setInput('active', true);
+  it('should emit a create save event when no batch is selected', () => {
+    const saveSpy = vi.fn();
+    component.showForm.set(true);
+    component.save.subscribe(saveSpy);
+
+    component.selectedBatch.set(null);
+    component.emitSave({ quantity: 5, purchasePrice: 20 });
+
+    expect(saveSpy).toHaveBeenCalledWith({ batch: null, payload: { quantity: 5, purchasePrice: 20 } });
+  });
+
+  it('should emit an update save event with the selected batch', () => {
+    const saveSpy = vi.fn();
+    component.save.subscribe(saveSpy);
+    component.showForm.set(true);
+    component.selectedBatch.set(mockBatch);
+    component.emitSave({ quantity: 9, purchasePrice: 11 });
+
+    expect(saveSpy).toHaveBeenCalledWith({ batch: mockBatch, payload: { quantity: 9, purchasePrice: 11 } });
+  });
+
+  it('should close the dialog after a loaded save round (triggered by the store)', () => {
+    component.showForm.set(true);
+    component.selectedBatch.set(mockBatch);
+    fixture.componentRef.setInput('saveStatus', 'loaded');
     fixture.detectChanges();
 
-    component.selectedBatch.set(mockBatch);
-    component.showForm.set(true);
-    component.onSave({ quantity: 2, purchasePrice: 10 });
+    expect(component.showForm()).toBe(false);
+    expect(component.selectedBatch()).toBeNull();
+  });
 
-    expect(messageServiceMock.add).toHaveBeenCalledWith(
-      expect.objectContaining({ severity: 'error' })
-    );
+  it('should keep the dialog open on an error save round', () => {
+    component.showForm.set(true);
+    component.selectedBatch.set(mockBatch);
+    fixture.componentRef.setInput('saveStatus', 'error');
+    fixture.detectChanges();
+
     expect(component.showForm()).toBe(true);
-    expect(component.formLoading()).toBe(false);
+    expect(component.selectedBatch()).toEqual(mockBatch);
+  });
+
+  it('should bubble page change events to the host', () => {
+    const pageSpy = vi.fn();
+    component.pageChange.subscribe(pageSpy);
+
+    component.emitPageChange({ first: 25, rows: 50 });
+
+    expect(pageSpy).toHaveBeenCalledWith({ first: 25, rows: 50 });
   });
 });

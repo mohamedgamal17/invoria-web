@@ -21,12 +21,12 @@
         </div>
       </div>
     </p-card>
-  } @else if (error()) {
+  } @else if (error(); as inlineError) {
     <p-card styleClass="border border-destructive/30 rounded-2xl shadow-sm">
       <div class="flex flex-col gap-4 p-1 sm:flex-row sm:items-center sm:justify-between">
         <div class="space-y-1">
           <h2 class="text-base font-semibold text-foreground">Unable to load product</h2>
-          <p class="text-sm text-destructive">{{ error() }}</p>
+          <p class="text-sm text-destructive">{{ inlineError }}</p>
         </div>
         <p-button
           label="Retry"
@@ -39,16 +39,16 @@
   } @else if (product(); as p) {
     <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" [lazy]="true">
       <p-tablist>
-        <p-tab [value]="0">Info</p-tab>
-        <p-tab [value]="1">Batches</p-tab>
-        <p-tab [value]="2">Orders</p-tab>
+        <p-tab [value]="tabs.Info">Info</p-tab>
+        <p-tab [value]="tabs.Batches">Batches</p-tab>
+        <p-tab [value]="tabs.Orders">Orders</p-tab>
       </p-tablist>
       <p-tabpanels>
-        <p-tabpanel [value]="0">
+        <p-tabpanel [value]="tabs.Info">
           <app-product-details-info-panel [product]="p" (edit)="goToEdit()" />
         </p-tabpanel>
 
-        <p-tabpanel [value]="1">
+        <p-tabpanel [value]="tabs.Batches">
           <div class="pt-6">
             <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
               <div class="mb-4 flex flex-col gap-1 border-b border-border pb-4">
@@ -56,19 +56,22 @@
                 <p class="m-0 text-sm text-muted-foreground">Manage batches and stock for this product.</p>
               </div>
               <app-product-batches-panel
-                [product]="batchesProductRef()"
-                [active]="activeTab() === 1"
+                [batches]="batches()"
+                [loading]="batchesLoading()"
+                [saving]="batchesSaving()"
+                [saveStatus]="batchesSaveStatus()"
+                [totalRecords]="totalRecords()"
                 [first]="first()"
                 [pageSize]="pageSize()"
                 [pageSizeOptions]="pageSizeOptions"
-                (pageChange)="onPageChange($event)"
-                (batchesMutated)="onBatchesMutated()"
+                (pageChange)="onBatchesPageChange($event)"
+                (save)="onBatchesSave($event)"
               />
             </p-card>
           </div>
         </p-tabpanel>
 
-        <p-tabpanel [value]="2">
+        <p-tabpanel [value]="tabs.Orders">
           <div class="pt-6">
             <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
               <div class="mb-4 flex flex-col gap-1 border-b border-border pb-4">
@@ -79,7 +82,7 @@
               </div>
               <app-product-details-orders-panel
                 [productId]="p.id"
-                [active]="activeTab() === 2"
+                [active]="activeTab() === tabs.Orders"
               />
             </p-card>
           </div>
