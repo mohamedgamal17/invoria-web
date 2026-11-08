@@ -1,8 +1,26 @@
 import { Routes } from '@angular/router';
+import { provideState } from '@ngrx/store';
+import { provideEffects } from '@ngrx/effects';
+
+import {
+  ORDERS_LIST_FEATURE_KEY,
+  ordersListReducer,
+} from './store/orders-list/orders-list.reducer';
+import { OrdersListEffects } from './store/orders-list/orders-list.effects';
+import { OrdersListUrlEffects } from './store/orders-list-url/orders-list-url.effects';
+
+const ORDERS_LIST_PROVIDERS = [
+  provideState(ORDERS_LIST_FEATURE_KEY, ordersListReducer),
+  provideEffects(OrdersListEffects, OrdersListUrlEffects),
+];
 
 export const ORDERS_ROUTES: Routes = [
   {
     path: '',
+    // List slice lives on the shell so it survives form/details navigation:
+    // the form/details mutation dispatches fold into the local list sync
+    // (orderCreated/orderAccepted/.../orderUpdated) without a refetch.
+    providers: [...ORDERS_LIST_PROVIDERS],
     loadComponent: () =>
       import('./pages/orders-shell-page/orders-shell-page.component').then(
         (module) => module.OrdersShellPageComponent
