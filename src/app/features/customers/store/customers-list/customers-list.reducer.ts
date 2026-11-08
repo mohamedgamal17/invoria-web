@@ -102,6 +102,48 @@ export const customersListReducer = createReducer(
     fetchedQuery: null,
     request: applyFailure(state.request, error),
   })),
+
+  // Local mutation sync: prepend a newly created customer on top of the
+  // current page without refetching. Only visible on the first page when the
+  // name matches the active filter; the paging total is always bumped silently.
+  on(CUSTOMERS_LIST_ACTIONS.customerCreated, (state, { customer }) => {
+    if (state.info === null || state.fetchedQuery === null) {
+      return state;
+    }
+    if (state.customers.some((item) => item.id === customer.id)) {
+      return state;
+    }
+    const matchesFilter =
+      !state.nameFilter || customer.name.toLowerCase().includes(state.nameFilter.toLowerCase());
+    const shouldPrepend = state.pageIndex === 0 && matchesFilter;
+    const customers = shouldPrepend
+      ? [customer, ...state.customers].slice(0, state.pageSize)
+      : state.customers;
+    return {
+      ...state,
+      customers,
+      info: {
+        ...state.info,
+        totalCount: state.info.totalCount + 1,
+        length: Math.min(customers.length, state.pageSize),
+      },
+    };
+  }),
+
+  // Local mutation sync: replace the current customer in place if it is on
+  // the current page; otherwise ignore it (the next fetch will include it).
+  on(CUSTOMERS_LIST_ACTIONS.customerUpdated, (state, { customer }) => {
+    if (state.info === null) {
+      return state;
+    }
+    if (!state.customers.some((item) => item.id === customer.id)) {
+      return state;
+    }
+    return {
+      ...state,
+      customers: state.customers.map((item) => (item.id === customer.id ? customer : item)),
+    };
+  }),
 );
 
 export const customersListFeature = createFeature({

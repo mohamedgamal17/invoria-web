@@ -26,4 +26,16 @@ export const CUSTOMERS_LIST_ACTIONS = {
     '[Customers List] Load Customers Failure',
     props<{ error: unknown }>(),
   ),
+
+  /** Local sync: a customer was created via the API (form page); prepend silently, no refetch. */
+  customerCreated: createAction(
+    '[Customers List] Customer Created',
+    props<{ customer: Customer }>(),
+  ),
+
+  /** Local sync: a customer was updated via the API (form page); replace in place if present. */
+  customerUpdated: createAction(
+    '[Customers List] Customer Updated',
+    props<{ customer: Customer }>(),
+  ),
 } as const;
