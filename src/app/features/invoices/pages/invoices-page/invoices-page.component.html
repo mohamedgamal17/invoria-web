@@ -1,19 +1,17 @@
-<p-toast />
-
 <section class="flex flex-col gap-8">
   <app-invoice-header />
 
   <app-invoices-filter-panel
     [customerId]="customerIdFromRoute()"
     [orderId]="orderIdFromRoute()"
-    [loading]="invoicesResource.isLoading()"
+    [loading]="listLoading()"
     (filtersChange)="onFiltersChange($event)"
     (clearFilters)="onClearFilters()"
   />
 
   <app-invoice-list
     [invoices]="displayInvoices()"
-    [isListLoading]="invoicesResource.isLoading()"
+    [isListLoading]="listLoading()"
     [totalRecords]="displayPaging().totalCount"
     [first]="first()"
     [pageSize]="pageSize()"

@@ -1,170 +1,99 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, inject, linkedSignal } from '@angular/core';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { Component, inject, untracked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, map, of } from 'rxjs';
 
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import { Store } from '@ngrx/store';
 import type { PaginatorState } from 'primeng/paginator';
 import type { TablePageEvent } from 'primeng/table';
 
-import { InvoicesApiService } from '../../services/invoices-api.service';
-import type { ListInvoiceRequest } from '../../models/list-invoice.request';
+import { type Invoice } from '../../models/invoice.entity';
 import { InvoiceListComponent } from '../../components/invoice-list/invoice-list.component';
 import { InvoiceHeaderComponent } from '../../components/invoice-header/invoice-header.component';
 import {
   InvoicesFilterPanelComponent,
   type InvoicesListFilters
 } from '../../components/invoices-filter-panel/invoices-filter-panel.component';
-import type { Invoice } from '../../models/invoice.entity';
-import type { PagingInfo } from '../../../../core/models/paging';
-import { presentApiError } from '../../../../core/http/api-error.presenter';
-import { PaginationService } from '../../../../shared/utils/pagination.service';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
+import { PaginationService } from '../../../../shared/utils/pagination.service';
+import { invoicesListSelectors } from '../../store/invoices-list/invoices-list.selectors';
 
-const EMPTY_INVOICES_TUPLE: [Invoice[], PagingInfo] = [
-  [],
-  { length: 0, skip: 0, totalCount: 0 }
-];
-
+/**
+ * Smart page (container) for the invoices list. It owns only:
+ * - the NgRx state mapping (selectors → signals),
+ * - the URL write adapter (`page` / `pageSize` / `customerId` / `orderId`
+ *   query params via merge),
+ * - presentation glue (scroll behavior, details navigation).
+ * The URL *read* side lives in the `store/invoices-list-url` effects
+ * (NgRx Router Store); all business logic lives in the
+ * `store/invoices-list` state module, including error presentation
+ * (global `AppErrorEffects` toast).
+ */
 @Component({
   selector: 'app-invoices-page',
   standalone: true,
   imports: [
-    CommonModule,
-    ToastModule,
     InvoiceHeaderComponent,
     InvoicesFilterPanelComponent,
     InvoiceListComponent
   ],
-  providers: [MessageService],
   templateUrl: './invoices-page.component.html'
 })
 export class InvoicesPageComponent {
   readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
 
+  private readonly store = inject(Store);
   private readonly pagination = inject(PaginationService);
-  private readonly invoicesApi = inject(InvoicesApiService);
-  private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  private readonly pageFromRoute = toSignal(
-    this.route.queryParamMap.pipe(
-      map((paramMap) => {
-        const raw = paramMap.get('page');
-        const pageNumber = raw ? parseInt(raw, 10) : 1;
-        return Number.isFinite(pageNumber) && pageNumber >= 1 ? pageNumber : 1;
-      })
-    ),
-    { initialValue: 1 }
-  );
-
-  readonly pageSize = toSignal(
-    this.route.queryParamMap.pipe(
-      map((paramMap) => this.pagination.pageSizeFromQuery(Number(paramMap.get('pageSize'))))
-    ),
-    { initialValue: 25 }
-  );
-
-  readonly customerIdFromRoute = toSignal(
-    this.route.queryParamMap.pipe(
-      map((paramMap) => {
-        const customerId = paramMap.get('customerId')?.trim();
-        return customerId ? customerId : '';
-      })
-    ),
-    { initialValue: '' }
-  );
-
-  readonly orderIdFromRoute = toSignal(
-    this.route.queryParamMap.pipe(
-      map((paramMap) => {
-        const orderId = paramMap.get('orderId')?.trim();
-        return orderId ? orderId : '';
-      })
-    ),
-    { initialValue: '' }
-  );
-
-  readonly pageIndex = computed(() => Math.max(0, this.pageFromRoute() - 1));
-
-  readonly listRequest = computed((): ListInvoiceRequest => ({
-    Skip: this.pageIndex() * this.pageSize(),
-    Length: this.pageSize(),
-    CustomerId: this.customerIdFromRoute() || null,
-    OrderId: this.orderIdFromRoute() || null
-  }));
-
-  readonly first = computed(() => this.pageIndex() * this.pageSize());
-
-  readonly invoicesResource = rxResource<[Invoice[], PagingInfo], ListInvoiceRequest>({
-    params: () => this.listRequest(),
-    defaultValue: EMPTY_INVOICES_TUPLE,
-    stream: ({ params }) =>
-      this.invoicesApi.listInvoices(params).pipe(
-        map((res) => {
-          if (!res.isSuccess || !res.result) {
-            this.showApiError(res.error);
-            return EMPTY_INVOICES_TUPLE;
-          }
-          return [res.result.data, res.result.info] as [Invoice[], PagingInfo];
-        }),
-        catchError((err: unknown) => {
-          this.showApiError(err);
-          return of(EMPTY_INVOICES_TUPLE);
-        })
-      )
-  });
-
-  readonly displayInvoices = linkedSignal({
-    source: () => this.invoicesLinkSource(),
-    computation: (src) => [...src.invoices]
-  });
-
-  readonly displayPaging = linkedSignal({
-    source: () => this.invoicesLinkSource(),
-    computation: (src) => ({ ...src.paging })
-  });
+  // --- Invoices list store (URL-backed paging + entity filters) ---
+  readonly displayInvoices = this.store.selectSignal(invoicesListSelectors.selectInvoices);
+  readonly displayPaging = this.store.selectSignal(invoicesListSelectors.selectPaging);
+  readonly listLoading = this.store.selectSignal(invoicesListSelectors.selectIsLoading);
+  readonly pageIndex = this.store.selectSignal(invoicesListSelectors.selectPageIndex);
+  readonly pageSize = this.store.selectSignal(invoicesListSelectors.selectPageSize);
+  readonly customerIdFromRoute = this.store.selectSignal(invoicesListSelectors.selectCustomerIdFilter);
+  readonly orderIdFromRoute = this.store.selectSignal(invoicesListSelectors.selectOrderIdFilter);
+  readonly first = this.store.selectSignal(invoicesListSelectors.selectFirst);
 
   goToDetails(invoice: Invoice): void {
     void this.router.navigate([invoice.id], { relativeTo: this.route });
   }
 
   onPageChange(event: PaginatorState | TablePageEvent): void {
-    const firstEvt = event.first ?? 0;
-    const rows = event.rows ?? this.pageSize();
-    const newPageIndex = Math.floor(firstEvt / Math.max(rows, 1));
+    const { pageIndex, pageSize } = this.pagination.pageIndexFromEvent(
+      event,
+      untracked(this.pageSize),
+    );
+    // Presentation glue only: page navigation scrolls to top; the state
+    // (reducer) decides whether the change is real and warrants an API call.
+    const isManualPageChange = pageIndex !== untracked(this.pageIndex);
 
-    if (this.pageIndex() !== newPageIndex || this.pageSize() !== rows) {
-      const isManualPageChange = this.pageIndex() !== newPageIndex;
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page: pageIndex + 1, pageSize },
+      queryParamsHandling: 'merge'
+    });
 
-      void this.router.navigate([], {
-        relativeTo: this.route,
-        queryParams: { page: newPageIndex + 1, pageSize: rows },
-        queryParamsHandling: 'merge'
-      });
-
-      if (isManualPageChange) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
+    if (isManualPageChange) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
   onFiltersChange(filters: InvoicesListFilters): void {
-    const normalizedCustomerId = filters.customerId.trim();
-    const normalizedOrderId = filters.orderId.trim();
-
-    if (normalizedCustomerId === this.customerIdFromRoute() && normalizedOrderId === this.orderIdFromRoute()) {
+    const customerIdFilter = filters.customerId.trim();
+    const orderIdFilter = filters.orderId.trim();
+    if (
+      customerIdFilter === untracked(this.customerIdFromRoute) &&
+      orderIdFilter === untracked(this.orderIdFromRoute)
+    ) {
       return;
     }
 
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {
-        customerId: normalizedCustomerId || null,
-        orderId: normalizedOrderId || null,
+        customerId: customerIdFilter || null,
+        orderId: orderIdFilter || null,
         page: 1
       },
       queryParamsHandling: 'merge'
@@ -172,7 +101,7 @@ export class InvoicesPageComponent {
   }
 
   onClearFilters(): void {
-    if (!this.customerIdFromRoute() && !this.orderIdFromRoute()) {
+    if (!untracked(this.customerIdFromRoute) && !untracked(this.orderIdFromRoute)) {
       return;
     }
 
@@ -181,26 +110,5 @@ export class InvoicesPageComponent {
       queryParams: { customerId: null, orderId: null, page: 1 },
       queryParamsHandling: 'merge'
     });
-  }
-
-  private invoicesLinkSource(): {
-    request: ListInvoiceRequest;
-    invoices: Invoice[];
-    paging: PagingInfo;
-  } {
-    const [invoices, paging] = this.invoicesResource.value();
-    return {
-      request: this.listRequest(),
-      invoices,
-      paging
-    };
-  }
-
-  private showApiError(error: unknown): void {
-    const presentation = presentApiError(error);
-    this.messageService.add(presentation.toast);
-    if (presentation.routeTarget) {
-      void this.router.navigate([presentation.routeTarget]);
-    }
   }
 }
