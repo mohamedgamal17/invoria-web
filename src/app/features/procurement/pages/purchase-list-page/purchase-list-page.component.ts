@@ -1,38 +1,23 @@
+import { Component, inject, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, linkedSignal } from '@angular/core';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, map, of } from 'rxjs';
 
-import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import type { PaginatorState } from 'primeng/paginator';
 import type { TablePageEvent } from 'primeng/table';
 
-import type { PagingInfo } from '../../../../core/models/paging';
-import type { ListPurchaseOrderRequest } from '../../models/list-purchase-order.request';
+import { Store } from '@ngrx/store';
+
 import type { PurchaseOrder } from '../../models/purchase-order.entity';
-import { PurchaseState } from '../../enums/purchase-state.enum';
-import { PurchaseOrdersApiService } from '../../services/purchase-orders-api.service';
 import { PurchaseOrderHeaderComponent } from '../../components/purchase-order-header/purchase-order-header.component';
 import { PurchaseOrderListComponent } from '../../components/purchase-order-list/purchase-order-list.component';
 import {
   PurchaseOrdersFilterPanelComponent,
-  type PurchaseOrdersListFilters
+  type PurchaseOrdersListFilters,
 } from '../../components/purchase-orders-filter-panel/purchase-orders-filter-panel.component';
-import { presentApiError } from '../../../../core/http/api-error.presenter';
-import { parseOptionalEnumQueryParam } from '../../../../shared/navigation/query-param-parsers';
 import { PaginationService } from '../../../../shared/utils/pagination.service';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
-
-const EMPTY_PURCHASE_ORDERS_TUPLE: [PurchaseOrder[], PagingInfo] = [
-  [],
-  { length: 0, skip: 0, totalCount: 0 }
-];
-
-const PURCHASE_STATE_VALUES = Object.values(PurchaseState).filter(
-  (value): value is number => typeof value === 'number'
-);
+import { purchaseOrdersListSelectors } from '../../store/purchase-orders-list/purchase-orders-list.selectors';
 
 @Component({
   selector: 'app-purchase-list-page',
@@ -42,101 +27,41 @@ const PURCHASE_STATE_VALUES = Object.values(PurchaseState).filter(
     ToastModule,
     PurchaseOrderHeaderComponent,
     PurchaseOrdersFilterPanelComponent,
-    PurchaseOrderListComponent
+    PurchaseOrderListComponent,
   ],
-  providers: [MessageService],
-  templateUrl: './purchase-list-page.component.html'
+  templateUrl: './purchase-list-page.component.html',
 })
+/**
+ * Smart page (container) for the purchase orders list. It owns only:
+ * - the NgRx state mapping (selectors → signals),
+ * - the URL write adapter (`page` / `pageSize` / `number` / `status` query params via merge),
+ * - presentation glue (scroll behavior, page navigation).
+ * The URL *read* side lives in the `store/purchase-orders-list-url` effects
+ * (NgRx Router Store); all business logic lives in the
+ * `store/purchase-orders-list` state module, including error presentation
+ * (global `AppErrorEffects` toast).
+ */
 export class PurchaseListPageComponent {
   readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
 
+  private readonly store = inject(Store);
   private readonly pagination = inject(PaginationService);
-  private readonly purchaseOrdersApi = inject(PurchaseOrdersApiService);
-  private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  /** 1-based page number from `?page=` (default 1). */
-  private readonly pageFromRoute = toSignal(
-    this.route.queryParamMap.pipe(
-      map((paramMap) => {
-        const raw = paramMap.get('page');
-        const pageNumber = raw ? parseInt(raw, 10) : 1;
-        return Number.isFinite(pageNumber) && pageNumber >= 1 ? pageNumber : 1;
-      })
-    ),
-    { initialValue: 1 }
+  // --- Purchase orders list store (URL-backed paging + number/status filters) ---
+  readonly purchaseOrders = this.store.selectSignal(
+    purchaseOrdersListSelectors.selectPurchaseOrders,
   );
-
-  /** Page size from `?pageSize=` (must be in pageSizeOptions; default 25). */
-  readonly pageSize = toSignal(
-    this.route.queryParamMap.pipe(
-      map((paramMap) => this.pagination.pageSizeFromQuery(Number(paramMap.get('pageSize'))))
-    ),
-    { initialValue: 25 }
+  readonly paging = this.store.selectSignal(purchaseOrdersListSelectors.selectPaging);
+  readonly listLoading = this.store.selectSignal(purchaseOrdersListSelectors.selectIsLoading);
+  readonly pageIndex = this.store.selectSignal(purchaseOrdersListSelectors.selectPageIndex);
+  readonly pageSize = this.store.selectSignal(purchaseOrdersListSelectors.selectPageSize);
+  readonly purchaseNumber = this.store.selectSignal(purchaseOrdersListSelectors.selectNumberFilter);
+  readonly purchaseStatusFilter = this.store.selectSignal(
+    purchaseOrdersListSelectors.selectStatusFilter,
   );
-
-  /** Purchase order number filter from `?number=` (trimmed). */
-  readonly purchaseNumber = toSignal(
-    this.route.queryParamMap.pipe(map((paramMap) => (paramMap.get('number') ?? '').trim())),
-    { initialValue: '' }
-  );
-
-  /** `PurchaseState` filter from `?status=` (GET /purchase-orders `Status`). */
-  readonly purchaseStatusFilterFromRoute = toSignal(
-    this.route.queryParamMap.pipe(
-      map((paramMap) => parseOptionalEnumQueryParam(paramMap, 'status', PURCHASE_STATE_VALUES))
-    ),
-    { initialValue: null as number | null }
-  );
-
-  readonly pageIndex = computed(() => Math.max(0, this.pageFromRoute() - 1));
-
-  readonly first = computed(() => this.pageIndex() * this.pageSize());
-
-  readonly listRequest = computed((): ListPurchaseOrderRequest => {
-    const req: ListPurchaseOrderRequest = {
-      Skip: this.pageIndex() * this.pageSize(),
-      Length: this.pageSize(),
-      Number: this.purchaseNumber() || null,
-      IncludePurchaseItems: false,
-      IncludeSupplier: true
-    };
-    const st = this.purchaseStatusFilterFromRoute();
-    if (st != null) {
-      req.Status = st;
-    }
-    return req;
-  });
-
-  readonly purchaseOrdersResource = rxResource<[PurchaseOrder[], PagingInfo], ListPurchaseOrderRequest>({
-    params: () => this.listRequest(),
-    defaultValue: EMPTY_PURCHASE_ORDERS_TUPLE,
-    stream: ({ params }) =>
-      this.purchaseOrdersApi.listPurchaseOrders(params).pipe(
-        map((res) => {
-          if (!res.isSuccess || !res.result) {
-            this.showApiError(res.error);
-            return EMPTY_PURCHASE_ORDERS_TUPLE;
-          }
-          return [res.result.data, res.result.info] as [PurchaseOrder[], PagingInfo];
-        }),
-        catchError((err: unknown) => {
-          this.showApiError(err);
-          return of(EMPTY_PURCHASE_ORDERS_TUPLE);
-        })
-      )
-  });
-
-  readonly displayPurchaseOrders = linkedSignal({
-    source: () => this.purchaseOrdersLinkSource(),
-    computation: (src) => [...src.rows]
-  });
-
-  readonly displayPaging = linkedSignal({
-    source: () => this.purchaseOrdersLinkSource(),
-    computation: (src) => ({ ...src.paging })
-  });
+  readonly first = this.store.selectSignal(purchaseOrdersListSelectors.selectFirst);
 
   goToDetails(po: PurchaseOrder): void {
     void this.router.navigate([po.id], { relativeTo: this.route });
@@ -147,33 +72,30 @@ export class PurchaseListPageComponent {
   }
 
   onPageChange(event: PaginatorState | TablePageEvent): void {
-    const firstEvt = event.first ?? 0;
-    const rows = event.rows ?? this.pageSize();
-    const newPageIndex = Math.floor(firstEvt / Math.max(rows, 1));
+    const { pageIndex, pageSize } = this.pagination.pageIndexFromEvent(
+      event,
+      untracked(this.pageSize),
+    );
+    // Presentation glue only: page navigation scrolls to top; the state
+    // (reducer) decides whether the change is real and warrants an API call.
+    const isManualPageChange = pageIndex !== untracked(this.pageIndex);
 
-    if (this.pageIndex() !== newPageIndex || this.pageSize() !== rows) {
-      const isManualPageChange = this.pageIndex() !== newPageIndex;
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page: pageIndex + 1, pageSize },
+      queryParamsHandling: 'merge',
+    });
 
-      void this.router.navigate([], {
-        relativeTo: this.route,
-        queryParams: {
-          page: newPageIndex + 1,
-          pageSize: rows
-        },
-        queryParamsHandling: 'merge'
-      });
-
-      if (isManualPageChange) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
+    if (isManualPageChange) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
   onFiltersChange(filters: PurchaseOrdersListFilters): void {
-    const normalized = filters.purchaseNumber.trim();
+    const numberFilter = filters.purchaseNumber.trim();
     if (
-      normalized === this.purchaseNumber() &&
-      filters.status === this.purchaseStatusFilterFromRoute()
+      numberFilter === untracked(this.purchaseNumber) &&
+      filters.status === untracked(this.purchaseStatusFilter)
     ) {
       return;
     }
@@ -181,16 +103,16 @@ export class PurchaseListPageComponent {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {
-        number: normalized || null,
+        number: numberFilter || null,
         status: filters.status != null ? String(filters.status) : null,
-        page: 1
+        page: 1,
       },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
   }
 
   onClearFilters(): void {
-    if (!this.purchaseNumber() && this.purchaseStatusFilterFromRoute() == null) {
+    if (!untracked(this.purchaseNumber) && untracked(this.purchaseStatusFilter) == null) {
       return;
     }
 
@@ -199,30 +121,9 @@ export class PurchaseListPageComponent {
       queryParams: {
         number: null,
         status: null,
-        page: 1
+        page: 1,
       },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
-  }
-
-  private purchaseOrdersLinkSource(): {
-    request: ListPurchaseOrderRequest;
-    rows: PurchaseOrder[];
-    paging: PagingInfo;
-  } {
-    const [rows, paging] = this.purchaseOrdersResource.value();
-    return {
-      request: this.listRequest(),
-      rows,
-      paging
-    };
-  }
-
-  private showApiError(error: unknown): void {
-    const presentation = presentApiError(error);
-    this.messageService.add(presentation.toast);
-    if (presentation.routeTarget) {
-      void this.router.navigate([presentation.routeTarget]);
-    }
   }
 }

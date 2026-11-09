@@ -4,19 +4,19 @@
 
   <app-purchase-orders-filter-panel
     [purchaseNumber]="purchaseNumber()"
-    [status]="purchaseStatusFilterFromRoute()"
-    [loading]="purchaseOrdersResource.isLoading()"
+    [status]="purchaseStatusFilter()"
+    [loading]="listLoading()"
     (filtersChange)="onFiltersChange($event)"
     (clearFilters)="onClearFilters()"
   />
 
   <app-purchase-order-list
-    [purchaseOrders]="displayPurchaseOrders()"
-    [totalRecords]="displayPaging().totalCount"
+    [purchaseOrders]="purchaseOrders()"
+    [totalRecords]="paging().totalCount"
     [first]="first()"
     [pageSize]="pageSize()"
     [pageSizeOptions]="pageSizeOptions"
-    [loading]="purchaseOrdersResource.isLoading()"
+    [loading]="listLoading()"
     (pageChange)="onPageChange($event)"
     (view)="goToDetails($event)"
   />

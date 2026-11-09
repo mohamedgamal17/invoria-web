@@ -1,32 +1,38 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
+import { ActivatedRoute, Router, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
-
+import { Store, provideStore, provideState } from '@ngrx/store';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
 import { PurchaseOrderDetailsPageComponent } from './purchase-order-details-page.component';
-import { PurchaseOrdersApiService } from '../../services/purchase-orders-api.service';
-import { ProductsApiService } from '../../../products/services/products-api.service';
 import type { PurchaseOrder } from '../../models/purchase-order.entity';
 import { PurchaseState } from '../../enums/purchase-state.enum';
 import { purchaseStateLabel } from '../../models/purchase-state.display';
+import {
+  PURCHASE_ORDER_DETAILS_FEATURE_KEY,
+  purchaseOrderDetailsReducer,
+} from '../../store/purchase-order-details/purchase-order-details.reducer';
+import { PURCHASE_ORDER_DETAILS_ACTIONS } from '../../store/purchase-order-details/purchase-order-details.actions';
+import {
+  PURCHASE_ORDERS_MUTATIONS_FEATURE_KEY,
+  purchaseOrdersMutationsReducer,
+} from '../../store/purchase-orders-mutations/purchase-orders-mutations.reducer';
+import { PURCHASE_ORDERS_MUTATIONS_ACTIONS } from '../../store/purchase-orders-mutations/purchase-orders-mutations.actions';
 
-function activatedRouteMock(query: Record<string, string> = {}) {
-  const queryParamMap = convertToParamMap(query);
+function activatedRouteMock(id = 'po_1') {
+  const getParam = (key: string): string | null => (key === 'id' ? id : null);
   return {
-    snapshot: {
-      paramMap: convertToParamMap({ id: 'po_1' }),
-      queryParamMap
-    },
-    paramMap: of(convertToParamMap({ id: 'po_1' })),
-    queryParamMap: of(queryParamMap)
+    snapshot: { paramMap: { get: getParam } },
+    paramMap: of({ get: getParam }),
   };
 }
 
 describe('PurchaseOrderDetailsPageComponent', () => {
   let fixture: ComponentFixture<PurchaseOrderDetailsPageComponent>;
+  let store: Store;
+  let router: Router;
 
   beforeEach(() => {
     if (typeof globalThis.ResizeObserver === 'undefined') {
@@ -57,8 +63,8 @@ describe('PurchaseOrderDetailsPageComponent', () => {
         productId: 'prod_1',
         quantity: 2,
         unitPrice: 100,
-        lineTotal: 200
-      }
+        lineTotal: 200,
+      },
     ],
     stateHistory: [
       { toState: PurchaseState.Draft, changedAt: '2026-01-01T08:00:00.000Z' },
@@ -66,264 +72,188 @@ describe('PurchaseOrderDetailsPageComponent', () => {
         fromState: PurchaseState.Draft,
         toState: PurchaseState.Submitted,
         changedAt: '2026-01-01T10:00:00.000Z',
-        reason: 'Ready for review'
-      }
-    ]
+        reason: 'Ready for review',
+      },
+    ],
   };
 
-  beforeEach(async () => {
+  async function createFixture(po: PurchaseOrder = mockPo): Promise<void> {
     TestBed.resetTestingModule();
-
-    const getPurchaseOrder = vi.fn().mockReturnValue(
-      of({ isSuccess: true as const, result: mockPo })
-    );
-    const apiMock = {
-      getPurchaseOrder,
-      submitPurchaseOrder: vi.fn(),
-      approvePurchaseOrder: vi.fn(),
-      rejectPurchaseOrder: vi.fn(),
-      cancelPurchaseOrder: vi.fn(),
-      completePurchaseOrder: vi.fn(),
-      reopenPurchaseOrder: vi.fn()
-    };
-    const productsApiMock = {
-      getProduct: vi.fn().mockReturnValue(
-        of({
-          isSuccess: true as const,
-          result: {
-            id: 'prod_1',
-            name: 'Resolved product name',
-            price: 100,
-            stock: {
-              actualQuantity: 0,
-              reservedQuantity: 0
-            },
-            createdAt: '',
-            createdBy: '',
-            lastModifiedAt: '',
-            lastModifiedBy: ''
-          }
-        })
-      )
-    };
 
     await TestBed.configureTestingModule({
       imports: [PurchaseOrderDetailsPageComponent, NoopAnimationsModule],
       providers: [
         MessageService,
         ConfirmationService,
-        { provide: PurchaseOrdersApiService, useValue: apiMock },
-        { provide: ProductsApiService, useValue: productsApiMock },
+        provideStore({}),
+        provideState(PURCHASE_ORDER_DETAILS_FEATURE_KEY, purchaseOrderDetailsReducer),
+        provideState(PURCHASE_ORDERS_MUTATIONS_FEATURE_KEY, purchaseOrdersMutationsReducer),
+        provideRouter([]),
         { provide: ActivatedRoute, useValue: activatedRouteMock() },
-        { provide: Router, useValue: { navigate: vi.fn().mockResolvedValue(true) } }
-      ]
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PurchaseOrderDetailsPageComponent);
+    store = TestBed.inject(Store);
+    router = TestBed.inject(Router);
+    vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+    fixture.detectChanges();
+    store.dispatch(PURCHASE_ORDER_DETAILS_ACTIONS.loadPurchaseOrderSuccess({ purchaseOrder: po }));
     fixture.detectChanges();
     await fixture.whenStable();
-  });
+  }
 
-  it('should create and load purchase order', () => {
-    const api = TestBed.inject(PurchaseOrdersApiService);
+  it('should expose the purchase order loaded through the store selectors', async () => {
+    await createFixture();
     const component = fixture.componentInstance;
 
-    expect(api.getPurchaseOrder).toHaveBeenCalledWith('po_1');
     expect(component.purchaseOrder()).toEqual(mockPo);
     expect(component.loading()).toBe(false);
-    expect(component.error()).toBe('');
+    expect(component.error()).toBeNull();
+    expect(component.purchaseOrder()?.purchaseNumber).toBe('PO-100');
+    expect(component.purchaseOrder()?.subTotal).toBe(200);
+    expect(component.purchaseOrder()?.totalAmount).toBe(218);
   });
 
-  it('should expose purchase order fields via signals', () => {
-    const component = fixture.componentInstance;
-    const loaded = component.purchaseOrder();
-    expect(loaded?.purchaseNumber).toBe(mockPo.purchaseNumber);
-    expect(loaded?.subTotal).toBe(mockPo.subTotal);
-    expect(loaded?.totalAmount).toBe(mockPo.totalAmount);
-  });
-
-  it('should compute stateTimelineEvents correctly', () => {
-    const component = fixture.componentInstance;
-    const events = component.stateTimelineEvents();
+  it('should compute stateTimelineEvents correctly', async () => {
+    await createFixture();
+    const events = fixture.componentInstance.stateTimelineEvents();
     expect(events).toHaveLength(2);
     expect(events[0].toLabel).toBe(purchaseStateLabel(PurchaseState.Draft));
     expect(events[1].toLabel).toBe(purchaseStateLabel(PurchaseState.Submitted));
     expect(events[1].reason).toBe('Ready for review');
   });
 
-  it('should reflect canEdit and availableTransitions for Draft state', () => {
+  it('should produce empty stateTimelineEvents when stateHistory is absent', async () => {
+    const poNoHistory: PurchaseOrder = { ...mockPo };
+    delete (poNoHistory as { stateHistory?: unknown }).stateHistory;
+    await createFixture(poNoHistory);
+
+    expect(fixture.componentInstance.stateTimelineEvents()).toEqual([]);
+  });
+
+  it('should reflect canEdit and availableTransitions for Draft state', async () => {
+    await createFixture();
     const component = fixture.componentInstance;
     expect(component.canEdit()).toBe(true);
     expect(component.availableTransitions()).toContain('submit');
     expect(component.availableTransitions()).toContain('cancel');
   });
 
-  it('should update activeTab via onTabChange', () => {
-    const component = fixture.componentInstance;
-    expect(component.activeTab()).toBe(0);
-    component.onTabChange(1);
-    expect(component.activeTab()).toBe(1);
-    expect(component.productLineLabel(mockPo.purchaseOrderItems![0])).toBe('Resolved product name');
-    component.onTabChange(2);
-    expect(component.activeTab()).toBe(2);
-  });
-
   it('should show Reopen and Complete without Edit when order is Approved', async () => {
-    TestBed.resetTestingModule();
-    const approvedPo: PurchaseOrder = {
-      ...mockPo,
-      state: PurchaseState.Approved,
-      stateHistory: []
-    };
-    const getPurchaseOrder = vi.fn().mockReturnValue(
-      of({ isSuccess: true as const, result: approvedPo })
-    );
-    const apiMock = {
-      getPurchaseOrder,
-      submitPurchaseOrder: vi.fn(),
-      approvePurchaseOrder: vi.fn(),
-      rejectPurchaseOrder: vi.fn(),
-      cancelPurchaseOrder: vi.fn(),
-      completePurchaseOrder: vi.fn(),
-      reopenPurchaseOrder: vi.fn()
-    };
-    const productsApiMock = {
-      getProduct: vi.fn().mockReturnValue(of({ isSuccess: false as const, result: undefined }))
-    };
-
-    await TestBed.configureTestingModule({
-      imports: [PurchaseOrderDetailsPageComponent, NoopAnimationsModule],
-      providers: [
-        MessageService,
-        ConfirmationService,
-        { provide: PurchaseOrdersApiService, useValue: apiMock },
-        { provide: ProductsApiService, useValue: productsApiMock },
-        { provide: ActivatedRoute, useValue: activatedRouteMock() },
-        { provide: Router, useValue: { navigate: vi.fn().mockResolvedValue(true) } }
-      ]
-    }).compileComponents();
-
-    const approvedFixture = TestBed.createComponent(PurchaseOrderDetailsPageComponent);
-    approvedFixture.detectChanges();
-    await approvedFixture.whenStable();
-
-    const comp = approvedFixture.componentInstance;
-    expect(comp.canEdit()).toBe(false);
-    expect(comp.availableTransitions()).toContain('reopen');
-    expect(comp.availableTransitions()).toContain('complete');
+    await createFixture({ ...mockPo, state: PurchaseState.Approved, stateHistory: [] });
+    const component = fixture.componentInstance;
+    expect(component.canEdit()).toBe(false);
+    expect(component.availableTransitions()).toContain('reopen');
+    expect(component.availableTransitions()).toContain('complete');
   });
 
-  it('should navigate back to procurement list', () => {
-    const router = TestBed.inject(Router);
+  it('should update activeTab via onTabChange and write the tab slug to the URL', async () => {
+    await createFixture();
+    const component = fixture.componentInstance;
+    const route = TestBed.inject(ActivatedRoute);
+
+    component.onTabChange('lines');
+    expect(component.activeTab()).toBe('lines');
+    expect(router.navigate).toHaveBeenCalledWith(
+      [],
+      expect.objectContaining({
+        relativeTo: route,
+        replaceUrl: true,
+        queryParams: { tab: 'lines' },
+      }),
+    );
+
+    component.onTabChange('history');
+    expect(component.activeTab()).toBe('history');
+  });
+
+  it('should ignore unknown tab values in onTabChange', async () => {
+    await createFixture();
+    const component = fixture.componentInstance;
+
+    component.onTabChange('nope');
+    expect(component.activeTab()).toBe('overview');
+
+    component.onTabChange(undefined);
+    expect(component.activeTab()).toBe('overview');
+  });
+
+  it('should resolve line labels from the store name lookups', async () => {
+    await createFixture();
+    const component = fixture.componentInstance;
+    const line = mockPo.purchaseOrderItems![0];
+
+    expect(component.productLineLabel(line)).toBe(line.productId);
+
+    store.dispatch(
+      PURCHASE_ORDER_DETAILS_ACTIONS.productNamesResolved({
+        names: new Map([['prod_1', 'Resolved product name']]),
+      }),
+    );
+    expect(component.productLineLabel(line)).toBe('Resolved product name');
+
+    expect(component.productLineLabel({ ...line, productName: 'Embedded name' })).toBe(
+      'Embedded name',
+    );
+  });
+
+  it('should dispatch the transition and reflect the in-progress flag', async () => {
+    await createFixture();
+    const component = fixture.componentInstance;
+
+    expect(component.transitionInProgress()).toBe(false);
+    component.onTransition('submit');
+
+    expect(component.transitionInProgress()).toBe(true);
+    expect(component.purchaseOrder()).toEqual(mockPo);
+  });
+
+  it('should not dispatch a transition while one is in flight', async () => {
+    await createFixture();
+    const component = fixture.componentInstance;
+    component.onTransition('submit');
+    expect(component.transitionInProgress()).toBe(true);
+
+    component.onTransition('approve');
+    expect(component.transitionInProgress()).toBe(true);
+  });
+
+  it('should fold a transition success into the held purchase order without refetching', async () => {
+    await createFixture();
+    const component = fixture.componentInstance;
+    component.onTransition('approve');
+
+    const updated: PurchaseOrder = { ...mockPo, state: PurchaseState.Approved };
+    store.dispatch(
+      PURCHASE_ORDERS_MUTATIONS_ACTIONS.transitionPurchaseOrderSuccess({ purchaseOrder: updated }),
+    );
+
+    expect(component.purchaseOrder()).toBe(updated);
+    expect(component.canEdit()).toBe(false);
+  });
+
+  it('should re-trigger the load on retry', async () => {
+    await createFixture();
+    fixture.componentInstance.retry();
+
+    expect(fixture.componentInstance.loading()).toBe(true);
+    expect(fixture.componentInstance.purchaseOrder()).toBeNull();
+  });
+
+  it('should navigate back to procurement list', async () => {
+    await createFixture();
     fixture.componentInstance.backToList();
     expect(router.navigate).toHaveBeenCalledWith(['/procurement']);
   });
 
-  it('should apply tab=lines query param to line items tab', async () => {
-    TestBed.resetTestingModule();
-    const getPurchaseOrder = vi.fn().mockReturnValue(
-      of({ isSuccess: true as const, result: mockPo })
-    );
-
-    await TestBed.configureTestingModule({
-      imports: [PurchaseOrderDetailsPageComponent, NoopAnimationsModule],
-      providers: [
-        MessageService,
-        ConfirmationService,
-        { provide: PurchaseOrdersApiService, useValue: { getPurchaseOrder } },
-        {
-          provide: ProductsApiService,
-          useValue: {
-            getProduct: vi
-              .fn()
-              .mockReturnValue(of({ isSuccess: false as const, result: undefined }))
-          }
-        },
-        { provide: ActivatedRoute, useValue: activatedRouteMock({ tab: 'lines' }) },
-        { provide: Router, useValue: { navigate: vi.fn().mockResolvedValue(true) } }
-      ]
-    }).compileComponents();
-
-    const fixture = TestBed.createComponent(PurchaseOrderDetailsPageComponent);
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    expect(fixture.componentInstance.activeTab()).toBe(1);
-  });
-
-  it('should produce empty stateTimelineEvents when stateHistory is absent', async () => {
-    TestBed.resetTestingModule();
-    const poNoHistory: PurchaseOrder = { ...mockPo };
-    delete (poNoHistory as { stateHistory?: unknown }).stateHistory;
-    const getPurchaseOrder = vi.fn().mockReturnValue(
-      of({ isSuccess: true as const, result: poNoHistory })
-    );
-
-    await TestBed.configureTestingModule({
-      imports: [PurchaseOrderDetailsPageComponent, NoopAnimationsModule],
-      providers: [
-        MessageService,
-        ConfirmationService,
-        { provide: PurchaseOrdersApiService, useValue: { getPurchaseOrder } },
-        {
-          provide: ProductsApiService,
-          useValue: {
-            getProduct: vi.fn().mockReturnValue(of({ isSuccess: false as const, result: undefined }))
-          }
-        },
-        { provide: ActivatedRoute, useValue: activatedRouteMock() },
-        { provide: Router, useValue: { navigate: vi.fn().mockResolvedValue(true) } }
-      ]
-    }).compileComponents();
-
-    const noHistFixture = TestBed.createComponent(PurchaseOrderDetailsPageComponent);
-    noHistFixture.detectChanges();
-    await noHistFixture.whenStable();
-
-    expect(noHistFixture.componentInstance.stateTimelineEvents()).toEqual([]);
-    noHistFixture.componentInstance.onTabChange(2);
-    expect(noHistFixture.componentInstance.activeTab()).toBe(2);
-    expect(noHistFixture.componentInstance.stateTimelineEvents()).toHaveLength(0);
-  });
-
-  it('should handle empty purchaseOrderItems', async () => {
-    TestBed.resetTestingModule();
-    const emptyItemsPo: PurchaseOrder = { ...mockPo, purchaseOrderItems: [] };
-    const getPurchaseOrder = vi.fn().mockReturnValue(
-      of({ isSuccess: true as const, result: emptyItemsPo })
-    );
-
-    await TestBed.configureTestingModule({
-      imports: [PurchaseOrderDetailsPageComponent, NoopAnimationsModule],
-      providers: [
-        MessageService,
-        ConfirmationService,
-        { provide: PurchaseOrdersApiService, useValue: { getPurchaseOrder } },
-        {
-          provide: ProductsApiService,
-          useValue: {
-            getProduct: vi.fn().mockReturnValue(of({ isSuccess: false as const, result: undefined }))
-          }
-        },
-        { provide: ActivatedRoute, useValue: activatedRouteMock() },
-        { provide: Router, useValue: { navigate: vi.fn().mockResolvedValue(true) } }
-      ]
-    }).compileComponents();
-
-    const emptyFixture = TestBed.createComponent(PurchaseOrderDetailsPageComponent);
-    emptyFixture.detectChanges();
-    await emptyFixture.whenStable();
-
-    expect(emptyFixture.componentInstance.purchaseOrder()?.purchaseOrderItems).toEqual([]);
-    emptyFixture.componentInstance.onTabChange(1);
-    expect(emptyFixture.componentInstance.activeTab()).toBe(1);
-  });
-
-  it('supplierLine should fall back to supplierId when supplier name is absent', () => {
+  it('supplierLine should fall back to supplierId when supplier name is absent', async () => {
+    await createFixture();
     const component = fixture.componentInstance;
     const poNoSupplierName: PurchaseOrder = {
       ...mockPo,
-      supplier: { id: 'sup_1', name: '' }
+      supplier: { id: 'sup_1', name: '' },
     };
     expect(component.supplierLine(poNoSupplierName)).toBe(mockPo.supplierId);
 
@@ -331,7 +261,8 @@ describe('PurchaseOrderDetailsPageComponent', () => {
     expect(component.supplierLine(poNoSupplier)).toBe(mockPo.supplierId);
   });
 
-  it('formatDateOrDash should return an em dash for missing or invalid dates', () => {
+  it('formatDateOrDash should return an em dash for missing or invalid dates', async () => {
+    await createFixture();
     const component = fixture.componentInstance;
     expect(component.formatDateOrDash(null)).toBe('—');
     expect(component.formatDateOrDash('')).toBe('—');

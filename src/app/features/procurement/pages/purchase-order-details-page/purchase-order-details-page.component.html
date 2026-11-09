@@ -90,12 +90,12 @@
 
     <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" [lazy]="true">
       <p-tablist>
-        <p-tab [value]="0">Overview</p-tab>
-        <p-tab [value]="1">Line items</p-tab>
-        <p-tab [value]="2">Status history</p-tab>
+        <p-tab [value]="tabs.Overview">Overview</p-tab>
+        <p-tab [value]="tabs.Lines">Line items</p-tab>
+        <p-tab [value]="tabs.History">Status history</p-tab>
       </p-tablist>
       <p-tabpanels>
-        <p-tabpanel [value]="0">
+        <p-tabpanel [value]="tabs.Overview">
           <div class="pt-5 w-full">
             <app-purchase-order-details-overview-tab
               [po]="po"
@@ -104,7 +104,7 @@
             />
           </div>
         </p-tabpanel>
-        <p-tabpanel [value]="1">
+        <p-tabpanel [value]="tabs.Lines">
           <div class="pt-5 min-w-0">
             <app-purchase-order-details-lines-tab
               [po]="po"
@@ -113,7 +113,7 @@
             />
           </div>
         </p-tabpanel>
-        <p-tabpanel [value]="2">
+        <p-tabpanel [value]="tabs.History">
           <div class="pt-5">
             <app-purchase-order-details-history-tab [events]="stateTimelineEvents()" />
           </div>
