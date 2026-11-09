@@ -1,18 +1,17 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { Component, inject, untracked } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, from, map, of } from 'rxjs';
+import { catchError, map, of } from 'rxjs';
 
+import { Store } from '@ngrx/store';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import type { PaginatorState } from 'primeng/paginator';
 import type { TablePageEvent } from 'primeng/table';
 
-import { PayablesApiService } from '../../services/payables-api.service';
-import { PayableReferenceResolverService } from '../../services/payable-reference-resolver.service';
+import { PaginationService } from '../../../../shared/utils/pagination.service';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
 import { SuppliersApiService } from '../../../suppliers/services/suppliers-api.service';
-import type { ListPayableRequest } from '../../models/list-payable.request';
+import { payablesListSelectors } from '../../store/payables-list/payables-list.selectors';
 import type { Payable } from '../../models/payable.entity';
 import { PayableListComponent } from '../../components/payable-list/payable-list.component';
 import { PayableHeaderComponent } from '../../components/payable-header/payable-header.component';
@@ -20,129 +19,54 @@ import {
   PayablesFilterPanelComponent,
   type PayablesListFilters
 } from '../../components/payables-filter-panel/payables-filter-panel.component';
-import type { PagingInfo } from '../../../../core/models/paging';
-import { presentApiError } from '../../../../core/http/api-error.presenter';
-import { PaginationService } from '../../../../shared/utils/pagination.service';
-import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
-
-const EMPTY_PAYABLES_TUPLE: [Payable[], PagingInfo] = [
-  [],
-  { length: 0, skip: 0, totalCount: 0 }
-];
-
-/** Client-side reference maps for the current page (hydrated `party`/`source` views). */
-const EMPTY_PAGE_REFS = {
-  parties: {} as Record<string, string | null>,
-  sources: {} as Record<string, string | null>
-};
 
 const SUPPLIER_OPTIONS_PAGE_SIZE = 200;
 
-function parseIsPaid(raw: string | null): boolean | null {
-  if (raw === 'true') return true;
-  if (raw === 'false') return false;
-  return null;
-}
-
-function hydratePayable(
-  payable: Payable,
-  refs: typeof EMPTY_PAGE_REFS
-): Payable {
-  const partyName = refs.parties[payable.partyId] ?? payable.party?.name ?? null;
-  const purchaseNumber = refs.sources[payable.sourceId] ?? payable.source?.purchaseNumber ?? null;
-  return {
-    ...payable,
-    party: partyName ? { id: payable.partyId, name: partyName } : (payable.party ?? null),
-    source: purchaseNumber
-      ? { id: payable.sourceId, purchaseNumber }
-      : (payable.source ?? null)
-  };
-}
-
+/**
+ * Smart page (container) for the payables list. It owns only:
+ * - the NgRx state mapping (selectors → signals),
+ * - the URL write adapter (`page` / `pageSize` / `supplierId` / `sourceId` /
+ *   `isPaid` query params via merge),
+ * - presentation glue (scroll behavior, page navigation),
+ * - static dropdown options for the filter panel.
+ * The URL *read* side lives in the `store/payables-list-url` effects
+ * (NgRx Router Store); all business logic lives in the
+ * `store/payables-list` state module, including error presentation
+ * (global `AppErrorEffects` toast).
+ */
 @Component({
   selector: 'app-payables-page',
   standalone: true,
   imports: [
-    CommonModule,
     ToastModule,
     PayableHeaderComponent,
     PayablesFilterPanelComponent,
     PayableListComponent
   ],
-  providers: [MessageService],
   templateUrl: './payables-page.component.html'
 })
 export class PayablesPageComponent {
   readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
 
+  private readonly store = inject(Store);
   private readonly pagination = inject(PaginationService);
-  private readonly payablesApi = inject(PayablesApiService);
-  private readonly referenceResolver = inject(PayableReferenceResolverService);
   private readonly suppliersApi = inject(SuppliersApiService);
-  private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  private readonly pageFromRoute = toSignal(
-    this.route.queryParamMap.pipe(
-      map((paramMap) => {
-        const raw = paramMap.get('page');
-        const pageNumber = raw ? parseInt(raw, 10) : 1;
-        return Number.isFinite(pageNumber) && pageNumber >= 1 ? pageNumber : 1;
-      })
-    ),
-    { initialValue: 1 }
-  );
+  // --- Payables list store (URL-backed paging + filters) ---
+  readonly payables = this.store.selectSignal(payablesListSelectors.selectPayables);
+  readonly paging = this.store.selectSignal(payablesListSelectors.selectPaging);
+  readonly listLoading = this.store.selectSignal(payablesListSelectors.selectIsLoading);
+  readonly supplierIdFilter = this.store.selectSignal(payablesListSelectors.selectSupplierIdFilter);
+  readonly sourceIdFilter = this.store.selectSignal(payablesListSelectors.selectSourceIdFilter);
+  readonly isPaidFilter = this.store.selectSignal(payablesListSelectors.selectIsPaidFilter);
+  readonly first = this.store.selectSignal(payablesListSelectors.selectFirst);
+  readonly pageSize = this.store.selectSignal(payablesListSelectors.selectPageSize);
+  private readonly pageIndex = this.store.selectSignal(payablesListSelectors.selectPageIndex);
 
-  readonly pageSize = toSignal(
-    this.route.queryParamMap.pipe(
-      map((paramMap) => this.pagination.pageSizeFromQuery(Number(paramMap.get('pageSize'))))
-    ),
-    { initialValue: 25 }
-  );
-
-  readonly supplierIdFromRoute = toSignal(
-    this.route.queryParamMap.pipe(
-      map((paramMap) => {
-        const supplierId = paramMap.get('supplierId')?.trim() ?? paramMap.get('partyId')?.trim();
-        return supplierId ? supplierId : '';
-      })
-    ),
-    { initialValue: '' }
-  );
-
-  readonly sourceIdFromRoute = toSignal(
-    this.route.queryParamMap.pipe(
-      map((paramMap) => {
-        const sourceId = paramMap.get('sourceId')?.trim();
-        return sourceId ? sourceId : '';
-      })
-    ),
-    { initialValue: '' }
-  );
-
-  readonly isPaidFromRoute = toSignal(
-    this.route.queryParamMap.pipe(map((paramMap) => parseIsPaid(paramMap.get('isPaid')))),
-    { initialValue: null }
-  );
-
-  readonly pageIndex = computed(() => Math.max(0, this.pageFromRoute() - 1));
-
-  readonly listRequest = computed((): ListPayableRequest => ({
-    Skip: this.pageIndex() * this.pageSize(),
-    Length: this.pageSize(),
-    PartyId: this.supplierIdFromRoute() || null,
-    SourceId: this.sourceIdFromRoute() || null,
-    IsPaid: this.isPaidFromRoute()
-  }));
-
-  readonly first = computed(() => this.pageIndex() * this.pageSize());
-
-  /** Supplier options for the filter dropdown (loaded once). */
-  readonly suppliersResource = rxResource<
-    { id: string; name: string }[],
-    void
-  >({
+  /** Supplier options for the filter dropdown (loaded once; static view data). */
+  readonly suppliersResource = rxResource<{ id: string; name: string }[], void>({
     params: () => undefined,
     defaultValue: [],
     stream: () =>
@@ -152,87 +76,27 @@ export class PayablesPageComponent {
       )
   });
 
-  readonly payablesResource = rxResource<[Payable[], PagingInfo], ListPayableRequest>({
-    params: () => this.listRequest(),
-    defaultValue: EMPTY_PAYABLES_TUPLE,
-    stream: ({ params }) =>
-      this.payablesApi.listPayables(params).pipe(
-        map((res) => {
-          if (!res.isSuccess || !res.result) {
-            this.showApiError(res.error);
-            return EMPTY_PAYABLES_TUPLE;
-          }
-          return [res.result.data, res.result.info] as [Payable[], PagingInfo];
-        }),
-        catchError((err: unknown) => {
-          this.showApiError(err);
-          return of(EMPTY_PAYABLES_TUPLE);
-        })
-      )
-  });
-
-  /** Distinct party/source ids on the current page, for client-side enrichment. */
-  private readonly pageRefsRequest = computed(() => {
-    const [payables] = this.payablesResource.value();
-    return {
-      partyIds: [...new Set(payables.map((payable) => payable.partyId))],
-      sourceIds: [...new Set(payables.map((payable) => payable.sourceId))]
-    };
-  });
-
-  private readonly pageRefsResource = rxResource<
-    typeof EMPTY_PAGE_REFS,
-    { partyIds: string[]; sourceIds: string[] }
-  >({
-    params: () => this.pageRefsRequest(),
-    defaultValue: EMPTY_PAGE_REFS,
-    stream: ({ params }) => {
-      if (params.partyIds.length === 0 && params.sourceIds.length === 0) {
-        return of(EMPTY_PAGE_REFS);
-      }
-      return from(
-        Promise.all([
-          Promise.all(params.partyIds.map((id) => this.referenceResolver.getPartyName(id))),
-          Promise.all(params.sourceIds.map((id) => this.referenceResolver.getPurchaseOrderNumber(id)))
-        ]).then(([partyNames, sourceNumbers]) => ({
-          parties: Object.fromEntries(params.partyIds.map((id, index) => [id, partyNames[index]])),
-          sources: Object.fromEntries(
-            params.sourceIds.map((id, index) => [id, sourceNumbers[index]])
-          )
-        }))
-      );
-    }
-  });
-
-  readonly displayPayables = computed(() =>
-    this.payablesResource
-      .value()[0]
-      .map((payable) => hydratePayable(payable, this.pageRefsResource.value()))
-  );
-
-  readonly displayPagingInfo = computed(() => this.payablesResource.value()[1]);
-
   goToDetails(payable: Payable): void {
     void this.router.navigate([payable.id], { relativeTo: this.route });
   }
 
   onPageChange(event: PaginatorState | TablePageEvent): void {
-    const firstEvt = event.first ?? 0;
-    const rows = event.rows ?? this.pageSize();
-    const newPageIndex = Math.floor(firstEvt / Math.max(rows, 1));
+    const { pageIndex, pageSize } = this.pagination.pageIndexFromEvent(
+      event,
+      untracked(this.pageSize),
+    );
+    // Presentation glue only: page navigation scrolls to top; the state
+    // (reducer) decides whether the change is real and warrants an API call.
+    const isManualPageChange = pageIndex !== untracked(this.pageIndex);
 
-    if (this.pageIndex() !== newPageIndex || this.pageSize() !== rows) {
-      const isManualPageChange = this.pageIndex() !== newPageIndex;
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page: pageIndex + 1, pageSize },
+      queryParamsHandling: 'merge'
+    });
 
-      void this.router.navigate([], {
-        relativeTo: this.route,
-        queryParams: { page: newPageIndex + 1, pageSize: rows },
-        queryParamsHandling: 'merge'
-      });
-
-      if (isManualPageChange) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
+    if (isManualPageChange) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
@@ -241,9 +105,9 @@ export class PayablesPageComponent {
     const normalizedSourceId = filters.sourceId.trim();
 
     if (
-      normalizedSupplierId === this.supplierIdFromRoute() &&
-      normalizedSourceId === this.sourceIdFromRoute() &&
-      filters.isPaid === this.isPaidFromRoute()
+      normalizedSupplierId === untracked(this.supplierIdFilter) &&
+      normalizedSourceId === untracked(this.sourceIdFilter) &&
+      filters.isPaid === untracked(this.isPaidFilter)
     ) {
       return;
     }
@@ -265,9 +129,9 @@ export class PayablesPageComponent {
 
   onClearFilters(): void {
     if (
-      !this.supplierIdFromRoute() &&
-      !this.sourceIdFromRoute() &&
-      this.isPaidFromRoute() === null
+      !untracked(this.supplierIdFilter) &&
+      !untracked(this.sourceIdFilter) &&
+      untracked(this.isPaidFilter) === null
     ) {
       return;
     }
@@ -277,13 +141,5 @@ export class PayablesPageComponent {
       queryParams: { supplierId: null, sourceId: null, isPaid: null, page: 1 },
       queryParamsHandling: 'merge'
     });
-  }
-
-  private showApiError(error: unknown): void {
-    const presentation = presentApiError(error);
-    this.messageService.add(presentation.toast);
-    if (presentation.routeTarget) {
-      void this.router.navigate([presentation.routeTarget]);
-    }
   }
 }

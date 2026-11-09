@@ -5,18 +5,18 @@
 
   <app-payables-filter-panel
     [suppliers]="suppliersResource.value()"
-    [supplierId]="supplierIdFromRoute()"
-    [sourceId]="sourceIdFromRoute()"
-    [isPaid]="isPaidFromRoute()"
-    [loading]="payablesResource.isLoading()"
+    [supplierId]="supplierIdFilter()"
+    [sourceId]="sourceIdFilter()"
+    [isPaid]="isPaidFilter()"
+    [loading]="listLoading()"
     (filtersChange)="onFiltersChange($event)"
     (clearFilters)="onClearFilters()"
   />
 
   <app-payable-list
-    [payables]="displayPayables()"
-    [isListLoading]="payablesResource.isLoading()"
-    [totalRecords]="displayPagingInfo().totalCount"
+    [payables]="payables()"
+    [isListLoading]="listLoading()"
+    [totalRecords]="paging().totalCount"
     [first]="first()"
     [pageSize]="pageSize()"
     [pageSizeOptions]="pageSizeOptions"

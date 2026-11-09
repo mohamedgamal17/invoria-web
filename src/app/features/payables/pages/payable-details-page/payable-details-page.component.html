@@ -9,7 +9,7 @@
     (onClick)="backToList()"
   />
 
-  @if (payableResource.isLoading()) {
+  @if (loading()) {
     <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
       <div class="space-y-5 p-1">
         <p-skeleton height="2rem" width="45%"></p-skeleton>
@@ -21,12 +21,12 @@
         <p-skeleton height="1rem" width="80%"></p-skeleton>
       </div>
     </p-card>
-  } @else if (error()) {
+  } @else if (requestError()) {
     <p-card styleClass="border border-destructive/30 rounded-2xl shadow-sm">
       <div class="flex flex-col gap-4 p-1 sm:flex-row sm:items-center sm:justify-between">
         <div class="space-y-1">
           <h2 class="text-base font-semibold text-foreground">Unable to load payable</h2>
-          <p class="text-sm text-destructive">{{ error() }}</p>
+          <p class="text-sm text-destructive">{{ requestError() }}</p>
         </div>
         <p-button
           label="Retry"
@@ -36,7 +36,7 @@
         />
       </div>
     </p-card>
-  } @else if (enrichedPayable(); as payable) {
+  } @else if (payable(); as payable) {
     <app-page-header
       [title]="payable.id"
       [description]="'Supplier: ' + payable.partyId + ' &middot; Purchase order: ' + payable.sourceId + ' &middot; ' + (payable.createdAt | date: 'medium')"
@@ -46,11 +46,11 @@
 
     <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" [lazy]="true">
       <p-tablist>
-        <p-tab [value]="0">Overview</p-tab>
-        <p-tab [value]="1">Settlements</p-tab>
+        <p-tab [value]="tabs.Overview">Overview</p-tab>
+        <p-tab [value]="tabs.Settlements">Settlements</p-tab>
       </p-tablist>
       <p-tabpanels>
-        <p-tabpanel [value]="0">
+        <p-tabpanel [value]="tabs.Overview">
           <div class="pt-5">
             <app-payable-details-overview-card
               [payable]="payable"
@@ -59,7 +59,7 @@
             />
           </div>
         </p-tabpanel>
-        <p-tabpanel [value]="1">
+        <p-tabpanel [value]="tabs.Settlements">
           <div class="pt-5">
             <app-payable-settlements-tab
               [settlements]="payable.settlements"
@@ -73,7 +73,8 @@
     </p-tabs>
 
     <app-payable-settle-modal
-      [(visible)]="settleModalVisible"
+      [visible]="settleModalVisible()"
+      (visibleChange)="onSettleModalVisibleChange($event)"
       [payable]="payable"
       [currencyCode]="currencyCode"
       [settling]="isSettling()"
