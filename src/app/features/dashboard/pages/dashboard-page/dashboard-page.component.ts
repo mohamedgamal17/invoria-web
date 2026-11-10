@@ -1,19 +1,24 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { catchError, forkJoin, of } from 'rxjs';
+import { Component, computed, inject, OnInit } from '@angular/core';
+
+import { Store } from '@ngrx/store';
 
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ButtonModule } from 'primeng/button';
 
 import { KpiCardComponent } from '../../components/kpi-card/kpi-card.component';
 import { ReportChartComponent } from '../../components/report-chart/report-chart.component';
 
-import { CustomersApiService } from '../../../customers/services/customers-api.service';
-import { ProductsApiService } from '../../../products/services/products-api.service';
-import { OrdersApiService } from '../../../orders/services/orders-api.service';
-import { SuppliersApiService } from '../../../suppliers/services/suppliers-api.service';
-import { PurchaseOrdersApiService } from '../../../procurement/services/purchase-orders-api.service';
+import { DASHBOARD_ACTIONS } from '../../store/dashboard/dashboard.actions';
+import { dashboardSelectors } from '../../store/dashboard/dashboard.selectors';
+
+import {
+  REPORT_PERIOD_LABELS,
+  REPORT_SERIES_PERIODS,
+  ReportPeriod
+} from '../../../../shared/models/report-period';
+import type { EChartsCoreOption } from 'echarts/core';
+import { ECHARTS_COLORS } from '../../../../shared/charts/echarts-presets';
 
 import {
   ClipboardCheck,
@@ -26,25 +31,6 @@ import {
   Warehouse
 } from 'lucide-angular';
 
-import {
-  REPORT_PERIOD_LABELS,
-  REPORT_SERIES_PERIODS,
-  ReportPeriod
-} from '../../../../shared/models/report-period';
-import type { ReportOverview } from '../../../../shared/models/report-overview';
-import type { CustomerCreationReportPeriod } from '../../../customers/models/customer-report.entity';
-import type { ProductCreationReportPeriod } from '../../../products/models/product-report.entity';
-import type {
-  OrderCompletionReportPeriod,
-  OrderSalesProfitReportPeriod,
-  OrderSalesReportPeriod
-} from '../../../orders/models/order-report.entity';
-import type { SupplierCreationReportPeriod } from '../../../suppliers/models/supplier-report.entity';
-import type { PurchaseSalesReportPeriod } from '../../../procurement/models/purchase-order-report.entity';
-import type { EChartsCoreOption } from 'echarts/core';
-import { presentApiError } from '../../../../core/http/api-error.presenter';
-import { ECHARTS_COLORS } from '../../../../shared/charts/echarts-presets';
-
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
@@ -55,18 +41,11 @@ import { ECHARTS_COLORS } from '../../../../shared/charts/echarts-presets';
     SkeletonModule,
     ButtonModule
   ],
-  providers: [MessageService],
   templateUrl: './dashboard-page.component.html'
 })
 export class DashboardPageComponent implements OnInit {
-  private readonly customersApi = inject(CustomersApiService);
-  private readonly productsApi = inject(ProductsApiService);
-  private readonly ordersApi = inject(OrdersApiService);
-  private readonly suppliersApi = inject(SuppliersApiService);
-  private readonly purchaseOrdersApi = inject(PurchaseOrdersApiService);
-  private readonly messageService = inject(MessageService);
+  private readonly store = inject(Store);
 
-  readonly ReportPeriod = ReportPeriod;
   readonly periodOptions = REPORT_SERIES_PERIODS.map((periodValue) => ({
     label: REPORT_PERIOD_LABELS[periodValue],
     value: periodValue
@@ -82,33 +61,21 @@ export class DashboardPageComponent implements OnInit {
   readonly purchaseSalesIcon = Receipt;
   readonly revenueIcon = Wallet;
 
-  readonly selectedPeriod = signal<ReportPeriod>(ReportPeriod.Daily);
+  // --- Dashboard store (overviews + per-period metrics caches) ---
+  readonly selectedPeriod = this.store.selectSignal(dashboardSelectors.selectSelectedPeriod);
+  readonly isOverviewLoading = this.store.selectSignal(dashboardSelectors.selectIsOverviewLoading);
 
-  readonly isOverviewLoading = signal(true);
-  readonly hasOverviewError = signal(false);
+  readonly customerOverview = this.store.selectSignal(dashboardSelectors.selectCustomerOverview);
+  readonly productOverview = this.store.selectSignal(dashboardSelectors.selectProductOverview);
+  readonly supplierOverview = this.store.selectSignal(dashboardSelectors.selectSupplierOverview);
+  readonly orderSalesOverview = this.store.selectSignal(dashboardSelectors.selectOrderSalesOverview);
+  readonly orderProfitOverview = this.store.selectSignal(dashboardSelectors.selectOrderProfitOverview);
+  readonly orderCompletionOverview = this.store.selectSignal(dashboardSelectors.selectOrderCompletionOverview);
+  readonly purchaseSalesOverview = this.store.selectSignal(dashboardSelectors.selectPurchaseSalesOverview);
 
-  // Overviews
-  readonly customerOverview = signal<ReportOverview<CustomerCreationReportPeriod> | null>(null);
-  readonly productOverview = signal<ReportOverview<ProductCreationReportPeriod> | null>(null);
-  readonly supplierOverview = signal<ReportOverview<SupplierCreationReportPeriod> | null>(null);
-  readonly orderSalesOverview = signal<ReportOverview<OrderSalesReportPeriod> | null>(null);
-  readonly orderProfitOverview = signal<ReportOverview<OrderSalesProfitReportPeriod> | null>(null);
-  readonly orderCompletionOverview = signal<ReportOverview<OrderCompletionReportPeriod> | null>(null);
-  readonly purchaseSalesOverview = signal<ReportOverview<PurchaseSalesReportPeriod> | null>(null);
-
-  // Per-period metrics cache — mirrors order-sales-report pattern, lazy + reuse
-  private readonly salesProfitCache = signal<Map<ReportPeriod, OrderSalesProfitReportPeriod[]>>(new Map());
-  private readonly salesCache = signal<Map<ReportPeriod, OrderSalesReportPeriod[]>>(new Map());
-  private readonly profitLoadingSet = signal<Set<ReportPeriod>>(new Set());
-  private readonly salesLoadingSet = signal<Set<ReportPeriod>>(new Set());
-
-  readonly isMetricsLoading = computed(
-    () => this.profitLoadingSet().has(this.selectedPeriod()) || this.salesLoadingSet().has(this.selectedPeriod())
-  );
-
-  // Metrics series derived from cache (most recent first from API, we reverse for chronological in chartOptions)
-  readonly salesProfitSeries = computed<OrderSalesProfitReportPeriod[]>(() => this.salesProfitCache().get(this.selectedPeriod()) ?? []);
-  readonly salesSeries = computed<OrderSalesReportPeriod[]>(() => this.salesCache().get(this.selectedPeriod()) ?? []);
+  readonly salesProfitSeries = this.store.selectSignal(dashboardSelectors.selectSalesProfitSeries);
+  readonly salesSeries = this.store.selectSignal(dashboardSelectors.selectSalesSeries);
+  readonly isMetricsLoading = this.store.selectSignal(dashboardSelectors.selectIsMetricsLoading);
 
   // KPI helpers
   kpiCustomersAll = computed(() => this.customerOverview()?.allTime.totalCount ?? null);
@@ -194,32 +161,17 @@ export class DashboardPageComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.loadOverviews();
-    this.ensureMetrics(this.selectedPeriod());
+    this.store.dispatch(DASHBOARD_ACTIONS.loadOverviews());
+    // The store defaults to `Daily`; trigger the metrics load for the initial period directly.
+    this.store.dispatch(DASHBOARD_ACTIONS.loadMetrics());
   }
 
   onPeriodChange(period: ReportPeriod): void {
-    const prev = this.selectedPeriod();
-    const hasProfit = this.salesProfitCache().has(period);
-    const hasSales = this.salesCache().has(period);
-    if (prev === period && hasProfit && hasSales) return;
-    this.selectedPeriod.set(period);
-    this.ensureMetrics(period);
+    this.store.dispatch(DASHBOARD_ACTIONS.selectPeriod({ period }));
   }
 
   refresh(): void {
-    this.loadOverviews();
-    this.salesProfitCache.update((current) => {
-      const copy = new Map(current);
-      copy.delete(this.selectedPeriod());
-      return copy;
-    });
-    this.salesCache.update((current) => {
-      const copy = new Map(current);
-      copy.delete(this.selectedPeriod());
-      return copy;
-    });
-    this.ensureMetrics(this.selectedPeriod());
+    this.store.dispatch(DASHBOARD_ACTIONS.refresh());
   }
 
   formatCurrency(value: number | null): string {
@@ -243,104 +195,5 @@ export class DashboardPageComponent implements OnInit {
       return date.getFullYear().toString();
     }
     return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-  }
-
-  private loadOverviews(): void {
-    this.isOverviewLoading.set(true);
-    this.hasOverviewError.set(false);
-
-    forkJoin({
-      customers: this.customersApi.getCustomerCreationReportOverview().pipe(catchError((error) => { this.handleError(error); return of(null); })),
-      products: this.productsApi.getProductCreationReportOverview().pipe(catchError((error) => { this.handleError(error); return of(null); })),
-      suppliers: this.suppliersApi.getSupplierCreationReportOverview().pipe(catchError((error) => { this.handleError(error); return of(null); })),
-      orderSales: this.ordersApi.getOrderSalesReportOverview().pipe(catchError((error) => { this.handleError(error); return of(null); })),
-      orderProfit: this.ordersApi.getOrderSalesProfitReportOverview().pipe(catchError((error) => { this.handleError(error); return of(null); })),
-      orderCompletion: this.ordersApi.getOrderCompletionReportOverview().pipe(catchError((error) => { this.handleError(error); return of(null); })),
-      purchaseSales: this.purchaseOrdersApi.getPurchaseSalesReportOverview().pipe(catchError((error) => { this.handleError(error); return of(null); }))
-    }).subscribe({
-      next: (res) => {
-        if (res.customers?.isSuccess && res.customers.result) this.customerOverview.set(res.customers.result);
-        if (res.products?.isSuccess && res.products.result) this.productOverview.set(res.products.result);
-        if (res.suppliers?.isSuccess && res.suppliers.result) this.supplierOverview.set(res.suppliers.result);
-        if (res.orderSales?.isSuccess && res.orderSales.result) this.orderSalesOverview.set(res.orderSales.result);
-        if (res.orderProfit?.isSuccess && res.orderProfit.result) this.orderProfitOverview.set(res.orderProfit.result);
-        if (res.orderCompletion?.isSuccess && res.orderCompletion.result) this.orderCompletionOverview.set(res.orderCompletion.result);
-        if (res.purchaseSales?.isSuccess && res.purchaseSales.result) this.purchaseSalesOverview.set(res.purchaseSales.result);
-        this.isOverviewLoading.set(false);
-      },
-      error: (err) => {
-        this.handleError(err);
-        this.isOverviewLoading.set(false);
-        this.hasOverviewError.set(true);
-      }
-    });
-  }
-
-  private ensureMetrics(period: ReportPeriod): void {
-    const needProfit = !this.salesProfitCache().has(period) && !this.profitLoadingSet().has(period);
-    const needSales = !this.salesCache().has(period) && !this.salesLoadingSet().has(period);
-    if (!needProfit && !needSales) return;
-
-    const req = { Period: period, Skip: 0, Length: 14 } as const;
-
-    if (needProfit) {
-      this.profitLoadingSet.update((current) => new Set(current).add(period));
-      this.ordersApi.listOrderSalesProfitReportMetrics(req).pipe(catchError((error) => { this.handleError(error); return of(null); })).subscribe({
-        next: (res) => {
-          if (res?.isSuccess && res.result) {
-            const copy = [...(res.result.data ?? [])];
-            this.salesProfitCache.update((current) => new Map(current).set(period, copy));
-          } else if (res && !res.isSuccess) this.handleError(res.error);
-          this.profitLoadingSet.update((current) => {
-            const copy = new Set(current);
-            copy.delete(period);
-            return copy;
-          });
-        },
-        error: (err) => {
-          this.handleError(err);
-          this.profitLoadingSet.update((current) => {
-            const copy = new Set(current);
-            copy.delete(period);
-            return copy;
-          });
-        }
-      });
-    }
-
-    if (needSales) {
-      this.salesLoadingSet.update((current) => new Set(current).add(period));
-      this.ordersApi.listOrderSalesReportMetrics(req).pipe(catchError((error) => { this.handleError(error); return of(null); })).subscribe({
-        next: (res) => {
-          if (res?.isSuccess && res.result) {
-            const copy = [...(res.result.data ?? [])];
-            this.salesCache.update((current) => new Map(current).set(period, copy));
-          } else if (res && !res.isSuccess) this.handleError(res.error);
-          this.salesLoadingSet.update((current) => {
-            const copy = new Set(current);
-            copy.delete(period);
-            return copy;
-          });
-        },
-        error: (err) => {
-          this.handleError(err);
-          this.salesLoadingSet.update((current) => {
-            const copy = new Set(current);
-            copy.delete(period);
-            return copy;
-          });
-        }
-      });
-    }
-  }
-
-  // Kept for compat if called elsewhere
-  private loadMetrics(period: ReportPeriod): void {
-    this.ensureMetrics(period);
-  }
-
-  private handleError(error: unknown): void {
-    const presentation = presentApiError(error);
-    this.messageService.add(presentation.toast);
   }
 }
