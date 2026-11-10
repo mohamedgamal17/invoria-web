@@ -10,11 +10,10 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        pathMatch: 'full',
-        loadComponent: () =>
-          import(
-            './features/dashboard/pages/dashboard-page/dashboard-page.component'
-          ).then((module) => module.DashboardPageComponent)
+        loadChildren: () =>
+          import('./features/dashboard/dashboard.routes').then(
+            (module) => module.DASHBOARD_ROUTES
+          )
       },
       {
         path: 'orders',
