@@ -3,16 +3,16 @@
   <app-supplier-header (create)="goToCreate()" />
 
   <app-suppliers-filter-panel
-    [name]="qFromRoute()"
-    [loading]="suppliersResource.isLoading()"
+    [name]="nameFilter()"
+    [loading]="listLoading()"
     (filtersChange)="onFiltersChange($event)"
     (clearFilters)="onClearFilters()"
   />
 
   <app-supplier-list
-    [suppliers]="displaySuppliers()"
-    [isListLoading]="suppliersResource.isLoading()"
-    [totalRecords]="displayPaging().totalCount"
+    [suppliers]="suppliers()"
+    [isListLoading]="listLoading()"
+    [totalRecords]="paging().totalCount"
     [first]="first()"
     [pageSize]="pageSize()"
     [pageSizeOptions]="pageSizeOptions"

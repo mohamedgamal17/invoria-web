@@ -15,12 +15,12 @@
         <p-skeleton height="1rem" width="80%"></p-skeleton>
       </div>
     </p-card>
-  } @else if (error()) {
+  } @else if (error(); as inlineError) {
     <p-card styleClass="border border-destructive/30 rounded-2xl shadow-sm">
       <div class="flex flex-col gap-4 p-1 sm:flex-row sm:items-center sm:justify-between">
         <div class="space-y-1">
           <h2 class="text-base font-semibold text-foreground">Unable to load supplier</h2>
-          <p class="text-sm text-destructive">{{ error() }}</p>
+          <p class="text-sm text-destructive">{{ inlineError }}</p>
         </div>
         <p-button
           label="Retry"
@@ -33,18 +33,30 @@
   } @else if (supplier(); as s) {
     <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" [lazy]="true">
       <p-tablist>
-        <p-tab [value]="0">Profile</p-tab>
-        <p-tab [value]="1">Purchase orders</p-tab>
+        <p-tab [value]="tabs.Profile">Profile</p-tab>
+        <p-tab [value]="tabs.PurchaseOrders">Purchase orders</p-tab>
       </p-tablist>
       <p-tabpanels>
-        <p-tabpanel [value]="0">
+        <p-tabpanel [value]="tabs.Profile">
           <div class="pt-5">
             <app-supplier-details-profile [supplier]="s" (edit)="goToEdit()" />
           </div>
         </p-tabpanel>
-        <p-tabpanel [value]="1">
+        <p-tabpanel [value]="tabs.PurchaseOrders">
           <div class="pt-6">
-            <app-supplier-details-purchase-orders-tab [supplierId]="s.id" />
+            <app-supplier-details-purchase-orders-tab
+              [purchaseNumber]="purchaseNumber()"
+              [statusFilter]="statusFilter()"
+              [purchaseOrders]="purchaseOrders()"
+              [paging]="paging()"
+              [first]="first()"
+              [pageSize]="pageSize()"
+              [loading]="purchaseOrdersLoading()"
+              (pageChange)="onPurchaseOrdersPageChange($event)"
+              (filtersChange)="onPurchaseOrdersFiltersChange($event)"
+              (clearFilters)="onPurchaseOrdersFiltersClear()"
+              (view)="goToPurchaseOrderDetails($event)"
+            />
           </div>
         </p-tabpanel>
       </p-tabpanels>

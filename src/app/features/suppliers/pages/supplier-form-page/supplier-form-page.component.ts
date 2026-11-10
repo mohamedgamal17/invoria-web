@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, take } from 'rxjs';
 
+import { Store } from '@ngrx/store';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
@@ -12,6 +13,9 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 
 import { presentApiError } from '../../../../core/http/api-error.presenter';
+import { LOAD_STATUS } from '../../../../shared/models/load-status';
+import { SUPPLIER_MUTATIONS_ACTIONS } from '../../store/supplier-mutations/supplier-mutations.actions';
+import { supplierMutationsFeature } from '../../store/supplier-mutations/supplier-mutations.reducer';
 import { SuppliersApiService } from '../../services/suppliers-api.service';
 import type { CreateSupplierRequest } from '../../models/create-supplier.request';
 import type { UpdateSupplierRequest } from '../../models/update-supplier.request';
@@ -32,12 +36,12 @@ const PHONE_MAX = 64;
     CardModule,
     InputTextModule,
     MessageModule,
-    ToastModule
+    ToastModule,
   ],
-  providers: [MessageService],
-  templateUrl: './supplier-form-page.component.html'
+  templateUrl: './supplier-form-page.component.html',
 })
 export class SupplierFormPageComponent {
+  private readonly store = inject(Store);
   private readonly suppliersApi = inject(SuppliersApiService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
@@ -45,25 +49,37 @@ export class SupplierFormPageComponent {
   private readonly formBuilder = inject(FormBuilder);
 
   readonly mode = computed<'create' | 'edit'>(() =>
-    this.route.snapshot.data['mode'] === 'edit' ? 'edit' : 'create'
+    this.route.snapshot.data['mode'] === 'edit' ? 'edit' : 'create',
   );
 
   readonly supplierId = computed(() => this.route.snapshot.paramMap.get('id'));
 
   readonly loading = signal(false);
-  readonly saving = signal(false);
+  private readonly createRequest = this.store.selectSignal(
+    supplierMutationsFeature.selectCreateRequest,
+  );
+  private readonly updateRequest = this.store.selectSignal(
+    supplierMutationsFeature.selectUpdateRequest,
+  );
+
+  /** Saving state is owned by the store: create/update put their request in flight. */
+  readonly saving = computed(
+    () =>
+      this.createRequest().status === LOAD_STATUS.Loading ||
+      this.updateRequest().status === LOAD_STATUS.Loading,
+  );
 
   readonly form = this.formBuilder.group({
     name: this.formBuilder.nonNullable.control('', [
       Validators.required,
       Validators.minLength(NAME_MIN),
-      Validators.maxLength(NAME_MAX)
+      Validators.maxLength(NAME_MAX),
     ]),
     contactEmail: this.formBuilder.nonNullable.control('', [
       Validators.maxLength(EMAIL_MAX),
-      Validators.pattern(/^$|^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i)
+      Validators.pattern(/^$|^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i),
     ]),
-    phone: this.formBuilder.nonNullable.control('', [Validators.maxLength(PHONE_MAX)])
+    phone: this.formBuilder.nonNullable.control('', [Validators.maxLength(PHONE_MAX)]),
   });
 
   constructor() {
@@ -95,72 +111,25 @@ export class SupplierFormPageComponent {
     const body: CreateSupplierRequest = {
       Name: raw.name.trim(),
       ContactEmail: emailTrim ? emailTrim : null,
-      Phone: phoneTrim ? phoneTrim : null
+      Phone: phoneTrim ? phoneTrim : null,
     };
 
-    this.saving.set(true);
-    const currentMode = this.mode();
+    if (this.mode() === 'create') {
+      this.store.dispatch(SUPPLIER_MUTATIONS_ACTIONS.createSupplier({ request: body }));
+      return;
+    }
+
     const id = this.supplierId();
-
-    if (currentMode === 'create') {
-      this.suppliersApi
-        .createSupplier(body)
-        .pipe(
-          take(1),
-          finalize(() => this.saving.set(false))
-        )
-        .subscribe({
-          next: (res) => {
-            if (!res.isSuccess || res.result === undefined) {
-              this.messageService.add({
-                ...presentApiError(res.error).toast
-              });
-              return;
-            }
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Success',
-              detail: 'Supplier created successfully.'
-            });
-            void this.router.navigate([res.result.id], { relativeTo: this.route.parent });
-          },
-          error: (err: unknown) => {
-            this.messageService.add({ ...presentApiError(err).toast });
-          }
-        });
-      return;
-    }
-
     if (!id) {
-      this.saving.set(false);
       return;
     }
 
-    this.suppliersApi
-      .updateSupplier(id, body satisfies UpdateSupplierRequest)
-      .pipe(
-        take(1),
-        finalize(() => this.saving.set(false))
-      )
-      .subscribe({
-        next: (res) => {
-          if (!res.isSuccess || res.result === undefined) {
-            this.messageService.add({
-              ...presentApiError(res.error).toast
-            });
-            return;
-          }
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Supplier updated successfully.'
-          });
-          void this.router.navigate(['../'], { relativeTo: this.route });
-        },
-        error: (err: unknown) => {
-          this.messageService.add({ ...presentApiError(err).toast });
-        }
-      });
+    this.store.dispatch(
+      SUPPLIER_MUTATIONS_ACTIONS.updateSupplier({
+        id,
+        request: body satisfies UpdateSupplierRequest,
+      }),
+    );
   }
 
   private loadSupplier(id: string): void {
@@ -169,13 +138,13 @@ export class SupplierFormPageComponent {
       .getSupplier(id)
       .pipe(
         take(1),
-        finalize(() => this.loading.set(false))
+        finalize(() => this.loading.set(false)),
       )
       .subscribe({
         next: (res) => {
           if (!res.isSuccess || !res.result) {
             this.messageService.add({
-              ...presentApiError(res.error).toast
+              ...presentApiError(res.error).toast,
             });
             void this.router.navigate(['/suppliers']);
             return;
@@ -184,13 +153,13 @@ export class SupplierFormPageComponent {
           this.form.reset({
             name: supplierResult.name,
             contactEmail: supplierResult.contactEmail ?? '',
-            phone: supplierResult.phone ?? ''
+            phone: supplierResult.phone ?? '',
           });
         },
         error: (err: unknown) => {
           this.messageService.add({ ...presentApiError(err).toast });
           void this.router.navigate(['/suppliers']);
-        }
+        },
       });
   }
 }
