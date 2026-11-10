@@ -4,18 +4,18 @@
   <app-receivable-header />
 
   <app-receivables-filter-panel
-    [partyId]="partyIdFromRoute()"
-    [sourceId]="sourceIdFromRoute()"
-    [isPaid]="isPaidFromRoute()"
-    [loading]="receivablesResource.isLoading()"
+    [partyId]="partyIdFilter()"
+    [sourceId]="sourceIdFilter()"
+    [isPaid]="isPaidFilter()"
+    [loading]="listLoading()"
     (filtersChange)="onFiltersChange($event)"
     (clearFilters)="onClearFilters()"
   />
 
   <app-receivable-list
-    [receivables]="displayReceivables()"
-    [isListLoading]="receivablesResource.isLoading()"
-    [totalRecords]="displayPaging().totalCount"
+    [receivables]="receivables()"
+    [isListLoading]="listLoading()"
+    [totalRecords]="paging().totalCount"
     [first]="first()"
     [pageSize]="pageSize()"
     [pageSizeOptions]="pageSizeOptions"

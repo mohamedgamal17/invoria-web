@@ -9,7 +9,7 @@
     (onClick)="backToList()"
   />
 
-  @if (receivableResource.isLoading()) {
+  @if (loading()) {
     <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
       <div class="space-y-5 p-1">
         <p-skeleton height="2rem" width="45%"></p-skeleton>
@@ -36,21 +36,28 @@
         />
       </div>
     </p-card>
-  } @else if (displayReceivable(); as receivable) {
+  } @else if (receivable(); as receivable) {
     <app-page-header
       [title]="receivable.id"
-      [description]="'Customer: ' + receivable.partyId + ' &middot; Order: ' + receivable.sourceId + ' &middot; ' + (receivable.createdAt | date: 'medium')"
+      [description]="
+        'Customer: ' +
+        receivable.partyId +
+        ' &middot; Order: ' +
+        receivable.sourceId +
+        ' &middot; ' +
+        (receivable.createdAt | date: 'medium')
+      "
       eyebrow="Receivable"
       eyebrowIcon="pi pi-file"
     />
 
     <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" [lazy]="true">
       <p-tablist>
-        <p-tab [value]="0">Overview</p-tab>
-        <p-tab [value]="1">Settlements</p-tab>
+        <p-tab [value]="tabs.Overview">Overview</p-tab>
+        <p-tab [value]="tabs.Settlements">Settlements</p-tab>
       </p-tablist>
       <p-tabpanels>
-        <p-tabpanel [value]="0">
+        <p-tabpanel [value]="tabs.Overview">
           <div class="pt-5">
             <app-receivable-details-overview-card
               [receivable]="receivable"
@@ -59,7 +66,7 @@
             />
           </div>
         </p-tabpanel>
-        <p-tabpanel [value]="1">
+        <p-tabpanel [value]="tabs.Settlements">
           <div class="pt-5">
             <app-receivable-settlements-tab
               [settlements]="receivable.settlements"
@@ -73,7 +80,8 @@
     </p-tabs>
 
     <app-receivable-settle-modal
-      [(visible)]="settleModalVisible"
+      [visible]="settleModalVisible()"
+      (visibleChange)="onSettleModalVisibleChange($event)"
       [receivable]="receivable"
       [currencyCode]="currencyCode"
       [settling]="isSettling()"

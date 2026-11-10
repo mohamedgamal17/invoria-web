@@ -1,41 +1,46 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, linkedSignal, signal, untracked } from '@angular/core';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { DatePipe } from '@angular/common';
+import { Component, computed, effect, inject, untracked } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, firstValueFrom, map, of } from 'rxjs';
+import { map } from 'rxjs';
 
-import { MessageService } from 'primeng/api';
+import { Store } from '@ngrx/store';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
-import { presentApiError } from '../../../../core/http/api-error.presenter';
-import { ReceivablesApiService } from '../../services/receivables-api.service';
-import type { Receivable } from '../../models/receivable.entity';
+import { LOAD_STATUS } from '../../../../shared/models/load-status';
+import { UrlStateService } from '../../../../shared/utils/url-state.service';
+import { RECEIVABLE_CURRENCY_CODE } from '../../models/receivable-currency';
+import { toReceivableDetailsTab } from '../../utils/receivable-details-tab';
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
 import { ReceivableDetailsOverviewCardComponent } from '../../components/receivable-details-overview-card/receivable-details-overview-card.component';
 import { ReceivableSettlementsTabComponent } from '../../components/receivable-settlements-tab/receivable-settlements-tab.component';
 import { ReceivableSettleModalComponent } from '../../components/receivable-settle-modal/receivable-settle-modal.component';
+import { RECEIVABLES_MUTATIONS_ACTIONS } from '../../store/receivables-mutations/receivables-mutations.actions';
+import { receivablesMutationsFeature } from '../../store/receivables-mutations/receivables-mutations.reducer';
+import { RECEIVABLE_DETAILS_ACTIONS } from '../../store/receivable-details/receivable-details.actions';
+import { ReceivableDetailsTab } from '../../store/receivable-details/receivable-details.reducer';
+import { receivableDetailsSelectors } from '../../store/receivable-details/receivable-details.selectors';
 
-const TAB_SLUGS = ['overview', 'settlements'] as const;
-
-function tabSlugToIndex(tab: string | null): number | null {
-  if (tab === 'settlements') return 1;
-  if (tab === 'overview' || tab === null || tab === '') return 0;
-  return null;
-}
-
-function indexToTabSlug(index: number): string {
-  return TAB_SLUGS[index] ?? 'overview';
-}
-
+/**
+ * Smart page (container) for receivable details. It owns only:
+ * - the NgRx state mapping (selectors → signals),
+ * - the URL write adapter (`tab` query param via `replaceUrl`),
+ * - presentation glue (navigation, settle modal intents).
+ * The URL *read* side lives in the `store/receivable-details-url` effects
+ * (NgRx Router Store); all API calls live in the `store/receivable-details`
+ * and `store/receivables-mutations` state modules, including error
+ * presentation (global `AppErrorEffects` toast) and the settle success
+ * toast (mutations tap effect).
+ */
 @Component({
   selector: 'app-receivable-details-page',
   standalone: true,
   imports: [
-    CommonModule,
+    DatePipe,
     ButtonModule,
     CardModule,
     SkeletonModule,
@@ -48,85 +53,55 @@ function indexToTabSlug(index: number): string {
     PageHeaderComponent,
     ReceivableDetailsOverviewCardComponent,
     ReceivableSettlementsTabComponent,
-    ReceivableSettleModalComponent
+    ReceivableSettleModalComponent,
   ],
-  providers: [MessageService],
-  templateUrl: './receivable-details-page.component.html'
+  templateUrl: './receivable-details-page.component.html',
 })
 export class ReceivableDetailsPageComponent {
-  readonly currencyCode = 'EGP' as const;
+  readonly tabs = ReceivableDetailsTab;
+  readonly currencyCode = RECEIVABLE_CURRENCY_CODE;
 
-  private readonly receivablesApi = inject(ReceivablesApiService);
-  private readonly messageService = inject(MessageService);
+  private readonly store = inject(Store);
+  private readonly urlState = inject(UrlStateService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
+  // --- Details store (receivable + activeTab + settle modal visibility) ---
+  readonly receivable = this.store.selectSignal(receivableDetailsSelectors.selectReceivable);
+  readonly loading = this.store.selectSignal(receivableDetailsSelectors.selectIsLoading);
+  readonly requestError = this.store.selectSignal(receivableDetailsSelectors.selectError);
+  readonly activeTab = this.store.selectSignal(receivableDetailsSelectors.selectActiveTab);
+  readonly settleModalVisible = this.store.selectSignal(
+    receivableDetailsSelectors.selectSettleModalVisible,
+  );
+
+  // --- Mutations store (settle request) ---
+  private readonly settleRequest = this.store.selectSignal(
+    receivablesMutationsFeature.selectSettleRequest,
+  );
+  readonly isSettling = computed(() => this.settleRequest().status === LOAD_STATUS.Loading);
+
   private readonly receivableId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
-    { initialValue: this.route.snapshot.paramMap.get('id') ?? '' }
+    { initialValue: this.route.snapshot.paramMap.get('id') ?? '' },
   );
 
-  private readonly tabQuery = toSignal(
-    this.route.queryParamMap.pipe(map((paramMap) => paramMap.get('tab'))),
-    { initialValue: this.route.snapshot.queryParamMap.get('tab') }
-  );
-
-  readonly activeTab = signal(0);
-
-  /** Settle modal state (presentational modal + request lifecycle owned by this smart page). */
-  readonly settleModalVisible = signal(false);
-  readonly isSettling = signal(false);
-
-  readonly receivableResource = rxResource<Receivable | null, string>({
-    params: () => this.receivableId(),
-    defaultValue: null,
-    stream: ({ params: id }) => {
-      if (!id) {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Missing receivable id.' });
-        return of(null);
-      }
-      return this.receivablesApi.getReceivable(id).pipe(
-        map((res) => {
-          if (!res.isSuccess || !res.result) {
-            this.showApiError(res.error);
-            return null;
-          }
-          return res.result;
-        }),
-        catchError((err: unknown) => {
-          this.showApiError(err);
-          return of(null);
-        })
-      );
-    }
-  });
-
-  readonly displayReceivable = linkedSignal({
-    source: () => this.receivableResource.value(),
-    computation: (receivable) =>
-      receivable ? { ...receivable, settlements: [...(receivable.settlements ?? [])] } : null
-  });
-
+  /** Inline error card text; an empty route id short-circuits before the store is involved. */
   readonly error = computed<string>(() => {
     if (!this.receivableId()) return 'Missing receivable id.';
-    if (this.receivableResource.isLoading()) return '';
-    if (!this.displayReceivable()) return 'Failed to load receivable.';
-    return '';
+    return this.requestError() ?? '';
   });
 
   constructor() {
+    // Trigger the details state module whenever the `:id` param changes.
     effect(() => {
-      const tab = this.tabQuery();
-      const loaded = this.displayReceivable();
-      if (!loaded || this.receivableResource.isLoading()) {
+      const receivableId = this.receivableId();
+      if (!receivableId) {
         return;
       }
-      untracked(() => {
-        const idx = tabSlugToIndex(tab);
-        if (idx !== null && this.activeTab() !== idx) {
-          this.activeTab.set(idx);
-        }
-      });
+      untracked(() =>
+        this.store.dispatch(RECEIVABLE_DETAILS_ACTIONS.loadReceivable({ receivableId })),
+      );
     });
   }
 
@@ -135,66 +110,47 @@ export class ReceivableDetailsPageComponent {
   }
 
   retry(): void {
-    this.receivableResource.reload();
-  }
-
-  openSettleModal(): void {
-    this.settleModalVisible.set(true);
-  }
-
-  closeSettleModal(): void {
-    if (this.isSettling()) {
+    const receivableId = untracked(this.receivableId);
+    if (!receivableId) {
       return;
     }
-    this.settleModalVisible.set(false);
-  }
-
-  /** POST /receivables/{id}/settle — updates local state from the returned DTO (no reload). */
-  async onSettle(amount: number): Promise<void> {
-    const id = this.receivableId();
-    if (!id || this.isSettling()) {
-      return;
-    }
-    this.isSettling.set(true);
-    try {
-      const res = await firstValueFrom(this.receivablesApi.settleReceivable(id, { Amount: amount }));
-      if (res.isSuccess && res.result) {
-        this.displayReceivable.set({ ...res.result, settlements: [...(res.result.settlements ?? [])] });
-        this.settleModalVisible.set(false);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: `Settlement of ${this.currencyCode} ${amount.toFixed(2)} recorded.`
-        });
-      } else {
-        this.showApiError(res.error);
-      }
-    } catch (err) {
-      this.showApiError(err);
-    } finally {
-      this.isSettling.set(false);
-    }
+    this.store.dispatch(RECEIVABLE_DETAILS_ACTIONS.loadReceivable({ receivableId }));
   }
 
   onTabChange(value: string | number | undefined): void {
     if (value === undefined || value === null) {
       return;
     }
-    const numericValue = typeof value === 'number' ? value : Number(value);
-    const next = Number.isFinite(numericValue) ? numericValue : 0;
-    this.activeTab.set(next);
-    void this.router.navigate([], {
-      relativeTo: this.route,
-      replaceUrl: true,
-      queryParams: { tab: indexToTabSlug(next) }
-    });
+    const next = toReceivableDetailsTab(value);
+    if (next === null) {
+      return;
+    }
+    this.store.dispatch(RECEIVABLE_DETAILS_ACTIONS.setActiveTab({ activeTab: next }));
+    void this.urlState.replaceQueryParams(this.route, { tab: next });
   }
 
-  private showApiError(error: unknown): void {
-    const presentation = presentApiError(error);
-    this.messageService.add(presentation.toast);
-    if (presentation.routeTarget) {
-      void this.router.navigate([presentation.routeTarget]);
+  openSettleModal(): void {
+    this.store.dispatch(RECEIVABLE_DETAILS_ACTIONS.openSettleModal());
+  }
+
+  closeSettleModal(): void {
+    this.store.dispatch(RECEIVABLE_DETAILS_ACTIONS.closeSettleModal());
+  }
+
+  /** Two-way bridge for the modal's `visible` model; the store owns the truth. */
+  onSettleModalVisibleChange(visible: boolean): void {
+    if (visible) {
+      this.store.dispatch(RECEIVABLE_DETAILS_ACTIONS.openSettleModal());
+      return;
     }
+    this.store.dispatch(RECEIVABLE_DETAILS_ACTIONS.closeSettleModal());
+  }
+
+  onSettle(amount: number): void {
+    const receivableId = untracked(this.receivableId);
+    if (!receivableId || this.isSettling()) {
+      return;
+    }
+    this.store.dispatch(RECEIVABLES_MUTATIONS_ACTIONS.settleReceivable({ receivableId, amount }));
   }
 }
