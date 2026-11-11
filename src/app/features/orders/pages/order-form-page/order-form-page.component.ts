@@ -139,34 +139,41 @@ export class OrderFormPageComponent {
 
     this.saving.set(true);
     if (this.mode() === 'create') {
-      this.ordersApi
-        .createOrder({
-          CustomerId: customerId as string,
-          Items: draftItemsToLineItems(this.draftItems()),
-          PaymentType: this.paymentType()
-        })
-        .pipe(
-          take(1),
-          map((res) => {
-            if (!res.isSuccess || !res.result) {
-              throw res.error ? new ApiHttpError(res.error) : new Error('Failed to create order.');
-            }
-            return res.result;
-          }),
-          catchError((err: unknown) => {
-            this.showCreateError(err);
-            return EMPTY;
-          }),
-          finalize(() => this.saving.set(false))
-        )
-        .subscribe((result) => {
-            this.store.dispatch(ORDERS_LIST_ACTIONS.orderCreated({ order: orderToUiOrder(result) }));
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order created successfully.' });
-            void this.router.navigate(['../', result.id], { relativeTo: this.route });
-        });
+      this.createOrder(customerId as string);
       return;
     }
+    this.updateOrderItems();
+  }
 
+  private createOrder(customerId: string): void {
+    this.ordersApi
+      .createOrder({
+        CustomerId: customerId,
+        Items: draftItemsToLineItems(this.draftItems()),
+        PaymentType: this.paymentType()
+      })
+      .pipe(
+        take(1),
+        map((res) => {
+          if (!res.isSuccess || !res.result) {
+            throw res.error ? new ApiHttpError(res.error) : new Error('Failed to create order.');
+          }
+          return res.result;
+        }),
+        catchError((err: unknown) => {
+          this.showCreateError(err);
+          return EMPTY;
+        }),
+        finalize(() => this.saving.set(false))
+      )
+      .subscribe((result) => {
+          this.store.dispatch(ORDERS_LIST_ACTIONS.orderCreated({ order: orderToUiOrder(result) }));
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order created successfully.' });
+          void this.router.navigate(['../', result.id], { relativeTo: this.route });
+      });
+  }
+
+  private updateOrderItems(): void {
     this.ordersApi
       .updateOrderItems(this.orderId() as string, { Items: draftItemsToLineItems(this.draftItems()) })
       .pipe(
