@@ -9,14 +9,12 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 
+import { SEARCH_DEBOUNCE_MS } from '../../../../shared/models/debounce';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
 
 export type SuppliersListFilters = {
   name: string;
 };
-
-/** Mirrors `PRODUCT_NAME_FILTER_DEBOUNCE_MS` in products filter panel. */
-const SUPPLIER_NAME_FILTER_DEBOUNCE_MS = 700;
 
 @Component({
   selector: 'app-suppliers-filter-panel',
@@ -51,7 +49,7 @@ export class SuppliersFilterPanelComponent {
 
     this.nameInput$
       .pipe(
-        debounceTime(SUPPLIER_NAME_FILTER_DEBOUNCE_MS),
+        debounceTime(SEARCH_DEBOUNCE_MS),
         distinctUntilChanged(),
         takeUntilDestroyed(this.destroyRef)
       )
