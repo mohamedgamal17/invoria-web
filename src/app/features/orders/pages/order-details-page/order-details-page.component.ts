@@ -18,9 +18,6 @@ import {
   getAvailableOrderActions,
   getBeatingAction,
   ORDER_ACTION_UI,
-  orderStatusLabel,
-  orderStatusEmoji,
-  orderStatusUserLabel,
   type OrderActionKey
 } from '../../models/order-actions';
 import { OrderStatus } from '../../models/order.entity';
@@ -48,7 +45,7 @@ import {
  * - the NgRx state mapping (selectors → signals),
  * - the URL write adapter (`tab` query param via `replaceUrl`),
  * - presentation glue (dialogs, revision-snapshot comparison, confirmations,
- *   success toasts/confetti).
+ *   success toasts).
  * The URL *read* side lives in the `store/order-details-url` effects (NgRx
  * Router Store); all API calls live in the `store/order-details` slice.
  */
@@ -86,19 +83,6 @@ import {
     }
     .pulse-beat {
       animation: pulse-beat 1.5s ease-in-out infinite;
-    }
-    @keyframes confetti-fall {
-      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-      100% { transform: translateY(100px) rotate(720deg); opacity: 0; }
-    }
-    .confetti-piece {
-      position: fixed;
-      width: 8px;
-      height: 8px;
-      border-radius: 2px;
-      animation: confetti-fall 1.5s ease-out forwards;
-      z-index: 9999;
-      pointer-events: none;
     }
   `]
 })
@@ -201,11 +185,12 @@ export class OrderDetailsPageComponent {
     return getBeatingAction(order);
   });
 
-  readonly ORDER_ACTION_UI = ORDER_ACTION_UI;
-  readonly canEditOrder = canEditOrder;
-  readonly orderStatusLabel = orderStatusLabel;
-  readonly orderStatusEmoji = orderStatusEmoji;
-  readonly orderStatusUserLabel = orderStatusUserLabel;
+  readonly canEdit = computed(() => {
+    const order = this.displayOrder();
+    return !!order && canEditOrder(order);
+  });
+
+  readonly actionUi = ORDER_ACTION_UI;
 
   constructor() {
     // Trigger the details state module whenever the `:id` param changes.
@@ -349,23 +334,5 @@ export class OrderDetailsPageComponent {
       summary: 'Order Completed!',
       detail: 'The order has been delivered successfully!'
     });
-    this.spawnConfetti();
-  }
-
-  private spawnConfetti(): void {
-    const colors = ['#f44336', '#e91e63', '#9c27b0', '#3f51b5', '#03a9f4', '#009688', '#8bc34a', '#ffeb3b', '#ff9800'];
-    for (let attempt = 0; attempt < 40; attempt++) {
-      const el = document.createElement('div');
-      el.className = 'confetti-piece';
-      el.style.left = Math.random() * 100 + 'vw';
-      el.style.top = '40vh';
-      el.style.background = colors[Math.floor(Math.random() * colors.length)];
-      el.style.animationDuration = (1 + Math.random() * 1) + 's';
-      el.style.animationDelay = (Math.random() * 0.5) + 's';
-      el.style.width = (4 + Math.random() * 8) + 'px';
-      el.style.height = (4 + Math.random() * 8) + 'px';
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 2500);
-    }
   }
 }

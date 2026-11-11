@@ -49,7 +49,7 @@
         [status]="order.status"
         [orderAllocated]="order.orderAllocated"
       />
-      @if (canEditOrder(order)) {
+      @if (canEdit()) {
         <p-button
           icon="pi pi-pencil"
           label="Edit"
@@ -62,9 +62,9 @@
       }
       @for (action of availableActions(); track action) {
         <p-button
-          [label]="ORDER_ACTION_UI[action].label"
-          [icon]="ORDER_ACTION_UI[action].icon"
-          [severity]="ORDER_ACTION_UI[action].severity"
+          [label]="actionUi[action].label"
+          [icon]="actionUi[action].icon"
+          [severity]="actionUi[action].severity"
           [loading]="actionSaving()"
           [disabled]="actionSaving()"
           [class.pulse-beat]="pulseTarget() === action"
