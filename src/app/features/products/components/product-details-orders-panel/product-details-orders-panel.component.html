@@ -83,16 +83,16 @@
             <td class="px-3 py-2 whitespace-nowrap">
               <span
                 class="px-2.5 py-1 rounded-md text-xs font-bold tracking-tight"
-                [class.bg-success/10]="orderStatusSeverity(row.orderStatus) === 'success'"
-                [class.text-success]="orderStatusSeverity(row.orderStatus) === 'success'"
-                [class.bg-info/10]="orderStatusSeverity(row.orderStatus) === 'info'"
-                [class.text-info]="orderStatusSeverity(row.orderStatus) === 'info'"
-                [class.bg-warn/10]="orderStatusSeverity(row.orderStatus) === 'warn'"
-                [class.text-warn]="orderStatusSeverity(row.orderStatus) === 'warn'"
-                [class.bg-danger/10]="orderStatusSeverity(row.orderStatus) === 'danger'"
-                [class.text-danger]="orderStatusSeverity(row.orderStatus) === 'danger'"
-                [class.bg-surface-2]="orderStatusSeverity(row.orderStatus) === 'secondary'"
-                [class.text-muted-foreground]="orderStatusSeverity(row.orderStatus) === 'secondary'"
+                [class.bg-success/10]="statusSeverity(row.orderStatus) === 'success'"
+                [class.text-success]="statusSeverity(row.orderStatus) === 'success'"
+                [class.bg-info/10]="statusSeverity(row.orderStatus) === 'info'"
+                [class.text-info]="statusSeverity(row.orderStatus) === 'info'"
+                [class.bg-warn/10]="statusSeverity(row.orderStatus) === 'warn'"
+                [class.text-warn]="statusSeverity(row.orderStatus) === 'warn'"
+                [class.bg-danger/10]="statusSeverity(row.orderStatus) === 'danger'"
+                [class.text-danger]="statusSeverity(row.orderStatus) === 'danger'"
+                [class.bg-surface-2]="statusSeverity(row.orderStatus) === 'secondary'"
+                [class.text-muted-foreground]="statusSeverity(row.orderStatus) === 'secondary'"
               >
                 {{ row.orderStatusLabel }}
               </span>

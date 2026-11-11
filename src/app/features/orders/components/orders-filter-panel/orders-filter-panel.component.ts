@@ -11,7 +11,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
-import { orderStatusLabel } from '../../models/order-actions';
+import { getOrderStatusLabel } from '../../models/order-actions';
 import { OrderStatus } from '../../models/order.entity';
 import {
   PaymentStatus,
@@ -85,7 +85,7 @@ export class OrdersFilterPanelComponent {
   readonly statusOptions: FilterOption[] = [
     { label: 'All statuses', value: null },
     ...numericEnumValues(OrderStatus).map((value) => ({
-      label: orderStatusLabel(value),
+      label: getOrderStatusLabel(value),
       value: value
     }))
   ];

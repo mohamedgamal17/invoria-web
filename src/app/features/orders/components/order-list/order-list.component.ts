@@ -11,8 +11,8 @@ import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface
 import type { UiOrder } from '../../models/order-ui.model';
 import { OrderStatus } from '../../models/order.entity';
 import {
-  orderStatusLabel,
-  orderStatusUserLabel
+  getOrderStatusLabel,
+  getOrderStatusUserLabel
 } from '../../models/order-actions';
 import {
   PaymentStatus,
@@ -79,11 +79,11 @@ export class OrderListComponent {
   }
 
   statusLabel(status: OrderStatus): string {
-    return orderStatusLabel(status);
+    return getOrderStatusLabel(status);
   }
 
   statusUserLabel(status: OrderStatus): string {
-    return orderStatusUserLabel(status);
+    return getOrderStatusUserLabel(status);
   }
 
   customerDisplayName(order: UiOrder): string {

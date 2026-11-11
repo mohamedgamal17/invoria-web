@@ -1,7 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OrderStatus } from '../../models/order.entity';
-import { orderStatusUserLabel } from '../../models/order-actions';
+import { getOrderStatusUserLabel } from '../../models/order-actions';
 
 type Step = {
   status: OrderStatus | 'allocation';
@@ -27,7 +27,7 @@ export class OrderProgressComponent {
   readonly status = input.required<OrderStatus>();
   readonly orderAllocated = input(false);
   readonly showLabel = input(true);
-  readonly orderStatusUserLabel = orderStatusUserLabel;
+  readonly statusUserLabel = computed(() => getOrderStatusUserLabel(this.status()));
 
   readonly steps = computed(() => {
     const status = this.status();

@@ -9,7 +9,8 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 
 import { presentApiError } from '../../../../core/http/api-error.presenter';
-import { orderStatusLabel, orderStatusSeverity } from '../../../orders/models/order-actions';
+import { getOrderStatusLabel, getOrderStatusSeverity } from '../../../orders/models/order-actions';
+import type { OrderStatus } from '../../../orders/models/order.entity';
 import {
   summarizeProductOrders,
   type ProductOrderRowSummary,
@@ -49,7 +50,9 @@ export class ProductDetailsOrdersPanelComponent {
 
   readonly hasRows = computed(() => this.rows().length > 0);
 
-  readonly orderStatusSeverity = orderStatusSeverity;
+  statusSeverity(status: OrderStatus): string {
+    return getOrderStatusSeverity(status);
+  }
 
   constructor() {
     effect(() => {
@@ -86,7 +89,7 @@ export class ProductDetailsOrdersPanelComponent {
       .pipe(
         take(1),
         map((orders) =>
-          summarizeProductOrders(orders, productId, (order) => orderStatusLabel(order.status))
+          summarizeProductOrders(orders, productId, (order) => getOrderStatusLabel(order.status))
         ),
         finalize(() => {
           this.loading.set(false);

@@ -9,18 +9,18 @@
       @if (order().status; as status) {
         <span
           class="px-3 py-1 rounded-md text-xs font-bold tracking-tight shrink-0"
-          [class.bg-success/10]="orderStatusSeverity(status) === 'success'"
-          [class.text-success]="orderStatusSeverity(status) === 'success'"
-          [class.bg-info/10]="orderStatusSeverity(status) === 'info'"
-          [class.text-info]="orderStatusSeverity(status) === 'info'"
-          [class.bg-warn/10]="orderStatusSeverity(status) === 'warn'"
-          [class.text-warn]="orderStatusSeverity(status) === 'warn'"
-          [class.bg-danger/10]="orderStatusSeverity(status) === 'danger'"
-          [class.text-danger]="orderStatusSeverity(status) === 'danger'"
-          [class.bg-surface-2]="orderStatusSeverity(status) === 'secondary'"
-          [class.text-muted-foreground]="orderStatusSeverity(status) === 'secondary'"
+          [class.bg-success/10]="statusSeverity() === 'success'"
+          [class.text-success]="statusSeverity() === 'success'"
+          [class.bg-info/10]="statusSeverity() === 'info'"
+          [class.text-info]="statusSeverity() === 'info'"
+          [class.bg-warn/10]="statusSeverity() === 'warn'"
+          [class.text-warn]="statusSeverity() === 'warn'"
+          [class.bg-danger/10]="statusSeverity() === 'danger'"
+          [class.text-danger]="statusSeverity() === 'danger'"
+          [class.bg-surface-2]="statusSeverity() === 'secondary'"
+          [class.text-muted-foreground]="statusSeverity() === 'secondary'"
         >
-          {{ orderStatusUserLabel(status) }}
+          {{ statusUserLabel() }}
         </span>
       }
     </div>
