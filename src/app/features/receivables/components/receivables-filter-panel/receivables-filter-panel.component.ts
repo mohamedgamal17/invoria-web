@@ -10,6 +10,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 
+import { SEARCH_DEBOUNCE_MS } from '../../../../shared/models/debounce';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
 
 export type ReceivablesListFilters = {
@@ -19,8 +20,6 @@ export type ReceivablesListFilters = {
 };
 
 type PaidFilterOption = { label: string; value: boolean | null };
-
-const RECEIVABLE_FILTER_DEBOUNCE_MS = 700;
 
 @Component({
   selector: 'app-receivables-filter-panel',
@@ -70,7 +69,7 @@ export class ReceivablesFilterPanelComponent {
 
     this.partyIdInput$
       .pipe(
-        debounceTime(RECEIVABLE_FILTER_DEBOUNCE_MS),
+        debounceTime(SEARCH_DEBOUNCE_MS),
         distinctUntilChanged(),
         takeUntilDestroyed(this.destroyRef)
       )
@@ -80,7 +79,7 @@ export class ReceivablesFilterPanelComponent {
 
     this.sourceIdInput$
       .pipe(
-        debounceTime(RECEIVABLE_FILTER_DEBOUNCE_MS),
+        debounceTime(SEARCH_DEBOUNCE_MS),
         distinctUntilChanged(),
         takeUntilDestroyed(this.destroyRef)
       )
