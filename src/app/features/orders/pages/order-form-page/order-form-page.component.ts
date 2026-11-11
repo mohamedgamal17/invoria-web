@@ -22,9 +22,7 @@ import { PaymentType } from '../../models/order-payment.enums';
 import { draftItemsToLineItems, orderToUiOrder } from '../../models/order-ui.mapper';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
 import { ApiHttpError } from '../../../../core/http/api-http-error';
-
-/** Mirrors filter-panel name debounce (e.g. products-filter-panel). */
-const ORDER_FORM_AUTOCOMPLETE_DEBOUNCE_MS = 700;
+import { SEARCH_DEBOUNCE_MS } from '../../../../shared/models/debounce';
 
 @Component({
   selector: 'app-order-form-page',
@@ -72,7 +70,7 @@ export class OrderFormPageComponent {
   constructor() {
     this.productQuery$
       .pipe(
-        debounceTime(ORDER_FORM_AUTOCOMPLETE_DEBOUNCE_MS),
+        debounceTime(SEARCH_DEBOUNCE_MS),
         switchMap((query) => {
           const cached = this.productSearchCache.get(query);
           if (cached !== undefined) {
@@ -91,7 +89,7 @@ export class OrderFormPageComponent {
 
     this.customerQuery$
       .pipe(
-        debounceTime(ORDER_FORM_AUTOCOMPLETE_DEBOUNCE_MS),
+        debounceTime(SEARCH_DEBOUNCE_MS),
         distinctUntilChanged(),
         switchMap((query) => {
           this.isCustomerLoading.set(true);
