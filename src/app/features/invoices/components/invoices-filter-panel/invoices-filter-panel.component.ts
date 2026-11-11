@@ -9,14 +9,13 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 
+import { SEARCH_DEBOUNCE_MS } from '../../../../shared/models/debounce';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
 
 export type InvoicesListFilters = {
   customerId: string;
   orderId: string;
 };
-
-const INVOICE_FILTER_DEBOUNCE_MS = 700;
 
 @Component({
   selector: 'app-invoices-filter-panel',
@@ -58,7 +57,7 @@ export class InvoicesFilterPanelComponent {
 
     this.customerIdInput$
       .pipe(
-        debounceTime(INVOICE_FILTER_DEBOUNCE_MS),
+        debounceTime(SEARCH_DEBOUNCE_MS),
         distinctUntilChanged(),
         takeUntilDestroyed(this.destroyRef)
       )
@@ -68,7 +67,7 @@ export class InvoicesFilterPanelComponent {
 
     this.orderIdInput$
       .pipe(
-        debounceTime(INVOICE_FILTER_DEBOUNCE_MS),
+        debounceTime(SEARCH_DEBOUNCE_MS),
         distinctUntilChanged(),
         takeUntilDestroyed(this.destroyRef)
       )
