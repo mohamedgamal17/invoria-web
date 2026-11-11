@@ -5,13 +5,6 @@ import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-head
   selector: 'app-payable-header',
   standalone: true,
   imports: [PageHeaderComponent],
-  template: `
-    <app-page-header
-      title="Payables"
-      description="View and manage your payable records."
-      eyebrow="Financial"
-      eyebrowIcon="pi pi-file"
-    />
-  `
+  templateUrl: './payable-header.component.html',
 })
 export class PayableHeaderComponent {}

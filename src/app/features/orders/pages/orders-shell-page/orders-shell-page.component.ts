@@ -8,9 +8,6 @@ import { MessageService } from 'primeng/api';
   standalone: true,
   imports: [RouterOutlet, ToastModule],
   providers: [MessageService],
-  template: `
-    <p-toast />
-    <router-outlet />
-  `
+  templateUrl: './orders-shell-page.component.html',
 })
 export class OrdersShellPageComponent {}

@@ -1,11 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  input,
-  model,
-  signal
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, model, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import type { BatchesProductRef } from '../models/batches-product.ref';
@@ -21,36 +14,8 @@ import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../shared/models/pagination';
   selector: 'app-product-batches-modal',
   standalone: true,
   imports: [CommonModule, DialogModule, ProductBatchesPanelComponent],
-  template: `
-    <p-dialog
-      [(visible)]="visible"
-      [modal]="true"
-      [style]="{ width: '92vw', maxWidth: '920px', height: '86vh' }"
-      [draggable]="false"
-      [resizable]="false"
-      (onHide)="onDialogHide()"
-      appendTo="body"
-      [styleClass]="'rounded-2xl overflow-hidden shadow-lg border-0'"
-      [contentStyleClass]="'flex flex-col min-h-0 h-full overflow-hidden bg-surface p-4 md:p-5'">
-
-      <ng-template pTemplate="header">
-        <div class="flex flex-col gap-1">
-          <span class="text-xs font-bold uppercase tracking-widest text-primary">Inventory Management</span>
-          <h2 class="m-0 max-w-full truncate text-2xl font-extrabold leading-none text-foreground md:text-3xl">
-            {{ product()?.name }}
-          </h2>
-        </div>
-      </ng-template>
-
-      <app-product-batches-panel
-        [first]="first()"
-        [pageSize]="pageSize()"
-        [pageSizeOptions]="pageSizeOptions"
-        (pageChange)="onPanelPageChange($event)"
-      />
-    </p-dialog>
-  `,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  templateUrl: './product-batches-modal.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductBatchesModalComponent {
   visible = model(false);
