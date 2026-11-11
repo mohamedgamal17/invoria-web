@@ -10,6 +10,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 
+import { SEARCH_DEBOUNCE_MS } from '../../../../shared/models/debounce';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
 
 export type PayablesListFilters = {
@@ -20,8 +21,6 @@ export type PayablesListFilters = {
 
 type PaidFilterOption = { label: string; value: boolean | null };
 type SupplierFilterOption = { label: string; value: string };
-
-const PAYABLE_FILTER_DEBOUNCE_MS = 700;
 
 @Component({
   selector: 'app-payables-filter-panel',
@@ -76,7 +75,7 @@ export class PayablesFilterPanelComponent {
 
     this.sourceIdInput$
       .pipe(
-        debounceTime(PAYABLE_FILTER_DEBOUNCE_MS),
+        debounceTime(SEARCH_DEBOUNCE_MS),
         distinctUntilChanged(),
         takeUntilDestroyed(this.destroyRef)
       )
