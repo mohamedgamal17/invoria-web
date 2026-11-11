@@ -20,6 +20,7 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 
 import { presentApiError } from '../../../../core/http/api-error.presenter';
+import { SEARCH_DEBOUNCE_MS } from '../../../../shared/models/debounce';
 import { canEditPurchaseOrder } from '../../models/purchase-order-actions';
 import type { CreatePurchaseOrderRequest } from '../../models/create-purchase-order.request';
 import type {
@@ -37,9 +38,6 @@ import { PurchaseOrderFormComponent } from '../../components/purchase-order-form
 import type { Product } from '../../../products/models/product.entity';
 import { productSearchListRequest } from '../../../products/models/list-product.request';
 import { ProductsApiService } from '../../../products/services/products-api.service';
-
-/** Mirrors order-form-page product autocomplete debounce. */
-const PO_FORM_AUTOCOMPLETE_DEBOUNCE_MS = 700;
 
 @Component({
   selector: 'app-purchase-order-form-page',
@@ -82,7 +80,7 @@ export class PurchaseOrderFormPageComponent {
   constructor() {
     this.productQuery$
       .pipe(
-        debounceTime(PO_FORM_AUTOCOMPLETE_DEBOUNCE_MS),
+        debounceTime(SEARCH_DEBOUNCE_MS),
         switchMap((query) => {
           const cached = this.productSearchCache.get(query);
           if (cached !== undefined) {

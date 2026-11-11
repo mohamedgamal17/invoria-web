@@ -17,6 +17,7 @@ import { Subject, catchError, debounceTime, finalize, of, switchMap, tap } from 
 import type { Product } from '../../../products/models/product.entity';
 import { productSearchListRequest } from '../../../products/models/list-product.request';
 import { ProductsApiService } from '../../../products/services/products-api.service';
+import { SEARCH_DEBOUNCE_MS } from '../../../../shared/models/debounce';
 
 /** Optional label when the parent only has an id (e.g. purchase order line). */
 export type ResolvedProductRef = Pick<Product, 'id' | 'name'>;
@@ -33,9 +34,6 @@ function productDisplayStub(id: string, name: string): Product {
     createdAt: ''
   };
 }
-
-/** Mirrors filter-panel / order-form autocomplete debounce (e.g. products-filter-panel). */
-const PRODUCT_AUTOCOMPLETE_DEBOUNCE_MS = 300;
 
 @Component({
   selector: 'app-product-id-control',
@@ -81,7 +79,7 @@ export class ProductIdControlComponent implements ControlValueAccessor {
 
     this.productQuery$
       .pipe(
-        debounceTime(PRODUCT_AUTOCOMPLETE_DEBOUNCE_MS),
+        debounceTime(SEARCH_DEBOUNCE_MS),
         switchMap((query) =>
           this.productsApi.searchProducts(productSearchListRequest, query).pipe(
             tap((rows) => this.searchResultsByQuery.set(query, rows)),

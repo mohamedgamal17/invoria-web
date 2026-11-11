@@ -10,6 +10,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 
+import { SEARCH_DEBOUNCE_MS } from '../../../../shared/models/debounce';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
 import { PurchaseState } from '../../enums/purchase-state.enum';
 import { purchaseStateLabel } from '../../models/purchase-state.display';
@@ -24,8 +25,6 @@ type FilterOption = { label: string; value: number | null };
 function numericEnumValues<T extends Record<string, string | number>>(enumMap: T): number[] {
   return Object.values(enumMap).filter((value): value is number => typeof value === 'number');
 }
-
-const PURCHASE_NUMBER_FILTER_DEBOUNCE_MS = 700;
 
 @Component({
   selector: 'app-purchase-orders-filter-panel',
@@ -63,7 +62,7 @@ export class PurchaseOrdersFilterPanelComponent {
 
     this.purchaseNumberInput$
       .pipe(
-        debounceTime(PURCHASE_NUMBER_FILTER_DEBOUNCE_MS),
+        debounceTime(SEARCH_DEBOUNCE_MS),
         distinctUntilChanged(),
         takeUntilDestroyed(this.destroyRef)
       )
