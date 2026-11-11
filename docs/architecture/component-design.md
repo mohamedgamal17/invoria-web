@@ -21,6 +21,11 @@ It complements [api-services-and-models.md](./api-services-and-models.md) for HT
 - **`models/`** — `*.entity.ts` for domain types; `*.request.ts` for list/body shapes.
 - **`store/`** — One state module per page/usage, each self-contained: `actions.ts`, `reducer.ts`, `selectors.ts`, `effects.ts`, plus a separate `<feature>-url/` adapter effect folder when the URL drives the state (see [§3](#3-ngrx-feature-store-modules-customers-reference)).
 - **Standalone** components only; explicit `imports` in `@Component`.
+- **External templates only**: every production component keeps its markup in a sibling
+  `<name>.component.html` referenced via `templateUrl: './<name>.component.html'`.
+  Never use the inline `template:` decorator property in production code — the only
+  allowed exception is throwaway stubs inside spec files (e.g. `template: ''` used to
+  satisfy a host-wrapper `@Component` in a test).
 
 ---
 

@@ -45,3 +45,4 @@ Angular 21 standalone, PrimeNG 21 + AuraInvoria preset, Tailwind v4 (CSS-first `
 - **PrimeNG first** for interactive primitives; **semantic Tailwind classes only** (no hardcoded hex/rgb) — design-consistency.md
 - **API services**: `providedIn: 'root'`, return `Observable<ApiResponse<T>>`, Swagger-aligned request types — api-services-and-models.md
 - **No single-character identifiers** — `ts-naming-conventions` skill (component-design.md §8)
+- **External templates** — `templateUrl: './<name>.component.html'` in a sibling file; never inline `template:` in production components (spec stubs exempt) — component-design.md §1
