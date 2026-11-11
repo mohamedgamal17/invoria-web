@@ -5,13 +5,6 @@ import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-head
   selector: 'app-invoice-header',
   standalone: true,
   imports: [PageHeaderComponent],
-  template: `
-    <app-page-header
-      title="Invoices"
-      description="View and manage your invoice records."
-      eyebrow="Invoicing"
-      eyebrowIcon="pi pi-file"
-    />
-  `
+  templateUrl: './invoice-header.component.html',
 })
 export class InvoiceHeaderComponent {}

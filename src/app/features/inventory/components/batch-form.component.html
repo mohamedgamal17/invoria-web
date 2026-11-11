@@ -1,0 +1,82 @@
+<form [formGroup]="batchForm" (ngSubmit)="submit()" class="flex h-full min-h-0 flex-col gap-4">
+  <div class="flex min-h-0 flex-1 flex-col gap-4">
+    <div class="flex flex-col gap-2">
+      <label
+        for="quantity"
+        class="text-xs font-bold uppercase tracking-wider text-muted-foreground"
+      >
+        Stock quantity
+      </label>
+      <p-inputNumber
+        id="quantity"
+        formControlName="quantity"
+        [min]="editMode() ? 0 : 1"
+        [showButtons]="true"
+        buttonLayout="horizontal"
+        spinnerMode="horizontal"
+        decrementButtonIcon="pi pi-minus"
+        incrementButtonIcon="pi pi-plus"
+        inputStyleClass="w-full"
+        styleClass="w-full"
+      >
+      </p-inputNumber>
+      @if (batchForm.get('quantity')?.invalid && batchForm.get('quantity')?.touched) {
+        <p-message
+          severity="error"
+          [text]="'Quantity must be at least ' + (editMode() ? '0' : '1') + '.'"
+          styleClass="w-full text-sm"
+        />
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label
+        for="purchasePrice"
+        class="text-xs font-bold uppercase tracking-wider text-muted-foreground"
+      >
+        Unit purchase price
+      </label>
+      <p-inputNumber
+        id="purchasePrice"
+        formControlName="purchasePrice"
+        mode="currency"
+        currency="USD"
+        locale="en-US"
+        [min]="0.01"
+        inputStyleClass="w-full"
+        styleClass="w-full"
+      >
+      </p-inputNumber>
+      @if (batchForm.get('purchasePrice')?.invalid && batchForm.get('purchasePrice')?.touched) {
+        <p-message
+          severity="error"
+          text="Price must be greater than zero."
+          styleClass="w-full text-sm"
+        />
+      }
+    </div>
+  </div>
+
+  <p-divider styleClass="m-0 border-border" />
+
+  <div class="flex flex-col gap-2">
+    <p-button
+      [label]="editMode() ? 'Save Changes' : 'Create Batch'"
+      [icon]="editMode() ? 'pi pi-save' : 'pi pi-check'"
+      type="submit"
+      [loading]="loading()"
+      [disabled]="batchForm.invalid || loading()"
+      styleClass="w-full"
+    >
+    </p-button>
+    <p-button
+      label="Cancel"
+      icon="pi pi-times"
+      [text]="true"
+      severity="secondary"
+      styleClass="w-full"
+      (onClick)="cancel.emit()"
+    >
+    </p-button>
+  </div>
+</form>

@@ -5,13 +5,6 @@ import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-head
   selector: 'app-receivable-header',
   standalone: true,
   imports: [PageHeaderComponent],
-  template: `
-    <app-page-header
-      title="Receivables"
-      description="View and manage your receivable records."
-      eyebrow="Financial"
-      eyebrowIcon="pi pi-file"
-    />
-  `
+  templateUrl: './receivable-header.component.html',
 })
 export class ReceivableHeaderComponent {}
