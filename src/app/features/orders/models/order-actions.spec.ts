@@ -9,7 +9,7 @@ import {
   canCancel,
   getAvailableOrderActions,
   getPrimaryOrderAction,
-  orderStatusLabel
+  getOrderStatusLabel
 } from './order-actions';
 
 describe('order-actions', () => {
@@ -88,13 +88,13 @@ describe('order-actions', () => {
     expect(getAvailableOrderActions(revision)).not.toContain('complete');
   });
 
-  it('orderStatusLabel: returns correct labels for all statuses', () => {
-    expect(orderStatusLabel(OrderStatus.Pending)).toBe('PENDING');
-    expect(orderStatusLabel(OrderStatus.Processing)).toBe('PROCESSING');
-    expect(orderStatusLabel(OrderStatus.Revision)).toBe('REVISION');
-    expect(orderStatusLabel(OrderStatus.Completed)).toBe('COMPLETED');
-    expect(orderStatusLabel(OrderStatus.Cancelled)).toBe('CANCELLED');
-    expect(orderStatusLabel(OrderStatus.RevisionPending)).toBe('REVISION_PENDING');
+  it('getOrderStatusLabel: returns correct labels for all statuses', () => {
+    expect(getOrderStatusLabel(OrderStatus.Pending)).toBe('PENDING');
+    expect(getOrderStatusLabel(OrderStatus.Processing)).toBe('PROCESSING');
+    expect(getOrderStatusLabel(OrderStatus.Revision)).toBe('REVISION');
+    expect(getOrderStatusLabel(OrderStatus.Completed)).toBe('COMPLETED');
+    expect(getOrderStatusLabel(OrderStatus.Cancelled)).toBe('CANCELLED');
+    expect(getOrderStatusLabel(OrderStatus.RevisionPending)).toBe('REVISION_PENDING');
   });
 });
 

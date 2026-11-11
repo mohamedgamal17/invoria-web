@@ -105,7 +105,7 @@ export function getAvailableOrderActions(order: OrderLike): OrderActionKey[] {
   return actions;
 }
 
-export function orderStatusLabel(status: OrderStatus): string {
+export function getOrderStatusLabel(status: OrderStatus): string {
   switch (status) {
     case OrderStatus.Pending:
       return 'PENDING';
@@ -124,11 +124,11 @@ export function orderStatusLabel(status: OrderStatus): string {
   }
 }
 
-export function orderStatusEmoji(status: OrderStatus): string {
+export function getOrderStatusEmoji(status: OrderStatus): string {
   return '';
 }
 
-export function orderStatusUserLabel(status: OrderStatus): string {
+export function getOrderStatusUserLabel(status: OrderStatus): string {
   switch (status) {
     case OrderStatus.Pending:
       return 'Awaiting confirmation';
@@ -147,7 +147,7 @@ export function orderStatusUserLabel(status: OrderStatus): string {
   }
 }
 
-export function orderStatusSeverity(
+export function getOrderStatusSeverity(
   status: OrderStatus
 ): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' {
   switch (status) {
