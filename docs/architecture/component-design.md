@@ -159,7 +159,7 @@ Simple pages keep state **component-local** — no NgRx slice, no store injectio
 
 - **Fetch chain**: `toSignal(route.queryParamMap, { initialValue })` → `computed(listRequest)` → **`rxResource`** → **`linkedSignal`** for display state.
 - **Page size**: defaults/options import from [`shared/models/pagination.ts`](../../src/app/shared/models/pagination.ts) (`DEFAULT_PAGE_SIZE`, `DEFAULT_PAGE_SIZE_OPTIONS`) — never re-declare `[25, 50, 100, 200]`; 1-based `?page=` validated, fallback to default.
-- **Filters**: debounced ~700ms **on the page**; the list/filter components emit `filtersChange` / `clearFilters`.
+- **Filters**: debounced using `SEARCH_DEBOUNCE_MS` from [`shared/models/debounce.ts`](../../src/app/shared/models/debounce.ts) — never re-declare a local `*_DEBOUNCE_MS` constant; the list/filter components emit `filtersChange` / `clearFilters`.
 - **Primary row action**: **View** (desktop table) / **View Details** (mobile cards) — [frontend-list-conventions.md](../guides/frontend-list-conventions.md).
 - **Errors**: `presentApiError()` from `core/http`; toasts via a **scoped `MessageService`** (`providers: [MessageService]` on the page component).
 - **Mutations**: navigate with `queryParamsHandling: 'merge'`; `window.scrollTo({ top: 0, behavior: 'smooth' })` on manual page change.
