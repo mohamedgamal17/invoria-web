@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, effect, input, model, output, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { StepperModule } from 'primeng/stepper';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { TableModule } from 'primeng/table';
 
+import { AutosearchComponent } from '../../../../shared/ui/autosearch/autosearch.component';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
 import type { Product } from '../../../products/models/product.entity';
 import type { PurchaseOrderSupplierRef } from '../../models/purchase-order.entity';
@@ -24,7 +24,6 @@ type PurchaseOrderFormEditTab = 0 | 1;
   imports: [
     CommonModule,
     FormsModule,
-    AutoCompleteModule,
     ButtonModule,
     InputNumberModule,
     StepperModule,
@@ -34,6 +33,7 @@ type PurchaseOrderFormEditTab = 0 | 1;
     TabPanels,
     TabPanel,
     TableModule,
+    AutosearchComponent,
     SurfaceCardComponent,
     SupplierIdControlComponent
   ],

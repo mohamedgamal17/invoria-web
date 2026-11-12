@@ -1,0 +1,32 @@
+<div class="flex gap-2">
+  <p-autocomplete
+    [ngModel]="selected()"
+    (ngModelChange)="onSelectedChange($event)"
+    [suggestions]="suggestions()"
+    (completeMethod)="search.emit($event)"
+    (onSelect)="onSelect($event)"
+    [optionLabel]="field()"
+    [dataKey]="dataKey()"
+    [forceSelection]="true"
+    [placeholder]="placeholder()"
+    [minLength]="0"
+    [dropdown]="true"
+    [name]="controlName()"
+    styleClass="flex-1 min-w-0"
+    [inputStyleClass]="inputStyleClass()"
+    appendTo="body"
+    [disabled]="disabled()"
+  />
+  @if (selected()) {
+    <p-button
+      type="button"
+      [icon]="removeIcon()"
+      [text]="true"
+      [rounded]="true"
+      [severity]="removeSeverity()"
+      [disabled]="disabled()"
+      aria-label="Remove selected item"
+      (onClick)="clear.emit()"
+    />
+  }
+</div>

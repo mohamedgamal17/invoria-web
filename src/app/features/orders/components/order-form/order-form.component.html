@@ -10,38 +10,19 @@
       <div class="space-y-6">
         <div class="flex flex-col gap-1.5 min-w-0">
           <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Customer</label>
-          <div class="flex gap-2">
-            <p-autocomplete
-              [ngModel]="selectedCustomer()"
-              (ngModelChange)="selectedCustomer.set($event)"
-              [suggestions]="customers()"
-              (completeMethod)="searchCustomers.emit($event)"
-              (onSelect)="customerSelect.emit($event)"
-              field="name"
-              optionLabel="name"
-              dataKey="id"
-              [forceSelection]="true"
-              placeholder="Search and select customer..."
-              [minLength]="0"
-              [dropdown]="true"
-              name="orderFormCustomer"
-              styleClass="flex-1 min-w-0"
-              inputStyleClass="w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all text-sm"
-              appendTo="body"
-              [disabled]="saving() || mode() === 'edit'"
-            />
-            @if (selectedCustomer()) {
-              <p-button
-                icon="pi pi-user-minus"
-                [text]="true"
-                [rounded]="true"
-                severity="danger"
-                (onClick)="clearCustomer.emit()"
-                type="button"
-                [disabled]="saving() || mode() === 'edit'"
-              />
-            }
-          </div>
+          <app-autosearch
+            [(selected)]="selectedCustomer"
+            [suggestions]="customers()"
+            [controlName]="'orderFormCustomer'"
+            [placeholder]="'Search and select customer...'"
+            [disabled]="saving() || mode() === 'edit'"
+            [removeIcon]="'pi pi-user-minus'"
+            [removeSeverity]="'danger'"
+            [inputStyleClass]="'w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all text-sm'"
+            (search)="searchCustomers.emit($event)"
+            (select)="customerSelect.emit($event)"
+            (clear)="clearCustomer.emit()"
+          />
         </div>
 
         <div class="flex flex-col gap-1.5 min-w-0 border-t border-border/60 pt-6">
@@ -82,36 +63,15 @@
         <div class="space-y-4 bg-surface-2 p-4 rounded-xl border border-border/50">
           <div class="flex flex-col gap-1.5">
             <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Search product</label>
-            <div class="flex gap-2">
-              <p-autocomplete
-                [ngModel]="selectedProduct()"
-                (ngModelChange)="selectedProduct.set($event)"
-                [suggestions]="products()"
-                (completeMethod)="searchProducts.emit($event)"
-                (onSelect)="productSelect.emit($event)"
-                field="name"
-                optionLabel="name"
-                dataKey="id"
-                [forceSelection]="true"
-                placeholder="Start typing product name..."
-                [minLength]="0"
-                [dropdown]="true"
-                name="orderFormProduct"
-                styleClass="flex-1 min-w-0"
-                inputStyleClass="w-full rounded-lg border-border bg-surface transition-all text-sm"
-                appendTo="body"
-              />
-              @if (selectedProduct()) {
-                <p-button
-                  icon="pi pi-times"
-                  [text]="true"
-                  [rounded]="true"
-                  severity="secondary"
-                  (onClick)="clearProduct.emit()"
-                  type="button"
-                />
-              }
-            </div>
+            <app-autosearch
+              [(selected)]="selectedProduct"
+              [suggestions]="products()"
+              [controlName]="'orderFormProduct'"
+              [placeholder]="'Start typing product name...'"
+              (search)="searchProducts.emit($event)"
+              (select)="productSelect.emit($event)"
+              (clear)="clearProduct.emit()"
+            />
           </div>
 
           @if (selectedProduct()) {
