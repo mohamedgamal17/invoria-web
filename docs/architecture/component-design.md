@@ -166,3 +166,16 @@ Simple pages keep state **component-local** — no NgRx slice, no store injectio
 - **Escalation rule**: when a page needs state shared across pages, silent create/update sync into a paged list, or duplicate-cancel fetch funnels — move it to the NgRx pattern ([§2–3](#2-smart-page-customerspagecomponent)) plus the `ngrx-page-state` / `ngrx-list-mutations` skills.
 
 Reference implementations: [`orders-page`](../../src/app/features/orders/pages/orders-page/orders-page.component.ts), [`suppliers-page`](../../src/app/features/suppliers/pages/suppliers-page/suppliers-page.component.ts).
+
+---
+
+## 10. Confirmation dialogs (shared `ConfirmDialogService`)
+
+Every destructive or state-changing confirmation goes through the shared confirm-dialog module — components never import `ConfirmDialogModule`, provide `ConfirmationService`, or render `<p-confirmDialog>` themselves:
+
+- **Host**: a single `<app-confirm-dialog />` in `app.html` ([`shared/ui/confirm-dialog/confirm-dialog.component.ts`](../../src/app/shared/ui/confirm-dialog/confirm-dialog.component.ts)) is the app-wide dialog. The root `app.config.ts` provides `ConfirmationService` (one instance app-wide, like `MessageService`). The host applies the app-standard dialog behavior: explicit accept/reject choice only — no Escape shortcut, close icon, or click-outside dismissal — and focus starts on the reject button so a hurried Enter cancels.
+- **API**: inject **`ConfirmDialogService`** ([`confirm-dialog.service.ts`](../../src/app/shared/ui/confirm-dialog/confirm-dialog.service.ts)) and call `confirm({ header, message, severity?, acceptLabel?, rejectLabel?, icon? })`, which resolves an **`Observable<boolean>`** — `true` on accept, `false` on reject or dismissal. Subscribe in the component; no `accept`/`reject` callbacks.
+- **Defaults live in the service, not call sites**: warning icon `pi pi-exclamation-triangle`, accept label `Confirm`, reject = `Cancel` / `severity: 'secondary'` / outlined. For destructive actions pass **`severity: 'danger'`** plus an explicit **`acceptLabel`** (e.g. `'Delete'`) — never legacy `acceptButtonStyleClass: 'p-button-danger'` strings.
+- **Specs**: stub the shared service — `{ provide: ConfirmDialogService, useValue: { confirm: vi.fn().mockReturnValue(of(true)) } }` — never the raw `ConfirmationService`.
+
+Reference implementation: [`product-details-page.deleteProduct()`](../../src/app/features/products/pages/product-details-page/product-details-page.component.ts).
