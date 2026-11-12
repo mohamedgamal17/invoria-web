@@ -11,7 +11,7 @@ import {
   routerReducer,
   RouterState
 } from '@ngrx/router-store';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
 
 import { routes } from './app.routes';
@@ -34,6 +34,9 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     // Root-provided so `p-toast` and the global `AppErrorEffects` share one instance.
     MessageService,
+    // Root-provided single instance behind the shared `ConfirmDialogService`
+    // and the `<app-confirm-dialog>` host in `app.html`.
+    ConfirmationService,
     // Global error presentation (toast + error-route navigation) for any feature flow.
     provideStore({}),
     // Router slice the router-store selectors read from (`state['router'].state`).
