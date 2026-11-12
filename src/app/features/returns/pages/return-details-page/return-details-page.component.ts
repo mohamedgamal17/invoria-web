@@ -3,10 +3,9 @@ import { Component, computed, inject, linkedSignal, signal } from '@angular/core
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, finalize, map, of, take } from 'rxjs';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
 
@@ -26,6 +25,7 @@ import { ReturnDetailsInfoComponent } from '../../components/return-details-info
 import { ReturnDetailsLinesComponent } from '../../components/return-details-lines/return-details-lines.component';
 import { ReturnProgressComponent } from '../../components/return-progress/return-progress.component';
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 @Component({
   selector: 'app-return-details-page',
@@ -34,7 +34,6 @@ import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-head
     CommonModule,
     ButtonModule,
     CardModule,
-    ConfirmDialogModule,
     SkeletonModule,
     ToastModule,
     ReturnDetailsToolbarComponent,
@@ -43,7 +42,7 @@ import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-head
     ReturnProgressComponent,
     PageHeaderComponent
   ],
-  providers: [ConfirmationService, MessageService],
+  providers: [MessageService],
   templateUrl: './return-details-page.component.html',
   styles: [`
     @keyframes pulse-beat {
@@ -59,7 +58,7 @@ export class ReturnDetailsPageComponent {
   readonly currencyCode = 'EGP' as const;
   private readonly returnsApi = inject(ReturnsApiService);
   private readonly returnActionFacade = inject(ReturnActionFacade);
-  private readonly confirmationService = inject(ConfirmationService);
+  private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly messageService = inject(MessageService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -128,14 +127,18 @@ export class ReturnDetailsPageComponent {
 
   onAction(action: ReturnActionKey): void {
     const meta = this.returnActionFacade.meta(action);
-    this.confirmationService.confirm({
-      header: 'Confirm Action',
-      message: `Are you sure you want to ${meta.label.replace(/[^a-zA-Z ]/g, '').trim().toLowerCase()} this return?`,
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonProps: { label: meta.label, severity: meta.severity },
-      rejectButtonProps: { label: 'Cancel', severity: 'secondary', outlined: true },
-      accept: () => this.executeAction(action)
-    });
+    this.confirmDialog
+      .confirm({
+        header: 'Confirm Action',
+        message: `Are you sure you want to ${meta.label.replace(/[^a-zA-Z ]/g, '').trim().toLowerCase()} this return?`,
+        severity: meta.severity,
+        acceptLabel: meta.label,
+      })
+      .subscribe((accepted) => {
+        if (accepted) {
+          this.executeAction(action);
+        }
+      });
   }
 
   retry(): void {

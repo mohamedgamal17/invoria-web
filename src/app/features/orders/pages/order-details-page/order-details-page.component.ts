@@ -4,10 +4,9 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
@@ -28,6 +27,7 @@ import { OrderDetailsReturnItemsTabComponent } from '../../components/order-deta
 import { OrderSummaryCardComponent } from '../../components/order-summary-card/order-summary-card.component';
 import { OrderProgressComponent } from '../../components/order-progress/order-progress.component';
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 import type { CompleteOrderRequest } from '../../models/complete-order.request';
 import type { AddReturnItemsRequest } from '../../models/add-return-items.request';
 import type { OrderTransitionAction } from '../../services/order-action.facade';
@@ -56,7 +56,6 @@ import {
     CommonModule,
     ButtonModule,
     CardModule,
-    ConfirmDialogModule,
     DialogModule,
     OrderDetailsLineItemsTabComponent,
     OrderDetailsPaymentTabComponent,
@@ -74,7 +73,7 @@ import {
     SkeletonModule,
     ToastModule
   ],
-  providers: [ConfirmationService, MessageService],
+  providers: [MessageService],
   templateUrl: './order-details-page.component.html',
   styles: [`
     @keyframes pulse-beat {
@@ -89,7 +88,7 @@ import {
 export class OrderDetailsPageComponent {
   readonly currencyCode = 'EGP' as const;
   private readonly store = inject(Store);
-  private readonly confirmationService = inject(ConfirmationService);
+  private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly messageService = inject(MessageService);
   private readonly urlState = inject(UrlStateService);
   private readonly route = inject(ActivatedRoute);
@@ -274,14 +273,18 @@ export class OrderDetailsPageComponent {
     }
 
     const meta = ORDER_ACTION_UI[action as OrderTransitionAction];
-    this.confirmationService.confirm({
-      header: 'Confirm Action',
-      message: `Are you sure you want to ${meta.label.replace(/[^a-zA-Z ]/g, '').trim().toLowerCase()} this order?`,
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonProps: { label: meta.label, severity: meta.severity },
-      rejectButtonProps: { label: 'Cancel', severity: 'secondary', outlined: true },
-      accept: () => this.recordAction(action as OrderTransitionAction)
-    });
+    this.confirmDialog
+      .confirm({
+        header: 'Confirm Action',
+        message: `Are you sure you want to ${meta.label.replace(/[^a-zA-Z ]/g, '').trim().toLowerCase()} this order?`,
+        severity: meta.severity,
+        acceptLabel: meta.label,
+      })
+      .subscribe((accepted) => {
+        if (accepted) {
+          this.recordAction(action as OrderTransitionAction);
+        }
+      });
   }
 
   onCompleteIncludeReturns(): void {

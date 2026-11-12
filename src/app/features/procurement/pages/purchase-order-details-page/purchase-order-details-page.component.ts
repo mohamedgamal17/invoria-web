@@ -5,17 +5,16 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
 
 import { Store } from '@ngrx/store';
-import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
 import { LOAD_STATUS } from '../../../../shared/models/load-status';
 import { UrlStateService } from '../../../../shared/utils/url-state.service';
+import { ConfirmDialogService, type ConfirmDialogSeverity } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 import type {
   PurchaseOrder,
   PurchaseOrderItem,
@@ -51,7 +50,6 @@ import {
     SkeletonModule,
     ToastModule,
     TagModule,
-    ConfirmDialogModule,
     Tabs,
     TabList,
     Tab,
@@ -61,7 +59,6 @@ import {
     PurchaseOrderDetailsLinesTabComponent,
     PurchaseOrderDetailsHistoryTabComponent,
   ],
-  providers: [ConfirmationService],
   templateUrl: './purchase-order-details-page.component.html',
 })
 /**
@@ -81,7 +78,7 @@ export class PurchaseOrderDetailsPageComponent {
   readonly tabs = PurchaseOrderDetailsTab;
 
   private readonly store = inject(Store);
-  private readonly confirmationService = inject(ConfirmationService);
+  private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly urlState = inject(UrlStateService);
@@ -213,19 +210,19 @@ export class PurchaseOrderDetailsPageComponent {
 
     const messages: Record<
       PurchaseOrderTransitionAction,
-      { header: string; message: string; acceptClass?: string } | null
+      { header: string; message: string; severity?: ConfirmDialogSeverity } | null
     > = {
       submit: null,
       approve: null,
       reject: {
         header: 'Reject purchase order',
         message: 'Reject this purchase order? It will be marked as rejected.',
-        acceptClass: 'p-button-danger',
+        severity: 'danger',
       },
       cancel: {
         header: 'Cancel purchase order',
         message: 'Cancel this purchase order?',
-        acceptClass: 'p-button-danger',
+        severity: 'danger',
       },
       complete: {
         header: 'Complete purchase order',
@@ -243,14 +240,17 @@ export class PurchaseOrderDetailsPageComponent {
       return;
     }
 
-    this.confirmationService.confirm({
-      header: cfg.header,
-      message: cfg.message,
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: cfg.acceptClass,
-      rejectButtonStyleClass: 'p-button-text',
-      accept: run,
-    });
+    this.confirmDialog
+      .confirm({
+        header: cfg.header,
+        message: cfg.message,
+        severity: cfg.severity,
+      })
+      .subscribe((accepted) => {
+        if (accepted) {
+          run();
+        }
+      });
   }
 
   supplierLine(po: PurchaseOrder): string {

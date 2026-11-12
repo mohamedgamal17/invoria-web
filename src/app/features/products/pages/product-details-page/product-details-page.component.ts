@@ -3,7 +3,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
@@ -16,6 +15,7 @@ import { LOAD_STATUS } from '../../../../shared/models/load-status';
 import { PaginationService } from '../../../../shared/utils/pagination.service';
 import { UrlStateService } from '../../../../shared/utils/url-state.service';
 import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 import { ProductsBreadcrumbComponent } from '../../components/products-breadcrumb/products-breadcrumb.component';
 import { ProductDetailsToolbarComponent } from '../../components/product-details-toolbar/product-details-toolbar.component';
 import { ProductDetailsInfoPanelComponent } from '../../components/product-details-info-panel/product-details-info-panel.component';
@@ -66,7 +66,7 @@ export class ProductDetailsPageComponent {
   readonly tabs = ProductDetailsTab;
   private readonly store = inject(Store);
   private readonly pagination = inject(PaginationService);
-  private readonly confirmationService = inject(ConfirmationService);
+  private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly urlState = inject(UrlStateService);
@@ -183,15 +183,18 @@ export class ProductDetailsPageComponent {
     if (!product || this.deleting()) {
       return;
     }
-    this.confirmationService.confirm({
-      header: 'Delete Product',
-      message: `Are you sure you want to delete "${product.name}"?`,
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => {
-        this.store.dispatch(PRODUCT_MUTATIONS_ACTIONS.deleteProduct({ id: product.id }));
-      },
-    });
+    this.confirmDialog
+      .confirm({
+        header: 'Delete Product',
+        message: `Are you sure you want to delete "${product.name}"?`,
+        severity: 'danger',
+        acceptLabel: 'Delete',
+      })
+      .subscribe((accepted) => {
+        if (accepted) {
+          this.store.dispatch(PRODUCT_MUTATIONS_ACTIONS.deleteProduct({ id: product.id }));
+        }
+      });
   }
 
   private replaceUrlQuery(

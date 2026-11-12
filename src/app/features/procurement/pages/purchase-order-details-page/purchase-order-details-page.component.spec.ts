@@ -4,7 +4,9 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { Store, provideStore, provideState } from '@ngrx/store';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
+
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 import { PurchaseOrderDetailsPageComponent } from './purchase-order-details-page.component';
 import type { PurchaseOrder } from '../../models/purchase-order.entity';
@@ -84,7 +86,7 @@ describe('PurchaseOrderDetailsPageComponent', () => {
       imports: [PurchaseOrderDetailsPageComponent, NoopAnimationsModule],
       providers: [
         MessageService,
-        ConfirmationService,
+        { provide: ConfirmDialogService, useValue: { confirm: vi.fn().mockReturnValue(of(true)) } },
         provideStore({}),
         provideState(PURCHASE_ORDER_DETAILS_FEATURE_KEY, purchaseOrderDetailsReducer),
         provideState(PURCHASE_ORDERS_MUTATIONS_FEATURE_KEY, purchaseOrdersMutationsReducer),

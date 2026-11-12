@@ -15,7 +15,9 @@ import { of, EMPTY } from 'rxjs';
 import { provideStore, provideState } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
 
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
+
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 import {
   ORDERS_LIST_FEATURE_KEY,
@@ -94,7 +96,7 @@ describe('OrderDetailsPageComponent', () => {
       imports: [OrderDetailsPageComponent, NoopAnimationsModule],
       providers: [
         MessageService,
-        ConfirmationService,
+        { provide: ConfirmDialogService, useValue: { confirm: vi.fn().mockReturnValue(of(true)) } },
         provideStore({}),
         provideState(ORDERS_LIST_FEATURE_KEY, ordersListReducer),
         provideState(ORDER_DETAILS_FEATURE_KEY, orderDetailsReducer),
