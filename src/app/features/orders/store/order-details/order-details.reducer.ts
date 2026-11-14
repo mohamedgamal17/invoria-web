@@ -22,10 +22,14 @@ export interface OrderDetailsState {
   request: AsyncRequestState;
   /** Confirmed order-transition request (accept / requestRevision / complete / cancel). */
   savingRequest: AsyncRequestState;
+  /** Validated record-payment submit request (payment tab → POST /payments). */
+  paymentRequest: AsyncRequestState;
   /** Transition action targeted by the current/last `recordAction`. */
   lastAction: OrderTransitionAction | null;
   /** Increments on each `recordActionSuccess` so the page can replay success presentation. */
   successNonce: number;
+  /** Increments on each `recordPaymentSuccess` so the page can replay success presentation. */
+  paymentSuccessNonce: number;
 }
 
 export const ORDER_DETAILS_INITIAL_STATE: OrderDetailsState = {
@@ -34,8 +38,10 @@ export const ORDER_DETAILS_INITIAL_STATE: OrderDetailsState = {
   activeTab: 0,
   request: INITIAL_ASYNC_REQUEST_STATE,
   savingRequest: INITIAL_ASYNC_REQUEST_STATE,
+  paymentRequest: INITIAL_ASYNC_REQUEST_STATE,
   lastAction: null,
   successNonce: 0,
+  paymentSuccessNonce: 0,
 };
 
 export const orderDetailsReducer = createReducer(
@@ -91,6 +97,25 @@ export const orderDetailsReducer = createReducer(
   on(ORDER_DETAILS_ACTIONS.recordActionFailure, (state, { error }) => ({
     ...state,
     savingRequest: applyFailure(state.savingRequest, error),
+  })),
+
+  on(ORDER_DETAILS_ACTIONS.recordPayment, (state) => ({
+    ...state,
+    paymentRequest: startLoading(state.paymentRequest),
+  })),
+
+  // The returned entity replaces the loaded order in place: the details view
+  // updates without a refetch (same fold as `recordActionSuccess`).
+  on(ORDER_DETAILS_ACTIONS.recordPaymentSuccess, (state, { order }) => ({
+    ...state,
+    order,
+    paymentRequest: { ...state.paymentRequest, status: LOAD_STATUS.Loaded, error: null },
+    paymentSuccessNonce: state.paymentSuccessNonce + 1,
+  })),
+
+  on(ORDER_DETAILS_ACTIONS.recordPaymentFailure, (state, { error }) => ({
+    ...state,
+    paymentRequest: applyFailure(state.paymentRequest, error),
   })),
 );
 

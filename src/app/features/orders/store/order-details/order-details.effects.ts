@@ -83,6 +83,38 @@ export class OrderDetailsEffects {
       ),
     ),
   );
+
+  /** Validated record-payment submit; the reducer folds the returned entity in,
+   *  the `orders-list` slice is synced locally via `orderUpdated`. */
+  readonly recordPayment$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ORDER_DETAILS_ACTIONS.recordPayment),
+      switchMap(({ orderId, body }) =>
+        this.ordersApi.recordOrderPayment(orderId, body).pipe(
+          mergeMap((res) => {
+            if (res.isSuccess && res.result) {
+              const order = orderToUiOrder(res.result);
+              return of(
+                ORDER_DETAILS_ACTIONS.recordPaymentSuccess({ order }),
+                ORDERS_LIST_ACTIONS.orderUpdated({ order }),
+              );
+            }
+            const error = res.error ?? new Error('Recording the payment failed.');
+            return of(
+              ORDER_DETAILS_ACTIONS.recordPaymentFailure({ error }),
+              APP_ERROR_ACTIONS.apiError({ error }),
+            );
+          }),
+          catchError((error: unknown) =>
+            of(
+              ORDER_DETAILS_ACTIONS.recordPaymentFailure({ error }),
+              APP_ERROR_ACTIONS.apiError({ error }),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 /** Which `orders-list` local-sync action mirrors a details-page transition, if any. */

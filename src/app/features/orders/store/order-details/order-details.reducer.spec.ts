@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import { LOAD_STATUS } from '../../../../shared/models/load-status';
 import { OrderStatus } from '../../models/order.entity';
-import { PaymentStatus, PaymentType } from '../../models/order-payment.enums';
+import { OrderPaymentMethod, PaymentStatus, PaymentType } from '../../models/order-payment.enums';
+import type { RecordOrderPaymentRequest } from '../../models/record-order-payment.request';
 import type { UiOrder } from '../../models/order-ui.model';
 import { ORDER_DETAILS_ACTIONS } from './order-details.actions';
 import {
@@ -164,6 +165,66 @@ describe('orderDetailsReducer', () => {
       expect(next.savingRequest.failureNonce).toBe(1);
       expect(next.savingRequest.error).toBeTruthy();
       expect(next.successNonce).toBe(0);
+    });
+  });
+
+  describe('recordPayment', () => {
+    it('starts the payment request without touching the load or transition slices', () => {
+      const next = orderDetailsReducer(
+        LOADED,
+        {
+          ...ORDER_DETAILS_ACTIONS.recordPayment({
+            orderId: 'ord_1',
+            body: { PaidAmount: 100, PaymentMethod: OrderPaymentMethod.BankTransfer, PaidAt: null },
+          }),
+        },
+      );
+      expect(next.paymentRequest.status).toBe(LOAD_STATUS.Loading);
+      expect(next.request.status).toBe(LOAD_STATUS.Loaded);
+      expect(next.savingRequest.status).toBe(LOAD_STATUS.Idle);
+      expect(next.order).toBe(ORDER);
+    });
+
+    it('folds the returned entity in and bumps the payment success nonce', () => {
+      const paid: UiOrder = { ...ORDER, status: OrderStatus.Completed, paymentStatus: PaymentStatus.Paid };
+      const saving = orderDetailsReducer(
+        LOADED,
+        {
+          ...ORDER_DETAILS_ACTIONS.recordPayment({
+            orderId: 'ord_1',
+            body: { PaidAmount: 100, PaymentMethod: OrderPaymentMethod.BankTransfer, PaidAt: null },
+          }),
+        },
+      );
+      const next = orderDetailsReducer(
+        saving,
+        { ...ORDER_DETAILS_ACTIONS.recordPaymentSuccess({ order: paid }) },
+      );
+      expect(next.order).toBe(paid);
+      expect(next.paymentRequest.status).toBe(LOAD_STATUS.Loaded);
+      expect(next.paymentRequest.error).toBeNull();
+      expect(next.paymentSuccessNonce).toBe(saving.paymentSuccessNonce + 1);
+    });
+
+    it('applies failure without clearing the loaded entity', () => {
+      const saving = orderDetailsReducer(
+        LOADED,
+        {
+          ...ORDER_DETAILS_ACTIONS.recordPayment({
+            orderId: 'ord_1',
+            body: { PaidAmount: 100, PaymentMethod: OrderPaymentMethod.BankTransfer, PaidAt: null },
+          }),
+        },
+      );
+      const next = orderDetailsReducer(
+        saving,
+        { ...ORDER_DETAILS_ACTIONS.recordPaymentFailure({ error: new Error('boom') }) },
+      );
+      expect(next.order).toBe(ORDER);
+      expect(next.paymentRequest.status).toBe(LOAD_STATUS.Error);
+      expect(next.paymentRequest.failureNonce).toBe(1);
+      expect(next.paymentRequest.error).toBeTruthy();
+      expect(next.paymentSuccessNonce).toBe(0);
     });
   });
 });

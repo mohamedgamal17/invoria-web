@@ -9,8 +9,10 @@ export const orderDetailsSelectors = {
   selectActiveTab: orderDetailsFeature.selectActiveTab,
   selectRequest: orderDetailsFeature.selectRequest,
   selectSavingRequest: orderDetailsFeature.selectSavingRequest,
+  selectPaymentRequest: orderDetailsFeature.selectPaymentRequest,
   selectLastAction: orderDetailsFeature.selectLastAction,
   selectSuccessNonce: orderDetailsFeature.selectSuccessNonce,
+  selectPaymentSuccessNonce: orderDetailsFeature.selectPaymentSuccessNonce,
 
   selectIsLoading: createSelector(
     orderDetailsFeature.selectRequest,
@@ -36,6 +38,21 @@ export const orderDetailsSelectors = {
 
   selectSavingFailureNonce: createSelector(
     orderDetailsFeature.selectSavingRequest,
+    (request) => request.failureNonce,
+  ),
+
+  selectIsPaymentSaving: createSelector(
+    orderDetailsFeature.selectPaymentRequest,
+    (request) => request.status === LOAD_STATUS.Loading,
+  ),
+
+  selectPaymentError: createSelector(
+    orderDetailsFeature.selectPaymentRequest,
+    (request) => request.error,
+  ),
+
+  selectPaymentFailureNonce: createSelector(
+    orderDetailsFeature.selectPaymentRequest,
     (request) => request.failureNonce,
   ),
 } as const;

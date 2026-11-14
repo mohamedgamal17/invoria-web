@@ -2,6 +2,7 @@ import { createAction, props } from '@ngrx/store';
 
 import type { CompleteOrderRequest } from '../../models/complete-order.request';
 import type { UiOrder } from '../../models/order-ui.model';
+import type { RecordOrderPaymentRequest } from '../../models/record-order-payment.request';
 import type { OrderTransitionAction } from '../../services/order-action.facade';
 
 /** State module for the order details page: `order`, `activeTab`, load + transition-action requests. */
@@ -44,6 +45,22 @@ export const ORDER_DETAILS_ACTIONS = {
 
   recordActionFailure: createAction(
     '[Order Details] Record Action Failure',
+    props<{ error: unknown }>(),
+  ),
+
+  /** Validated record-payment submit from the payment tab (POST /orders/{id}/payments). */
+  recordPayment: createAction(
+    '[Order Details] Record Payment',
+    props<{ orderId: string; body: RecordOrderPaymentRequest }>(),
+  ),
+
+  recordPaymentSuccess: createAction(
+    '[Order Details] Record Payment Success',
+    props<{ order: UiOrder }>(),
+  ),
+
+  recordPaymentFailure: createAction(
+    '[Order Details] Record Payment Failure',
     props<{ error: unknown }>(),
   ),
 } as const;
