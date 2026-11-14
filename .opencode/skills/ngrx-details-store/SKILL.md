@@ -17,6 +17,7 @@ Conventions for a *details page* store, using
 | Paged child-tab slice (paging, lazy gate, fetch, mutations) | `src/app/features/products/store/product-details-batches/` |
 | URL adapter effect (`tab` / `page` / `pageSize`) | `src/app/features/products/store/product-details-url/` |
 | Silent mutation sync (details reducer listens to mutations) | `product-details.reducer.ts` → `on(PRODUCT_MUTATIONS_ACTIONS.updateProductSuccess, ...)` |
+| Details-page child dialog/tab submit (validated UI intent → page dispatch → slice effect) | `src/app/features/orders/components/order-details-payment-tab/` + `src/app/features/orders/store/order-details/` (`recordPayment` lifecycle, `paymentRequest` + `paymentSuccessNonce`) |
 | Tab slug validation util | `src/app/features/products/utils/product-details-tab.ts` |
 | Request lifecycle helpers | `src/app/shared/models/async-request-state.ts`, `load-status.ts` |
 | Paged-slice reducer/effect rules | the `ngrx-page-state` skill |
@@ -29,6 +30,11 @@ Conventions for a *details page* store, using
   an API service into a panel or view component. The batches panel
   (`inventory/components/product-batches-panel.component.ts`) and the batches
   modal are pure presentation; the details page's store owns every batches call.
+  Same for details child tabs/dialogs: the orders payment tab
+  (`order-details-payment-tab`) only validates form input inline
+  (`validationError` signal) and emits `paymentSubmit`; the details page
+  dispatches `ORDER_DETAILS_ACTIONS.recordPayment` and its slice effect owns the
+  `OrdersApiService.recordOrderPayment` call.
 - **The details store silently syncs entity mutations.** When the store holds
   the entity whose id was just mutated (e.g. `updateProductSuccess` from the
   `products-mutations` slice), the details reducer replaces the entity in place
