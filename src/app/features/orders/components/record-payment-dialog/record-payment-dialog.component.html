@@ -1,0 +1,68 @@
+<p-dialog
+  header="Record payment"
+  [modal]="true"
+  [dismissableMask]="true"
+  [draggable]="false"
+  [breakpoints]="{ '960px': '85vw', '641px': '95vw' }"
+  [(visible)]="visible"
+  (onShow)="onDialogShow()"
+  (onHide)="closeDialog()"
+  styleClass="w-full max-w-[420px]"
+>
+  <form class="flex flex-col gap-5 pt-2" [formGroup]="recordPaymentForm" (ngSubmit)="submitPayment()">
+  @if (formError()) {
+    <p class="text-sm text-destructive rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2" role="alert">
+      {{ formError() }}
+    </p>
+  }
+    @if (isImmediatePayment()) {
+      <p class="text-sm text-muted-foreground">
+        Immediate payment: the full order total is due in one payment.
+      </p>
+    }
+    <div class="flex flex-col gap-1.5">
+      <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider" for="record-pay-amount">Amount</label>
+      <p-inputNumber
+        inputId="record-pay-amount"
+        formControlName="paidAmount"
+        mode="decimal"
+        [minFractionDigits]="2"
+        [maxFractionDigits]="2"
+        [min]="recordPaidAmountMin()"
+        [max]="recordPaidAmountMax()"
+        [placeholder]="isImmediatePayment() ? '' : '0.00'"
+        styleClass="w-full"
+        [readonly]="isImmediatePayment()"
+        [disabled]="saving()"
+      />
+      @if (recordPaymentForm.controls.paidAmount.invalid && recordPaymentForm.controls.paidAmount.touched) {
+        @if (recordPaymentForm.controls.paidAmount.hasError('required')) {
+          <p-message severity="error" text="Enter a valid payment amount." />
+        } @else if (recordPaymentForm.controls.paidAmount.hasError('amountMismatch')) {
+          <p-message severity="error" text="Immediate payment must equal the full order total." />
+        } @else {
+          <p-message severity="error" variant="outlined" styleClass="w-full">
+            Amount must be between {{ recordPaidAmountMin() | number:'1.2-2' }} and {{ recordPaidAmountMax() | number:'1.2-2' }}
+          </p-message>
+        }
+      }
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider" for="record-pay-method">Method</label>
+      <p-select
+        inputId="record-pay-method"
+        formControlName="paymentMethod"
+        [options]="paymentMethodOptions"
+        optionLabel="label"
+        optionValue="value"
+        appendTo="body"
+        styleClass="w-full rounded-lg border-border bg-surface-2 text-sm min-h-[2.5rem]"
+        [disabled]="saving()"
+      />
+    </div>
+    <div class="flex justify-end gap-2 pt-2">
+      <p-button label="Cancel" severity="secondary" [outlined]="true" type="button" [disabled]="saving()" (onClick)="closeDialog()" />
+      <p-button label="Submit" icon="pi pi-check" type="submit" [loading]="saving()" [disabled]="saving()" />
+    </div>
+  </form>
+</p-dialog>

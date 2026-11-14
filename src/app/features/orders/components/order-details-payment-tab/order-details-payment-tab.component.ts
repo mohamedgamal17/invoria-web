@@ -1,20 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { finalize, take } from 'rxjs';
+import { Component, computed, input } from '@angular/core';
 
-import { MessageService } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { DialogModule } from 'primeng/dialog';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 
-import { presentApiError } from '../../../../core/http/api-error.presenter';
 import {
-  OrderPaymentMethod,
   PaymentStatus,
   PaymentType,
   paymentMethodLabel,
@@ -22,23 +13,13 @@ import {
   paymentTypeLabel
 } from '../../models/order-payment.enums';
 import type { UiOrder } from '../../models/order-ui.model';
-import { OrdersApiService } from '../../services/orders-api.service';
-
-
-
-const MONEY_EPS = 0.005;
 
 @Component({
   selector: 'app-order-details-payment-tab',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
-    ButtonModule,
     CardModule,
-    DialogModule,
-    InputNumberModule,
-    SelectModule,
     TableModule,
     TagModule
   ],
@@ -47,43 +28,12 @@ const MONEY_EPS = 0.005;
 export class OrderDetailsPaymentTabComponent {
   readonly order = input.required<UiOrder>();
   readonly currencyCode = input<string>('EGP');
-  readonly refreshRequested = output<void>();
 
   readonly paymentMethodLabel = paymentMethodLabel;
 
-  readonly isImmediatePayment = computed(() => this.order().paymentType === PaymentType.Immediate);
-
-  readonly isDebtPayment = computed(() => this.order().paymentType === PaymentType.Debt);
-
-  /**
-   * Debt: if outstanding &gt; 0, cap is outstanding; if outstanding is 0, cap is order total.
-   * Immediate: cap is order total (amount is fixed to total).
-   */
-  readonly recordPaidAmountMax = computed((): number => {
-    const order = this.order();
-    if (order.paymentType === PaymentType.Immediate) {
-      return order.netOfTotalOrderAmount;
-    }
-    if (order.paymentType === PaymentType.Debt) {
-      const outstanding = order.amountOutstanding ?? 0;
-      if (outstanding > MONEY_EPS) {
-        return outstanding;
-      }
-      return order.netOfTotalOrderAmount;
-    }
-    return order.netOfTotalOrderAmount;
-  });
-
-  readonly recordPaidAmountMin = computed((): number => {
-    if (this.order().paymentType === PaymentType.Debt) {
-      return 0.01;
-    }
-    return this.order().netOfTotalOrderAmount;
-  });
-
-  /** True when paid + outstanding matches total within a small tolerance. */
   readonly Math = Math;
 
+  /** True when paid + outstanding matches total within a small tolerance. */
   readonly paidPercent = computed(() => {
     const order = this.order();
     if (order.amountPaid == null || !Number.isFinite(order.netOfTotalOrderAmount) || order.netOfTotalOrderAmount <= 0) return null;
@@ -99,23 +49,6 @@ export class OrderDetailsPaymentTabComponent {
       order.amountPaid + order.amountOutstanding - order.netOfTotalOrderAmount
     ) <= 0.02;
   });
-
-  private readonly ordersApi = inject(OrdersApiService);
-  private readonly messageService = inject(MessageService);
-
-  readonly dialogVisible = model(false);
-  readonly paymentSaving = signal(false);
-
-  /** Dialog form state (avoid mixing signals with PrimeNG ngModel quirks). */
-  recordPaidAmount: number | null = null;
-  recordPaymentMethod = OrderPaymentMethod.Cash;
-
-  readonly paymentMethodOptions = [
-    { label: paymentMethodLabel(OrderPaymentMethod.Cash), value: OrderPaymentMethod.Cash },
-    { label: paymentMethodLabel(OrderPaymentMethod.BankTransfer), value: OrderPaymentMethod.BankTransfer },
-    { label: paymentMethodLabel(OrderPaymentMethod.Cheque), value: OrderPaymentMethod.Cheque },
-    { label: paymentMethodLabel(OrderPaymentMethod.Other), value: OrderPaymentMethod.Other }
-  ];
 
   paymentTypeDisplay(type: PaymentType | undefined): string {
     return type !== undefined ? paymentTypeLabel(type) : '—';
@@ -150,117 +83,5 @@ export class OrderDetailsPaymentTabComponent {
       default:
         return 'secondary';
     }
-  }
-
-  private initRecordForm(): void {
-    const order = this.order();
-    if (order.paymentType === PaymentType.Immediate) {
-      this.recordPaidAmount = order.netOfTotalOrderAmount;
-    } else if (order.paymentType === PaymentType.Debt) {
-      const outstanding = order.amountOutstanding ?? 0;
-      this.recordPaidAmount = outstanding > MONEY_EPS ? outstanding : null;
-    } else {
-      this.recordPaidAmount = null;
-    }
-    this.recordPaymentMethod = OrderPaymentMethod.Cash;
-  }
-
-  openRecordDialog(): void {
-    this.initRecordForm();
-    this.dialogVisible.set(true);
-  }
-
-  constructor() {
-    effect(() => {
-      if (this.dialogVisible()) {
-        this.initRecordForm();
-      }
-    });
-  }
-
-  closeDialog(): void {
-    this.dialogVisible.set(false);
-  }
-
-  submitPayment(): void {
-    const order = this.order();
-    const id = order.id;
-    const amount = this.recordPaidAmount;
-
-    if (order.paymentType === PaymentType.Immediate) {
-      const expected = order.netOfTotalOrderAmount;
-      if (
-        amount === null ||
-        !Number.isFinite(amount) ||
-        Math.abs(amount - expected) > MONEY_EPS
-      ) {
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Validation',
-          detail: 'Immediate payment must equal the full order total.'
-        });
-        return;
-      }
-    } else if (order.paymentType === PaymentType.Debt) {
-      const max = this.recordPaidAmountMax();
-      const min = this.recordPaidAmountMin();
-      if (amount === null || !Number.isFinite(amount)) {
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Validation',
-          detail: 'Enter a valid payment amount.'
-        });
-        return;
-      }
-      if (amount < min - MONEY_EPS || amount > max + MONEY_EPS) {
-        const outstanding = order.amountOutstanding ?? 0;
-        const capIsTotal = outstanding <= MONEY_EPS;
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Validation',
-          detail: capIsTotal
-            ? `Amount must be between ${min.toFixed(2)} and ${max.toFixed(2)} (order total).`
-            : `Amount must be between ${min.toFixed(2)} and ${max.toFixed(2)} (outstanding balance).`
-        });
-        return;
-      }
-    } else {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Validation',
-        detail: 'Payment type is not set for this order.'
-      });
-      return;
-    }
-
-    this.paymentSaving.set(true);
-    this.ordersApi
-      .recordOrderPayment(id, {
-        PaidAmount: amount,
-        PaymentMethod: this.recordPaymentMethod,
-        PaidAt: null
-      })
-      .pipe(
-        take(1),
-        finalize(() => this.paymentSaving.set(false))
-      )
-      .subscribe({
-        next: (res) => {
-          if (!res.isSuccess || !res.result) {
-            this.messageService.add(presentApiError(res.error).toast);
-            return;
-          }
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Payment recorded successfully.'
-          });
-          this.dialogVisible.set(false);
-          this.refreshRequested.emit();
-        },
-        error: (err: unknown) => {
-          this.messageService.add(presentApiError(err).toast);
-        }
-      });
   }
 }
