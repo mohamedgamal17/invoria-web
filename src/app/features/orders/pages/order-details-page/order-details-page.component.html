@@ -126,8 +126,6 @@
             <app-order-details-payment-tab
               [order]="order"
               [currencyCode]="currencyCode"
-              [(dialogVisible)]="paymentDialogVisible"
-              (refreshRequested)="loadOrder()"
             />
           </div>
         </p-tabpanel>
@@ -141,6 +139,14 @@
         </p-tabpanel>
       </p-tabpanels>
     </p-tabs>
+
+    <app-record-payment-dialog
+      [order]="order"
+      [currencyCode]="currencyCode"
+      [saving]="paymentSaving()"
+      [(visible)]="paymentDialogVisible"
+      (paymentSubmit)="recordPayment($event)"
+    />
   }
 </section>
 

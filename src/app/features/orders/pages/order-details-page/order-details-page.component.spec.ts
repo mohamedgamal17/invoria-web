@@ -37,12 +37,13 @@ import type { Order } from '../../models/order.entity';
 import { OrderStatus } from '../../models/order.entity';
 import { getAvailableOrderActions } from '../../models/order-actions';
 import { canReturnOrderItems } from '../../models/order-return-items';
-import { PaymentStatus, PaymentType } from '../../models/order-payment.enums';
+import { OrderPaymentMethod, PaymentStatus, PaymentType } from '../../models/order-payment.enums';
 
 describe('OrderDetailsPageComponent', () => {
   let fixture: ComponentFixture<OrderDetailsPageComponent>;
   let component: OrderDetailsPageComponent;
   let getOrder: ReturnType<typeof vi.fn>;
+  let recordOrderPayment: ReturnType<typeof vi.fn>;
   let mockFacade: { execute: ReturnType<typeof vi.fn>; meta: ReturnType<typeof vi.fn> };
 
   const baseOrder: Order = {
@@ -77,6 +78,12 @@ describe('OrderDetailsPageComponent', () => {
         result: baseOrder
       })
     );
+    recordOrderPayment = vi.fn().mockReturnValue(
+      of({
+        isSuccess: true as const,
+        result: baseOrder
+      })
+    );
     mockFacade = {
       execute: vi.fn().mockReturnValue(
         of({
@@ -101,7 +108,7 @@ describe('OrderDetailsPageComponent', () => {
         provideState(ORDERS_LIST_FEATURE_KEY, ordersListReducer),
         provideState(ORDER_DETAILS_FEATURE_KEY, orderDetailsReducer),
         provideEffects(OrderDetailsEffects, OrderDetailsUrlEffects),
-        { provide: OrdersApiService, useValue: { getOrder } },
+        { provide: OrdersApiService, useValue: { getOrder, recordOrderPayment } },
         { provide: OrderActionFacade, useValue: mockFacade },
         {
           provide: ActivatedRoute,
@@ -224,5 +231,58 @@ describe('OrderDetailsPageComponent', () => {
     await fixture.whenStable();
 
     expect(canReturnOrderItems(component.displayOrder()!)).toBe(true);
+  });
+
+  it('dispatches recordPayment and closes the dialog on success', async () => {
+    recordOrderPayment.mockReturnValue(
+      of({
+        isSuccess: true as const,
+        result: {
+          ...baseOrder,
+          status: OrderStatus.Completed,
+          amountPaid: 20,
+          paymentStatus: PaymentStatus.Paid
+        }
+      })
+    );
+
+    component.paymentDialogVisible.set(true);
+    component.recordPayment({
+      PaidAmount: 20,
+      PaymentMethod: OrderPaymentMethod.Cash,
+      PaidAt: null
+    });
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(recordOrderPayment).toHaveBeenCalledWith('ord_1', {
+      PaidAmount: 20,
+      PaymentMethod: OrderPaymentMethod.Cash,
+      PaidAt: null
+    });
+    expect(component.displayOrder()?.amountPaid).toBe(20);
+    expect(component.paymentSaving()).toBe(false);
+    expect(component.paymentDialogVisible()).toBe(false);
+  });
+
+  it('keeps the dialog open when recording the payment fails', async () => {
+    recordOrderPayment.mockReturnValue(
+      of({
+        isSuccess: false as const,
+        result: null,
+        error: new Error('payment rejected')
+      })
+    );
+
+    component.paymentDialogVisible.set(true);
+    component.recordPayment({
+      PaidAmount: 20,
+      PaymentMethod: OrderPaymentMethod.Cash,
+      PaidAt: null
+    });
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component.paymentDialogVisible()).toBe(true);
   });
 });

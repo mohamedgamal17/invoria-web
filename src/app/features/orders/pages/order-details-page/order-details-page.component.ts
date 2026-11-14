@@ -26,10 +26,12 @@ import { OrderDetailsPaymentTabComponent } from '../../components/order-details-
 import { OrderDetailsReturnItemsTabComponent } from '../../components/order-details-return-items-tab/order-details-return-items-tab.component';
 import { OrderSummaryCardComponent } from '../../components/order-summary-card/order-summary-card.component';
 import { OrderProgressComponent } from '../../components/order-progress/order-progress.component';
+import { RecordPaymentDialogComponent } from '../../components/record-payment-dialog/record-payment-dialog.component';
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
 import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 import type { CompleteOrderRequest } from '../../models/complete-order.request';
 import type { AddReturnItemsRequest } from '../../models/add-return-items.request';
+import type { RecordOrderPaymentRequest } from '../../models/record-order-payment.request';
 import type { OrderTransitionAction } from '../../services/order-action.facade';
 import { OrderReturnItemsDialogComponent } from '../../components/order-return-items-dialog/order-return-items-dialog.component';
 import { UrlStateService } from '../../../../shared/utils/url-state.service';
@@ -64,6 +66,7 @@ import {
     OrderSummaryCardComponent,
     OrderProgressComponent,
     PageHeaderComponent,
+    RecordPaymentDialogComponent,
     RouterLink,
     Tabs,
     TabList,
@@ -110,12 +113,16 @@ export class OrderDetailsPageComponent {
     orderDetailsSelectors.selectSuccessNonce,
   );
   private readonly lastAction = this.store.selectSignal(orderDetailsSelectors.selectLastAction);
+  private readonly paymentSuccessNonce = this.store.selectSignal(
+    orderDetailsSelectors.selectPaymentSuccessNonce,
+  );
 
   // --- View-only signals ----------------------------------------------------
   readonly paymentDialogVisible = signal(false);
   readonly showCompleteOptionDialog = signal(false);
   readonly showReturnDialogOnComplete = signal(false);
   readonly returnSaving = signal(false);
+  readonly paymentSaving = this.store.selectSignal(orderDetailsSelectors.selectIsPaymentSaving);
 
   readonly error = computed<string>(() => {
     if (!this.orderId()) return 'Missing order id.';
@@ -245,6 +252,25 @@ export class OrderDetailsPageComponent {
         });
       }
     });
+
+    // Payment success presentation: toast + close the record-payment dialog.
+    let presentedPaymentNonce = -1;
+    effect(() => {
+      const nonce = this.paymentSuccessNonce();
+      if (nonce === presentedPaymentNonce) {
+        return;
+      }
+      presentedPaymentNonce = nonce;
+      if (nonce === 0) {
+        return;
+      }
+      this.paymentDialogVisible.set(false);
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Payment recorded successfully.'
+      });
+    });
   }
 
   backToList(): void {
@@ -262,6 +288,12 @@ export class OrderDetailsPageComponent {
     if (!order) return;
     this.store.dispatch(ORDER_DETAILS_ACTIONS.setActiveTab({ activeTab: 2 }));
     setTimeout(() => this.paymentDialogVisible.set(true));
+  }
+
+  recordPayment(request: RecordOrderPaymentRequest): void {
+    const id = this.orderId();
+    if (!id) return;
+    this.store.dispatch(ORDER_DETAILS_ACTIONS.recordPayment({ orderId: id, body: request }));
   }
 
   onAction(action: OrderActionKey): void {
