@@ -15,7 +15,7 @@
     styleClass="flex-1 min-w-0"
     [inputStyleClass]="inputStyleClass()"
     appendTo="body"
-    [disabled]="disabled()"
+    [disabled]="isControlDisabled()"
   />
   @if (selected()) {
     <p-button
@@ -24,9 +24,9 @@
       [text]="true"
       [rounded]="true"
       [severity]="removeSeverity()"
-      [disabled]="disabled()"
+      [disabled]="isControlDisabled()"
       aria-label="Remove selected item"
-      (onClick)="clear.emit()"
+      (onClick)="onClear()"
     />
   }
 </div>

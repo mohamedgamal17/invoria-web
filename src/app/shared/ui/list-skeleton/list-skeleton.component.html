@@ -1,0 +1,43 @@
+@if (variant() === 'mobile') {
+  @for (_ of rowIndices(); track _) {
+    <div class="rounded-xl border border-border bg-surface p-4 shadow-sm">
+      <div class="flex justify-between items-start mb-3">
+        <div class="space-y-2 w-2/3">
+          <p-skeleton height="1.25rem" width="80%"></p-skeleton>
+          <p-skeleton height="0.875rem" width="40%"></p-skeleton>
+        </div>
+        <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
+      </div>
+      <div class="flex justify-between items-center pt-3 border-t border-border/50">
+        <p-skeleton height="1.25rem" width="5rem"></p-skeleton>
+        <div class="flex gap-2">
+          <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
+        </div>
+      </div>
+    </div>
+  }
+} @else {
+  @for (_ of rowIndices(); track _) {
+    <tr>
+      @for (column of columns(); track $index) {
+        <td [class]="cellClasses(column)">
+          @if (column.actions) {
+            <div class="flex gap-2" [class]="justifyClass(column)">
+              @for (action of actionIndices(column); track $index) {
+                <p-skeleton shape="circle" size="2.25rem"></p-skeleton>
+              }
+            </div>
+          } @else if ((column.lines ?? 1) > 1) {
+            <div class="flex flex-col gap-2" [class]="justifyClass(column)">
+              @for (line of lineIndices(column); track $index) {
+                <p-skeleton height="1.1rem" [width]="column.width"></p-skeleton>
+              }
+            </div>
+          } @else {
+            <p-skeleton height="1.1rem" [width]="column.width"></p-skeleton>
+          }
+        </td>
+      }
+    </tr>
+  }
+}

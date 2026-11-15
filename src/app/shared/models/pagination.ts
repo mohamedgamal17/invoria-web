@@ -12,11 +12,18 @@ export const DEFAULT_PAGE_SIZE = 25;
  */
 export const DEFAULT_PAGE_SIZE_OPTIONS: number[] = [25, 50, 100, 200];
 
-/** PrimeNG paginator page-change event shape (subset needed for paging math). */
+/**
+ * Standard page-change event contract for every list/paginator `pageChange`
+ * output and `onPageChange` handler. A structural supertype of PrimeNG
+ * `PaginatorState` (`p-paginator`) and `TablePageEvent` (`p-table`), so
+ * consumers must use this type instead of a union of the PrimeNG types.
+ */
 export interface PaginatorPageEvent {
   first?: number;
   rows?: number;
   page?: number;
+  pageCount?: number;
+  totalRecords?: number;
 }
 
 /** Derived 0-based page index plus page size after a paginator event. */

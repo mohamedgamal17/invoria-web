@@ -85,4 +85,42 @@ describe('AutosearchComponent', () => {
     const timesIcon = fixture.nativeElement.querySelector('.pi-times');
     expect(timesIcon).not.toBeNull();
   });
+
+  it('writeValue updates the selected model for reactive forms', () => {
+    component.writeValue(testEntity);
+    expect(component.selected()).toEqual(testEntity);
+  });
+
+  it('onSelect notifies the registered reactive forms callbacks', () => {
+    const onChangeSpy = vi.fn();
+    const onTouchedSpy = vi.fn();
+    component.registerOnChange(onChangeSpy);
+    component.registerOnTouched(onTouchedSpy);
+
+    component.onSelect({ originalEvent: new Event('select'), value: testEntity });
+
+    expect(onChangeSpy).toHaveBeenCalledWith(testEntity);
+    expect(onTouchedSpy).toHaveBeenCalled();
+  });
+
+  it('onClear resets the value through reactive forms and emits clear', () => {
+    const onChangeSpy = vi.fn();
+    const clearSpy = vi.fn();
+    component.registerOnChange(onChangeSpy);
+    component.clear.subscribe(clearSpy);
+    component.selected.set(testEntity);
+
+    component.onClear();
+
+    expect(component.selected()).toBeNull();
+    expect(onChangeSpy).toHaveBeenCalledWith(null);
+    expect(clearSpy).toHaveBeenCalled();
+  });
+
+  it('combines the disabled input with the reactive forms disabled state', () => {
+    fixture.componentRef.setInput('disabled', false);
+    component.setDisabledState(true);
+
+    expect(component.isControlDisabled()).toBe(true);
+  });
 });
