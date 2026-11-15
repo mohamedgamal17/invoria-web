@@ -23,9 +23,11 @@ features/<domain>/services/<domain>-api.service.ts              // get<Feat>Repo
 features/<domain>/pages/order-<feat>-report-page/               // .ts + .html (smart page) — source of truth
 features/<domain>/pages/order-<feat>-metrics-page/              // table page — rxResource + URL queryParams (period/page/pageSize)
 features/<domain>/components/<feat>-metrics-filter-panel|list/  // presentational filter/table for metrics page
-shared/ui/chart-card/chart-card.component.ts|html               // canonical ECharts wrapper (not report-chart except on dashboard)
+shared/ui/chart-card/chart-card.component.ts|html               // shared ECharts wrapper (`app-chart-card`)
+shared/ui/kpi-card/kpi-card.component.ts|html                   // shared KPI display (`app-kpi-card`)
 shared/ui/page-header/page-header.component.ts                  // no controls projection for reports
-features/dashboard/components/kpi-card/kpi-card.component.ts    // KPI display
+shared/utils/format.ts                                          // formatCurrency / formatNumber
+shared/models/currency.ts                                       // DEFAULT_CURRENCY_CODE = 'EGP'
 ```
 
 ## 3) Models and constants
@@ -38,6 +40,10 @@ features/dashboard/components/kpi-card/kpi-card.component.ts    // KPI display
 ## 4) Component contract (TS)
 
 ```ts
+import { ChartCardComponent } from '../../../../shared/ui/chart-card/chart-card.component';
+import { KpiCardComponent } from '../../../../shared/ui/kpi-card/kpi-card.component';
+import { formatCurrency, formatNumber } from '../../../../shared/utils/format';
+
 @Component({
   selector: 'app-order-<feat>-report-page',
   standalone: true,
@@ -50,6 +56,9 @@ export class Order<Feat>ReportPageComponent implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+
+  readonly formatCurrency = formatCurrency;
+  readonly formatNumber = formatNumber;
 
   readonly periodOptions = REPORT_SERIES_PERIODS.map((value) => ({ label: REPORT_PERIOD_LABELS[value], value }));
   readonly selectedPeriod = signal<ReportPeriod>(ReportPeriod.Daily);
@@ -84,13 +93,16 @@ export class Order<Feat>ReportPageComponent implements OnInit {
                  error:err=>{ this.handleError(err); this.metricsLoadingSet.update((loadingSet) => { const next=new Set(loadingSet); next.delete(period); return next;})}});
   }
   private handleError(error:unknown){ const presented=presentApiError(error); this.messageService.add(presented.toast); if(presented.routeTarget) void this.router.navigate([presented.routeTarget]); }
-  formatCurrency(value:number|null){ if(value==null) return '—'; return new Intl.NumberFormat(undefined,{style:'currency',currency:'USD',maximumFractionDigits:0}).format(value); }
-  formatNumber(value:number|null){ if(value==null) return '—'; return new Intl.NumberFormat().format(value); }
 }
 ```
 
 Rules: `Length:14` fixed; cache only on `isSuccess && result`; **never cache error**;
 swallow duplicate in-flight via `metricsLoadingSet`. (Naming per `ts-naming-conventions`.)
+
+**Formatting is shared, not local**: expose `readonly formatCurrency = formatCurrency;` /
+`readonly formatNumber = formatNumber;` from `shared/utils/format.ts`. Do not write an inline
+`new Intl.NumberFormat(...)`, do not pass a currency literal — `formatCurrency(value)` defaults
+to `DEFAULT_CURRENCY_CODE` (`EGP`).
 
 ## 5) HTML order and classes
 
@@ -175,6 +187,8 @@ component is dumb `input(loading, rows, totalRecords) / output(pageChange)`.
 - Do not `paths:'subset'` for reports (use `exact`).
 - Do not cache error/empty (retry must refetch).
 - Do not hardcode hex colors — use `ECHARTS_PALETTE`/`ECHARTS_GRID_COMPACT`.
+- Do not hardcode `'USD'`/`'EGP'` or build a local `Intl.NumberFormat` — use `formatCurrency`/`formatNumber` (`DEFAULT_CURRENCY_CODE` = EGP).
+- Do not use palette hues for KPI/delta text (`text-emerald-600` etc.) — `app-kpi-card` tones + `text-success` / `text-warning` / `text-danger`.
 - Do not register `provideEchartsCore` outside `app.config.ts`.
 
 ## 11) Quick start (e.g. new Completion report)

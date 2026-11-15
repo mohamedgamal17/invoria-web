@@ -30,8 +30,8 @@ register echarts anywhere else.
 
 ## 2. Canonical wrapper — `app-chart-card`
 
-`src/app/shared/ui/chart-card/chart-card.component.ts` (the dashboard's
-`report-chart` re-exports it; **prefer the shared import** for new features).
+`src/app/shared/ui/chart-card/chart-card.component.ts` is the single wrapper for every chart
+(no per-feature chart wrappers; the former dashboard `report-chart` duplicate was removed).
 
 Props: `title: string` (required), `subtitle?: string`, `options: EChartsCoreOption | null`,
 `loading: boolean`, `heightClass = 'h-72'`, plus report-page extras

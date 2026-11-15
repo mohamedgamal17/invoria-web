@@ -17,6 +17,7 @@ docs here.
 | Skill | Use when |
 |-------|----------|
 | `ngrx-page-state` | Adding/tuning pagination or page state in NgRx slices |
+| `ngrx-details-store` | Building/reviewing a details page (entity load, tabs, child paged panels) |
 | `ngrx-list-mutations` | Syncing create/update mutations into a paged-list slice |
 | `ts-naming-conventions` | Writing/editing any TypeScript file (identifier naming) |
 | `charts` | Adding or modifying any chart |
@@ -27,22 +28,27 @@ docs here.
 
 ## Stack
 
-Angular 21 standalone, PrimeNG 21 + AuraInvoria preset, Tailwind v4 (CSS-first `@theme`), RxJS 7.8, Vitest, Prettier (100 cols, single quotes), TypeScript strict.
+Angular 21 standalone, PrimeNG 21 + AuraInvoria preset, Tailwind v4 (CSS-first `@theme`), RxJS 7.8, NgRx 22 (`store`/`effects`/`router-store`), echarts 6 + ngx-echarts, Vitest, Prettier (100 cols, single quotes), TypeScript strict.
 
 ## Commands
 
 - `ng serve` — dev server (localhost:4200)
 - `npm run build` — runs `scripts/generate-production-env.mjs` (requires `API_URL` env var) → `ng build --configuration production`
-- `ng test` — Vitest (not Karma/Jasmine)
-- `npx prettier --check src/app/` — check formatting
+- `ng test` — Vitest (not Karma/Jasmine); `npx ng test --watch=false --include "<glob>"` for a subset
+- `npx tsc --noEmit -p tsconfig.app.json` / `-p tsconfig.spec.json` — typecheck
+- `npx prettier --write <file>` — format **only touched files**; never run it tree-wide (the repo is intentionally not globally formatted)
 
 ## Hard constraints (details in the linked doc)
 
 - **State pattern is a developer decision by complexity**: simple page → signals pattern (component-design.md §9); complex state → NgRx, CRUD-compatible with list mutation sync (component-design.md §2–3 + `ngrx-*` skills) — see overview.md §5
-- **Presentational components** (`components/`): `input()`/`output()`/`model()` only — never inject API services or the router
+- **Presentational components** (`components/`): `input()`/`output()`/`model()` only — never inject API services, `Router`, `ActivatedRoute`, or `MessageService`
+- **Shared before duplicate**: a primitive/constant needed by a second feature goes to `shared/ui`, `shared/models`, or `shared/utils` (overview.md §2/§8) — no copied markup
+- **Charts/KPIs/lists/filters/settlement/steps** use the shared components (`app-chart-card`, `app-kpi-card`, `app-list-skeleton`, `app-name-filter-panel`, `app-settle-modal`, `app-status-steps`) — no local variants
+- **Semantic tones only**: status/tone colors are `text-success` / `text-warning` / `text-danger` (no `emerald`/`amber`/`red` palette pairs); money via `shared/utils/format.ts` + `DEFAULT_CURRENCY_CODE` (EGP) — design-consistency.md, overview.md §8
+- **Reactive Forms only** — no `ngModel`, no in-place input-array mutation; custom controls are `ControlValueAccessor` (`app-autosearch`)
 - **Cross-feature imports are forbidden** except the documented exceptions (overview.md §7); shared code → `shared/` or `core/`
 - **No barrel files in `models/`** — import `*.entity.ts` / `*.request.ts` directly (api-services-and-models.md)
-- **PrimeNG first** for interactive primitives; **semantic Tailwind classes only** (no hardcoded hex/rgb) — design-consistency.md
+- **PrimeNG first** for interactive primitives; **semantic Tailwind classes only** (no hardcoded hex/rgb, no component `styles: []` keyframes) — design-consistency.md
 - **API services**: `providedIn: 'root'`, return `Observable<ApiResponse<T>>`, Swagger-aligned request types — api-services-and-models.md
 - **No single-character identifiers** — `ts-naming-conventions` skill (component-design.md §8)
 - **External templates** — `templateUrl: './<name>.component.html'` in a sibling file; never inline `template:` in production components (spec stubs exempt) — component-design.md §1

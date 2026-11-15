@@ -1,9 +1,15 @@
 # Order Workflow
 
-Source: `src/app/features/orders/components/order-progress/order-progress.component.ts`
+Source: `src/app/features/orders/components/order-progress/order-progress.component.ts` (thin wrapper over the shared
+`shared/ui/status-steps/status-steps.component.ts`)
 Actions: `src/app/features/orders/models/order-actions.ts`
 Statuses: `src/app/features/orders/models/order.entity.ts`
 Layout: `src/app/features/orders/pages/order-details-page/`
+
+> Rendering is shared: `app-order-progress` / `app-return-progress` only derive `steps` +
+> `activeIndex` from the entity status and pass them to `app-status-steps`. The
+> `.pulse-beat` animation used for in-progress steps and primary page actions is a global
+> class/keyframe in `src/styles.css` — do not re-declare it per component.
 
 ---
 
@@ -95,7 +101,7 @@ Available actions depend on `order.status` and `orderAllocated`.
 2. Accept
 3. Request Revision
 
-The highest-priority available action gets `.pulse-beat` animation (only rendered in page header, not in stepper).
+The highest-priority available action gets `.pulse-beat` animation (page header only); the stepper pulses through `app-status-steps`' `pulse` input when the active step is still in progress.
 
 ---
 

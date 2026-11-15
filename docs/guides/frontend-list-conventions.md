@@ -21,6 +21,8 @@ This document describes **Angular** patterns used for data tables and card lists
 
 Parent pages pass `[pageSizeOptions]` into list components so the paginator stays in sync with URL parsing.
 
+Every `pageChange` output and its `onPageChange` handler uses **`PaginatorPageEvent`** from [`shared/models/pagination.ts`](../../src/app/shared/models/pagination.ts) — never `PaginatorState | TablePageEvent` and never an inline `{ first?, rows? }` shape. The contract is structurally compatible with both `p-paginator` (`PaginatorState`) and `p-table` (`TablePageEvent`) emissions, so a single type covers every list component; `PaginationService.pageIndexFromEvent` consumes it.
+
 ## Inventory batch lists (nested product route)
 
 - On [`product-details-page`](../../src/app/features/products/pages/product-details-page/product-details-page.component.ts), the **Batches** tab uses the **same `page` / `pageSize` query contract** as [`products-page`](../../src/app/features/products/pages/products-page/products-page.component.ts), applied when **`tab=batches`** (for example `/dashboard/products/:id?tab=batches&page=...&pageSize=...`). The legacy path `/dashboard/products/:id/batches` is handled by a **`canActivate` route guard** in [`products.routes.ts`](../../src/app/features/products/products.routes.ts) that navigates to `.../:id?tab=batches` (optional **`page`** / **`pageSize`** from the incoming URL).

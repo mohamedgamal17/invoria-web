@@ -65,8 +65,19 @@ If none of these fit, use full role-descriptive words — never short-circuit to
 PowerShell (scan arrow params + declarations):
 
 ```powershell
+$patterns = @(
+  '=>\s*[A-Za-z]\b',                 # x => ...
+  '\(\s*[A-Za-z]\s*\)\s*=>',         # (x) => ...
+  '\(\s*[A-Za-z]\s*,\s*[A-Za-z]\s*\)\s*=>', # (x, y) => ...
+  '\b(?:const|let|var)\s+[A-Za-z]\s*[:=]', # single-char declaration
+  '\bfunction\s+[A-Za-z]\s*\('       # single-char function name
+)
 Get-ChildItem -Path src\app -Recurse -Filter *.ts | ForEach-Object {
-  Select-String -Path $_.FullName -Pattern '\b[a-z]\s*:\s*[A-Z]|=>\s*\([a-zA-Z]\b|,\s*[a-z]\)\s*=>|\([a-z]\)\s*=>|function\s+\w\(|\bfunction\s_[a-z])\b'
+  $file = $_
+  foreach ($pattern in $patterns) {
+    Select-String -LiteralPath $file.FullName -Pattern $pattern |
+      ForEach-Object { "$($file.FullName):$($_.LineNumber): $($_.Line.Trim())" }
+  }
 }
 ```
 

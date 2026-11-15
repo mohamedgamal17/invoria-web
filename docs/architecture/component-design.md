@@ -16,7 +16,8 @@ It complements [api-services-and-models.md](./api-services-and-models.md) for HT
 ## 1. Feature layout
 
 - **`pages/`** — Smart container (e.g. `customers-page`): store selector mapping, URL write glue, navigation. No data fetching, no local async state.
-- **`components/`** — Presentational UI: list, filter panel, form dialog, list skeleton. No feature service injection.
+- **`components/`** — Presentational UI: list/table, detail panels, tabs, dialogs. No feature service injection, no `Router`, no `MessageService`. Cross-feature primitives (filter panel, list skeleton, settle modal, status steps, KPI card, chart card) live in `shared/ui`.
+- **`utils/`** — Feature-local pure helpers (e.g. tab-slug validation); promote to `shared/utils` when a second feature needs them.
 - **`services/`** — `CustomersApiService`: `HttpClient` only, returns `Observable<ApiResponse<...>>`. Only effects inject it, never pages directly.
 - **`models/`** — `*.entity.ts` for domain types; `*.request.ts` for list/body shapes.
 - **`store/`** — One state module per page/usage, each self-contained: `actions.ts`, `reducer.ts`, `selectors.ts`, `effects.ts`, plus a separate `<feature>-url/` adapter effect folder when the URL drives the state (see [§3](#3-ngrx-feature-store-modules-customers-reference)).
@@ -94,15 +95,36 @@ Follows `core/` `provideStore`/`provideRouterStore` plus **route-scoped state**:
 - Use **`input()`** and **`output()`** only; **no** `CustomersApiService` or router.
 - Pass **`customers`**, **`loading`**, **`totalRecords`**, pagination inputs, and handle **`pageChange`** / **`editCustomer`** / **`deleteCustomer`** in the parent.
 
-### `CustomerFormDialogComponent`
+### Form components
 
-- Use **`model(false)`** for dialog visibility (two-way **`[(visible)]`** with the parent).
-- Use **`input()`** / **`output()`** for mode, saving state, name, submit, cancel, hide.
-- **Submit path:** **`(ngSubmit)="onFormSubmit($event)"`** with **`event.preventDefault()`** then **`submit.emit()`**; primary action uses **`type="button"`** and **`(onClick)="submit.emit()"`** so a single user action does not double-fire submit (and the parent can guard with a saving flag).
+- A create/edit form is a feature **page** (`customer-form-page`, `order-form-page`, `purchase-order-form-page`) plus a presentational form component; the page owns the API calls, search caches, and success navigation.
+- The form component uses **`input()`** / **`output()`** only: it builds a typed `FormGroup` from an `initial…` input and emits a plain payload (`output<T>()`, e.g. `OrderFormSubmitEvent`) — never the `FormGroup` itself.
+- **Submit path:** **`(ngSubmit)="onSubmit($event)"`** with **`event.preventDefault()`**, guard client-side validation inline, then emit; primary action uses **`type="button"`** + `(onClick)` so one user action cannot double-fire submit.
+- Normalize the payload in the form component (e.g. numeric coercion, `FormArray` → domain array) so the page receives already-valid data.
 
-### Skeleton
+### Shared primitives instead of per-feature copies
 
-- Use a dedicated skeleton component for loading layout; parent drives **`loading`** from the store's `selectIsLoading`-derived `listLoading` signal (in-flight request state), not from stale local patches.
+Before adding markup to a feature `components/`, check `shared/ui/`. The shared set today:
+
+| Primitive | Use it for |
+|-----------|-----------|
+| `app-list-skeleton` | Any list/table/card loading state (`variant`, `count`, `columns`) — declare a `skeletonColumns` array in the list component. |
+| `app-name-filter-panel` | Single `name` filter on list pages (debounced, `NameListFilters`); pass `label` + `inputId`. |
+| `app-status-steps` | Progress timelines (orders/returns use thin feature wrappers over it). |
+| `app-settle-modal` | Payable/receivable settlement dialog. |
+| `app-kpi-card` | KPI tiles (`tone` = `primary` \| `success` \| `warning` \| `danger`, semantic tokens only). |
+| `app-chart-card` | Every chart (see the `charts` skill). |
+| `app-page-header` | Page header shell. |
+
+Products' list skeleton is the only sanctioned duplicate (different card/table layout). If a second feature needs the same markup, extract to `shared/ui` — do not copy.
+
+### Shared form controls
+
+- Custom form controls implement **`ControlValueAccessor`** and are consumed with **`formControlName`** / **`[formControl]`** inside a `FormGroup`. Today that is `app-autosearch` (`shared/ui/autosearch`), which is presentational: suggestions arrive via `suggestions`, typing/open is delegated through the `search` output, and the **page** owns debounce, API calls, and the search cache.
+- Keep a two-way `model()` only where a non-reactive consumer needs it; CVA callbacks (`onChange` / `onTouched`) drive the form, while `writeValue` keeps the model/UI in sync.
+- Never mix `ngModel` with `formControlName` in the same form. Dynamic collections are `FormArray<FormGroup<...>>`; row controls bind with `[formControl]` when a component (e.g. `p-table`) renders the rows.
+- The owning page injects the typed API services (documented cross-feature exceptions) and passes plain search results down — a form component never calls an API.
+- **Skeleton**: shared `app-list-skeleton`; parent drives **`loading`** from in-flight request state (`selectIsLoading`-derived `listLoading`, or `rxResource().isLoading()`), never from stale local patches.
 
 ---
 
@@ -112,7 +134,7 @@ Follows `core/` `provideStore`/`provideRouterStore` plus **route-scoped state**:
 - Expose methods returning **`Observable<ApiResponse<...>>`**.
 - Use a small feature-local helper for **`HttpParams`** (e.g. **`Skip`** / **`Length`** for list).
 - Validate obvious bad input with **`throwError`** before calling HTTP where appropriate.
-- Pages **never** inject API services for their own list flows — only state-module effects do. (Exceptions are feature cross-imports documented in ./overview.md) §7, which allow the typed API services for autocomplete/report flows.)
+- Pages **never** inject API services for their own list flows — only state-module effects or the page owning that flow do. (Exceptions are the feature cross-imports documented in [overview.md §7](./overview.md#7-dependency-rules), which allow typed API services for autocomplete/report flows and read-only enrichment in the owning page/effect.)
 
 ---
 
@@ -135,12 +157,13 @@ Follows `core/` `provideStore`/`provideRouterStore` plus **route-scoped state**:
 | Details store modules | `src/app/features/customers/store/customer-details/`, `store/customer-details-orders/`, `store/customer-details-url/` |
 | Feature route wiring | `src/app/features/customers/customers.routes.ts` |
 | List UI | `src/app/features/customers/components/customer-list/` |
-| Filter panel | `src/app/features/customers/components/customers-filter-panel/` |
-| Form dialog | `src/app/features/customers/components/customer-form-dialog/` |
-| List skeleton | `src/app/features/customers/components/customer-list-skeleton/` |
+| Filter panel | `src/app/shared/ui/name-filter-panel/name-filter-panel.component.ts` (shared) |
+| Create/edit form | `src/app/features/customers/pages/customer-form-page/` (page owns the form + submit) |
+| List skeleton | `src/app/shared/ui/list-skeleton/list-skeleton.component.ts` (shared) |
 | API | `src/app/features/customers/services/customers-api.service.ts` |
 | Models | `src/app/features/customers/models/` |
 | Global error presentation | `src/app/shared/store/app-error.effects.ts` |
+
 
 ---
 

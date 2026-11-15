@@ -1,6 +1,6 @@
 ---
 name: ngrx-details-store
-description: Use when building or reviewing a details/single-entity page (entity load, tabs, child paged panels, entity mutations originating elsewhere) — API calls live only in page components dispatching into NgRx state modules, never in view/panel components; the details store holds the entity and silently folds in mutation-success results for the currently edited entity id (edit synced from the *-mutations slice without refetching); background re-fetch keeps the entity visible. Applies the product-details reference implementation to customers and future detail pages in this repo.
+description: Use when building or reviewing a details/single-entity page (entity load, tabs, child paged or read-only panels, entity mutations originating elsewhere) — API calls live only in the state layer (slice effects; pages dispatch) and never in view/panel components; the details store holds the entity and silently folds in mutation-success results for the currently edited entity id (edit synced from the *-mutations slice without refetching); background re-fetch keeps the entity visible. Applies the product-details reference implementation to customers and future detail pages in this repo.
 compatibility: Invoria Web (Angular 21, @ngrx/store 22)
 ---
 
@@ -15,6 +15,7 @@ Conventions for a *details page* store, using
 | --- | --- |
 | Entity + tabs slice (actions / reducer / selectors / effects) | `src/app/features/products/store/product-details/` |
 | Paged child-tab slice (paging, lazy gate, fetch, mutations) | `src/app/features/products/store/product-details-batches/` |
+| Read-only child-tab slice (no paging; aggregates + `reloadOrders`) | `src/app/features/products/store/product-details-orders/` |
 | URL adapter effect (`tab` / `page` / `pageSize`) | `src/app/features/products/store/product-details-url/` |
 | Silent mutation sync (details reducer listens to mutations) | `product-details.reducer.ts` → `on(PRODUCT_MUTATIONS_ACTIONS.updateProductSuccess, ...)` |
 | Details-page child dialog/tab submit (validated UI intent → page dispatch → slice effect) | `src/app/features/orders/components/order-details-payment-tab/` + `src/app/features/orders/store/order-details/` (`recordPayment` lifecycle, `paymentRequest` + `paymentSuccessNonce`) |
@@ -24,12 +25,14 @@ Conventions for a *details page* store, using
 
 ## 2. Hard rules
 
-- **All API calls flow through the page component and its store** — a page
-  dispatches actions; view/panel/list/tab components are presentational (they
-  receive state via `input()`s and emit intents via `output()`s). Never inject
-  an API service into a panel or view component. The batches panel
-  (`inventory/components/product-batches-panel.component.ts`) and the batches
-  modal are pure presentation; the details page's store owns every batches call.
+- **All API calls flow through the state layer** — pages dispatch actions; slice
+  effects own the HTTP calls (feature `*ApiService`); view/panel/list/tab
+  components are presentational (they receive state via `input()`s and emit
+  intents via `output()`s). Never inject an API service into a panel or view
+  component. The batches panel
+  (`inventory/components/product-batches-panel.component.ts`) and the product
+  orders panel (`products/components/product-details-orders-panel/`) are pure
+  presentation; the details page's stores own every call.
   Same for details child tabs/dialogs: the orders payment tab
   (`order-details-payment-tab`) only validates form input inline
   (`validationError` signal) and emits `paymentSubmit`; the details page
@@ -73,6 +76,12 @@ Conventions for a *details page* store, using
   `{entityName}TabOpened` gate, `setPagingFromUrl`, `pageChange`, `load*`,
   `load*Success/Failure`, `reset {entityId}`, plus mutation fragments
   (`createBatch` / `updateBatch` + `saveRequest: AsyncRequestState`).
+- Read-only child-tab slice (`product-details-orders`): `ordersTabOpened` gate,
+  `reloadOrders`, `loadProductOrders` → `loadProductOrdersSuccess {orders}`
+  (aggregate) / failure, and a `loadProductOrders` effect that `switchMap`s so a
+  reload cancels the in-flight request. No paging state — the API returns the
+  whole aggregate; selectors expose it plus `EMPTY_PRODUCT_ORDERS_AGGREGATE` as
+  the default so the panel always renders without null-checks.
 - Products URL contract (differs from customers!): `page` is **1-based**
   (`tab=batches&page=2&pageSize=50`); the URL adapter normalizes it with
   `pageIndexFromPageParam` (see `products-list-url.effects.ts`). The page
