@@ -26,6 +26,16 @@ export type ProductOrdersAggregateSummary = {
   orderNetAfterReturnsSum: number;
 };
 
+export const EMPTY_PRODUCT_ORDERS_AGGREGATE: ProductOrdersAggregateSummary = {
+  orderCount: 0,
+  productLineSubtotalTotal: 0,
+  productReturnSubtotalTotal: 0,
+  productNetSubtotalTotal: 0,
+  orderTotalSum: 0,
+  orderReturnSubtotalSum: 0,
+  orderNetAfterReturnsSum: 0
+};
+
 export function orderIncludesProduct(order: UiOrder, productId: string): boolean {
   return order.items.some((line) => line.productId === productId);
 }

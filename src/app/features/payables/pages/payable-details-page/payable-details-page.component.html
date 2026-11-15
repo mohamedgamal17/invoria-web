@@ -72,10 +72,10 @@
       </p-tabpanels>
     </p-tabs>
 
-    <app-payable-settle-modal
+    <app-settle-modal
       [visible]="settleModalVisible()"
       (visibleChange)="onSettleModalVisibleChange($event)"
-      [payable]="payable"
+      [outstandingAmount]="payable.outstandingAmount"
       [currencyCode]="currencyCode"
       [settling]="isSettling()"
       (settle)="onSettle($event)"

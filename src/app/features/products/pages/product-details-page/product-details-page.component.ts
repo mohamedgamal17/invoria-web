@@ -8,8 +8,6 @@ import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
-import type { TablePageEvent } from 'primeng/table';
-import type { PaginatorState } from 'primeng/paginator';
 
 import { LOAD_STATUS } from '../../../../shared/models/load-status';
 import { PaginationService } from '../../../../shared/utils/pagination.service';
@@ -30,7 +28,10 @@ import { ProductDetailsTab } from '../../store/product-details/product-details.r
 import { productDetailsSelectors } from '../../store/product-details/product-details.selectors';
 import { PRODUCT_BATCHES_ACTIONS } from '../../store/product-details-batches/product-details-batches.actions';
 import { productBatchesSelectors } from '../../store/product-details-batches/product-details-batches.selectors';
+import { PRODUCT_ORDERS_ACTIONS } from '../../store/product-details-orders/product-details-orders.actions';
+import { productOrdersSelectors } from '../../store/product-details-orders/product-details-orders.selectors';
 import { toProductDetailsTab } from '../../utils/product-details-tab';
+import type { ProductOrderRowSummary } from '../../models/product-order-summary';
 
 /**
  * Smart page (container) for product details. It owns only:
@@ -97,6 +98,15 @@ export class ProductDetailsPageComponent {
 
   readonly totalRecords = computed(() => this.batchesPaging().totalCount);
 
+  // --- Orders store (lazy tab gate + product-level order summaries) --------
+  readonly productOrderRows = this.store.selectSignal(productOrdersSelectors.selectRows);
+  readonly productOrdersAggregate = this.store.selectSignal(
+    productOrdersSelectors.selectAggregate,
+  );
+  readonly productOrdersLoading = this.store.selectSignal(
+    productOrdersSelectors.selectIsLoading,
+  );
+
   readonly breadcrumbItems = computed(() => {
     const product = this.product();
     const label = product ? product.name.trim() || 'Product' : 'Product';
@@ -149,13 +159,15 @@ export class ProductDetailsPageComponent {
     if (next === ProductDetailsTab.Batches) {
       this.store.dispatch(PRODUCT_BATCHES_ACTIONS.batchesTabOpened());
     }
+    if (next === ProductDetailsTab.Orders) {
+      this.store.dispatch(PRODUCT_ORDERS_ACTIONS.ordersTabOpened());
+    }
     this.replaceUrlQuery(next);
   }
 
-  onBatchesPageChange(event: PaginatorState | TablePageEvent): void {
+  onBatchesPageChange(event: PaginatorPageEvent): void {
     const rows = this.pagination.normalizePageSize(event.rows ?? untracked(this.pageSize));
-    const newPageIndex =
-      (event as PaginatorPageEvent).page ?? Math.floor((event.first ?? 0) / Math.max(rows, 1));
+    const newPageIndex = event.page ?? Math.floor((event.first ?? 0) / Math.max(rows, 1));
     // Presentation glue only: page navigation scrolls to top; the state (reducer)
     // decides whether the change is real and warrants an API call.
     const isManualPageChange = newPageIndex !== untracked(this.pageIndex);
@@ -176,6 +188,14 @@ export class ProductDetailsPageComponent {
         PRODUCT_BATCHES_ACTIONS.updateBatch({ id: event.batch.id, payload: event.payload }),
       );
     }
+  }
+
+  onViewProductOrder(row: ProductOrderRowSummary): void {
+    void this.router.navigate(['/orders', row.orderId]);
+  }
+
+  onReloadProductOrders(): void {
+    this.store.dispatch(PRODUCT_ORDERS_ACTIONS.reloadOrders());
   }
 
   deleteProduct(): void {

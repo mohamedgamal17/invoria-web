@@ -2,8 +2,6 @@ import { Component, inject, untracked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Store } from '@ngrx/store';
-import type { PaginatorState } from 'primeng/paginator';
-import type { TablePageEvent } from 'primeng/table';
 
 import { type Invoice } from '../../models/invoice.entity';
 import { InvoiceListComponent } from '../../components/invoice-list/invoice-list.component';
@@ -12,7 +10,7 @@ import {
   InvoicesFilterPanelComponent,
   type InvoicesListFilters
 } from '../../components/invoices-filter-panel/invoices-filter-panel.component';
-import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
+import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
 import { PaginationService } from '../../../../shared/utils/pagination.service';
 import { invoicesListSelectors } from '../../store/invoices-list/invoices-list.selectors';
 
@@ -59,7 +57,7 @@ export class InvoicesPageComponent {
     void this.router.navigate([invoice.id], { relativeTo: this.route });
   }
 
-  onPageChange(event: PaginatorState | TablePageEvent): void {
+  onPageChange(event: PaginatorPageEvent): void {
     const { pageIndex, pageSize } = this.pagination.pageIndexFromEvent(
       event,
       untracked(this.pageSize),

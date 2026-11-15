@@ -3,8 +3,6 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { ToastModule } from 'primeng/toast';
-import type { PaginatorState } from 'primeng/paginator';
-import type { TablePageEvent } from 'primeng/table';
 
 import { Store } from '@ngrx/store';
 
@@ -16,7 +14,7 @@ import {
   type PurchaseOrdersListFilters,
 } from '../../components/purchase-orders-filter-panel/purchase-orders-filter-panel.component';
 import { PaginationService } from '../../../../shared/utils/pagination.service';
-import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
+import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
 import { purchaseOrdersListSelectors } from '../../store/purchase-orders-list/purchase-orders-list.selectors';
 
 @Component({
@@ -71,7 +69,7 @@ export class PurchaseListPageComponent {
     void this.router.navigate(['new'], { relativeTo: this.route });
   }
 
-  onPageChange(event: PaginatorState | TablePageEvent): void {
+  onPageChange(event: PaginatorPageEvent): void {
     const { pageIndex, pageSize } = this.pagination.pageIndexFromEvent(
       event,
       untracked(this.pageSize),

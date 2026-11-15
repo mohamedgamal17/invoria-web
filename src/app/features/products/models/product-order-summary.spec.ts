@@ -19,8 +19,32 @@ const baseOrder = (overrides: Partial<UiOrder> = {}): UiOrder => ({
   status: OrderStatus.Completed,
   orderDate: '2026-01-01T00:00:00.000Z',
   items: [
-    { id: 'line-a', productId: 'prod-1', productName: 'Widget', quantity: 2, price: 10 },
-    { id: 'line-b', productId: 'prod-2', productName: 'Other', quantity: 1, price: 80 }
+    {
+      id: 'line-a',
+      productId: 'prod-1',
+      quantity: 2,
+      price: 10,
+      product: {
+        id: 'prod-1',
+        name: 'Widget',
+        price: 10,
+        stock: { actualQuantity: 0, reservedQuantity: 0 },
+        createdAt: ''
+      }
+    },
+    {
+      id: 'line-b',
+      productId: 'prod-2',
+      quantity: 1,
+      price: 80,
+      product: {
+        id: 'prod-2',
+        name: 'Other',
+        price: 80,
+        stock: { actualQuantity: 0, reservedQuantity: 0 },
+        createdAt: ''
+      }
+    }
   ],
   returnItems: [],
   orderAllocated: false,
@@ -33,7 +57,6 @@ describe('product-order-summary', () => {
       returnItems: [
         {
           orderItemId: 'line-a',
-          productName: 'Widget',
           productId: 'prod-1',
           quantity: 1,
           orderedQuantity: 2,
@@ -42,7 +65,6 @@ describe('product-order-summary', () => {
         },
         {
           orderItemId: 'line-b',
-          productName: 'Other',
           productId: 'prod-2',
           quantity: 1,
           orderedQuantity: 1,
@@ -62,7 +84,6 @@ describe('product-order-summary', () => {
       returnItems: [
         {
           orderItemId: 'line-a',
-          productName: 'Widget',
           productId: 'prod-1',
           quantity: 1,
           orderedQuantity: 2,

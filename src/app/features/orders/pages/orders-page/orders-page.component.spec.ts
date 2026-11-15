@@ -33,7 +33,21 @@ describe('OrdersPageComponent', () => {
     paymentType: PaymentType.Immediate,
     paymentStatus: PaymentStatus.Paid,
     orderDate: '2026-04-01T12:00:00.000Z',
-    items: [{ id: 'line-1', productId: 'prd_1', productName: 'Widget', quantity: 2, price: 10.5 }],
+    items: [
+      {
+        id: 'line-1',
+        productId: 'prd_1',
+        quantity: 2,
+        price: 10.5,
+        product: {
+          id: 'prd_1',
+          name: 'Widget',
+          price: 10.5,
+          stock: { actualQuantity: 0, reservedQuantity: 0 },
+          createdAt: ''
+        }
+      }
+    ],
     returnItems: [],
     orderAllocated: false,
   };

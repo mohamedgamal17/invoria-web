@@ -4,7 +4,7 @@ import { MessageService } from 'primeng/api';
 import { catchError, exhaustMap, from, mergeMap, of, tap } from 'rxjs';
 
 import { APP_ERROR_ACTIONS } from '../../../../shared/store/app-error.actions';
-import { PAYABLE_CURRENCY_CODE } from '../../models/payable-currency';
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 import type { Payable } from '../../models/payable.entity';
 import { PayablesApiService } from '../../services/payables-api.service';
 import { PayableReferenceResolverService } from '../../services/payable-reference-resolver.service';
@@ -69,7 +69,7 @@ export class PayablesMutationsEffects {
           this.messageService.add({
             severity: 'success',
             summary: 'Success',
-            detail: `Settlement of ${PAYABLE_CURRENCY_CODE} ${amount.toFixed(2)} recorded.`,
+            detail: `Settlement of ${DEFAULT_CURRENCY_CODE} ${amount.toFixed(2)} recorded.`,
           });
         }),
       ),

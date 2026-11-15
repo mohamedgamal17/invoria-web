@@ -11,15 +11,13 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 import { UrlStateService } from '../../../../shared/utils/url-state.service';
 import { InvoiceDetailsOverviewCardComponent } from '../../components/invoice-details-overview-card/invoice-details-overview-card.component';
 import { InvoiceDetailsItemsTabComponent } from '../../components/invoice-details-items-tab/invoice-details-items-tab.component';
 import { INVOICE_DETAILS_ACTIONS } from '../../store/invoice-details/invoice-details.actions';
 import { invoiceDetailsSelectors } from '../../store/invoice-details/invoice-details.selectors';
-import {
-  invoiceDetailsTabToSlug,
-  toInvoiceDetailsTab,
-} from '../../utils/invoice-details-tab';
+import { invoiceDetailsTabToSlug, toInvoiceDetailsTab } from '../../utils/invoice-details-tab';
 
 /**
  * Smart page (container) for invoice details. It owns only:
@@ -46,12 +44,12 @@ import {
     TabPanel,
     PageHeaderComponent,
     InvoiceDetailsOverviewCardComponent,
-    InvoiceDetailsItemsTabComponent
+    InvoiceDetailsItemsTabComponent,
   ],
-  templateUrl: './invoice-details-page.component.html'
+  templateUrl: './invoice-details-page.component.html',
 })
 export class InvoiceDetailsPageComponent {
-  readonly currencyCode = 'EGP' as const;
+  readonly currencyCode = DEFAULT_CURRENCY_CODE;
 
   private readonly store = inject(Store);
   private readonly urlState = inject(UrlStateService);
@@ -60,7 +58,7 @@ export class InvoiceDetailsPageComponent {
 
   private readonly invoiceId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
-    { initialValue: this.route.snapshot.paramMap.get('id') ?? '' }
+    { initialValue: this.route.snapshot.paramMap.get('id') ?? '' },
   );
 
   // --- Details store (invoice + activeTab + load request) ---
@@ -83,9 +81,7 @@ export class InvoiceDetailsPageComponent {
       if (!id) {
         return;
       }
-      untracked(() =>
-        this.store.dispatch(INVOICE_DETAILS_ACTIONS.loadInvoice({ invoiceId: id })),
-      );
+      untracked(() => this.store.dispatch(INVOICE_DETAILS_ACTIONS.loadInvoice({ invoiceId: id })));
     });
   }
 

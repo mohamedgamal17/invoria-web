@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { LOAD_STATUS } from '../../../../shared/models/load-status';
-import { FinancialObligationStatus } from '../../models/payable-status.enum';
+import { FinancialObligationStatus } from '../../../../shared/models/financial-obligation-status';
 import type { Payable } from '../../models/payable.entity';
 import { PAYABLES_MUTATIONS_ACTIONS } from '../payables-mutations/payables-mutations.actions';
 import { PAYABLE_DETAILS_ACTIONS } from './payable-details.actions';

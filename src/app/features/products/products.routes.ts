@@ -24,6 +24,11 @@ import {
   productBatchesReducer,
 } from './store/product-details-batches/product-details-batches.reducer';
 import { ProductBatchesEffects } from './store/product-details-batches/product-details-batches.effects';
+import {
+  PRODUCT_ORDERS_FEATURE_KEY,
+  productOrdersReducer,
+} from './store/product-details-orders/product-details-orders.reducer';
+import { ProductOrdersEffects } from './store/product-details-orders/product-details-orders.effects';
 import { ProductDetailsUrlEffects } from './store/product-details-url/product-details-url.effects';
 
 const PRODUCTS_LIST_PROVIDERS = [
@@ -39,7 +44,13 @@ const PRODUCTS_MUTATIONS_PROVIDERS = [
 const PRODUCT_DETAILS_PROVIDERS = [
   provideState(PRODUCT_DETAILS_FEATURE_KEY, productDetailsReducer),
   provideState(PRODUCT_BATCHES_FEATURE_KEY, productBatchesReducer),
-  provideEffects(ProductDetailsEffects, ProductBatchesEffects, ProductDetailsUrlEffects),
+  provideState(PRODUCT_ORDERS_FEATURE_KEY, productOrdersReducer),
+  provideEffects(
+    ProductDetailsEffects,
+    ProductBatchesEffects,
+    ProductOrdersEffects,
+    ProductDetailsUrlEffects,
+  ),
 ];
 
 /** Legacy `/products/:id/batches` → `/products/:id?tab=batches` (+ optional page / pageSize). */

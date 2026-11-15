@@ -17,7 +17,7 @@ export interface OrderItem {
   productId: string;
   quantity: number;
   price: number;
-  product?: Product | null;
+  product: Product;
 }
 
 export interface OrderReturnItem {

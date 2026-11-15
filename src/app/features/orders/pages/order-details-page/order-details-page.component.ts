@@ -17,7 +17,7 @@ import {
   getAvailableOrderActions,
   getBeatingAction,
   ORDER_ACTION_UI,
-  type OrderActionKey
+  type OrderActionKey,
 } from '../../models/order-actions';
 import { OrderStatus } from '../../models/order.entity';
 import { PaymentType } from '../../models/order-payment.enums';
@@ -29,6 +29,7 @@ import { OrderProgressComponent } from '../../components/order-progress/order-pr
 import { RecordPaymentDialogComponent } from '../../components/record-payment-dialog/record-payment-dialog.component';
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
 import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 import type { CompleteOrderRequest } from '../../models/complete-order.request';
 import type { AddReturnItemsRequest } from '../../models/add-return-items.request';
 import type { RecordOrderPaymentRequest } from '../../models/record-order-payment.request';
@@ -37,10 +38,7 @@ import { OrderReturnItemsDialogComponent } from '../../components/order-return-i
 import { UrlStateService } from '../../../../shared/utils/url-state.service';
 import { ORDER_DETAILS_ACTIONS } from '../../store/order-details/order-details.actions';
 import { orderDetailsSelectors } from '../../store/order-details/order-details.selectors';
-import {
-  orderDetailsTabToSlug,
-  toOrderDetailsTab,
-} from '../../utils/order-details-tab';
+import { orderDetailsTabToSlug, toOrderDetailsTab } from '../../utils/order-details-tab';
 
 /**
  * Smart page (container) for order details. It owns only:
@@ -74,22 +72,13 @@ import {
     TabPanels,
     TabPanel,
     SkeletonModule,
-    ToastModule
+    ToastModule,
   ],
   providers: [MessageService],
   templateUrl: './order-details-page.component.html',
-  styles: [`
-    @keyframes pulse-beat {
-      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--p-primary-400), 0.4); }
-      50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(var(--p-primary-400), 0); }
-    }
-    .pulse-beat {
-      animation: pulse-beat 1.5s ease-in-out infinite;
-    }
-  `]
 })
 export class OrderDetailsPageComponent {
-  readonly currencyCode = 'EGP' as const;
+  readonly currencyCode = DEFAULT_CURRENCY_CODE;
   private readonly store = inject(Store);
   private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly messageService = inject(MessageService);
@@ -99,7 +88,7 @@ export class OrderDetailsPageComponent {
 
   private readonly orderId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
-    { initialValue: this.route.snapshot.paramMap.get('id') ?? '' }
+    { initialValue: this.route.snapshot.paramMap.get('id') ?? '' },
   );
 
   // --- Details store (order + activeTab + transition requests) --------------
@@ -134,19 +123,24 @@ export class OrderDetailsPageComponent {
   readonly availableActions = computed(() => {
     const order = this.displayOrder();
     if (!order) return [];
-    return getAvailableOrderActions(order).filter((action) => action !== 'edit' && action !== 'returnItems');
+    return getAvailableOrderActions(order).filter(
+      (action) => action !== 'edit' && action !== 'returnItems',
+    );
   });
 
   readonly canRecordPayment = computed(() => {
     const order = this.displayOrder();
-    return !!order
-      && order.status === OrderStatus.Completed
-      && order.paymentType !== undefined && order.paymentType !== null
-      && (order.amountOutstanding ?? 0) > 0.005;
+    return (
+      !!order &&
+      order.status === OrderStatus.Completed &&
+      order.paymentType !== undefined &&
+      order.paymentType !== null &&
+      (order.amountOutstanding ?? 0) > 0.005
+    );
   });
 
   private readonly revisionSnapshotKey = computed(
-    () => `order_revision_snapshot_${this.orderId()}`
+    () => `order_revision_snapshot_${this.orderId()}`,
   );
 
   readonly hasBeenEdited = computed(() => {
@@ -163,9 +157,11 @@ export class OrderDetailsPageComponent {
       if (order.items.length !== snapshot.items.length) return true;
       return order.items.some((item, index) => {
         const snapshotItem = snapshot.items[index];
-        return !snapshotItem
-          || item.quantity !== snapshotItem.quantity
-          || item.price !== snapshotItem.price;
+        return (
+          !snapshotItem ||
+          item.quantity !== snapshotItem.quantity ||
+          item.price !== snapshotItem.price
+        );
       });
     } catch {
       return false;
@@ -178,7 +174,7 @@ export class OrderDetailsPageComponent {
     return {
       count: order.returnItems.length,
       total: order.returnsTotal,
-      returnId: order.returnId
+      returnId: order.returnId,
     };
   });
 
@@ -205,9 +201,7 @@ export class OrderDetailsPageComponent {
       if (!id) {
         return;
       }
-      untracked(() =>
-        this.store.dispatch(ORDER_DETAILS_ACTIONS.loadOrder({ orderId: id })),
-      );
+      untracked(() => this.store.dispatch(ORDER_DETAILS_ACTIONS.loadOrder({ orderId: id })));
     });
 
     effect(() => {
@@ -217,13 +211,18 @@ export class OrderDetailsPageComponent {
 
       if (order.status === OrderStatus.Revision) {
         if (!sessionStorage.getItem(key)) {
-          sessionStorage.setItem(key, JSON.stringify({
-            items: order.items.map((item) => ({
-              id: item.id, quantity: item.quantity, price: item.price
-            })),
-            netOfTotalOrderAmount: order.netOfTotalOrderAmount,
-            customerName: order.customerName
-          }));
+          sessionStorage.setItem(
+            key,
+            JSON.stringify({
+              items: order.items.map((item) => ({
+                id: item.id,
+                quantity: item.quantity,
+                price: item.price,
+              })),
+              netOfTotalOrderAmount: order.netOfTotalOrderAmount,
+              customerName: order.customerName,
+            }),
+          );
         }
       } else {
         sessionStorage.removeItem(key);
@@ -248,7 +247,7 @@ export class OrderDetailsPageComponent {
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
-          detail: `${ORDER_ACTION_UI[action].label} action completed.`
+          detail: `${ORDER_ACTION_UI[action].label} action completed.`,
         });
       }
     });
@@ -268,13 +267,17 @@ export class OrderDetailsPageComponent {
       this.messageService.add({
         severity: 'success',
         summary: 'Success',
-        detail: 'Payment recorded successfully.'
+        detail: 'Payment recorded successfully.',
       });
     });
   }
 
   backToList(): void {
     void this.router.navigate(['/orders']);
+  }
+
+  goToReturn(returnId: string): void {
+    void this.router.navigate(['/returns', returnId]);
   }
 
   goToEdit(): void {
@@ -308,7 +311,10 @@ export class OrderDetailsPageComponent {
     this.confirmDialog
       .confirm({
         header: 'Confirm Action',
-        message: `Are you sure you want to ${meta.label.replace(/[^a-zA-Z ]/g, '').trim().toLowerCase()} this order?`,
+        message: `Are you sure you want to ${meta.label
+          .replace(/[^a-zA-Z ]/g, '')
+          .trim()
+          .toLowerCase()} this order?`,
         severity: meta.severity,
         acceptLabel: meta.label,
       })
@@ -367,7 +373,7 @@ export class OrderDetailsPageComponent {
     this.messageService.add({
       severity: 'success',
       summary: 'Order Completed!',
-      detail: 'The order has been delivered successfully!'
+      detail: 'The order has been delivered successfully!',
     });
   }
 }

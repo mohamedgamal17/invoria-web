@@ -1,26 +1,10 @@
 import type {
+  OrderItem,
   OrderPayment,
+  OrderReturnItem,
   OrderStatus
 } from './order.entity';
 import type { PaymentStatus, PaymentType } from './order-payment.enums';
-
-export interface UiReturnItem {
-  orderItemId: string;
-  productName: string;
-  productId: string;
-  quantity: number;
-  orderedQuantity: number;
-  unitPrice: number;
-  lineReturnTotal: number;
-}
-
-export interface UiOrderItem {
-  id: string;
-  productId: string;
-  productName: string;
-  quantity: number;
-  price: number;
-}
 
 export interface UiOrder {
   id: string;
@@ -41,16 +25,10 @@ export interface UiOrder {
   amountOutstanding?: number;
   payments?: OrderPayment[];
   orderDate: string;
-  items: UiOrderItem[];
-  returnItems: UiReturnItem[];
+  items: OrderItem[];
+  returnItems: OrderReturnItem[];
   allocationId?: string;
   returnId?: string;
   invoiceId?: string;
   orderAllocated: boolean;
 }
-
-export type OrderCreateInput = Pick<
-  UiOrder,
-  'orderNumber' | 'customerName' | 'netOfTotalOrderAmount' | 'orderDate' | 'items'
->;
-export type OrderUpdateInput = Partial<Pick<UiOrder, 'orderNumber' | 'customerName' | 'netOfTotalOrderAmount' | 'items'>>;

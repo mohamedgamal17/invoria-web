@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { StatusStepsComponent } from '../../../../shared/ui/status-steps/status-steps.component';
 import { ReturnStatus, returnStatusUserLabel } from '../../models/return-status.enum';
 
 type Step = {
@@ -12,15 +12,11 @@ type Step = {
 @Component({
   selector: 'app-return-progress',
   standalone: true,
-  imports: [CommonModule],
+  imports: [StatusStepsComponent],
   templateUrl: './return-progress.component.html',
-  styles: [
-    `
-      :host {
-        display: block;
-      }
-    `,
-  ],
+  host: {
+    class: 'block',
+  },
 })
 export class ReturnProgressComponent {
   readonly status = input.required<ReturnStatus>();

@@ -2,18 +2,16 @@ import { Component, inject, untracked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Store } from '@ngrx/store';
-import type { PaginatorState } from 'primeng/paginator';
-import type { TablePageEvent } from 'primeng/table';
 
 import { PaginationService } from '../../../../shared/utils/pagination.service';
-import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
+import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
 import { productsListSelectors } from '../../store/products-list/products-list.selectors';
 import type { Product } from '../../models/product.entity';
 import { ProductHeaderComponent } from '../../components/product-header/product-header.component';
 import {
-  ProductsFilterPanelComponent,
-  type ProductsListFilters,
-} from '../../components/products-filter-panel/products-filter-panel.component';
+  NameFilterPanelComponent,
+  type NameListFilters
+} from '../../../../shared/ui/name-filter-panel/name-filter-panel.component';
 import { ProductListComponent } from '../../components/product-list/product-list.component';
 import {
   ProductsBreadcrumbComponent,
@@ -35,9 +33,9 @@ import {
   standalone: true,
   imports: [
     ProductHeaderComponent,
-    ProductsFilterPanelComponent,
     ProductListComponent,
     ProductsBreadcrumbComponent,
+    NameFilterPanelComponent
   ],
   templateUrl: './products-page.component.html',
 })
@@ -67,7 +65,7 @@ export class ProductsPageComponent {
     void this.router.navigate([product.id], { relativeTo: this.route.parent });
   }
 
-  onPageChange(event: PaginatorState | TablePageEvent): void {
+  onPageChange(event: PaginatorPageEvent): void {
     const { pageIndex, pageSize } = this.pagination.pageIndexFromEvent(
       event,
       untracked(this.pageSize),
@@ -87,7 +85,7 @@ export class ProductsPageComponent {
     }
   }
 
-  onFiltersChange(filters: ProductsListFilters): void {
+  onFiltersChange(filters: NameListFilters): void {
     const nameFilter = filters.name.trim();
     if (nameFilter === untracked(this.nameFilter)) {
       return;

@@ -5,8 +5,6 @@ import { TableModule } from 'primeng/table';
 import { PaginatorModule } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
-import type { PaginatorState } from 'primeng/paginator';
-import type { TablePageEvent } from 'primeng/table';
 
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
@@ -14,7 +12,7 @@ import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface
 import type { Return } from '../../models/return.entity';
 import { returnTypeLabel } from '../../models/return-type.enum';
 import { returnStatusUserLabel, returnStatusSeverity } from '../../models/return-status.enum';
-import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
+import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
 
 @Component({
   selector: 'app-return-list',
@@ -40,7 +38,7 @@ export class ReturnListComponent {
   pageSizeOptions = input<number[]>(DEFAULT_PAGE_SIZE_OPTIONS);
 
   viewReturn = output<Return>();
-  pageChange = output<PaginatorState | TablePageEvent>();
+  pageChange = output<PaginatorPageEvent>();
   clearFilters = output<void>();
 
   get skeletonRows(): number[] {

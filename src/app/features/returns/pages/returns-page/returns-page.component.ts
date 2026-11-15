@@ -6,14 +6,12 @@ import { catchError, map, of } from 'rxjs';
 
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-import type { PaginatorState } from 'primeng/paginator';
-import type { TablePageEvent } from 'primeng/table';
 
 import type { PagingInfo } from '../../../../core/models/paging';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
 import { parseOptionalEnumQueryParam } from '../../../../shared/navigation/query-param-parsers';
 import { PaginationService } from '../../../../shared/utils/pagination.service';
-import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
+import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
 import { ReturnsApiService } from '../../services/returns-api.service';
 import type { Return } from '../../models/return.entity';
 import type { ListReturnRequest } from '../../models/list-return.request';
@@ -134,7 +132,7 @@ export class ReturnsPageComponent {
     void this.router.navigate([ret.id], { relativeTo: this.route });
   }
 
-  onPageChange(event: PaginatorState | TablePageEvent): void {
+  onPageChange(event: PaginatorPageEvent): void {
     const firstEvt = event.first ?? 0;
     const rows = event.rows ?? this.pageSize();
     const newPageIndex = Math.floor(firstEvt / Math.max(rows, 1));

@@ -3,19 +3,17 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { Store } from '@ngrx/store';
 import { ToastModule } from 'primeng/toast';
-import type { PaginatorState } from 'primeng/paginator';
-import type { TablePageEvent } from 'primeng/table';
 
 import { PaginationService } from '../../../../shared/utils/pagination.service';
-import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
+import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
 import { suppliersListSelectors } from '../../store/suppliers-list/suppliers-list.selectors';
 import type { Supplier } from '../../models/supplier.entity';
 import { SupplierListComponent } from '../../components/supplier-list/supplier-list.component';
 import { SupplierHeaderComponent } from '../../components/supplier-header/supplier-header.component';
 import {
-  SuppliersFilterPanelComponent,
-  type SuppliersListFilters,
-} from '../../components/suppliers-filter-panel/suppliers-filter-panel.component';
+  NameFilterPanelComponent,
+  type NameListFilters
+} from '../../../../shared/ui/name-filter-panel/name-filter-panel.component';
 
 /**
  * Smart page (container) for the suppliers list. It owns only:
@@ -33,8 +31,8 @@ import {
   imports: [
     ToastModule,
     SupplierHeaderComponent,
-    SuppliersFilterPanelComponent,
     SupplierListComponent,
+    NameFilterPanelComponent
   ],
   templateUrl: './suppliers-page.component.html',
 })
@@ -63,7 +61,7 @@ export class SuppliersPageComponent {
     void this.router.navigate([supplier.id], { relativeTo: this.route });
   }
 
-  onPageChange(event: PaginatorState | TablePageEvent): void {
+  onPageChange(event: PaginatorPageEvent): void {
     const { pageIndex, pageSize } = this.pagination.pageIndexFromEvent(
       event,
       untracked(this.pageSize),
@@ -83,7 +81,7 @@ export class SuppliersPageComponent {
     }
   }
 
-  onFiltersChange(filters: SuppliersListFilters): void {
+  onFiltersChange(filters: NameListFilters): void {
     const nameFilter = filters.name.trim();
     if (nameFilter === untracked(this.nameFilter)) {
       return;

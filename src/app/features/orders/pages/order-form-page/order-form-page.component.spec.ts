@@ -21,6 +21,7 @@ import { CustomersApiService } from '../../../customers/services/customers-api.s
 import { ProductsApiService } from '../../../products/services/products-api.service';
 import type { Order } from '../../models/order.entity';
 import { OrderStatus } from '../../models/order.entity';
+import type { Product } from '../../../products/models/product.entity';
 import { PaymentStatus, PaymentType } from '../../models/order-payment.enums';
 
 describe('OrderFormPageComponent', () => {
@@ -33,6 +34,14 @@ describe('OrderFormPageComponent', () => {
   let navigate: ReturnType<typeof vi.fn>;
   let searchProducts: ReturnType<typeof vi.fn>;
   let searchCustomers: ReturnType<typeof vi.fn>;
+
+  const product: Product = {
+    id: 'p1',
+    name: 'Widget',
+    price: 10,
+    stock: { actualQuantity: 0, reservedQuantity: 0 },
+    createdAt: ''
+  };
 
   const loadedOrder: Order = {
     id: 'ord_edit',
@@ -55,7 +64,7 @@ describe('OrderFormPageComponent', () => {
     amountDue: 0,
     payments: [],
     orderAllocated: false,
-    items: [{ id: 'line-1', productId: 'p1', quantity: 2, price: 5 }]
+    items: [{ id: 'line-1', productId: 'p1', quantity: 2, price: 5, product }]
   };
 
   async function setup(opts: { mode: 'create' | 'edit'; id?: string }) {
@@ -206,11 +215,12 @@ describe('OrderFormPageComponent', () => {
     expect(getOrder).not.toHaveBeenCalled();
   });
 
-  it('submit warns when customer missing in create mode', () => {
-    component.draftItems.set([
-      { id: 'line-1', productId: 'p1', productName: 'P', quantity: 1, price: 10 }
-    ]);
-    component.submit();
+  it('submit warns when the payload has no customer id in create mode', () => {
+    component.submit({
+      customerId: '  ',
+      paymentType: PaymentType.Immediate,
+      items: [{ id: 'line-1', productId: 'p1', quantity: 1, price: 10, product }]
+    });
     expect(messageAdd).toHaveBeenCalledWith(
       expect.objectContaining({
         severity: 'warn',
@@ -220,33 +230,24 @@ describe('OrderFormPageComponent', () => {
     expect(createOrder).not.toHaveBeenCalled();
   });
 
-  it('submit warns when no line items', () => {
-    component.selectedCustomer.set({
-      id: 'c1',
-      name: 'Alice',
-      createdAt: '2026-01-01T00:00:00.000Z'
+  it('submit creates order and navigates to detail', () => {
+    component.submit({
+      customerId: 'c1',
+      paymentType: PaymentType.Immediate,
+      items: [{ id: 'line-1', productId: 'p1', quantity: 1, price: 10, product }]
     });
-    component.submit();
-    expect(messageAdd).toHaveBeenCalledWith(
-      expect.objectContaining({
-        severity: 'warn',
-        summary: 'Items required'
-      })
+    expect(createOrder).toHaveBeenCalledWith(
+      expect.objectContaining({ CustomerId: 'c1', PaymentType: PaymentType.Immediate })
     );
+    expect(navigate).toHaveBeenCalledWith(['../', 'ord_new'], expect.anything());
   });
 
-  it('submit creates order and navigates to detail', () => {
-    component.selectedCustomer.set({
-      id: 'c1',
-      name: 'Alice',
-      createdAt: '2026-01-01T00:00:00.000Z'
-    });
-    component.draftItems.set([
-      { id: 'line-1', productId: 'p1', productName: 'P', quantity: 1, price: 10 }
+  it('onItemsChange keeps the displayed total in sync with the form lines', () => {
+    component.onItemsChange([
+      { id: 'line-1', productId: 'p1', quantity: 2, price: 10, product },
+      { id: 'line-2', productId: 'p2', quantity: 1, price: 5, product: { ...product, id: 'p2' } }
     ]);
-    component.submit();
-    expect(createOrder).toHaveBeenCalled();
-    expect(navigate).toHaveBeenCalledWith(['../', 'ord_new'], expect.anything());
+    expect(component.totalAmount()).toBe(25);
   });
 
   it('edit mode loads order on init', async () => {

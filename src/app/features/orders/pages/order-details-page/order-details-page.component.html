@@ -134,6 +134,7 @@
             <app-order-details-return-items-tab
               [order]="order"
               [currencyCode]="currencyCode"
+              (viewReturn)="goToReturn($event)"
             />
           </div>
         </p-tabpanel>

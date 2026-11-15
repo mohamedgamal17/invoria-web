@@ -1,4 +1,4 @@
-﻿import { CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,12 +12,15 @@ import { ToastModule } from 'primeng/toast';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
 import { ReturnsApiService } from '../../services/returns-api.service';
 import type { Return } from '../../models/return.entity';
-import { ReturnActionFacade, type ReturnTransitionAction } from '../../services/return-action.facade';
+import {
+  ReturnActionFacade,
+  type ReturnTransitionAction,
+} from '../../services/return-action.facade';
 import {
   getAvailableReturnActions,
   getPrimaryReturnAction,
   RETURN_ACTION_UI,
-  type ReturnActionKey
+  type ReturnActionKey,
 } from '../../models/return-actions';
 import { returnStatusUserLabel } from '../../models/return-status.enum';
 import { ReturnDetailsToolbarComponent } from '../../components/return-details-toolbar/return-details-toolbar.component';
@@ -25,6 +28,7 @@ import { ReturnDetailsInfoComponent } from '../../components/return-details-info
 import { ReturnDetailsLinesComponent } from '../../components/return-details-lines/return-details-lines.component';
 import { ReturnProgressComponent } from '../../components/return-progress/return-progress.component';
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 @Component({
@@ -40,22 +44,13 @@ import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confi
     ReturnDetailsInfoComponent,
     ReturnDetailsLinesComponent,
     ReturnProgressComponent,
-    PageHeaderComponent
+    PageHeaderComponent,
   ],
   providers: [MessageService],
   templateUrl: './return-details-page.component.html',
-  styles: [`
-    @keyframes pulse-beat {
-      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--p-primary-400), 0.4); }
-      50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(var(--p-primary-400), 0); }
-    }
-    .pulse-beat {
-      animation: pulse-beat 1.5s ease-in-out infinite;
-    }
-  `]
 })
 export class ReturnDetailsPageComponent {
-  readonly currencyCode = 'EGP' as const;
+  readonly currencyCode = DEFAULT_CURRENCY_CODE;
   private readonly returnsApi = inject(ReturnsApiService);
   private readonly returnActionFacade = inject(ReturnActionFacade);
   private readonly confirmDialog = inject(ConfirmDialogService);
@@ -65,7 +60,7 @@ export class ReturnDetailsPageComponent {
 
   private readonly returnId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
-    { initialValue: this.route.snapshot.paramMap.get('id') ?? '' }
+    { initialValue: this.route.snapshot.paramMap.get('id') ?? '' },
   );
 
   readonly actionSaving = signal(false);
@@ -75,7 +70,11 @@ export class ReturnDetailsPageComponent {
     defaultValue: null,
     stream: ({ params: id }) => {
       if (!id) {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Missing return id.' });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Missing return id.',
+        });
         return of(null);
       }
       return this.returnsApi.getReturn(id).pipe(
@@ -89,14 +88,14 @@ export class ReturnDetailsPageComponent {
         catchError((err: unknown) => {
           this.showApiError(err);
           return of(null);
-        })
+        }),
       );
-    }
+    },
   });
 
   readonly displayReturn = linkedSignal({
     source: () => this.returnResource.value(),
-    computation: (ret) => (ret ? { ...ret } : null)
+    computation: (ret) => (ret ? { ...ret } : null),
   });
 
   readonly error = computed<string>(() => {
@@ -130,7 +129,10 @@ export class ReturnDetailsPageComponent {
     this.confirmDialog
       .confirm({
         header: 'Confirm Action',
-        message: `Are you sure you want to ${meta.label.replace(/[^a-zA-Z ]/g, '').trim().toLowerCase()} this return?`,
+        message: `Are you sure you want to ${meta.label
+          .replace(/[^a-zA-Z ]/g, '')
+          .trim()
+          .toLowerCase()} this return?`,
         severity: meta.severity,
         acceptLabel: meta.label,
       })
@@ -154,7 +156,7 @@ export class ReturnDetailsPageComponent {
       .execute(action, id)
       .pipe(
         take(1),
-        finalize(() => this.actionSaving.set(false))
+        finalize(() => this.actionSaving.set(false)),
       )
       .subscribe({
         next: (res) => {
@@ -166,12 +168,12 @@ export class ReturnDetailsPageComponent {
           this.messageService.add({
             severity: 'success',
             summary: 'Success',
-            detail: `${this.returnActionFacade.meta(action).label} action completed.`
+            detail: `${this.returnActionFacade.meta(action).label} action completed.`,
           });
         },
         error: (err: unknown) => {
           this.messageService.add(presentApiError(err).toast);
-        }
+        },
       });
   }
 

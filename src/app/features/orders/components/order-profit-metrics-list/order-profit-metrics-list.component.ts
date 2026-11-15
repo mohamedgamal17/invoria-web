@@ -8,6 +8,7 @@ import { TableModule } from 'primeng/table';
 
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
+import { type PaginatorPageEvent } from '../../../../shared/models/pagination';
 import type { OrderSalesProfitReportPeriod } from '../../models/order-report.entity';
 import { ReportPeriod } from '../../../../shared/models/report-period';
 import { formatPeriodLabel } from '../../../../shared/charts/echarts-presets';
@@ -29,7 +30,7 @@ export class OrderProfitMetricsListComponent {
   loading = input(false);
   selectedPeriod = input<ReportPeriod>(ReportPeriod.Daily);
 
-  pageChange = output<any>();
+  pageChange = output<PaginatorPageEvent>();
   clearFilters = output<void>();
 
   get skeletonRows(): number[] {

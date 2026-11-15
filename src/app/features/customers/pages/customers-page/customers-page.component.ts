@@ -3,19 +3,17 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { Store } from '@ngrx/store';
 import { ToastModule } from 'primeng/toast';
-import type { PaginatorState } from 'primeng/paginator';
-import type { TablePageEvent } from 'primeng/table';
 
 import { PaginationService } from '../../../../shared/utils/pagination.service';
-import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
+import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
 import { customersListSelectors } from '../../store/customers-list/customers-list.selectors';
 import type { Customer } from '../../models/customer.entity';
 import { CustomerListComponent } from '../../components/customer-list/customer-list.component';
 import { CustomerHeaderComponent } from '../../components/customer-header/customer-header.component';
 import {
-  CustomersFilterPanelComponent,
-  type CustomersListFilters
-} from '../../components/customers-filter-panel/customers-filter-panel.component';
+  NameFilterPanelComponent,
+  type NameListFilters
+} from '../../../../shared/ui/name-filter-panel/name-filter-panel.component';
 
 /**
  * Smart page (container) for the customers list. It owns only:
@@ -33,8 +31,8 @@ import {
   imports: [
     ToastModule,
     CustomerHeaderComponent,
-    CustomersFilterPanelComponent,
-    CustomerListComponent
+    CustomerListComponent,
+    NameFilterPanelComponent
   ],
   templateUrl: './customers-page.component.html'
 })
@@ -63,7 +61,7 @@ export class CustomersPageComponent {
     void this.router.navigate([customer.id], { relativeTo: this.route });
   }
 
-  onPageChange(event: PaginatorState | TablePageEvent): void {
+  onPageChange(event: PaginatorPageEvent): void {
     const { pageIndex, pageSize } = this.pagination.pageIndexFromEvent(
       event,
       untracked(this.pageSize)
@@ -83,7 +81,7 @@ export class CustomersPageComponent {
     }
   }
 
-  onFiltersChange(filters: CustomersListFilters): void {
+  onFiltersChange(filters: NameListFilters): void {
     const nameFilter = filters.name.trim();
     if (nameFilter === untracked(this.nameFilter)) {
       return;

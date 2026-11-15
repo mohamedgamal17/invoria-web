@@ -13,12 +13,12 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
 import { LOAD_STATUS } from '../../../../shared/models/load-status';
 import { UrlStateService } from '../../../../shared/utils/url-state.service';
-import { RECEIVABLE_CURRENCY_CODE } from '../../models/receivable-currency';
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 import { toReceivableDetailsTab } from '../../utils/receivable-details-tab';
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
 import { ReceivableDetailsOverviewCardComponent } from '../../components/receivable-details-overview-card/receivable-details-overview-card.component';
 import { ReceivableSettlementsTabComponent } from '../../components/receivable-settlements-tab/receivable-settlements-tab.component';
-import { ReceivableSettleModalComponent } from '../../components/receivable-settle-modal/receivable-settle-modal.component';
+import { SettleModalComponent } from '../../../../shared/ui/settle-modal/settle-modal.component';
 import { RECEIVABLES_MUTATIONS_ACTIONS } from '../../store/receivables-mutations/receivables-mutations.actions';
 import { receivablesMutationsFeature } from '../../store/receivables-mutations/receivables-mutations.reducer';
 import { RECEIVABLE_DETAILS_ACTIONS } from '../../store/receivable-details/receivable-details.actions';
@@ -53,13 +53,13 @@ import { receivableDetailsSelectors } from '../../store/receivable-details/recei
     PageHeaderComponent,
     ReceivableDetailsOverviewCardComponent,
     ReceivableSettlementsTabComponent,
-    ReceivableSettleModalComponent,
+    SettleModalComponent,
   ],
   templateUrl: './receivable-details-page.component.html',
 })
 export class ReceivableDetailsPageComponent {
   readonly tabs = ReceivableDetailsTab;
-  readonly currencyCode = RECEIVABLE_CURRENCY_CODE;
+  readonly currencyCode = DEFAULT_CURRENCY_CODE;
 
   private readonly store = inject(Store);
   private readonly urlState = inject(UrlStateService);

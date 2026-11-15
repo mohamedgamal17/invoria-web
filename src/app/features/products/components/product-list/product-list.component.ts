@@ -4,11 +4,9 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { PaginatorModule } from 'primeng/paginator';
 import { TooltipModule } from 'primeng/tooltip';
-import type { PaginatorState } from 'primeng/paginator';
-import type { TablePageEvent } from 'primeng/table';
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
-import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
+import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
 
 import { ProductListSkeletonComponent } from '../product-list-skeleton/product-list-skeleton.component';
 import type { Product } from '../../models/product.entity';
@@ -38,7 +36,7 @@ export class ProductListComponent {
   pageSizeOptions = input<number[]>(DEFAULT_PAGE_SIZE_OPTIONS);
 
   viewProduct = output<Product>();
-  pageChange = output<PaginatorState | TablePageEvent>();
+  pageChange = output<PaginatorPageEvent>();
   clearFilters = output<void>();
 
   getStockSeverity(product: Product): 'success' | 'warn' | 'danger' {

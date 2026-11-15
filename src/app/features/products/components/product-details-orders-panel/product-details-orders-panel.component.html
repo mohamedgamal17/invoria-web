@@ -9,7 +9,7 @@
       icon="pi pi-refresh"
       [text]="true"
       [disabled]="loading()"
-      (onClick)="reload()"
+      (onClick)="reload.emit()"
     />
   </div>
 
@@ -116,7 +116,7 @@
               {{ currencyCode() }} {{ row.orderNetAfterReturns | number:'1.2-2' }}
             </td>
             <td class="px-3 py-2 text-center whitespace-nowrap">
-              <p-button label="View" [link]="true" type="button" (onClick)="viewOrder(row)" />
+              <p-button label="View" [link]="true" type="button" (onClick)="viewOrder.emit(row)" />
             </td>
           </tr>
         </ng-template>

@@ -2,7 +2,19 @@ import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EMPTY, Subject, catchError, debounceTime, distinctUntilChanged, finalize, map, of, switchMap, take, tap } from 'rxjs';
+import {
+  EMPTY,
+  Subject,
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  finalize,
+  map,
+  of,
+  switchMap,
+  take,
+  tap
+} from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { MessageService } from 'primeng/api';
@@ -10,14 +22,17 @@ import { MessageService } from 'primeng/api';
 import { OrdersApiService } from '../../services/orders-api.service';
 import { Store } from '@ngrx/store';
 import { ORDERS_LIST_ACTIONS } from '../../store/orders-list/orders-list.actions';
-import { OrderFormComponent } from '../../components/order-form/order-form.component';
+import {
+  OrderFormComponent,
+  type OrderFormSubmitEvent
+} from '../../components/order-form/order-form.component';
 import type { Customer } from '../../../customers/models/customer.entity';
 import { customerSearchListRequest } from '../../../customers/models/list-customer.request';
 import type { Product } from '../../../products/models/product.entity';
 import { productSearchListRequest } from '../../../products/models/list-product.request';
 import { CustomersApiService } from '../../../customers/services/customers-api.service';
 import { ProductsApiService } from '../../../products/services/products-api.service';
-import type { UiOrderItem } from '../../models/order-ui.model';
+import type { OrderItem } from '../../models/order.entity';
 import { PaymentType } from '../../models/order-payment.enums';
 import { draftItemsToLineItems, orderToUiOrder } from '../../models/order-ui.mapper';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
@@ -54,18 +69,16 @@ export class OrderFormPageComponent {
   orderNumber = signal('');
   totalAmount = signal(0);
 
-  draftItems = signal<UiOrderItem[]>([]);
   products = signal<Product[]>([]);
-  selectedProduct = signal<Product | null>(null);
-  itemQuantity = signal(1);
-  itemPrice = signal(0);
   isProductLoading = signal(false);
 
   customers = signal<Customer[]>([]);
-  selectedCustomer = signal<Customer | null>(null);
   isCustomerLoading = signal(false);
 
-  paymentType = signal<PaymentType>(PaymentType.Immediate);
+  /** Form seeds for edit mode; the form owns the editable state afterwards. */
+  initialCustomer = signal<Customer | null>(null);
+  initialPaymentType = signal<PaymentType>(PaymentType.Immediate);
+  initialItems = signal<OrderItem[]>([]);
 
   constructor() {
     this.productQuery$
@@ -115,10 +128,12 @@ export class OrderFormPageComponent {
     void this.router.navigate(['../'], { relativeTo: this.route });
   }
 
-  submit(): void {
-    if (this.saving()) return;
-    const customerId = this.selectedCustomer()?.id?.trim();
-    if (!customerId && this.mode() === 'create') {
+  submit(event: OrderFormSubmitEvent): void {
+    if (this.saving()) {
+      return;
+    }
+
+    if (this.mode() === 'create' && !event.customerId.trim()) {
       this.messageService.add({
         severity: 'warn',
         summary: 'Customer required',
@@ -126,7 +141,8 @@ export class OrderFormPageComponent {
       });
       return;
     }
-    if (!this.draftItems().length) {
+
+    if (!event.items.length) {
       this.messageService.add({
         severity: 'warn',
         summary: 'Items required',
@@ -137,18 +153,24 @@ export class OrderFormPageComponent {
 
     this.saving.set(true);
     if (this.mode() === 'create') {
-      this.createOrder(customerId as string);
+      this.createOrder(event);
       return;
     }
-    this.updateOrderItems();
+    this.updateOrderItems(event);
   }
 
-  private createOrder(customerId: string): void {
+  onItemsChange(items: OrderItem[]): void {
+    this.totalAmount.set(
+      items.reduce((total, item) => total + item.price * item.quantity, 0)
+    );
+  }
+
+  private createOrder(event: OrderFormSubmitEvent): void {
     this.ordersApi
       .createOrder({
-        CustomerId: customerId,
-        Items: draftItemsToLineItems(this.draftItems()),
-        PaymentType: this.paymentType()
+        CustomerId: event.customerId,
+        Items: draftItemsToLineItems(event.items),
+        PaymentType: event.paymentType
       })
       .pipe(
         take(1),
@@ -165,15 +187,21 @@ export class OrderFormPageComponent {
         finalize(() => this.saving.set(false))
       )
       .subscribe((result) => {
-          this.store.dispatch(ORDERS_LIST_ACTIONS.orderCreated({ order: orderToUiOrder(result) }));
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order created successfully.' });
-          void this.router.navigate(['../', result.id], { relativeTo: this.route });
+        this.store.dispatch(ORDERS_LIST_ACTIONS.orderCreated({ order: orderToUiOrder(result) }));
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Order created successfully.'
+        });
+        void this.router.navigate(['../', result.id], { relativeTo: this.route });
       });
   }
 
-  private updateOrderItems(): void {
+  private updateOrderItems(event: OrderFormSubmitEvent): void {
     this.ordersApi
-      .updateOrderItems(this.orderId() as string, { Items: draftItemsToLineItems(this.draftItems()) })
+      .updateOrderItems(this.orderId() as string, {
+        Items: draftItemsToLineItems(event.items)
+      })
       .pipe(
         take(1),
         finalize(() => this.saving.set(false))
@@ -184,8 +212,14 @@ export class OrderFormPageComponent {
             this.messageService.add({ ...presentApiError(res.error).toast });
             return;
           }
-          this.store.dispatch(ORDERS_LIST_ACTIONS.orderUpdated({ order: orderToUiOrder(res.result) }));
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order updated successfully.' });
+          this.store.dispatch(
+            ORDERS_LIST_ACTIONS.orderUpdated({ order: orderToUiOrder(res.result) })
+          );
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Order updated successfully.'
+          });
           void this.router.navigate(['../../', res.result.id], { relativeTo: this.route });
         },
         error: (err: unknown) => {
@@ -209,76 +243,6 @@ export class OrderFormPageComponent {
     this.customerQuery$.next((event.query ?? '').trim());
   }
 
-  onCustomerSelect(event: unknown): void {
-    const customer =
-      event && typeof event === 'object' && 'value' in event
-        ? (event as { value?: Customer }).value
-        : (event as Customer);
-    if (!customer?.id) return;
-    this.selectedCustomer.set(customer);
-  }
-
-  clearCustomerSelection(): void {
-    this.selectedCustomer.set(null);
-  }
-
-  onProductSelect(event: unknown): void {
-    const product =
-      event && typeof event === 'object' && 'value' in event
-        ? (event as { value?: Product }).value
-        : (event as Product);
-    if (!product?.id) return;
-    this.selectedProduct.set(product);
-    this.itemQuantity.set(1);
-    this.itemPrice.set(product.price);
-  }
-
-  clearProductSelection(): void {
-    this.selectedProduct.set(null);
-    this.itemQuantity.set(1);
-    this.itemPrice.set(0);
-  }
-
-  addItem(): void {
-    const product = this.selectedProduct();
-    if (!product) return;
-    const quantity = this.itemQuantity() > 0 ? this.itemQuantity() : 1;
-    this.draftItems.update((items) => {
-      const existingIndex = items.findIndex((item) => item.productId === product.id);
-      if (existingIndex > -1) {
-        const next = [...items];
-        next[existingIndex] = {
-          ...next[existingIndex],
-          quantity: next[existingIndex].quantity + quantity
-        };
-        return next;
-      }
-      return [
-        ...items,
-        {
-          id: '',
-          productId: product.id,
-          productName: product.name,
-          quantity,
-          price: this.itemPrice()
-        }
-      ];
-    });
-    this.selectedProduct.set(null);
-    this.itemQuantity.set(1);
-    this.calculateTotal();
-  }
-
-  removeItem(index: number): void {
-    this.draftItems.update((items) => items.filter((_, item) => item !== index));
-    this.calculateTotal();
-  }
-
-  calculateTotal(): void {
-    const total = this.draftItems().reduce((acc, item) => acc + item.price * item.quantity, 0);
-    this.totalAmount.set(total);
-  }
-
   private loadOrder(id: string): void {
     this.loading.set(true);
     this.ordersApi
@@ -295,10 +259,10 @@ export class OrderFormPageComponent {
           }
           const full = orderToUiOrder(res.result);
           this.orderNumber.set(full.orderNumber);
-          this.draftItems.set([...(full.items || [])]);
+          this.initialItems.set([...(full.items || [])]);
           this.totalAmount.set(full.netOfTotalOrderAmount);
-          this.paymentType.set(full.paymentType ?? PaymentType.Immediate);
-          this.selectedCustomer.set(
+          this.initialPaymentType.set(full.paymentType ?? PaymentType.Immediate);
+          this.initialCustomer.set(
             full.customerId ? ({ id: full.customerId, name: full.customerName } as Customer) : null
           );
         },

@@ -2,9 +2,11 @@
 <section class="flex flex-col gap-8">
   <app-supplier-header (create)="goToCreate()" />
 
-  <app-suppliers-filter-panel
+  <app-name-filter-panel
     [name]="nameFilter()"
     [loading]="listLoading()"
+    label="Supplier name"
+    inputId="suppliers-filter-name"
     (filtersChange)="onFiltersChange($event)"
     (clearFilters)="onClearFilters()"
   />

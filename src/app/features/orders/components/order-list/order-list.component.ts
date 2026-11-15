@@ -8,6 +8,7 @@ import { PaginatorModule } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
+import { type PaginatorPageEvent } from '../../../../shared/models/pagination';
 import type { UiOrder } from '../../models/order-ui.model';
 import { OrderStatus } from '../../models/order.entity';
 import {
@@ -49,7 +50,7 @@ export class OrderListComponent {
   loading = input(false);
   /** When false, delete actions are hidden (no backend delete for orders yet). */
   showDelete = input(false);
-  pageChange = output<any>();
+  pageChange = output<PaginatorPageEvent>();
   view = output<UiOrder>();
   delete = output<UiOrder>();
   clearFilters = output<void>();

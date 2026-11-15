@@ -3,9 +3,11 @@
 
   <app-product-header (create)="goToCreate()" />
 
-  <app-products-filter-panel
+  <app-name-filter-panel
     [name]="nameFilter()"
     [loading]="listLoading()"
+    label="Product name"
+    inputId="products-filter-name"
     (filtersChange)="onFiltersChange($event)"
     (clearFilters)="onClearFilters()"
   />

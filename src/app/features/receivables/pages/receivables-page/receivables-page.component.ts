@@ -2,11 +2,9 @@ import { Component, inject, untracked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { ToastModule } from 'primeng/toast';
-import type { PaginatorState } from 'primeng/paginator';
-import type { TablePageEvent } from 'primeng/table';
 
 import { PaginationService } from '../../../../shared/utils/pagination.service';
-import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
+import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
 import { receivablesListSelectors } from '../../store/receivables-list/receivables-list.selectors';
 import type { Receivable } from '../../models/receivable.entity';
 import { ReceivableListComponent } from '../../components/receivable-list/receivable-list.component';
@@ -61,7 +59,7 @@ export class ReceivablesPageComponent {
     void this.router.navigate([receivable.id], { relativeTo: this.route });
   }
 
-  onPageChange(event: PaginatorState | TablePageEvent): void {
+  onPageChange(event: PaginatorPageEvent): void {
     const { pageIndex, pageSize } = this.pagination.pageIndexFromEvent(
       event,
       untracked(this.pageSize),

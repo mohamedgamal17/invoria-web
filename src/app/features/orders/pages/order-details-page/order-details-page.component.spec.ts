@@ -67,7 +67,21 @@ describe('OrderDetailsPageComponent', () => {
     amountDue: 0,
     payments: [],
     orderAllocated: true,
-    items: [{ id: 'line-1', productId: 'p1', quantity: 1, price: 10 }]
+    items: [
+      {
+        id: 'line-1',
+        productId: 'p1',
+        quantity: 1,
+        price: 10,
+        product: {
+          id: 'p1',
+          name: 'Widget',
+          price: 10,
+          stock: { actualQuantity: 0, reservedQuantity: 0 },
+          createdAt: ''
+        }
+      }
+    ]
   };
 
   async function setup(paramMap: Record<string, string>) {

@@ -1,4 +1,4 @@
-<form (ngSubmit)="formSubmit($event)" class="space-y-6">
+<form [formGroup]="purchaseOrderForm" (ngSubmit)="formSubmit($event)" class="space-y-6">
   @if (stepError()) {
     <p class="text-sm text-destructive rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2" role="alert">
       {{ stepError() }}
@@ -9,11 +9,18 @@
     <app-surface-card tone="neutral">
       <div class="space-y-6">
         <div class="flex flex-col gap-1.5 sm:col-span-2">
-          <app-supplier-id-control
-            [(ngModel)]="supplierId"
-            [resolvedSupplier]="resolvedSupplier()"
-            [saving]="saving()"
-            name="poFormSupplier"
+          <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Supplier</span>
+          <app-autosearch
+            [formControl]="purchaseOrderForm.controls.supplier"
+            [suggestions]="suppliers()"
+            controlName="poFormSupplier"
+            placeholder="Search and select supplier..."
+            removeIcon="pi pi-user-minus"
+            removeSeverity="danger"
+            [disabled]="saving()"
+            (search)="searchSuppliers.emit($event)"
+            (select)="onSupplierSelect()"
+            (clear)="onSupplierCleared()"
           />
         </div>
       </div>
@@ -28,25 +35,24 @@
           <div class="flex flex-col gap-1.5">
             <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Search product</label>
             <app-autosearch
-              [(selected)]="selectedProduct"
+              [formControl]="purchaseOrderForm.controls.product"
               [suggestions]="products()"
-              [controlName]="'poFormProduct'"
-              [placeholder]="'Start typing product name...'"
+              controlName="poFormProduct"
+              placeholder="Start typing product name..."
               [disabled]="saving()"
               (search)="searchProducts.emit($event)"
-              (select)="productSelect.emit($event)"
-              (clear)="clearProduct.emit()"
+              (select)="onProductSelect($event)"
+              (clear)="clearProductSelection()"
             />
           </div>
 
-          @if (selectedProduct()) {
+          @if (purchaseOrderForm.controls.product.value; as selectedProduct) {
             <div class="space-y-4 p-4 bg-surface rounded-lg border border-border">
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="min-w-0 flex flex-col gap-2">
                   <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Quantity</label>
                   <p-inputNumber
-                    [ngModel]="itemQuantity()"
-                    (ngModelChange)="itemQuantity.set($event)"
+                    formControlName="quantity"
                     [min]="1"
                     [showButtons]="true"
                     buttonLayout="horizontal"
@@ -55,22 +61,19 @@
                     decrementButtonIcon="pi pi-minus"
                     styleClass="w-full block"
                     inputStyleClass="w-full min-w-0 tabular-nums"
-                    name="poFormItemQty"
                     [disabled]="saving()"
                   />
                 </div>
                 <div class="min-w-0 flex flex-col gap-2">
                   <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Unit price</label>
                   <p-inputNumber
-                    [ngModel]="itemUnitPrice()"
-                    (ngModelChange)="itemUnitPrice.set($event)"
+                    formControlName="unitPrice"
                     [min]="0.01"
                     mode="decimal"
                     [minFractionDigits]="2"
                     [maxFractionDigits]="2"
                     styleClass="w-full block"
                     inputStyleClass="w-full min-w-0 tabular-nums"
-                    name="poFormItemPrice"
                     [disabled]="saving()"
                   />
                 </div>
@@ -81,7 +84,7 @@
                     label="Add item"
                     icon="pi pi-plus"
                     styleClass="w-full sm:w-auto"
-                    (onClick)="addItem.emit()"
+                    (onClick)="addItem()"
                     type="button"
                     [disabled]="saving()"
                   />
@@ -102,32 +105,28 @@
                 <th class="text-right">Action</th>
               </tr>
             </ng-template>
-            <ng-template pTemplate="body" let-item let-index="rowIndex">
-              <tr>
-                <td>{{ item.productName }}</td>
+            <ng-template pTemplate="body" let-index="rowIndex">
+              <tr [formGroup]="lineGroup(index)">
+                <td>{{ lineGroup(index).controls.productName.value }}</td>
                 <td class="text-center">
                   <p-inputNumber
-                    [(ngModel)]="item.quantity"
-                    (onInput)="calculateTotal.emit()"
+                    formControlName="quantity"
                     [min]="1"
-                    [name]="'poFormQty_' + index"
                     [disabled]="saving()"
                   />
                 </td>
                 <td class="text-right">
                   <p-inputNumber
-                    [(ngModel)]="item.unitPrice"
-                    (onInput)="calculateTotal.emit()"
+                    formControlName="unitPrice"
                     [min]="0.01"
                     mode="decimal"
                     [minFractionDigits]="2"
                     [maxFractionDigits]="2"
-                    [name]="'poFormPrice_' + index"
                     [disabled]="saving()"
                   />
                 </td>
                 <td class="text-right tabular-nums">
-                  EGP {{ item.unitPrice * item.quantity | number:'1.2-2' }}
+                  EGP {{ lineTotal(lineGroup(index)) | number:'1.2-2' }}
                 </td>
                 <td class="text-right">
                   <p-button
@@ -135,7 +134,7 @@
                     [text]="true"
                     [rounded]="true"
                     severity="danger"
-                    (onClick)="removeItem.emit(index)"
+                    (onClick)="removeItem(index)"
                     type="button"
                     [disabled]="saving()"
                   />
@@ -148,7 +147,7 @@
             <ng-template pTemplate="footer">
               <tr>
                 <td colspan="3" class="text-right">
-                  Subtotal <span class="text-xs text-muted-foreground">({{ totalItemsCount }} items)</span>
+                  Subtotal <span class="text-xs text-muted-foreground">({{ totalItemsCount() }} items)</span>
                 </td>
                 <td colspan="2" class="text-right font-bold tabular-nums">
                   EGP {{ subTotal() | number:'1.2-2' }}
@@ -191,15 +190,15 @@
                 </tr>
               </thead>
               <tbody>
-                @for (item of draftItems(); track $index) {
+                @for (lineItem of draftItems(); track $index) {
                   <tr class="border-t border-border/60">
-                    <td class="px-3 py-2.5">{{ item.productName }}</td>
-                    <td class="px-3 py-2.5 text-center tabular-nums">{{ item.quantity }}</td>
+                    <td class="px-3 py-2.5">{{ lineItem.productName }}</td>
+                    <td class="px-3 py-2.5 text-center tabular-nums">{{ lineItem.quantity }}</td>
                     <td class="px-3 py-2.5 text-right tabular-nums">
-                      EGP {{ item.unitPrice | number:'1.2-2' }}
+                      EGP {{ lineItem.unitPrice | number:'1.2-2' }}
                     </td>
                     <td class="px-3 py-2.5 text-right tabular-nums font-medium">
-EGP {{ item.unitPrice * item.quantity | number:'1.2-2' }}
+                      EGP {{ lineItem.unitPrice * lineItem.quantity | number:'1.2-2' }}
                     </td>
                   </tr>
                 }
@@ -210,10 +209,10 @@ EGP {{ item.unitPrice * item.quantity | number:'1.2-2' }}
                     colspan="3"
                     class="px-3 py-3 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground"
                   >
-                    Total ({{ totalItemsCount }} items)
+                    Total ({{ totalItemsCount() }} items)
                   </td>
                   <td class="px-3 py-3 text-right font-bold tabular-nums">
-                    EGP {{ reviewTotalAmount() | number:'1.2-2' }}
+                    EGP {{ subTotal() | number:'1.2-2' }}
                   </td>
                 </tr>
               </tfoot>

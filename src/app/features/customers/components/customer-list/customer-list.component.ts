@@ -3,15 +3,17 @@ import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
-import type { PaginatorState } from 'primeng/paginator';
 import { PaginatorModule } from 'primeng/paginator';
-import type { TablePageEvent } from 'primeng/table';
 
-import { CustomerListSkeletonComponent } from '../customer-list-skeleton/customer-list-skeleton.component';
+import {
+  ListSkeletonComponent,
+  type ListSkeletonColumn,
+  DEFAULT_LIST_SKELETON_COLUMNS
+} from '../../../../shared/ui/list-skeleton/list-skeleton.component';
 import type { Customer } from '../../models/customer.entity';
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
-import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
+import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
 
 @Component({
   selector: 'app-customer-list',
@@ -22,7 +24,7 @@ import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination'
     ButtonModule,
     TooltipModule,
     PaginatorModule,
-    CustomerListSkeletonComponent,
+    ListSkeletonComponent,
     EmptyStateComponent,
     SurfaceCardComponent
   ],
@@ -36,7 +38,9 @@ export class CustomerListComponent {
   isListLoading = input.required<boolean>();
   pageSizeOptions = input<number[]>(DEFAULT_PAGE_SIZE_OPTIONS);
 
+  readonly skeletonColumns: ListSkeletonColumn[] = [{ width: '60%' }, { width: '40%' }, { width: '', actions: 2 }];
+
   viewCustomer = output<Customer>();
-  pageChange = output<PaginatorState | TablePageEvent>();
+  pageChange = output<PaginatorPageEvent>();
   clearFilters = output<void>();
 }

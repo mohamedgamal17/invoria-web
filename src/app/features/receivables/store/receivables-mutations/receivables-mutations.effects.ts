@@ -4,7 +4,7 @@ import { MessageService } from 'primeng/api';
 import { catchError, exhaustMap, mergeMap, of, tap } from 'rxjs';
 
 import { APP_ERROR_ACTIONS } from '../../../../shared/store/app-error.actions';
-import { RECEIVABLE_CURRENCY_CODE } from '../../models/receivable-currency';
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 import { ReceivablesApiService } from '../../services/receivables-api.service';
 import { RECEIVABLES_LIST_ACTIONS } from '../receivables-list/receivables-list.actions';
 import { RECEIVABLES_MUTATIONS_ACTIONS } from './receivables-mutations.actions';
@@ -62,7 +62,7 @@ export class ReceivablesMutationsEffects {
           this.messageService.add({
             severity: 'success',
             summary: 'Success',
-            detail: `Settlement of ${RECEIVABLE_CURRENCY_CODE} ${amount.toFixed(2)} recorded.`,
+            detail: `Settlement of ${DEFAULT_CURRENCY_CODE} ${amount.toFixed(2)} recorded.`,
           });
         }),
       ),

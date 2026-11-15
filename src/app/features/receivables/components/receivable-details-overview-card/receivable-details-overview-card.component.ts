@@ -13,7 +13,7 @@ import {
   type FinancialObligationStatus,
   financialObligationStatusLabel,
   financialObligationStatusSeverity
-} from '../../models/receivable-status.enum';
+} from '../../../../shared/models/financial-obligation-status';
 
 @Component({
   selector: 'app-receivable-details-overview-card',

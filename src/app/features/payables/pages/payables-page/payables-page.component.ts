@@ -5,11 +5,9 @@ import { catchError, map, of } from 'rxjs';
 
 import { Store } from '@ngrx/store';
 import { ToastModule } from 'primeng/toast';
-import type { PaginatorState } from 'primeng/paginator';
-import type { TablePageEvent } from 'primeng/table';
 
 import { PaginationService } from '../../../../shared/utils/pagination.service';
-import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
+import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
 import { SuppliersApiService } from '../../../suppliers/services/suppliers-api.service';
 import { payablesListSelectors } from '../../store/payables-list/payables-list.selectors';
 import type { Payable } from '../../models/payable.entity';
@@ -80,7 +78,7 @@ export class PayablesPageComponent {
     void this.router.navigate([payable.id], { relativeTo: this.route });
   }
 
-  onPageChange(event: PaginatorState | TablePageEvent): void {
+  onPageChange(event: PaginatorPageEvent): void {
     const { pageIndex, pageSize } = this.pagination.pageIndexFromEvent(
       event,
       untracked(this.pageSize),

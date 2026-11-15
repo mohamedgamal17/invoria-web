@@ -11,6 +11,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 
 import { SEARCH_DEBOUNCE_MS } from '../../../../shared/models/debounce';
+import { numericEnumValues } from '../../../../shared/utils/numeric-enum-values';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
 import { getOrderStatusLabel } from '../../models/order-actions';
 import { OrderStatus } from '../../models/order.entity';
@@ -29,10 +30,6 @@ export type OrdersListFilters = {
 };
 
 type FilterOption = { label: string; value: number | null };
-
-function numericEnumValues<T extends Record<string, string | number>>(enumMap: T): number[] {
-  return Object.values(enumMap).filter((value): value is number => typeof value === 'number');
-}
 
 @Component({
   selector: 'app-orders-filter-panel',

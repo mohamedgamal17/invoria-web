@@ -4,7 +4,8 @@ import { Component, input } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 
-import type { UiOrder, UiOrderItem } from '../../models/order-ui.model';
+import type { OrderItem } from '../../models/order.entity';
+import type { UiOrder } from '../../models/order-ui.model';
 
 @Component({
   selector: 'app-order-details-line-items-tab',
@@ -16,7 +17,7 @@ export class OrderDetailsLineItemsTabComponent {
   readonly order = input.required<UiOrder>();
   readonly currencyCode = input<string>('EGP');
 
-  lineTotal(item: UiOrderItem): number {
+  lineTotal(item: OrderItem): number {
     return item.price * item.quantity;
   }
 

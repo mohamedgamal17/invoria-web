@@ -1,6 +1,6 @@
 import { OrderStatus } from './order.entity';
+import type { OrderItem, OrderReturnItem } from './order.entity';
 import type { AddReturnItemsRequest } from './add-return-items.request';
-import type { UiOrderItem, UiReturnItem } from './order-ui.model';
 
 type OrderLike = { status: OrderStatus };
 
@@ -18,10 +18,10 @@ export type ReturnDraftLine = {
   maxQuantity: number;
 };
 
-export function mapReturnItemsToDraft(returnItems: UiReturnItem[]): ReturnDraftLine[] {
+export function mapReturnItemsToDraft(returnItems: OrderReturnItem[]): ReturnDraftLine[] {
   return returnItems.map((row) => ({
     orderItemId: row.orderItemId,
-    productName: row.productName,
+    productName: row.product?.name?.trim() || row.productId,
     quantity: row.quantity,
     maxQuantity: row.orderedQuantity
   }));
@@ -31,11 +31,11 @@ export function canReturnOrderItems(order: OrderLike): boolean {
   return order.status === OrderStatus.Completed;
 }
 
-function resolveLineProductName(item: UiOrderItem): string {
-  return item.productName?.trim() || item.productId;
+export function resolveLineProductName(item: OrderItem): string {
+  return item.product.name.trim() || item.productId;
 }
 
-export function orderLineSelectOptions(items: UiOrderItem[]): ReturnOrderLineOption[] {
+export function orderLineSelectOptions(items: OrderItem[]): ReturnOrderLineOption[] {
   const nameCounts = new Map<string, number>();
   for (const item of items) {
     const name = resolveLineProductName(item);
@@ -109,33 +109,30 @@ export function isReturnDraftValid(draft: ReturnDraftLine[]): boolean {
 
 export function mapReturnItemsRequestToUi(
   request: AddReturnItemsRequest,
-  orderItems: UiOrderItem[]
-): UiReturnItem[] {
+  orderItems: OrderItem[]
+): OrderReturnItem[] {
   const byLineId = new Map(orderItems.map((item) => [item.id, item]));
 
   return (request.Items ?? []).map((line) => {
     const orderLine = byLineId.get(line.OrderItemId);
     const unitPrice = orderLine?.price ?? 0;
     const orderedQuantity = orderLine?.quantity ?? 0;
-    const productName = orderLine
-      ? resolveLineProductName(orderLine)
-      : `Line ${line.OrderItemId}`;
 
     return {
       orderItemId: line.OrderItemId,
-      productName,
       productId: orderLine?.productId ?? '',
       quantity: line.Quantity,
       orderedQuantity,
       unitPrice,
-      lineReturnTotal: unitPrice * line.Quantity
+      lineReturnTotal: unitPrice * line.Quantity,
+      product: orderLine?.product ?? null
     };
   });
 }
 
 export function addAllOrderLinesToReturnDraft(
   draft: ReturnDraftLine[],
-  items: UiOrderItem[]
+  items: OrderItem[]
 ): ReturnDraftLine[] {
   let next = draft;
   for (const item of items) {

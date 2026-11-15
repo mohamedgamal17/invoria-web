@@ -1,7 +1,7 @@
 <!-- Mobile View (Cards) -->
 <div class="block md:hidden space-y-4">
   @if (isListLoading()) {
-    <app-payable-list-skeleton variant="mobile" [count]="pageSize()" />
+    <app-list-skeleton variant="mobile" [count]="pageSize()" [columns]="skeletonColumns" />
   } @else if (payables().length > 0) {
     @for (payable of payables(); track payable.id) {
       <div class="rounded-xl border border-border bg-surface p-4 shadow-sm hover:border-primary/30 transition-all active:scale-[0.98]">
@@ -162,7 +162,7 @@
     </ng-template>
 
     <ng-template pTemplate="loadingbody">
-      <app-payable-list-skeleton variant="table" [count]="pageSize()" />
+      <app-list-skeleton variant="table" [count]="pageSize()" [columns]="skeletonColumns" />
     </ng-template>
 
     <ng-template pTemplate="emptymessage">

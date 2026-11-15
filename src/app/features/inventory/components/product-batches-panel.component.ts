@@ -8,7 +8,7 @@ import type { SaveBatchEvent } from '../models/save-batch.event';
 import type { LoadStatus } from '../../../shared/models/load-status';
 import { BatchListComponent } from './batch-list.component';
 import { BatchFormComponent } from './batch-form.component';
-import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../shared/models/pagination';
+import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../shared/models/pagination';
 
 /**
  * Presentational batches panel: dialog + list. All batches state (fetch,
@@ -56,7 +56,7 @@ export class ProductBatchesPanelComponent {
   pageSizeOptions = input<number[]>(DEFAULT_PAGE_SIZE_OPTIONS);
 
   /** Bubble table/paginator events so the host can dispatch store page-change actions. */
-  pageChange = output<{ first?: number; rows?: number }>();
+  pageChange = output<PaginatorPageEvent>();
 
   /** Opened the edit dialog for an existing batch. */
   edit = output<Batch>();
@@ -75,7 +75,7 @@ export class ProductBatchesPanelComponent {
     });
   }
 
-  emitPageChange(event: { first?: number; rows?: number }): void {
+  emitPageChange(event: PaginatorPageEvent): void {
     this.pageChange.emit(event);
   }
 

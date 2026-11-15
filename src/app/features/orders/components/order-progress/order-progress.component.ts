@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { StatusStepsComponent } from '../../../../shared/ui/status-steps/status-steps.component';
 import { OrderStatus } from '../../models/order.entity';
 import { getOrderStatusUserLabel } from '../../models/order-actions';
 
@@ -13,21 +13,21 @@ type Step = {
 @Component({
   selector: 'app-order-progress',
   standalone: true,
-  imports: [CommonModule],
+  imports: [StatusStepsComponent],
   templateUrl: './order-progress.component.html',
-  styles: [
-    `
-      :host {
-        display: block;
-      }
-    `,
-  ],
+  host: {
+    class: 'block',
+  },
 })
 export class OrderProgressComponent {
   readonly status = input.required<OrderStatus>();
   readonly orderAllocated = input(false);
   readonly showLabel = input(true);
   readonly statusUserLabel = computed(() => getOrderStatusUserLabel(this.status()));
+
+  readonly isAllocating = computed(
+    () => this.status() === OrderStatus.Processing && !this.orderAllocated(),
+  );
 
   readonly steps = computed(() => {
     const status = this.status();

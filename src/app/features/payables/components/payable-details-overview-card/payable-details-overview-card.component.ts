@@ -13,7 +13,7 @@ import {
   type FinancialObligationStatus,
   financialObligationStatusLabel,
   financialObligationStatusSeverity
-} from '../../models/payable-status.enum';
+} from '../../../../shared/models/financial-obligation-status';
 
 @Component({
   selector: 'app-payable-details-overview-card',

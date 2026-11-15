@@ -5,12 +5,10 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { PaginatorModule } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
-import type { PaginatorState } from 'primeng/paginator';
-import type { TablePageEvent } from 'primeng/table';
 
 import type { PurchaseOrder } from '../../models/purchase-order.entity';
 import { purchaseStateLabel, purchaseStateSeverity } from '../../models/purchase-state.display';
-import { DEFAULT_PAGE_SIZE_OPTIONS } from '../../../../shared/models/pagination';
+import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
 
 @Component({
   selector: 'app-purchase-order-list',
@@ -37,7 +35,7 @@ export class PurchaseOrderListComponent {
 
   readonly tableColspan = computed(() => (this.showSupplierColumn() ? 6 : 5));
 
-  pageChange = output<PaginatorState | TablePageEvent>();
+  pageChange = output<PaginatorPageEvent>();
   view = output<PurchaseOrder>();
 
   readonly stateLabel = purchaseStateLabel;

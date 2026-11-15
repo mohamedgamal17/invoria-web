@@ -34,10 +34,16 @@ import {
 } from '../../models/purchase-order-ui.mapper';
 import type { UiPurchaseOrderItem } from '../../models/purchase-order-ui.model';
 import { PurchaseOrdersApiService } from '../../services/purchase-orders-api.service';
-import { PurchaseOrderFormComponent } from '../../components/purchase-order-form/purchase-order-form.component';
+import {
+  PurchaseOrderFormComponent,
+  type PurchaseOrderFormSubmitEvent
+} from '../../components/purchase-order-form/purchase-order-form.component';
 import type { Product } from '../../../products/models/product.entity';
 import { productSearchListRequest } from '../../../products/models/list-product.request';
 import { ProductsApiService } from '../../../products/services/products-api.service';
+import type { SupplierChoice } from '../../../suppliers/models/supplier.entity';
+import { supplierSearchListRequest } from '../../../suppliers/models/list-supplier.request';
+import { SuppliersApiService } from '../../../suppliers/services/suppliers-api.service';
 
 @Component({
   selector: 'app-purchase-order-form-page',
@@ -50,12 +56,15 @@ export class PurchaseOrderFormPageComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly api = inject(PurchaseOrdersApiService);
   private readonly productsApi = inject(ProductsApiService);
+  private readonly suppliersApi = inject(SuppliersApiService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
   private readonly productQuery$ = new Subject<string>();
   private readonly productSearchCache = new Map<string, Product[]>();
+  private readonly supplierQuery$ = new Subject<string>();
+  private readonly supplierSearchCache = new Map<string, SupplierChoice[]>();
 
   readonly mode = computed<'create' | 'edit'>(() =>
     this.route.snapshot.data['mode'] === 'edit' ? 'edit' : 'create'
@@ -66,15 +75,12 @@ export class PurchaseOrderFormPageComponent {
   readonly loading = signal(false);
   readonly saving = signal(false);
   readonly purchaseNumber = signal('');
-  readonly subTotal = signal(0);
   readonly supplierDisplayRef = signal<PurchaseOrderSupplierRef | null>(null);
 
-  readonly supplierId = signal('');
-  readonly draftItems = signal<UiPurchaseOrderItem[]>([]);
+  /** Form seed for edit mode; the form owns the line items afterwards. */
+  readonly initialItems = signal<UiPurchaseOrderItem[]>([]);
   readonly products = signal<Product[]>([]);
-  readonly selectedProduct = signal<Product | null>(null);
-  readonly itemQuantity = signal(1);
-  readonly itemUnitPrice = signal(0);
+  readonly suppliers = signal<SupplierChoice[]>([]);
   readonly isProductLoading = signal(false);
 
   constructor() {
@@ -97,6 +103,23 @@ export class PurchaseOrderFormPageComponent {
       )
       .subscribe((products) => this.products.set(products));
 
+    this.supplierQuery$
+      .pipe(
+        debounceTime(SEARCH_DEBOUNCE_MS),
+        switchMap((query) => {
+          const cached = this.supplierSearchCache.get(query);
+          if (cached !== undefined) {
+            return of(cached);
+          }
+          return this.suppliersApi.searchSuppliers(supplierSearchListRequest, query).pipe(
+            tap((rows) => this.supplierSearchCache.set(query, rows)),
+            catchError(() => of([] as SupplierChoice[]))
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((suppliers) => this.suppliers.set(suppliers));
+
     if (this.mode() === 'edit' && this.purchaseOrderId()) {
       this.loadPurchaseOrder(this.purchaseOrderId() as string);
     }
@@ -110,12 +133,12 @@ export class PurchaseOrderFormPageComponent {
     void this.router.navigate(['/procurement']);
   }
 
-  submit(): void {
+  submit(event: PurchaseOrderFormSubmitEvent): void {
     if (this.saving()) {
       return;
     }
 
-    const supplierId = this.supplierId().trim();
+    const supplierId = event.supplierId.trim();
     if (!supplierId) {
       this.messageService.add({
         severity: 'warn',
@@ -125,24 +148,10 @@ export class PurchaseOrderFormPageComponent {
       return;
     }
 
-    const itemsError = this.validateDraftItems();
-    if (itemsError) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Validation',
-        detail: itemsError
-      });
-      return;
-    }
-
-    let body: CreatePurchaseOrderRequest;
-    try {
-      body = this.buildRequestBody();
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : 'Invalid form.';
-      this.messageService.add({ severity: 'warn', summary: 'Validation', detail: msg });
-      return;
-    }
+    const body: CreatePurchaseOrderRequest = {
+      SupplierId: supplierId,
+      PurchaseOrderItems: draftItemsToPurchaseOrderLineItems(event.items)
+    };
 
     this.saving.set(true);
     const mode = this.mode();
@@ -220,99 +229,14 @@ export class PurchaseOrderFormPageComponent {
     this.productQuery$.next(query);
   }
 
-  onProductSelect(event: unknown): void {
-    const product =
-      event && typeof event === 'object' && 'value' in event
-        ? (event as { value?: Product }).value
-        : (event as Product);
-    if (!product?.id) {
+  searchSuppliers(event: { query: string }): void {
+    const query = (event.query ?? '').trim();
+    const cached = this.supplierSearchCache.get(query);
+    if (cached !== undefined) {
+      this.suppliers.set([...cached]);
       return;
     }
-    this.selectedProduct.set(product);
-    this.itemQuantity.set(1);
-    this.itemUnitPrice.set(product.price > 0 ? product.price : 0.01);
-  }
-
-  clearProductSelection(): void {
-    this.selectedProduct.set(null);
-    this.itemQuantity.set(1);
-    this.itemUnitPrice.set(0);
-  }
-
-  addItem(): void {
-    const product = this.selectedProduct();
-    if (!product) {
-      return;
-    }
-
-    const quantity = this.itemQuantity() > 0 ? this.itemQuantity() : 1;
-    const unitPrice = this.itemUnitPrice();
-    if (unitPrice <= 0) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Validation',
-        detail: 'Unit price must be greater than zero.'
-      });
-      return;
-    }
-
-    this.draftItems.update((items) => {
-      const existingIndex = items.findIndex((item) => item.productId === product.id);
-      if (existingIndex > -1) {
-        const next = [...items];
-        next[existingIndex] = {
-          ...next[existingIndex],
-          quantity: next[existingIndex].quantity + quantity
-        };
-        return next;
-      }
-      return [
-        ...items,
-        {
-          productId: product.id,
-          productName: product.name,
-          quantity,
-          unitPrice
-        }
-      ];
-    });
-
-    this.selectedProduct.set(null);
-    this.itemQuantity.set(1);
-    this.itemUnitPrice.set(0);
-    this.calculateSubTotal();
-  }
-
-  removeItem(index: number): void {
-    this.draftItems.update((items) => items.filter((_, itemIndex) => itemIndex !== index));
-    this.calculateSubTotal();
-  }
-
-  calculateSubTotal(): void {
-    const total = this.draftItems().reduce((acc, item) => acc + item.unitPrice * item.quantity, 0);
-    this.subTotal.set(total);
-  }
-
-  private validateDraftItems(): string | null {
-    if (!this.draftItems().length) {
-      return 'Add at least one line item.';
-    }
-    for (const item of this.draftItems()) {
-      if (item.quantity <= 0) {
-        return 'Quantity must be greater than zero.';
-      }
-      if (item.unitPrice <= 0) {
-        return 'Unit price must be greater than zero.';
-      }
-    }
-    return null;
-  }
-
-  private buildRequestBody(): CreatePurchaseOrderRequest {
-    return {
-      SupplierId: this.supplierId().trim(),
-      PurchaseOrderItems: draftItemsToPurchaseOrderLineItems(this.draftItems())
-    };
+    this.supplierQuery$.next(query);
   }
 
   private loadPurchaseOrder(id: string): void {
@@ -351,11 +275,9 @@ export class PurchaseOrderFormPageComponent {
   private patchFromPurchaseOrder(po: PurchaseOrder): void {
     const lines = po.purchaseOrderItems?.length ? po.purchaseOrderItems : [];
     const uiItems = lines.map(purchaseOrderItemToUiItem);
-    this.draftItems.set(uiItems);
-    this.calculateSubTotal();
+    this.initialItems.set(uiItems);
 
     this.purchaseNumber.set(po.purchaseNumber);
-    this.supplierId.set(po.supplierId);
     this.supplierDisplayRef.set(
       po.supplier && po.supplier.id === po.supplierId ? po.supplier : null
     );
@@ -367,8 +289,10 @@ export class PurchaseOrderFormPageComponent {
     lines: PurchaseOrderItem[],
     uiItems: UiPurchaseOrderItem[]
   ): void {
-      const needsName = lines.filter((line) => !line.productName?.trim()).map((line) => line.productId);
-    const uniqueIds = [...new Set(needsName.filter(Boolean))];
+    const missingNames = lines
+      .filter((line) => !line.productName?.trim())
+      .map((line) => line.productId);
+    const uniqueIds = [...new Set(missingNames.filter(Boolean))];
     if (uniqueIds.length === 0) {
       return;
     }
@@ -388,7 +312,7 @@ export class PurchaseOrderFormPageComponent {
       .pipe(take(1))
       .subscribe((rows) => {
         const nameById = new Map(rows.map((row) => [row.productId, row.name]));
-        this.draftItems.set(
+        this.initialItems.set(
           uiItems.map((item) => {
             const resolved = nameById.get(item.productId);
             if (!resolved || resolved === item.productId) {

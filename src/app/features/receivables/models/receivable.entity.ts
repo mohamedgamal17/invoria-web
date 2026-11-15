@@ -1,5 +1,5 @@
 import type { Entity } from '../../../core/models/entity';
-import type { FinancialObligationStatus } from './receivable-status.enum';
+import type { FinancialObligationStatus } from '../../../shared/models/financial-obligation-status';
 import type { OrderStatus } from '../../orders/models/order.entity';
 import type { PaymentType } from '../../orders/models/order-payment.enums';
 

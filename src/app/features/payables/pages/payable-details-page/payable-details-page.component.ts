@@ -13,13 +13,13 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
 import { LOAD_STATUS } from '../../../../shared/models/load-status';
 import { UrlStateService } from '../../../../shared/utils/url-state.service';
-import { PAYABLE_CURRENCY_CODE } from '../../models/payable-currency';
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 import type { Payable } from '../../models/payable.entity';
 import { toPayableDetailsTab } from '../../utils/payable-details-tab';
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
 import { PayableDetailsOverviewCardComponent } from '../../components/payable-details-overview-card/payable-details-overview-card.component';
 import { PayableSettlementsTabComponent } from '../../components/payable-settlements-tab/payable-settlements-tab.component';
-import { PayableSettleModalComponent } from '../../components/payable-settle-modal/payable-settle-modal.component';
+import { SettleModalComponent } from '../../../../shared/ui/settle-modal/settle-modal.component';
 import { PAYABLES_MUTATIONS_ACTIONS } from '../../store/payables-mutations/payables-mutations.actions';
 import { payablesMutationsFeature } from '../../store/payables-mutations/payables-mutations.reducer';
 import { PAYABLE_DETAILS_ACTIONS } from '../../store/payable-details/payable-details.actions';
@@ -54,13 +54,13 @@ import { payableDetailsSelectors } from '../../store/payable-details/payable-det
     PageHeaderComponent,
     PayableDetailsOverviewCardComponent,
     PayableSettlementsTabComponent,
-    PayableSettleModalComponent
+    SettleModalComponent
   ],
   templateUrl: './payable-details-page.component.html'
 })
 export class PayableDetailsPageComponent {
   readonly tabs = PayableDetailsTab;
-  readonly currencyCode = PAYABLE_CURRENCY_CODE;
+  readonly currencyCode = DEFAULT_CURRENCY_CODE;
 
   private readonly store = inject(Store);
   private readonly urlState = inject(UrlStateService);

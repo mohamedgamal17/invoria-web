@@ -1,7 +1,7 @@
 <!-- Mobile View (Cards) -->
 <div class="block md:hidden space-y-4">
   @if (isListLoading()) {
-    <app-customer-list-skeleton variant="mobile" [count]="pageSize()" />
+    <app-list-skeleton variant="mobile" [count]="pageSize()" [columns]="skeletonColumns" />
   } @else if (customers().length > 0) {
     @for (customer of customers(); track customer.id) {
       <div class="rounded-xl border border-border bg-surface p-4 shadow-sm hover:border-primary/30 transition-all active:scale-[0.98]">
@@ -110,7 +110,7 @@
     </ng-template>
 
     <ng-template pTemplate="loadingbody">
-      <app-customer-list-skeleton variant="table" [count]="pageSize()" />
+      <app-list-skeleton variant="table" [count]="pageSize()" [columns]="skeletonColumns" />
     </ng-template>
 
     <ng-template pTemplate="emptymessage">

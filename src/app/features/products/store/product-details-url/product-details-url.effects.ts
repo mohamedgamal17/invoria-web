@@ -12,6 +12,7 @@ import { PRODUCT_DETAILS_ACTIONS } from '../product-details/product-details.acti
 import { productDetailsSelectors } from '../product-details/product-details.selectors';
 import { ProductDetailsTab } from '../product-details/product-details.reducer';
 import { PRODUCT_BATCHES_ACTIONS } from '../product-details-batches/product-details-batches.actions';
+import { PRODUCT_ORDERS_ACTIONS } from '../product-details-orders/product-details-orders.actions';
 
 const { selectQueryParams, selectRouteParams } = getRouterSelectors();
 
@@ -84,6 +85,9 @@ export class ProductDetailsUrlEffects {
       actions.push(PRODUCT_DETAILS_ACTIONS.setActiveTab({ activeTab: tab }));
       if (tab === ProductDetailsTab.Batches) {
         actions.push(PRODUCT_BATCHES_ACTIONS.batchesTabOpened());
+      }
+      if (tab === ProductDetailsTab.Orders) {
+        actions.push(PRODUCT_ORDERS_ACTIONS.ordersTabOpened());
       }
     }
     return actions;

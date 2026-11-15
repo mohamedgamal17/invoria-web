@@ -1,5 +1,5 @@
 import type { Entity } from '../../../core/models/entity';
-import type { FinancialObligationStatus } from './payable-status.enum';
+import type { FinancialObligationStatus } from '../../../shared/models/financial-obligation-status';
 
 /**
  * Minimal read-only reference for the optional inline `Party`

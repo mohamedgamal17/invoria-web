@@ -92,7 +92,7 @@
 
   <!-- Charts — full-width, per-card period selector like order-sales-report -->
   <section class="flex flex-col gap-8">
-    <app-report-chart
+    <app-chart-card
       class="block w-full"
       title="Revenue · Cost · Profit"
       subtitle="Sales-profit metrics — area trend · Last 14 periods"
@@ -104,7 +104,7 @@
       [periodOptions]="periodOptions"
       (periodChange)="onPeriodChange($event)"
     />
-    <app-report-chart
+    <app-chart-card
       class="block w-full"
       title="Order sales"
       subtitle="Gross vs returns — bar comparison · Last 14 periods"

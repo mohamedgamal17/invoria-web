@@ -22,6 +22,7 @@ describe('PurchaseOrderFormPageComponent', () => {
   let getPurchaseOrder: ReturnType<typeof vi.fn>;
   let searchProducts: ReturnType<typeof vi.fn>;
   let getProduct: ReturnType<typeof vi.fn>;
+  let searchSuppliers: ReturnType<typeof vi.fn>;
 
   async function setup(
     opts: { mode: 'create' | 'edit'; id?: string },
@@ -37,6 +38,7 @@ describe('PurchaseOrderFormPageComponent', () => {
     getPurchaseOrder = mocks?.getPurchaseOrder ?? vi.fn();
     searchProducts = vi.fn().mockReturnValue(of([]));
     getProduct = mocks?.getProduct ?? vi.fn();
+    searchSuppliers = vi.fn().mockReturnValue(of([]));
 
     const snapshot =
       opts.mode === 'edit' && opts.id
@@ -61,7 +63,7 @@ describe('PurchaseOrderFormPageComponent', () => {
             updatePurchaseOrder: vi.fn()
           }
         },
-        { provide: SuppliersApiService, useValue: { searchSuppliers: vi.fn().mockReturnValue(of([])) } },
+        { provide: SuppliersApiService, useValue: { searchSuppliers } },
         {
           provide: ProductsApiService,
           useValue: { searchProducts, getProduct }
@@ -116,18 +118,18 @@ describe('PurchaseOrderFormPageComponent', () => {
     expect(component.products()).toEqual([widget]);
   });
 
-  it('create mode should call createPurchaseOrder on submit', () => {
-    component.supplierId.set('sup_1');
-    component.draftItems.set([
-      {
-        productId: 'prod_1',
-        productName: 'Widget',
-        quantity: 1,
-        unitPrice: 10
-      }
-    ]);
-
-    component.submit();
+  it('create mode should call createPurchaseOrder with the validated form payload', () => {
+    component.submit({
+      supplierId: 'sup_1',
+      items: [
+        {
+          productId: 'prod_1',
+          productName: 'Widget',
+          quantity: 1,
+          unitPrice: 10
+        }
+      ]
+    });
 
     expect(createPurchaseOrder).toHaveBeenCalled();
     const body = createPurchaseOrder.mock.calls[0][0];
@@ -140,61 +142,61 @@ describe('PurchaseOrderFormPageComponent', () => {
     });
   });
 
-  it('create mode should not submit when unit price is zero', () => {
-    component.supplierId.set('sup_1');
-    component.draftItems.set([
-      {
-        productId: 'prod_1',
-        productName: 'Widget',
-        quantity: 1,
-        unitPrice: 0
-      }
-    ]);
-
-    component.submit();
-
-    expect(createPurchaseOrder).not.toHaveBeenCalled();
-  });
-
-  it('create mode should not submit when quantity is zero', () => {
-    component.supplierId.set('sup_1');
-    component.draftItems.set([
-      {
-        productId: 'prod_1',
-        productName: 'Widget',
-        quantity: 0,
-        unitPrice: 10
-      }
-    ]);
-
-    component.submit();
-
-    expect(createPurchaseOrder).not.toHaveBeenCalled();
-  });
-
-  it('addItem merges quantity when product already in draft', () => {
-    component.draftItems.set([
-      {
-        productId: 'prod_1',
-        productName: 'Widget',
-        quantity: 2,
-        unitPrice: 10
-      }
-    ]);
-    component.selectedProduct.set({
-      id: 'prod_1',
-      name: 'Widget',
-      price: 10,
-      stock: { actualQuantity: 0, reservedQuantity: 0 },
-      createdAt: ''
+  it('create mode should not call the API without a supplier id', () => {
+    component.submit({
+      supplierId: '  ',
+      items: [{ productId: 'prod_1', productName: 'Widget', quantity: 1, unitPrice: 10 }]
     });
-    component.itemQuantity.set(3);
-    component.itemUnitPrice.set(10);
 
-    component.addItem();
+    expect(createPurchaseOrder).not.toHaveBeenCalled();
+  });
 
-    expect(component.draftItems()).toHaveLength(1);
-    expect(component.draftItems()[0].quantity).toBe(5);
+  it('reuses cached suppliers when the same query is searched again', async () => {
+    vi.useFakeTimers();
+    const acme = { id: 'sup_1', name: 'Acme Supplies' };
+    searchSuppliers.mockImplementation((_: unknown, query: string) =>
+      of(query === 'ac' ? [acme] : [])
+    );
+
+    component.searchSuppliers({ query: 'ac' });
+    await vi.advanceTimersByTimeAsync(700);
+    expect(searchSuppliers).toHaveBeenCalledTimes(1);
+    expect(component.suppliers()).toEqual([acme]);
+
+    component.searchSuppliers({ query: 'ac' });
+    await vi.advanceTimersByTimeAsync(700);
+    expect(searchSuppliers).toHaveBeenCalledTimes(1);
+    expect(component.suppliers()).toEqual([acme]);
+  });
+
+  it('answers a repeated supplier query from the cache synchronously', () => {
+    vi.useFakeTimers();
+    const acme = { id: 'sup_1', name: 'Acme Supplies' };
+    searchSuppliers.mockReturnValue(of([acme]));
+
+    component.searchSuppliers({ query: '' });
+    expect(component.suppliers()).toEqual([]);
+
+    vi.advanceTimersByTime(700);
+    expect(searchSuppliers).toHaveBeenCalledTimes(1);
+    expect(component.suppliers()).toEqual([acme]);
+
+    component.searchSuppliers({ query: '' });
+    expect(component.suppliers()).toEqual([acme]);
+  });
+
+  it('trims the supplier query before searching', async () => {
+    vi.useFakeTimers();
+    const acme = { id: 'sup_1', name: 'Acme Supplies' };
+    searchSuppliers.mockImplementation((_: unknown, query: string) =>
+      of(query === 'ac' ? [acme] : [])
+    );
+
+    component.searchSuppliers({ query: '  ac  ' });
+    await vi.advanceTimersByTimeAsync(700);
+
+    expect(searchSuppliers).toHaveBeenCalledWith(expect.anything(), 'ac');
+    expect(component.suppliers()).toEqual([acme]);
   });
 
   it('edit mode should load product name from line DTO', async () => {
@@ -226,7 +228,7 @@ describe('PurchaseOrderFormPageComponent', () => {
       }
     );
 
-    expect(component.draftItems()[0].productName).toBe('Widget A');
+    expect(component.initialItems()[0].productName).toBe('Widget A');
     expect(getProduct).not.toHaveBeenCalled();
   });
 
@@ -273,6 +275,6 @@ describe('PurchaseOrderFormPageComponent', () => {
     fixture.detectChanges();
 
     expect(getProduct).toHaveBeenCalledWith('prod_1');
-    expect(component.draftItems()[0].productName).toBe('Catalog Widget');
+    expect(component.initialItems()[0].productName).toBe('Catalog Widget');
   });
 });

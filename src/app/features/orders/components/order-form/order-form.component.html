@@ -1,4 +1,4 @@
-<form (ngSubmit)="formSubmit($event)" class="space-y-6">
+<form [formGroup]="orderForm" (ngSubmit)="formSubmit($event)" class="space-y-6">
   @if (stepError()) {
     <p class="text-sm text-destructive rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2" role="alert">
       {{ stepError() }}
@@ -11,7 +11,7 @@
         <div class="flex flex-col gap-1.5 min-w-0">
           <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Customer</label>
           <app-autosearch
-            [(selected)]="selectedCustomer"
+            formControlName="customer"
             [suggestions]="customers()"
             [controlName]="'orderFormCustomer'"
             [placeholder]="'Search and select customer...'"
@@ -20,8 +20,6 @@
             [removeSeverity]="'danger'"
             [inputStyleClass]="'w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all text-sm'"
             (search)="searchCustomers.emit($event)"
-            (select)="customerSelect.emit($event)"
-            (clear)="clearCustomer.emit()"
           />
         </div>
 
@@ -32,12 +30,10 @@
           @if (mode() === 'create') {
             <p-select
               inputId="order-form-payment-type"
-              name="orderFormPaymentType"
+              formControlName="paymentType"
               [options]="paymentTypeOptions"
               optionLabel="label"
               optionValue="value"
-              [ngModel]="paymentType()"
-              (ngModelChange)="paymentType.set($event)"
               [disabled]="saving()"
               appendTo="body"
               styleClass="w-full rounded-lg border-border bg-surface-2 text-sm min-h-[2.5rem]"
@@ -48,7 +44,7 @@
               id="order-form-payment-type"
               aria-readonly="true"
             >
-              {{ paymentTypeLabel(paymentType()) }}
+              {{ paymentTypeLabel(orderForm.controls.paymentType.value) }}
             </div>
           }
         </div>
@@ -64,23 +60,22 @@
           <div class="flex flex-col gap-1.5">
             <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Search product</label>
             <app-autosearch
-              [(selected)]="selectedProduct"
+              formControlName="product"
               [suggestions]="products()"
               [controlName]="'orderFormProduct'"
               [placeholder]="'Start typing product name...'"
               (search)="searchProducts.emit($event)"
-              (select)="productSelect.emit($event)"
-              (clear)="clearProduct.emit()"
+              (select)="onProductSelect($event)"
+              (clear)="clearProductSelection()"
             />
           </div>
 
-          @if (selectedProduct()) {
+          @if (orderForm.controls.product.value) {
             <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end p-4 bg-surface rounded-lg border border-border">
               <div class="md:col-span-4 flex flex-col gap-2">
                 <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Quantity</label>
                 <p-inputNumber
-                  [ngModel]="itemQuantity()"
-                  (ngModelChange)="itemQuantity.set($event)"
+                  formControlName="quantity"
                   [min]="1"
                   [showButtons]="true"
                   buttonLayout="horizontal"
@@ -88,25 +83,18 @@
                   incrementButtonIcon="pi pi-plus"
                   decrementButtonIcon="pi pi-minus"
                   styleClass="w-full"
-                  name="orderFormItemQty"
                 />
               </div>
               <div class="md:col-span-4 flex flex-col gap-2">
                 <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Unit price</label>
-                <p-inputNumber
-                  [ngModel]="itemPrice()"
-                  (ngModelChange)="itemPrice.set($event)"
-                  [min]="0"
-                  styleClass="w-full"
-                  name="orderFormItemPrice"
-                />
+                <p-inputNumber formControlName="price" [min]="0" styleClass="w-full" />
               </div>
               <div class="md:col-span-4">
                 <p-button
                   label="Add item"
                   icon="pi pi-plus"
                   styleClass="w-full"
-                  (onClick)="addItem.emit()"
+                  (onClick)="addItem()"
                   type="button"
                 />
               </div>
@@ -115,7 +103,7 @@
         </div>
 
         <div class="overflow-x-auto -mx-1 px-1 max-w-full">
-          <p-table [value]="draftItems()" styleClass="p-datatable-sm min-w-[36rem] sm:min-w-0">
+          <p-table [value]="orderForm.controls.items.controls" styleClass="p-datatable-sm min-w-[36rem] sm:min-w-0">
             <ng-template pTemplate="header">
               <tr>
                 <th>Product</th>
@@ -125,33 +113,28 @@
                 <th class="text-right">Action</th>
               </tr>
             </ng-template>
-            <ng-template pTemplate="body" let-item let-index="rowIndex">
+            <ng-template pTemplate="body" let-lineItemGroup let-index="rowIndex">
               <tr>
-                <td>{{ item.productName }}</td>
+                <td>
+                  {{ lineItemGroup.controls.product.value.name || lineItemGroup.controls.productId.value }}
+                </td>
                 <td class="text-center">
-                  <p-inputNumber
-                    [(ngModel)]="item.quantity"
-                    (onInput)="calculateTotal.emit()"
-                    [min]="1"
-                    [name]="'orderFormQty_' + index"
-                  />
+                  <p-inputNumber [formControl]="lineItemGroup.controls.quantity" [min]="1" />
                 </td>
                 <td class="text-right">
-                  <p-inputNumber
-                    [(ngModel)]="item.price"
-                    (onInput)="calculateTotal.emit()"
-                    [min]="0"
-                    [name]="'orderFormPrice_' + index"
-                  />
+                  <p-inputNumber [formControl]="lineItemGroup.controls.price" [min]="0" />
                 </td>
-                <td class="text-right">EGP {{ item.price * item.quantity | number:'1.2-2' }}</td>
+                <td class="text-right">
+                  EGP
+                  {{ lineItemGroup.controls.price.value * lineItemGroup.controls.quantity.value | number:'1.2-2' }}
+                </td>
                 <td class="text-right">
                   <p-button
                     icon="pi pi-trash"
                     [text]="true"
                     [rounded]="true"
                     severity="danger"
-                    (onClick)="removeItem.emit(index)"
+                    (onClick)="removeItem(index)"
                     type="button"
                   />
                 </td>
@@ -163,7 +146,7 @@
             <ng-template pTemplate="footer">
               <tr>
                 <td colspan="3" class="text-right">
-                  Total <span class="text-xs text-muted-foreground">({{ totalItemsCount }} items)</span>
+                  Total <span class="text-xs text-muted-foreground">({{ totalItemsCount() }} items)</span>
                 </td>
                 <td colspan="2" class="text-right font-bold">EGP {{ totalAmount() | number:'1.2-2' }}</td>
               </tr>

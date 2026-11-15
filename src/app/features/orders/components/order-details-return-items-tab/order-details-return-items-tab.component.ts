@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, input, output } from '@angular/core';
 
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -17,12 +16,13 @@ import type { UiOrder } from '../../models/order-ui.model';
 export class OrderDetailsReturnItemsTabComponent {
   readonly order = input.required<UiOrder>();
   readonly currencyCode = input<string>('EGP');
-  private readonly router = inject(Router);
+
+  readonly viewReturn = output<string>();
 
   navigateToReturn(): void {
     const returnId = this.order().returnId;
     if (returnId) {
-      void this.router.navigate(['/returns', returnId]);
+      this.viewReturn.emit(returnId);
     }
   }
 }

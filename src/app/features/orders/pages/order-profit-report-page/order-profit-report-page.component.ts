@@ -8,8 +8,9 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { ButtonModule } from 'primeng/button';
 
 import { ChartCardComponent } from '../../../../shared/ui/chart-card/chart-card.component';
+import { formatCurrency, formatNumber } from '../../../../shared/utils/format';
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
-import { KpiCardComponent } from '../../../dashboard/components/kpi-card/kpi-card.component';
+import { KpiCardComponent } from '../../../../shared/ui/kpi-card/kpi-card.component';
 import { OrdersApiService } from '../../services/orders-api.service';
 import {
   REPORT_PERIOD_LABELS,
@@ -149,15 +150,9 @@ export class OrderProfitReportPageComponent implements OnInit {
     });
   }
 
-  formatCurrency(value: number | null): string {
-    if (value == null) return '—';
-    return new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
-  }
+  readonly formatCurrency = formatCurrency;
 
-  formatNumber(value: number | null): string {
-    if (value == null) return '—';
-    return new Intl.NumberFormat().format(value);
-  }
+  readonly formatNumber = formatNumber;
 
   private loadOverview(): void {
     this.isOverviewLoading.set(true);

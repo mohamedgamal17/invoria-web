@@ -13,14 +13,14 @@ import {
   clampReturnQuantity,
   hasDuplicateProductNamesInDraft,
   isReturnDraftValid,
+  mapReturnItemsToDraft,
   mergeReturnDraftLine,
   normalizeReturnDraftForSubmit,
   orderLineSelectOptions,
   type ReturnDraftLine,
   type ReturnOrderLineOption
 } from '../../models/order-return-items';
-import { mapReturnItemsToDraft } from '../../models/order-return-items';
-import type { UiOrderItem, UiReturnItem } from '../../models/order-ui.model';
+import type { OrderItem, OrderReturnItem } from '../../models/order.entity';
 
 @Component({
   selector: 'app-order-return-items-dialog',
@@ -39,8 +39,8 @@ import type { UiOrderItem, UiReturnItem } from '../../models/order-ui.model';
 })
 export class OrderReturnItemsDialogComponent {
   visible = model(false);
-  orderItems = input<UiOrderItem[]>([]);
-  existingReturnItems = input<UiReturnItem[]>([]);
+  orderItems = input<OrderItem[]>([]);
+  existingReturnItems = input<OrderReturnItem[]>([]);
   saving = input(false);
 
   submitRequest = output<AddReturnItemsRequest>();

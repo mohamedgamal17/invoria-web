@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 
 import { OrderStatus } from './order.entity';
+import type { OrderItem, OrderReturnItem } from './order.entity';
 import {
   addAllOrderLinesToReturnDraft,
   canReturnOrderItems,
@@ -13,14 +14,19 @@ import {
   orderLineSelectOptions,
   validateReturnDraftLine
 } from './order-return-items';
-import type { UiOrderItem, UiReturnItem } from './order-ui.model';
 
-const line = (id: string, productId: string, name: string, quantity: number): UiOrderItem => ({
+const line = (id: string, productId: string, name: string, quantity: number): OrderItem => ({
   id,
   productId,
-  productName: name,
   quantity,
-  price: 10
+  price: 10,
+  product: {
+    id: productId,
+    name,
+    price: 10,
+    stock: { actualQuantity: 0, reservedQuantity: 0 },
+    createdAt: ''
+  }
 });
 
 describe('order-return-items', () => {
@@ -100,15 +106,15 @@ describe('order-return-items', () => {
   });
 
   it('mapReturnItemsToDraft: maps recorded returns for dialog edit', () => {
-    const returns: UiReturnItem[] = [
+    const returns: OrderReturnItem[] = [
       {
         orderItemId: 'l1',
         productId: 'p1',
-        productName: 'Widget',
         quantity: 2,
         orderedQuantity: 3,
         unitPrice: 10,
-        lineReturnTotal: 20
+        lineReturnTotal: 20,
+        product: line('l1', 'p1', 'Widget', 3).product
       }
     ];
     const draft = mapReturnItemsToDraft(returns);
@@ -123,7 +129,7 @@ describe('order-return-items', () => {
       [line('l1', 'p1', 'Widget', 3)]
     );
     expect(rows).toHaveLength(1);
-    expect(rows[0].productName).toBe('Widget');
+    expect(rows[0].product?.name).toBe('Widget');
     expect(rows[0].quantity).toBe(2);
     expect(rows[0].orderedQuantity).toBe(3);
     expect(rows[0].unitPrice).toBe(10);

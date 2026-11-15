@@ -13,8 +13,12 @@ import { TagModule } from 'primeng/tag';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
 import { LOAD_STATUS } from '../../../../shared/models/load-status';
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 import { UrlStateService } from '../../../../shared/utils/url-state.service';
-import { ConfirmDialogService, type ConfirmDialogSeverity } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
+import {
+  ConfirmDialogService,
+  type ConfirmDialogSeverity,
+} from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 import type {
   PurchaseOrder,
   PurchaseOrderItem,
@@ -73,7 +77,7 @@ import {
 /** Detail view mirrors API totals: tax and discount are separate `PurchaseOrder` fields. */
 export class PurchaseOrderDetailsPageComponent {
   /** Display currency for monetary fields on this page (aligned with procurement UI). */
-  readonly currencyCode = 'EGP' as const;
+  readonly currencyCode = DEFAULT_CURRENCY_CODE;
 
   readonly tabs = PurchaseOrderDetailsTab;
 

@@ -81,8 +81,11 @@
                 </p>
               </div>
               <app-product-details-orders-panel
-                [productId]="p.id"
-                [active]="activeTab() === tabs.Orders"
+                [rows]="productOrderRows()"
+                [aggregate]="productOrdersAggregate()"
+                [loading]="productOrdersLoading()"
+                (viewOrder)="onViewProductOrder($event)"
+                (reload)="onReloadProductOrders()"
               />
             </p-card>
           </div>

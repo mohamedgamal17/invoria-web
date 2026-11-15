@@ -6,8 +6,9 @@ import { ToastModule } from 'primeng/toast';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ButtonModule } from 'primeng/button';
 
-import { KpiCardComponent } from '../../components/kpi-card/kpi-card.component';
-import { ReportChartComponent } from '../../components/report-chart/report-chart.component';
+import { KpiCardComponent } from '../../../../shared/ui/kpi-card/kpi-card.component';
+import { ChartCardComponent } from '../../../../shared/ui/chart-card/chart-card.component';
+import { formatCurrency, formatNumber } from '../../../../shared/utils/format';
 
 import { DASHBOARD_ACTIONS } from '../../store/dashboard/dashboard.actions';
 import { dashboardSelectors } from '../../store/dashboard/dashboard.selectors';
@@ -36,7 +37,7 @@ import {
   standalone: true,
   imports: [
     KpiCardComponent,
-    ReportChartComponent,
+    ChartCardComponent,
     ToastModule,
     SkeletonModule,
     ButtonModule
@@ -174,15 +175,9 @@ export class DashboardPageComponent implements OnInit {
     this.store.dispatch(DASHBOARD_ACTIONS.refresh());
   }
 
-  formatCurrency(value: number | null): string {
-    if (value == null) return '—';
-    return new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
-  }
+  readonly formatCurrency = formatCurrency;
 
-  formatNumber(value: number | null): string {
-    if (value == null) return '—';
-    return new Intl.NumberFormat().format(value);
-  }
+  readonly formatNumber = formatNumber;
 
   private formatDateLabel(iso: string): string {
     const date = new Date(iso);

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { LOAD_STATUS } from '../../../../shared/models/load-status';
-import { FinancialObligationStatus } from '../../models/receivable-status.enum';
+import { FinancialObligationStatus } from '../../../../shared/models/financial-obligation-status';
 import type { Receivable } from '../../models/receivable.entity';
 import { RECEIVABLES_MUTATIONS_ACTIONS } from '../receivables-mutations/receivables-mutations.actions';
 import { RECEIVABLE_DETAILS_ACTIONS } from './receivable-details.actions';

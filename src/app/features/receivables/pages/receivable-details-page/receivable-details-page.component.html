@@ -79,10 +79,10 @@
       </p-tabpanels>
     </p-tabs>
 
-    <app-receivable-settle-modal
+    <app-settle-modal
       [visible]="settleModalVisible()"
       (visibleChange)="onSettleModalVisibleChange($event)"
-      [receivable]="receivable"
+      [outstandingAmount]="receivable.outstandingAmount"
       [currencyCode]="currencyCode"
       [settling]="isSettling()"
       (settle)="onSettle($event)"

@@ -4,6 +4,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { PurchaseOrderFormComponent } from './purchase-order-form.component';
 import type { UiPurchaseOrderItem } from '../../models/purchase-order-ui.model';
+import type { Product } from '../../../products/models/product.entity';
 
 describe('PurchaseOrderFormComponent', () => {
   let fixture: ComponentFixture<PurchaseOrderFormComponent>;
@@ -15,6 +16,18 @@ describe('PurchaseOrderFormComponent', () => {
     quantity: 1,
     unitPrice: 10
   };
+
+  const widget: Product = {
+    id: 'prod_1',
+    name: 'Widget',
+    price: 10,
+    stock: { actualQuantity: 0, reservedQuantity: 0 },
+    createdAt: ''
+  };
+
+  function selectSupplier(): void {
+    component.purchaseOrderForm.controls.supplier.setValue({ id: 'sup_1', name: 'Acme' });
+  }
 
   beforeEach(async () => {
     vi.stubGlobal(
@@ -46,7 +59,7 @@ describe('PurchaseOrderFormComponent', () => {
   });
 
   it('goToDetailsNext with supplier sets activeStep to 2', () => {
-    component.supplierId.set('sup_1');
+    selectSupplier();
     const activateCallback = vi.fn();
 
     component.goToDetailsNext(activateCallback);
@@ -68,7 +81,8 @@ describe('PurchaseOrderFormComponent', () => {
   });
 
   it('goToItemsNext with valid items sets activeStep to 3', () => {
-    fixture.componentRef.setInput('draftItems', [validItem]);
+    fixture.componentRef.setInput('initialItems', [validItem]);
+    fixture.detectChanges();
     component.activeStep.set(2);
     const activateCallback = vi.fn();
 
@@ -88,14 +102,17 @@ describe('PurchaseOrderFormComponent', () => {
     expect(submitSpy).not.toHaveBeenCalled();
   });
 
-  it('formSubmit on step 3 emits submit', () => {
+  it('formSubmit on step 3 emits the validated payload', () => {
     const submitSpy = vi.fn();
     component.submit.subscribe(submitSpy);
+    selectSupplier();
+    fixture.componentRef.setInput('initialItems', [validItem]);
+    fixture.detectChanges();
     component.activeStep.set(3);
 
     component.formSubmit(new Event('submit'));
 
-    expect(submitSpy).toHaveBeenCalled();
+    expect(submitSpy).toHaveBeenCalledWith({ supplierId: 'sup_1', items: [validItem] });
   });
 
   it('onStepperValueChange to step 3 from step 1 without items does not advance', () => {
@@ -106,7 +123,7 @@ describe('PurchaseOrderFormComponent', () => {
   });
 
   it('onStepperValueChange to step 2 with valid details advances', () => {
-    component.supplierId.set('sup_1');
+    selectSupplier();
 
     component.onStepperValueChange(2);
 
@@ -124,6 +141,70 @@ describe('PurchaseOrderFormComponent', () => {
     expect(activateCallback).toHaveBeenCalledWith(2);
   });
 
+  describe('line items', () => {
+    beforeEach(() => {
+      component.purchaseOrderForm.controls.product.setValue(widget);
+    });
+
+    it('addItem appends the selected product with the entered quantity and price', () => {
+      component.purchaseOrderForm.controls.quantity.setValue(2);
+      component.purchaseOrderForm.controls.unitPrice.setValue(10);
+
+      component.addItem();
+
+      expect(component.draftItems()).toEqual([
+        { productId: 'prod_1', productName: 'Widget', quantity: 2, unitPrice: 10 }
+      ]);
+      expect(component.purchaseOrderForm.controls.product.value).toBeNull();
+    });
+
+    it('addItem merges quantity when the product is already in the draft', () => {
+      component.purchaseOrderForm.controls.quantity.setValue(2);
+      component.purchaseOrderForm.controls.unitPrice.setValue(10);
+      component.addItem();
+
+      component.purchaseOrderForm.controls.product.setValue(widget);
+      component.purchaseOrderForm.controls.quantity.setValue(3);
+      component.purchaseOrderForm.controls.unitPrice.setValue(10);
+      component.addItem();
+
+      expect(component.draftItems()).toHaveLength(1);
+      expect(component.draftItems()[0].quantity).toBe(5);
+    });
+
+    it('addItem rejects a zero unit price without mutating the draft', () => {
+      component.purchaseOrderForm.controls.unitPrice.setValue(0);
+
+      component.addItem();
+
+      expect(component.draftItems()).toEqual([]);
+      expect(component.stepError()).toContain('Unit price');
+    });
+
+    it('subTotal and totalItemsCount derive from the current line items', () => {
+      fixture.componentRef.setInput('initialItems', [
+        validItem,
+        { productId: 'prod_2', productName: 'Gadget', quantity: 2, unitPrice: 5 }
+      ]);
+      fixture.detectChanges();
+
+      expect(component.subTotal()).toBe(20);
+      expect(component.totalItemsCount()).toBe(3);
+    });
+
+    it('removeItem drops the row at the given index', () => {
+      fixture.componentRef.setInput('initialItems', [
+        validItem,
+        { productId: 'prod_2', productName: 'Gadget', quantity: 2, unitPrice: 5 }
+      ]);
+      fixture.detectChanges();
+
+      component.removeItem(0);
+
+      expect(component.draftItems().map((lineItem) => lineItem.productId)).toEqual(['prod_2']);
+    });
+  });
+
   describe('edit mode', () => {
     beforeEach(() => {
       fixture.componentRef.setInput('mode', 'edit');
@@ -133,25 +214,38 @@ describe('PurchaseOrderFormComponent', () => {
     it('formSubmit emits submit when details and items are valid without review step', () => {
       const submitSpy = vi.fn();
       component.submit.subscribe(submitSpy);
-      component.supplierId.set('sup_1');
-      fixture.componentRef.setInput('draftItems', [validItem]);
+      selectSupplier();
+      fixture.componentRef.setInput('initialItems', [validItem]);
+      fixture.detectChanges();
 
       component.formSubmit(new Event('submit'));
 
-      expect(submitSpy).toHaveBeenCalled();
+      expect(submitSpy).toHaveBeenCalledWith({ supplierId: 'sup_1', items: [validItem] });
       expect(component.activeStep()).toBe(1);
     });
 
     it('formSubmit with no line items sets stepError and does not emit', () => {
       const submitSpy = vi.fn();
       component.submit.subscribe(submitSpy);
-      component.supplierId.set('sup_1');
-      fixture.componentRef.setInput('draftItems', []);
+      selectSupplier();
+      fixture.componentRef.setInput('initialItems', []);
+      fixture.detectChanges();
 
       component.formSubmit(new Event('submit'));
 
       expect(submitSpy).not.toHaveBeenCalled();
       expect(component.stepError()).toContain('line item');
+    });
+
+    it('seeds the supplier control from the resolved supplier', () => {
+      component.purchaseOrderForm.controls.supplier.setValue(null);
+      fixture.componentRef.setInput('resolvedSupplier', { id: 'sup_9', name: 'Resolved Co' });
+      fixture.detectChanges();
+
+      expect(component.purchaseOrderForm.controls.supplier.value).toEqual({
+        id: 'sup_9',
+        name: 'Resolved Co'
+      });
     });
 
     it('onEditTabChange switches tab and clears stepError', () => {

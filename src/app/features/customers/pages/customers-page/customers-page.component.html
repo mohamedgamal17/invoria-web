@@ -3,9 +3,11 @@
 <section class="flex flex-col gap-8">
   <app-customer-header (create)="goToCreate()" />
 
-  <app-customers-filter-panel
+  <app-name-filter-panel
     [name]="nameFilter()"
     [loading]="listLoading()"
+    label="Customer name"
+    inputId="customers-filter-name"
     (filtersChange)="onFiltersChange($event)"
     (clearFilters)="onClearFilters()"
   />

@@ -1,10 +1,11 @@
-﻿import { CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, effect, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
+import { numericEnumValues } from '../../../../shared/utils/numeric-enum-values';
 import { ReturnType, returnTypeLabel } from '../../models/return-type.enum';
 
 export type ReturnsListFilters = {
@@ -12,10 +13,6 @@ export type ReturnsListFilters = {
 };
 
 type FilterOption = { label: string; value: number | null };
-
-function numericEnumValues<T extends Record<string, string | number>>(enumMap: T): number[] {
-  return Object.values(enumMap).filter((value): value is number => typeof value === 'number');
-}
 
 @Component({
   selector: 'app-returns-filter-panel',
