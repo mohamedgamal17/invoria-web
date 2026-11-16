@@ -1,4 +1,4 @@
-import { Entity } from '../../../core/models/entity';
+﻿import { Entity } from '../../../core/models/entity';
 
 export interface Customer extends Entity {
   name: string;

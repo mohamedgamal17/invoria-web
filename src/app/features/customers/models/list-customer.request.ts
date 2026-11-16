@@ -1,4 +1,4 @@
-import type { PagingQueryRequest } from '../../../shared/requests/paging-query.request';
+﻿import type { PagingQueryRequest } from '../../../shared/requests/paging-query.request';
 
 /**
  * Query for GET /customers?Skip&Length&Name (optional name filter per API).

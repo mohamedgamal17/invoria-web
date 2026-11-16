@@ -1,4 +1,4 @@
-/** `InvoriaProcurementContractsPurchaseOrdersPurchaseState` (integer enum). */
+﻿/** `InvoriaProcurementContractsPurchaseOrdersPurchaseState` (integer enum). */
 export enum PurchaseState {
   Draft = 1,
   Submitted = 2,
