@@ -1,7 +1,7 @@
 <!-- Mobile View (Cards) -->
 <div class="block md:hidden space-y-4">
   @if (isListLoading()) {
-    <app-product-list-skeleton variant="mobile" [count]="pageSize()" />
+    <app-list-skeleton variant="mobile" [count]="pageSize()" [columns]="skeletonColumns" />
   } @else if (products().length > 0) {
     @for (product of products(); track product.id) {
       <div class="rounded-xl border border-border bg-surface p-4 shadow-sm hover:border-primary/30 transition-all active:scale-[0.98]">
@@ -50,7 +50,7 @@
           <div class="flex flex-col">
             <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-0.5">Price</span>
             <span class="text-lg font-black text-foreground tabular-nums">
-              EGP {{ product.price | number:'1.2-2' }}
+              {{ currencyCode() }} {{ product.price | number:'1.2-2' }}
             </span>
           </div>
           <div class="flex flex-col items-end gap-2">
@@ -156,7 +156,7 @@
         </td>
         <td class="px-4 py-5 text-right">
           <div class="text-sm font-bold text-foreground tabular-nums">
-            EGP {{ product.price | number:'1.2-2' }}
+            {{ currencyCode() }} {{ product.price | number:'1.2-2' }}
           </div>
         </td>
         <td class="px-4 py-5 text-right">
@@ -205,7 +205,7 @@
 
     <!-- Skeleton Loading State -->
     <ng-template pTemplate="loadingbody">
-      <app-product-list-skeleton variant="table" [count]="pageSize()" />
+      <app-list-skeleton variant="table" [count]="pageSize()" [columns]="skeletonColumns" />
     </ng-template>
 
     <!-- Empty Message -->

@@ -15,7 +15,6 @@
             [suggestions]="customers()"
             [controlName]="'orderFormCustomer'"
             [placeholder]="'Search and select customer...'"
-            [disabled]="saving() || mode() === 'edit'"
             [removeIcon]="'pi pi-user-minus'"
             [removeSeverity]="'danger'"
             [inputStyleClass]="'w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all text-sm'"
@@ -34,7 +33,6 @@
               [options]="paymentTypeOptions"
               optionLabel="label"
               optionValue="value"
-              [disabled]="saving()"
               appendTo="body"
               styleClass="w-full rounded-lg border-border bg-surface-2 text-sm min-h-[2.5rem]"
             />
@@ -125,7 +123,7 @@
                   <p-inputNumber [formControl]="lineItemGroup.controls.price" [min]="0" />
                 </td>
                 <td class="text-right">
-                  EGP
+                  {{ currencyCode() }}
                   {{ lineItemGroup.controls.price.value * lineItemGroup.controls.quantity.value | number:'1.2-2' }}
                 </td>
                 <td class="text-right">
@@ -148,7 +146,7 @@
                 <td colspan="3" class="text-right">
                   Total <span class="text-xs text-muted-foreground">({{ totalItemsCount() }} items)</span>
                 </td>
-                <td colspan="2" class="text-right font-bold">EGP {{ totalAmount() | number:'1.2-2' }}</td>
+                <td colspan="2" class="text-right font-bold">{{ currencyCode() }} {{ totalAmount() | number:'1.2-2' }}</td>
               </tr>
             </ng-template>
           </p-table>

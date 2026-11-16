@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 
 import { ButtonModule } from 'primeng/button';
 import { PaginatorModule } from 'primeng/paginator';
@@ -12,14 +12,17 @@ import { type PaginatorPageEvent } from '../../../../shared/models/pagination';
 import type { OrderSalesReportPeriod } from '../../models/order-report.entity';
 import { ReportPeriod } from '../../../../shared/models/report-period';
 import { formatPeriodLabel } from '../../../../shared/charts/echarts-presets';
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 
 @Component({
   selector: 'app-order-sales-metrics-list',
   standalone: true,
   imports: [CommonModule, TableModule, ButtonModule, PaginatorModule, SkeletonModule, EmptyStateComponent, SurfaceCardComponent],
-  templateUrl: './order-sales-metrics-list.component.html'
+  templateUrl: './order-sales-metrics-list.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OrderSalesMetricsListComponent {
+  protected readonly currencyCode = signal(DEFAULT_CURRENCY_CODE);
   readonly ReportPeriod = ReportPeriod;
 
   rows = input<OrderSalesReportPeriod[]>([]);
@@ -33,9 +36,9 @@ export class OrderSalesMetricsListComponent {
   pageChange = output<PaginatorPageEvent>();
   clearFilters = output<void>();
 
-  get skeletonRows(): number[] {
-    return Array.from({ length: this.pageSize() }, (_, index) => index);
-  }
+  readonly skeletonRows = computed(() =>
+    Array.from({ length: this.pageSize() }, (_, index) => index)
+  );
 
   formatPeriod(dateIso: string): string {
     return formatPeriodLabel(dateIso, this.selectedPeriod());

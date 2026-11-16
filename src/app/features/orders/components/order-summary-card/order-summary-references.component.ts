@@ -1,4 +1,4 @@
-import { Component, input, signal } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import type { UiOrder } from '../../models/order-ui.model';
 
@@ -6,6 +6,7 @@ import type { UiOrder } from '../../models/order-ui.model';
   selector: 'app-order-summary-references',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './order-summary-references.component.html',
 })
 export class OrderSummaryReferencesComponent {

@@ -1,16 +1,15 @@
-import { CommonModule } from '@angular/common';
-import {
-  Component,
+﻿import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component,
   OnChanges,
   OnInit,
   SimpleChanges,
   computed,
+  effect,
   inject,
   input,
   model,
   output,
-  signal
-} from '@angular/core';
+  signal } from '@angular/core';
 import {
   FormBuilder,
   NonNullableFormBuilder,
@@ -25,6 +24,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { MessageModule } from 'primeng/message';
 import { SelectModule } from 'primeng/select';
 
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 import { boundedAmountValidator, MONEY_EPS } from '../../../../shared/utils/validators';
 import {
   OrderPaymentMethod,
@@ -49,11 +49,12 @@ import type { UiOrder } from '../../models/order-ui.model';
     MessageModule,
     SelectModule
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './record-payment-dialog.component.html'
 })
 export class RecordPaymentDialogComponent implements OnChanges, OnInit {
   readonly order = input.required<UiOrder>();
-  readonly currencyCode = input<string>('EGP');
+  readonly currencyCode = input<string>(DEFAULT_CURRENCY_CODE);
   readonly saving = input(false);
 
   /** Validated submit intent; the details page dispatches the API call. */
@@ -115,6 +116,19 @@ export class RecordPaymentDialogComponent implements OnChanges, OnInit {
 
   private readonly formBuilder = inject(FormBuilder);
   private readonly nonNullableFormBuilder = inject(NonNullableFormBuilder);
+
+  constructor() {
+    effect(() => {
+      if (!this.recordPaymentForm) {
+        return;
+      }
+      if (this.saving()) {
+        this.recordPaymentForm.disable({ emitEvent: false });
+      } else {
+        this.recordPaymentForm.enable({ emitEvent: false });
+      }
+    });
+  }
 
   /** Revalidate the amount whenever the order input changes (e.g. refreshed while the dialog is open). */
   ngOnChanges(changes: SimpleChanges): void {

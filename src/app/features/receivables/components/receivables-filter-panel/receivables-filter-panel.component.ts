@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -34,6 +34,7 @@ type PaidFilterOption = { label: string; value: boolean | null };
     SelectModule,
     SurfaceCardComponent
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './receivables-filter-panel.component.html'
 })
 export class ReceivablesFilterPanelComponent {

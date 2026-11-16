@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
+﻿import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -15,6 +15,7 @@ import { StepperModule } from 'primeng/stepper';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { TableModule } from 'primeng/table';
 
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 import { AutosearchComponent } from '../../../../shared/ui/autosearch/autosearch.component';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
 import type { Product } from '../../../products/models/product.entity';
@@ -57,11 +58,13 @@ export interface PurchaseOrderFormSubmitEvent {
     AutosearchComponent,
     SurfaceCardComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './purchase-order-form.component.html',
 })
 export class PurchaseOrderFormComponent {
   private readonly formBuilder = inject(FormBuilder);
 
+  readonly currencyCode = signal(DEFAULT_CURRENCY_CODE);
   mode = input<'create' | 'edit'>('create');
   purchaseNumber = input('');
   saving = input(false);
@@ -118,6 +121,14 @@ export class PurchaseOrderFormComponent {
   constructor() {
     this.syncInitialItems();
     this.syncResolvedSupplier();
+
+    effect(() => {
+      if (this.saving()) {
+        this.purchaseOrderForm.disable({ emitEvent: false });
+      } else {
+        this.purchaseOrderForm.enable({ emitEvent: false });
+      }
+    });
 
     effect(() => {
       this.purchaseOrderForm.controls.supplier.value;

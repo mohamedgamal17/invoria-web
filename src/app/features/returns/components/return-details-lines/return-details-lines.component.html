@@ -1,4 +1,4 @@
-﻿<p-card styleClass="border border-border">
+<p-card styleClass="border border-border">
   <div class="mb-4 flex flex-col gap-1 border-b border-border pb-4">
     <span class="text-xs font-bold uppercase tracking-widest text-primary">Return Lines</span>
     <p class="m-0 text-sm text-muted-foreground">Products included in this return.</p>
@@ -34,7 +34,7 @@
         </td>
         <td class="px-4 py-4 text-right">
           <span class="text-sm font-semibold tabular-nums text-foreground">
-            EGP {{ line.product?.price | number:'1.2-2' }}
+            {{ currencyCode() }} {{ line.product?.price | number:'1.2-2' }}
           </span>
         </td>
       </tr>

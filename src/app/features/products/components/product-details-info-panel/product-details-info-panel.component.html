@@ -25,7 +25,7 @@
         <div class="rounded-xl border border-border/60 bg-surface-2/50 p-4">
           <div class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Price</div>
           <div class="mt-1.5 text-sm font-semibold tabular-nums text-foreground">
-            EGP {{ product().price | number: '1.2-2' }}
+            {{ currencyCode() }} {{ product().price | number: '1.2-2' }}
           </div>
         </div>
         <div class="rounded-xl border border-border/60 bg-surface-2/50 p-4 sm:col-span-2 lg:col-span-1">

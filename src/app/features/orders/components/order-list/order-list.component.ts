@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -21,6 +21,7 @@ import {
   paymentStatusLabel,
   paymentTypeLabel
 } from '../../models/order-payment.enums';
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 
 @Component({
   selector: 'app-order-list',
@@ -36,9 +37,11 @@ import {
     EmptyStateComponent,
     SurfaceCardComponent
   ],
-  templateUrl: './order-list.component.html'
+  templateUrl: './order-list.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OrderListComponent {
+  protected readonly currencyCode = signal(DEFAULT_CURRENCY_CODE);
   /** Expose enum to templates (e.g. delete button visibility). */
   readonly OrderStatus = OrderStatus;
 
@@ -55,9 +58,9 @@ export class OrderListComponent {
   delete = output<UiOrder>();
   clearFilters = output<void>();
 
-  get skeletonRows(): number[] {
-    return Array.from({ length: this.pageSize() }, (_, index) => index);
-  }
+  readonly skeletonRows = computed(() =>
+    Array.from({ length: this.pageSize() }, (_, index) => index)
+  );
 
   getOrderStatusSeverity(
     status: OrderStatus

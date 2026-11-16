@@ -1,14 +1,12 @@
-import { CommonModule } from '@angular/common';
-import {
-  Component,
+﻿import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component,
   DestroyRef,
   effect,
   inject,
   input,
   output,
   signal,
-  untracked
-} from '@angular/core';
+  untracked } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
@@ -31,6 +29,7 @@ import type { Customer } from '../../../customers/models/customer.entity';
 import type { Product } from '../../../products/models/product.entity';
 import type { OrderItem } from '../../models/order.entity';
 import { PaymentType, paymentTypeLabel } from '../../models/order-payment.enums';
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 
 /** PrimeNG stepper uses 1-based step indices: 1 Details, 2 Line items */
 type OrderFormStepperStep = 1 | 2;
@@ -70,9 +69,11 @@ export interface OrderFormSubmitEvent {
     AutosearchComponent,
     SurfaceCardComponent
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './order-form.component.html'
 })
 export class OrderFormComponent {
+  protected readonly currencyCode = signal(DEFAULT_CURRENCY_CODE);
   private readonly formBuilder = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -157,6 +158,22 @@ export class OrderFormComponent {
       const customerValidators = this.mode() === 'create' ? [Validators.required] : [];
       customerControl.setValidators(customerValidators);
       customerControl.updateValueAndValidity({ emitEvent: false });
+    });
+
+    effect(() => {
+      const isSaving = this.saving();
+      const isEdit = this.mode() === 'edit';
+      if (isSaving || isEdit) {
+        this.orderForm.controls.customer.disable({ emitEvent: false });
+      } else {
+        this.orderForm.controls.customer.enable({ emitEvent: false });
+      }
+
+      if (isSaving) {
+        this.orderForm.controls.paymentType.disable({ emitEvent: false });
+      } else {
+        this.orderForm.controls.paymentType.enable({ emitEvent: false });
+      }
     });
 
     effect(() => {

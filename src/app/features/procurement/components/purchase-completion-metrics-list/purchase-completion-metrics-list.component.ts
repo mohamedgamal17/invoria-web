@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 
 import { ButtonModule } from 'primeng/button';
 import { PaginatorModule } from 'primeng/paginator';
@@ -17,7 +17,8 @@ import { formatPeriodLabel } from '../../../../shared/charts/echarts-presets';
   selector: 'app-purchase-completion-metrics-list',
   standalone: true,
   imports: [CommonModule, TableModule, ButtonModule, PaginatorModule, SkeletonModule, EmptyStateComponent, SurfaceCardComponent],
-  templateUrl: './purchase-completion-metrics-list.component.html'
+  templateUrl: './purchase-completion-metrics-list.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PurchaseCompletionMetricsListComponent {
   readonly ReportPeriod = ReportPeriod;
@@ -33,9 +34,9 @@ export class PurchaseCompletionMetricsListComponent {
   pageChange = output<PaginatorPageEvent>();
   clearFilters = output<void>();
 
-  get skeletonRows(): number[] {
-    return Array.from({ length: this.pageSize() }, (_, index) => index);
-  }
+  readonly skeletonRows = computed(() =>
+    Array.from({ length: this.pageSize() }, (_, index) => index)
+  );
 
   formatPeriod(dateIso: string): string {
     return formatPeriodLabel(dateIso, this.selectedPeriod());

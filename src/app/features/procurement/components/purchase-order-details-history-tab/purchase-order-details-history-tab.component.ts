@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
@@ -24,8 +24,9 @@ export type PurchaseOrderStateTimelineRow = {
   selector: 'app-purchase-order-details-history-tab',
   standalone: true,
   imports: [CommonModule, CardModule, TagModule, TimelineModule],
-  templateUrl: './purchase-order-details-history-tab.component.html'
+  templateUrl: './purchase-order-details-history-tab.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PurchaseOrderDetailsHistoryTabComponent {
-  @Input({ required: true }) events!: PurchaseOrderStateTimelineRow[];
+  events = input.required<PurchaseOrderStateTimelineRow[]>();
 }

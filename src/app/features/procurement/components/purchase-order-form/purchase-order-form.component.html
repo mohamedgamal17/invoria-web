@@ -1,6 +1,9 @@
 <form [formGroup]="purchaseOrderForm" (ngSubmit)="formSubmit($event)" class="space-y-6">
   @if (stepError()) {
-    <p class="text-sm text-destructive rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2" role="alert">
+    <p
+      class="text-sm text-destructive rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2"
+      role="alert"
+    >
       {{ stepError() }}
     </p>
   }
@@ -9,7 +12,9 @@
     <app-surface-card tone="neutral">
       <div class="space-y-6">
         <div class="flex flex-col gap-1.5 sm:col-span-2">
-          <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Supplier</span>
+          <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider"
+            >Supplier</span
+          >
           <app-autosearch
             [formControl]="purchaseOrderForm.controls.supplier"
             [suggestions]="suppliers()"
@@ -17,7 +22,6 @@
             placeholder="Search and select supplier..."
             removeIcon="pi pi-user-minus"
             removeSeverity="danger"
-            [disabled]="saving()"
             (search)="searchSuppliers.emit($event)"
             (select)="onSupplierSelect()"
             (clear)="onSupplierCleared()"
@@ -30,16 +34,19 @@
   <ng-template #itemsBody>
     <app-surface-card tone="neutral">
       <div class="space-y-4">
-        <h3 class="text-sm font-bold text-foreground uppercase tracking-wider">Purchase order items</h3>
+        <h3 class="text-sm font-bold text-foreground uppercase tracking-wider">
+          Purchase order items
+        </h3>
         <div class="space-y-4 bg-surface-2 p-4 rounded-xl border border-border/50">
           <div class="flex flex-col gap-1.5">
-            <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Search product</label>
+            <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider"
+              >Search product</label
+            >
             <app-autosearch
               [formControl]="purchaseOrderForm.controls.product"
               [suggestions]="products()"
               controlName="poFormProduct"
               placeholder="Start typing product name..."
-              [disabled]="saving()"
               (search)="searchProducts.emit($event)"
               (select)="onProductSelect($event)"
               (clear)="clearProductSelection()"
@@ -50,7 +57,10 @@
             <div class="space-y-4 p-4 bg-surface rounded-lg border border-border">
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="min-w-0 flex flex-col gap-2">
-                  <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Quantity</label>
+                  <label
+                    class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider"
+                    >Quantity</label
+                  >
                   <p-inputNumber
                     formControlName="quantity"
                     [min]="1"
@@ -61,11 +71,13 @@
                     decrementButtonIcon="pi pi-minus"
                     styleClass="w-full block"
                     inputStyleClass="w-full min-w-0 tabular-nums"
-                    [disabled]="saving()"
                   />
                 </div>
                 <div class="min-w-0 flex flex-col gap-2">
-                  <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Unit price</label>
+                  <label
+                    class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider"
+                    >Unit price</label
+                  >
                   <p-inputNumber
                     formControlName="unitPrice"
                     [min]="0.01"
@@ -74,7 +86,6 @@
                     [maxFractionDigits]="2"
                     styleClass="w-full block"
                     inputStyleClass="w-full min-w-0 tabular-nums"
-                    [disabled]="saving()"
                   />
                 </div>
               </div>
@@ -109,11 +120,7 @@
               <tr [formGroup]="lineGroup(index)">
                 <td>{{ lineGroup(index).controls.productName.value }}</td>
                 <td class="text-center">
-                  <p-inputNumber
-                    formControlName="quantity"
-                    [min]="1"
-                    [disabled]="saving()"
-                  />
+                  <p-inputNumber formControlName="quantity" [min]="1" />
                 </td>
                 <td class="text-right">
                   <p-inputNumber
@@ -122,11 +129,10 @@
                     mode="decimal"
                     [minFractionDigits]="2"
                     [maxFractionDigits]="2"
-                    [disabled]="saving()"
                   />
                 </td>
                 <td class="text-right tabular-nums">
-                  EGP {{ lineTotal(lineGroup(index)) | number:'1.2-2' }}
+                  {{ currencyCode() }} {{ lineTotal(lineGroup(index)) | number: '1.2-2' }}
                 </td>
                 <td class="text-right">
                   <p-button
@@ -142,15 +148,20 @@
               </tr>
             </ng-template>
             <ng-template pTemplate="emptymessage">
-              <tr><td colspan="5" class="py-8 text-center text-muted-foreground">No items added yet.</td></tr>
+              <tr>
+                <td colspan="5" class="py-8 text-center text-muted-foreground">
+                  No items added yet.
+                </td>
+              </tr>
             </ng-template>
             <ng-template pTemplate="footer">
               <tr>
                 <td colspan="3" class="text-right">
-                  Subtotal <span class="text-xs text-muted-foreground">({{ totalItemsCount() }} items)</span>
+                  Subtotal
+                  <span class="text-xs text-muted-foreground">({{ totalItemsCount() }} items)</span>
                 </td>
                 <td colspan="2" class="text-right font-bold tabular-nums">
-                  EGP {{ subTotal() | number:'1.2-2' }}
+                  {{ currencyCode() }} {{ subTotal() | number: '1.2-2' }}
                 </td>
               </tr>
             </ng-template>
@@ -163,25 +174,35 @@
   <ng-template #reviewBody>
     <app-surface-card tone="neutral">
       <div class="space-y-6">
-        <h3 class="text-sm font-bold text-foreground uppercase tracking-wider">Review purchase order</h3>
+        <h3 class="text-sm font-bold text-foreground uppercase tracking-wider">
+          Review purchase order
+        </h3>
         @if (purchaseNumber()) {
           <div class="text-sm">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">PO number</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
+              >PO number</span
+            >
             <div class="font-semibold text-foreground mt-1">{{ purchaseNumber() }}</div>
           </div>
         }
         <div class="grid gap-4 sm:grid-cols-2">
           <div class="text-sm">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Supplier</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
+              >Supplier</span
+            >
             <div class="font-medium text-foreground mt-1">{{ reviewSupplierDisplay() }}</div>
           </div>
         </div>
 
         <div class="border-t border-border/60 pt-4">
-          <h4 class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3">Line items</h4>
+          <h4 class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3">
+            Line items
+          </h4>
           <div class="rounded-lg border border-border overflow-x-auto">
             <table class="w-full text-sm min-w-[24rem]">
-              <thead class="bg-surface-2 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              <thead
+                class="bg-surface-2 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
+              >
                 <tr>
                   <th class="px-3 py-2">Product</th>
                   <th class="px-3 py-2 text-center">Qty</th>
@@ -195,10 +216,10 @@
                     <td class="px-3 py-2.5">{{ lineItem.productName }}</td>
                     <td class="px-3 py-2.5 text-center tabular-nums">{{ lineItem.quantity }}</td>
                     <td class="px-3 py-2.5 text-right tabular-nums">
-                      EGP {{ lineItem.unitPrice | number:'1.2-2' }}
+                      {{ currencyCode() }} {{ lineItem.unitPrice | number: '1.2-2' }}
                     </td>
                     <td class="px-3 py-2.5 text-right tabular-nums font-medium">
-                      EGP {{ lineItem.unitPrice * lineItem.quantity | number:'1.2-2' }}
+                      {{ currencyCode() }} {{ lineItem.unitPrice * lineItem.quantity | number: '1.2-2' }}
                     </td>
                   </tr>
                 }
@@ -212,7 +233,7 @@
                     Total ({{ totalItemsCount() }} items)
                   </td>
                   <td class="px-3 py-3 text-right font-bold tabular-nums">
-                    EGP {{ subTotal() | number:'1.2-2' }}
+                    {{ currencyCode() }} {{ subTotal() | number: '1.2-2' }}
                   </td>
                 </tr>
               </tfoot>
@@ -226,7 +247,13 @@
   <ng-template #poDetailsStep let-activateCallback="activateCallback">
     <ng-container *ngTemplateOutlet="detailsBody" />
     <div class="flex flex-wrap items-center justify-between gap-3 pt-6">
-      <p-button label="Cancel" type="button" [text]="true" [disabled]="saving()" (onClick)="cancel.emit()" />
+      <p-button
+        label="Cancel"
+        type="button"
+        [text]="true"
+        [disabled]="saving()"
+        (onClick)="cancel.emit()"
+      />
       <p-button
         label="Next"
         type="button"
@@ -295,15 +322,23 @@
         </p-tabpanel>
       </p-tabpanels>
     </p-tabs>
-    <div
-      class="flex flex-wrap items-center justify-end gap-3 pt-6 border-t border-border mt-6"
-    >
-      <p-button label="Cancel" type="button" [text]="true" [disabled]="saving()" (onClick)="cancel.emit()" />
+    <div class="flex flex-wrap items-center justify-end gap-3 pt-6 border-t border-border mt-6">
+      <p-button
+        label="Cancel"
+        type="button"
+        [text]="true"
+        [disabled]="saving()"
+        (onClick)="cancel.emit()"
+      />
       <p-button label="Save changes" type="submit" [disabled]="saving()" [loading]="saving()" />
     </div>
   } @else {
     <div class="w-full min-w-0 overflow-x-auto [scrollbar-width:thin] md:overflow-x-visible">
-      <p-stepper [value]="activeStep()" (valueChange)="onStepperValueChange($event)" class="w-full min-w-0">
+      <p-stepper
+        [value]="activeStep()"
+        (valueChange)="onStepperValueChange($event)"
+        class="w-full min-w-0"
+      >
         <p-step-item [value]="1">
           <p-step>Details</p-step>
           <p-step-panel>

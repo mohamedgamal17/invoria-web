@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
 import type { PagingInfo } from '../../../../core/models/paging';
 import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
@@ -14,6 +14,7 @@ import type { UiOrder } from '../../../orders/models/order-ui.model';
   selector: 'app-customer-details-orders-tab',
   standalone: true,
   imports: [CommonModule, OrdersFilterPanelComponent, OrderListComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './customer-details-orders-tab.component.html'
 })
 export class CustomerDetailsOrdersTabComponent {

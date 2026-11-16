@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
@@ -24,6 +24,7 @@ type FilterOption = { label: string; value: number | null };
     SelectModule,
     SurfaceCardComponent
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './returns-filter-panel.component.html'
 })
 export class ReturnsFilterPanelComponent {

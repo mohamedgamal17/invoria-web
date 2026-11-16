@@ -1,5 +1,5 @@
 ﻿import { CommonModule } from '@angular/common';
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 
@@ -11,6 +11,7 @@ import { returnStatusUserLabel, returnStatusSeverity } from '../../models/return
   selector: 'app-return-details-info',
   standalone: true,
   imports: [CommonModule, CardModule, TagModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './return-details-info.component.html'
 })
 export class ReturnDetailsInfoComponent {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, input, model, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, model, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -34,6 +34,7 @@ import type { OrderItem, OrderReturnItem } from '../../models/order.entity';
     SelectModule,
     TableModule
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './order-return-items-dialog.component.html',
   styleUrl: './order-return-items-dialog.component.css'
 })

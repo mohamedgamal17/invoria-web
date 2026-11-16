@@ -1,10 +1,11 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, input, output } from '@angular/core';
+﻿import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 
 import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 import { getOrderStatusSeverity } from '../../../orders/models/order-actions';
 import type { OrderStatus } from '../../../orders/models/order.entity';
 import type {
@@ -16,13 +17,14 @@ import type {
   selector: 'app-product-details-orders-panel',
   standalone: true,
   imports: [CommonModule, TableModule, ButtonModule, SkeletonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './product-details-orders-panel.component.html',
 })
 export class ProductDetailsOrdersPanelComponent {
   readonly rows = input.required<ProductOrderRowSummary[]>();
   readonly aggregate = input.required<ProductOrdersAggregateSummary>();
   readonly loading = input(false);
-  readonly currencyCode = input<string>('EGP');
+  readonly currencyCode = input<string>(DEFAULT_CURRENCY_CODE);
 
   readonly viewOrder = output<ProductOrderRowSummary>();
   readonly reload = output<void>();

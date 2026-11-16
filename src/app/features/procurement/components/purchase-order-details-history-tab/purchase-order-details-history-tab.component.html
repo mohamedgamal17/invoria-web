@@ -1,6 +1,6 @@
 <p-card styleClass="border border-border" header="Status history">
-  @if (events.length) {
-    <p-timeline [value]="events" styleClass="w-full">
+  @if (events().length) {
+    <p-timeline [value]="events()" styleClass="w-full">
       <ng-template pTemplate="marker" let-event>
         <p-tag
           [value]="event.toLabel"

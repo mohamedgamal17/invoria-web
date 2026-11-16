@@ -61,7 +61,7 @@
           }
         </td>
         <td class="px-4 py-5 text-right text-sm font-bold tabular-nums text-foreground">
-          EGP {{ row.totalAmount | number:'1.2-2' }}
+          {{ currencyCode() }} {{ row.totalAmount | number:'1.2-2' }}
         </td>
         <td class="px-4 py-5 text-right">
           <p-button
@@ -76,7 +76,7 @@
     </ng-template>
 
     <ng-template pTemplate="loadingbody">
-      @for (_ of skeletonRows; track _) {
+      @for (_ of skeletonRows(); track _) {
         <tr>
           <td class="px-4 py-5"><p-skeleton height="1rem" width="40%"></p-skeleton></td>
           @if (showSupplierColumn()) {

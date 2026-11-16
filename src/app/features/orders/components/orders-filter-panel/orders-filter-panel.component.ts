@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -44,6 +44,7 @@ type FilterOption = { label: string; value: number | null };
     SelectModule,
     SurfaceCardComponent
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './orders-filter-panel.component.html'
 })
 export class OrdersFilterPanelComponent {

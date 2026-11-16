@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
@@ -11,6 +11,7 @@ export type ProductsBreadcrumbItem = {
   selector: 'app-products-breadcrumb',
   standalone: true,
   imports: [CommonModule, RouterLink],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './products-breadcrumb.component.html',
 })
 export class ProductsBreadcrumbComponent {

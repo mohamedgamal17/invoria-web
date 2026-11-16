@@ -1,9 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 
 import {
   PaymentStatus,
@@ -23,11 +25,12 @@ import type { UiOrder } from '../../models/order-ui.model';
     TableModule,
     TagModule
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './order-details-payment-tab.component.html'
 })
 export class OrderDetailsPaymentTabComponent {
   readonly order = input.required<UiOrder>();
-  readonly currencyCode = input<string>('EGP');
+  readonly currencyCode = input<string>(DEFAULT_CURRENCY_CODE);
 
   readonly paymentMethodLabel = paymentMethodLabel;
 

@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 import type { OrderItem } from '../../models/order.entity';
 import type { UiOrder } from '../../models/order-ui.model';
 
@@ -11,18 +12,19 @@ import type { UiOrder } from '../../models/order-ui.model';
   selector: 'app-order-details-line-items-tab',
   standalone: true,
   imports: [CommonModule, CardModule, TableModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './order-details-line-items-tab.component.html'
 })
 export class OrderDetailsLineItemsTabComponent {
   readonly order = input.required<UiOrder>();
-  readonly currencyCode = input<string>('EGP');
+  readonly currencyCode = input<string>(DEFAULT_CURRENCY_CODE);
 
   lineTotal(item: OrderItem): number {
     return item.price * item.quantity;
   }
 
   subtotal(order: UiOrder): number {
-    return order.items.reduce((acc, item) => acc + this.lineTotal(item), 0);
+    return order.items.reduce((accumulator, item) => accumulator + this.lineTotal(item), 0);
   }
 
   itemCount(order: UiOrder): number {

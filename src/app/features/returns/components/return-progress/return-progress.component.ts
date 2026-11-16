@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { StatusStepsComponent } from '../../../../shared/ui/status-steps/status-steps.component';
 import { ReturnStatus, returnStatusUserLabel } from '../../models/return-status.enum';
 
@@ -13,6 +13,7 @@ type Step = {
   selector: 'app-return-progress',
   standalone: true,
   imports: [StatusStepsComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './return-progress.component.html',
   host: {
     class: 'block',

@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { MessageModule } from 'primeng/message';
 import { DividerModule } from 'primeng/divider';
+import { DEFAULT_CURRENCY_CODE } from '../../../shared/models/currency';
 import type { Batch, BatchFormSavePayload } from '../models/batch.entity';
 
 @Component({
@@ -22,22 +23,31 @@ import type { Batch, BatchFormSavePayload } from '../models/batch.entity';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BatchFormComponent {
-  private fb = inject(FormBuilder);
+  private readonly formBuilder = inject(FormBuilder);
 
   batch = input<Batch | null>(null);
   loading = input<boolean>(false);
+  currencyCode = input<string>(DEFAULT_CURRENCY_CODE);
 
   save = output<BatchFormSavePayload>();
   cancel = output<void>();
 
-  editMode = () => !!this.batch();
+  editMode = () => !this.batch();
 
-  batchForm = this.fb.group({
+  batchForm = this.formBuilder.group({
     quantity: [1, [Validators.required, Validators.min(1)]],
     purchasePrice: [1, [Validators.required, Validators.min(0.01)]],
   });
 
   constructor() {
+    effect(() => {
+      if (this.loading()) {
+        this.batchForm.disable({ emitEvent: false });
+      } else {
+        this.batchForm.enable({ emitEvent: false });
+      }
+    });
+
     effect(() => {
       const batch = this.batch();
       const qtyControl = this.batchForm.get('quantity');
@@ -65,7 +75,7 @@ export class BatchFormComponent {
     });
   }
 
-  submit() {
+  submit(): void {
     if (this.batchForm.valid) {
       if (this.editMode()) {
         this.save.emit({

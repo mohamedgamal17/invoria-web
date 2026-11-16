@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+﻿import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import type { PagingInfo } from '../../../../core/models/paging';
 import {
   DEFAULT_PAGE_SIZE_OPTIONS,
@@ -16,6 +16,7 @@ import type { PurchaseOrder } from '../../../procurement/models/purchase-order.e
   selector: 'app-supplier-details-purchase-orders-tab',
   standalone: true,
   imports: [CommonModule, PurchaseOrdersFilterPanelComponent, PurchaseOrderListComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './supplier-details-purchase-orders-tab.component.html',
 })
 export class SupplierDetailsPurchaseOrdersTabComponent {

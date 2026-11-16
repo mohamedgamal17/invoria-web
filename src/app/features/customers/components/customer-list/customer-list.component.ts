@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -28,6 +28,7 @@ import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../
     EmptyStateComponent,
     SurfaceCardComponent
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './customer-list.component.html'
 })
 export class CustomerListComponent {

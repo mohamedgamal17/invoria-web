@@ -33,7 +33,6 @@
         [placeholder]="isImmediatePayment() ? '' : '0.00'"
         styleClass="w-full"
         [readonly]="isImmediatePayment()"
-        [disabled]="saving()"
       />
       @if (recordPaymentForm.controls.paidAmount.invalid && recordPaymentForm.controls.paidAmount.touched) {
         @if (recordPaymentForm.controls.paidAmount.hasError('required')) {
@@ -57,7 +56,6 @@
         optionValue="value"
         appendTo="body"
         styleClass="w-full rounded-lg border-border bg-surface-2 text-sm min-h-[2.5rem]"
-        [disabled]="saving()"
       />
     </div>
     <div class="flex justify-end gap-2 pt-2">

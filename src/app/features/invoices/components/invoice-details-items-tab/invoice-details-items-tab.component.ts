@@ -1,9 +1,10 @@
-import { Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
 import type { InvoiceItem } from '../../models/invoice.entity';
 
@@ -17,11 +18,12 @@ import type { InvoiceItem } from '../../models/invoice.entity';
     TooltipModule,
     SurfaceCardComponent
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './invoice-details-items-tab.component.html'
 })
 export class InvoiceDetailsItemsTabComponent {
   items = input.required<InvoiceItem[]>();
-  currencyCode = input<string>('EGP');
+  currencyCode = input<string>(DEFAULT_CURRENCY_CODE);
 
   readonly totalQuantity = computed(() =>
     this.items().reduce((sum, item) => sum + item.quantity, 0)

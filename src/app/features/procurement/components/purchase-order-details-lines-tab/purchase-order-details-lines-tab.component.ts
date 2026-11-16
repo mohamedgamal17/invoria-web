@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 import { TableModule } from 'primeng/table';
 
@@ -9,10 +9,11 @@ import type { PurchaseOrder, PurchaseOrderItem } from '../../models/purchase-ord
   selector: 'app-purchase-order-details-lines-tab',
   standalone: true,
   imports: [CommonModule, TableModule],
-  templateUrl: './purchase-order-details-lines-tab.component.html'
+  templateUrl: './purchase-order-details-lines-tab.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PurchaseOrderDetailsLinesTabComponent {
-  @Input({ required: true }) po!: PurchaseOrder;
-  @Input({ required: true }) currencyCode!: string;
-  @Input({ required: true }) lineLabel!: (line: PurchaseOrderItem) => string;
+  purchaseOrder = input.required<PurchaseOrder>();
+  currencyCode = input.required<string>();
+  lineLabel = input.required<(line: PurchaseOrderItem) => string>();
 }

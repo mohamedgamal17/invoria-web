@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -20,6 +20,7 @@ import {
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
 import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 
 @Component({
   selector: 'app-payable-list',
@@ -35,9 +36,11 @@ import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../
     EmptyStateComponent,
     SurfaceCardComponent
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './payable-list.component.html'
 })
 export class PayableListComponent {
+  protected readonly currencyCode = signal(DEFAULT_CURRENCY_CODE);
   payables = input.required<Payable[]>();
   totalRecords = input.required<number>();
   first = input.required<number>();

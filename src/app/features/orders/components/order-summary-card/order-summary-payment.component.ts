@@ -1,6 +1,8 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, input } from '@angular/core';
+﻿import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { TagModule } from 'primeng/tag';
+
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 
 import {
   PaymentStatus,
@@ -14,11 +16,12 @@ import type { UiOrder } from '../../models/order-ui.model';
   selector: 'app-order-summary-payment',
   standalone: true,
   imports: [CommonModule, TagModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './order-summary-payment.component.html',
 })
 export class OrderSummaryPaymentComponent {
   readonly order = input.required<UiOrder>();
-  readonly currencyCode = input<string>('EGP');
+  readonly currencyCode = input<string>(DEFAULT_CURRENCY_CODE);
 
   readonly Math = Math;
 

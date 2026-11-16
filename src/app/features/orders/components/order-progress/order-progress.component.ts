@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { StatusStepsComponent } from '../../../../shared/ui/status-steps/status-steps.component';
 import { OrderStatus } from '../../models/order.entity';
 import { getOrderStatusUserLabel } from '../../models/order-actions';
@@ -14,6 +14,7 @@ type Step = {
   selector: 'app-order-progress',
   standalone: true,
   imports: [StatusStepsComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './order-progress.component.html',
   host: {
     class: 'block',

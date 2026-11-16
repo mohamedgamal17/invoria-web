@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -8,6 +8,7 @@ import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
 import { Batch, BatchState } from '../models/batch.entity';
 import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../shared/models/pagination';
+import { DEFAULT_CURRENCY_CODE } from '../../../shared/models/currency';
 
 @Component({
   selector: 'app-batch-list',
@@ -31,7 +32,7 @@ export class BatchListComponent {
   first = input(0);
   pageSize = input(25);
   pageSizeOptions = input<number[]>(DEFAULT_PAGE_SIZE_OPTIONS);
-  currencyCode = input<string>('EGP');
+  currencyCode = input<string>(DEFAULT_CURRENCY_CODE);
 
   onPageChange = output<PaginatorPageEvent>();
   edit = output<Batch>();

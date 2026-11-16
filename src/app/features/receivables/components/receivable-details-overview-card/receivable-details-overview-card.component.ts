@@ -1,4 +1,4 @@
-import { Component, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CardModule } from 'primeng/card';
@@ -7,6 +7,7 @@ import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
 import type { Receivable } from '../../models/receivable.entity';
 import {
@@ -28,11 +29,12 @@ import {
     ButtonModule,
     SurfaceCardComponent
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './receivable-details-overview-card.component.html'
 })
 export class ReceivableDetailsOverviewCardComponent {
   receivable = input.required<Receivable>();
-  currencyCode = input<string>('EGP');
+  currencyCode = input<string>(DEFAULT_CURRENCY_CODE);
 
   /** Emitted when the user wants to open the settle modal. */
   settleRequest = output<void>();

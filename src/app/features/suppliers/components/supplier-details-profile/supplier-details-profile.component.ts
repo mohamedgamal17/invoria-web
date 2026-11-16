@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 
@@ -9,6 +9,7 @@ import type { Supplier } from '../../models/supplier.entity';
   selector: 'app-supplier-details-profile',
   standalone: true,
   imports: [CommonModule, ButtonModule, CardModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './supplier-details-profile.component.html'
 })
 export class SupplierDetailsProfileComponent {

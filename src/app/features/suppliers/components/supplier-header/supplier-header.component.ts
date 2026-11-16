@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
 
@@ -6,6 +6,7 @@ import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-head
   selector: 'app-supplier-header',
   standalone: true,
   imports: [ButtonModule, PageHeaderComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './supplier-header.component.html',
 })
 export class SupplierHeaderComponent {

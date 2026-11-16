@@ -1,5 +1,5 @@
 ﻿import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { PaginatorModule } from 'primeng/paginator';
@@ -27,7 +27,8 @@ import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../
     EmptyStateComponent,
     SurfaceCardComponent
   ],
-  templateUrl: './return-list.component.html'
+  templateUrl: './return-list.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReturnListComponent {
   returns = input.required<Return[]>();
@@ -41,9 +42,9 @@ export class ReturnListComponent {
   pageChange = output<PaginatorPageEvent>();
   clearFilters = output<void>();
 
-  get skeletonRows(): number[] {
-    return Array.from({ length: this.pageSize() }, (_, index) => index);
-  }
+  readonly skeletonRows = computed(() =>
+    Array.from({ length: this.pageSize() }, (_, index) => index)
+  );
 
   protected readonly returnTypeLabel = returnTypeLabel;
   protected readonly returnStatusUserLabel = returnStatusUserLabel;

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
@@ -9,6 +9,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import type { PurchaseOrder } from '../../models/purchase-order.entity';
 import { purchaseStateLabel, purchaseStateSeverity } from '../../models/purchase-state.display';
 import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 
 @Component({
   selector: 'app-purchase-order-list',
@@ -21,9 +22,11 @@ import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../
     PaginatorModule,
     SkeletonModule
   ],
-  templateUrl: './purchase-order-list.component.html'
+  templateUrl: './purchase-order-list.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PurchaseOrderListComponent {
+  protected readonly currencyCode = signal(DEFAULT_CURRENCY_CODE);
   purchaseOrders = input<PurchaseOrder[]>([]);
   totalRecords = input(0);
   first = input(0);
@@ -41,9 +44,9 @@ export class PurchaseOrderListComponent {
   readonly stateLabel = purchaseStateLabel;
   readonly stateSeverity = purchaseStateSeverity;
 
-  get skeletonRows(): number[] {
-    return Array.from({ length: this.pageSize() }, (_, index) => index);
-  }
+  readonly skeletonRows = computed(() =>
+    Array.from({ length: this.pageSize() }, (_, index) => index)
+  );
 
   supplierDisplay(row: PurchaseOrder): string {
     const name = row.supplier?.name?.trim();

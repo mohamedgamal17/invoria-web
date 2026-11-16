@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { PaginatorModule } from 'primeng/paginator';
@@ -7,9 +7,12 @@ import { TooltipModule } from 'primeng/tooltip';
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
 import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
-
-import { ProductListSkeletonComponent } from '../product-list-skeleton/product-list-skeleton.component';
+import {
+  ListSkeletonComponent,
+  type ListSkeletonColumn
+} from '../../../../shared/ui/list-skeleton/list-skeleton.component';
 import type { Product } from '../../models/product.entity';
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 
 @Component({
   selector: 'app-product-list',
@@ -22,18 +25,29 @@ import type { Product } from '../../models/product.entity';
     TooltipModule,
     EmptyStateComponent,
     SurfaceCardComponent,
-    ProductListSkeletonComponent
+    ListSkeletonComponent
   ],
   templateUrl: './product-list.component.html',
-  styleUrl: './product-list.component.scss'
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'block' }
 })
 export class ProductListComponent {
+  protected readonly currencyCode = signal(DEFAULT_CURRENCY_CODE);
   products = input.required<Product[]>();
   totalRecords = input.required<number>();
   first = input.required<number>();
   pageSize = input.required<number>();
   isListLoading = input.required<boolean>();
   pageSizeOptions = input<number[]>(DEFAULT_PAGE_SIZE_OPTIONS);
+
+  readonly skeletonColumns: ListSkeletonColumn[] = [
+    { width: '60%', lines: 2 },
+    { width: '4rem', align: 'right' },
+    { width: '3.5rem', align: 'right' },
+    { width: '3.5rem', align: 'right' },
+    { width: '5.5rem', align: 'center' },
+    { width: '', actions: 1, align: 'right' }
+  ];
 
   viewProduct = output<Product>();
   pageChange = output<PaginatorPageEvent>();
