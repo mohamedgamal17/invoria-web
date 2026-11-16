@@ -6,7 +6,8 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 The docs map starts at [docs/README.md](docs/README.md): it links per-folder indexes
 (`docs/architecture/README.md`, `docs/guides/README.md`), which list every doc with
-per-section anchors. Agent-facing rules are in [`.opencode/AGENTS.md`](.opencode/AGENTS.md).
+per-section anchors. Agent-facing rules and configuration are in [GEMINI.md](GEMINI.md)
+(Google Antigravity) and [`.opencode/AGENTS.md`](.opencode/AGENTS.md).
 
 ## Design tokens (Tailwind v4)
 
