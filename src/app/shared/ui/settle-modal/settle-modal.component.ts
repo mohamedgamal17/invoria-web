@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, input, model, output } from '@angular/core';
+﻿import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -23,6 +23,7 @@ import { DEFAULT_CURRENCY_CODE } from '../../models/currency';
     InputNumberModule,
     MessageModule
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './settle-modal.component.html'
 })
 export class SettleModalComponent {
@@ -47,6 +48,14 @@ export class SettleModalComponent {
       const visible = this.visible();
       if (visible) {
         this.form.reset({ amount: 0 });
+      }
+    });
+
+    effect(() => {
+      if (this.settling()) {
+        this.form.disable({ emitEvent: false });
+      } else {
+        this.form.enable({ emitEvent: false });
       }
     });
   }

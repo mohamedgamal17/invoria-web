@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, input } from '@angular/core';
+﻿import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 export interface StatusStep {
   label: string;
@@ -15,6 +15,7 @@ export interface StatusStep {
   selector: 'app-status-steps',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './status-steps.component.html',
   host: {
     class: 'block'

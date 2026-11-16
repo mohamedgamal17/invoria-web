@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
+﻿import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -33,6 +33,7 @@ export type NameListFilters = {
     InputTextModule,
     SurfaceCardComponent
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './name-filter-panel.component.html'
 })
 export class NameFilterPanelComponent {

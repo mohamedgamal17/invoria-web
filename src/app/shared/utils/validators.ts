@@ -1,4 +1,4 @@
-import type { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+﻿import type { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 /** Tolerance for money comparisons, so amounts like 499.9995 still count as 500. */
 export const MONEY_EPS = 0.005;

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * `InvoriaFinancialContractsReceivablesEnumsFinancialObligationStatus` (Swagger: integer enum).
  * Shared by receivables and payables contracts.
  */

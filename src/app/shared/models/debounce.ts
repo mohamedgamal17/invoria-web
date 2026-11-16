@@ -1,1 +1,1 @@
-export const SEARCH_DEBOUNCE_MS = 700;
+﻿export const SEARCH_DEBOUNCE_MS = 700;

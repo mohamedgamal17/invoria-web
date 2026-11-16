@@ -1,6 +1,7 @@
-import { Component, computed, input } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { LucideAngularModule, type LucideIconData } from 'lucide-angular';
 import { SkeletonModule } from 'primeng/skeleton';
+import { formatNumber } from '../../utils/format';
 
 export type KpiTone = 'primary' | 'success' | 'warning' | 'danger';
 
@@ -16,7 +17,8 @@ const TONE_CLASSES: Record<KpiTone, string> = {
   selector: 'app-kpi-card',
   standalone: true,
   imports: [LucideAngularModule, SkeletonModule],
-  templateUrl: './kpi-card.component.html'
+  templateUrl: './kpi-card.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class KpiCardComponent {
   title = input.required<string>();
@@ -32,7 +34,7 @@ export class KpiCardComponent {
   protected readonly displayValue = computed(() => {
     const value = this.value();
     if (typeof value === 'number') {
-      return new Intl.NumberFormat().format(value);
+      return formatNumber(value);
     }
     return value;
   });

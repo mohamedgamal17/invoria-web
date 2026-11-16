@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { SkeletonModule } from 'primeng/skeleton';
 
 export type ListSkeletonVariant = 'mobile' | 'table';
@@ -30,6 +30,7 @@ export const DEFAULT_LIST_SKELETON_COLUMNS: ListSkeletonColumn[] = [
   selector: 'app-list-skeleton',
   standalone: true,
   imports: [SkeletonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './list-skeleton.component.html',
   host: {
     style: 'display: contents;'

@@ -1,13 +1,13 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgxEchartsDirective } from 'ngx-echarts';
 import type { EChartsCoreOption } from 'echarts/core';
 import { SkeletonModule } from 'primeng/skeleton';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import {
-  REPORT_PERIOD_LABELS,
-  REPORT_SERIES_PERIODS,
-  ReportPeriod
+  REPORT_SERIES_PERIOD_OPTIONS,
+  ReportPeriod,
+  type ReportPeriodOption
 } from '../../../shared/models/report-period';
 import {
   generatePlaceholderCategoryLabels,
@@ -32,6 +32,7 @@ import { ThemeService } from '../../../core/theme/theme.service';
   standalone: true,
   imports: [NgxEchartsDirective, SkeletonModule, FormsModule, SelectButtonModule],
   templateUrl: './chart-card.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'block w-full' }
 })
 export class ChartCardComponent {
@@ -46,12 +47,7 @@ export class ChartCardComponent {
   // Period aggregation — optional, reusable across reports
   showPeriodSelector = input(false);
   selectedPeriod = input<ReportPeriod | null>(null);
-  periodOptions = input<{ label: string; value: ReportPeriod }[]>(
-    REPORT_SERIES_PERIODS.map((periodValue) => ({
-      label: REPORT_PERIOD_LABELS[periodValue],
-      value: periodValue
-    }))
-  );
+  periodOptions = input<ReportPeriodOption[]>(REPORT_SERIES_PERIOD_OPTIONS);
   periodChange = output<ReportPeriod>();
 
   readonly emptyText = input<string>('');

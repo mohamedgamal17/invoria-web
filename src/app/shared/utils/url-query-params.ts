@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Returns a single scalar value for a query param, or `null` when the value
  * is absent or unusable (repeated params, non-scalar types).
  */

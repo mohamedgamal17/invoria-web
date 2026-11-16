@@ -1,4 +1,4 @@
-import { DEFAULT_CURRENCY_CODE } from '../models/currency';
+﻿import { DEFAULT_CURRENCY_CODE } from '../models/currency';
 
 /** Placeholder rendered for missing numeric values. */
 const EMPTY_VALUE = '—';

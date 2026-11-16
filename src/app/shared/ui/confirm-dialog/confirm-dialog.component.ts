@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 import { ConfirmDialogService } from './confirm-dialog.service';
@@ -14,6 +14,7 @@ import { ConfirmDialogService } from './confirm-dialog.service';
   selector: 'app-confirm-dialog',
   standalone: true,
   imports: [ConfirmDialogModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './confirm-dialog.component.html',
 })
 export class ConfirmDialogComponent {

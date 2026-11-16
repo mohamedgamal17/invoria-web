@@ -1,4 +1,4 @@
-import { Component, forwardRef, input, model, output } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, computed, forwardRef, input, model, output, signal } from '@angular/core';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
@@ -25,7 +25,8 @@ import type { AutoCompleteSelectEvent } from 'primeng/types/autocomplete';
       multi: true
     }
   ],
-  templateUrl: './autosearch.component.html'
+  templateUrl: './autosearch.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AutosearchComponent<T> implements ControlValueAccessor {
   /** Currently selected entity; two-way bindable. */
@@ -61,11 +62,9 @@ export class AutosearchComponent<T> implements ControlValueAccessor {
 
   private onChange: (value: T | null) => void = () => {};
   private onTouched: () => void = () => {};
-  private disabledFromCva = false;
+  private readonly disabledFromCva = signal(false);
 
-  isControlDisabled(): boolean {
-    return this.disabled() || this.disabledFromCva;
-  }
+  readonly isControlDisabled = computed(() => this.disabled() || this.disabledFromCva());
 
   writeValue(value: T | null): void {
     this.selected.set(value);
@@ -80,7 +79,7 @@ export class AutosearchComponent<T> implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabledFromCva = isDisabled;
+    this.disabledFromCva.set(isDisabled);
   }
 
   onSelectedChange(value: T | null): void {
