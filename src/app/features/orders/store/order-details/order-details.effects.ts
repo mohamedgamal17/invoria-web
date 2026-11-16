@@ -27,11 +27,11 @@ export class OrderDetailsEffects {
       ofType(ORDER_DETAILS_ACTIONS.loadOrder, ORDER_DETAILS_ACTIONS.refreshOrder),
       switchMap(({ orderId }) =>
         this.ordersApi.getOrder(orderId).pipe(
-          mergeMap((res) => {
-            if (res.isSuccess && res.result) {
-              return of(ORDER_DETAILS_ACTIONS.loadOrderSuccess({ order: orderToUiOrder(res.result) }));
+          mergeMap((response) => {
+            if (response.isSuccess && response.result) {
+              return of(ORDER_DETAILS_ACTIONS.loadOrderSuccess({ order: orderToUiOrder(response.result) }));
             }
-            const error = res.error ?? new Error('Failed to load the order.');
+            const error = response.error ?? new Error('Failed to load the order.');
             return of(
               ORDER_DETAILS_ACTIONS.loadOrderFailure({ error }),
               APP_ERROR_ACTIONS.apiError({ error }),
@@ -55,9 +55,9 @@ export class OrderDetailsEffects {
       ofType(ORDER_DETAILS_ACTIONS.recordAction),
       switchMap(({ action, orderId, body }) =>
         this.orderActionFacade.execute(action, orderId, body).pipe(
-          mergeMap((res) => {
-            if (res.isSuccess && res.result) {
-              const order = orderToUiOrder(res.result);
+          mergeMap((response) => {
+            if (response.isSuccess && response.result) {
+              const order = orderToUiOrder(response.result);
               const sync = ordersListSyncAction(action, order);
               const actions: Action[] = [
                 ORDER_DETAILS_ACTIONS.recordActionSuccess({ action, order }),
@@ -67,7 +67,7 @@ export class OrderDetailsEffects {
               }
               return of(...actions);
             }
-            const error = res.error ?? new Error('The order action failed.');
+            const error = response.error ?? new Error('The order action failed.');
             return of(
               ORDER_DETAILS_ACTIONS.recordActionFailure({ error }),
               APP_ERROR_ACTIONS.apiError({ error }),
@@ -91,15 +91,15 @@ export class OrderDetailsEffects {
       ofType(ORDER_DETAILS_ACTIONS.recordPayment),
       switchMap(({ orderId, body }) =>
         this.ordersApi.recordOrderPayment(orderId, body).pipe(
-          mergeMap((res) => {
-            if (res.isSuccess && res.result) {
-              const order = orderToUiOrder(res.result);
+          mergeMap((response) => {
+            if (response.isSuccess && response.result) {
+              const order = orderToUiOrder(response.result);
               return of(
                 ORDER_DETAILS_ACTIONS.recordPaymentSuccess({ order }),
                 ORDERS_LIST_ACTIONS.orderUpdated({ order }),
               );
             }
-            const error = res.error ?? new Error('Recording the payment failed.');
+            const error = response.error ?? new Error('Recording the payment failed.');
             return of(
               ORDER_DETAILS_ACTIONS.recordPaymentFailure({ error }),
               APP_ERROR_ACTIONS.apiError({ error }),

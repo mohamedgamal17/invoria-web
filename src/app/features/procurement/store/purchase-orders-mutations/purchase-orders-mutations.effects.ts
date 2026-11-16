@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { MessageService } from 'primeng/api';
 import { Observable, catchError, exhaustMap, mergeMap, of, tap } from 'rxjs';
@@ -28,16 +28,16 @@ export class PurchaseOrdersMutationsEffects {
       ofType(PURCHASE_ORDERS_MUTATIONS_ACTIONS.transitionPurchaseOrder),
       exhaustMap(({ id, action }) =>
         this.transitionRequest(id, action).pipe(
-          mergeMap((res) => {
-            if (res.isSuccess && res.result) {
+          mergeMap((response) => {
+            if (response.isSuccess && response.result) {
               return of(
                 PURCHASE_ORDERS_MUTATIONS_ACTIONS.transitionPurchaseOrderSuccess({
-                  purchaseOrder: res.result,
+                  purchaseOrder: response.result,
                 }),
-                PURCHASE_ORDERS_LIST_ACTIONS.purchaseOrderUpdated({ purchaseOrder: res.result }),
+                PURCHASE_ORDERS_LIST_ACTIONS.purchaseOrderUpdated({ purchaseOrder: response.result }),
               );
             }
-            const error = res.error ?? new Error('Failed to update the purchase order state.');
+            const error = response.error ?? new Error('Failed to update the purchase order state.');
             return of(
               PURCHASE_ORDERS_MUTATIONS_ACTIONS.transitionPurchaseOrderFailure({ error }),
               APP_ERROR_ACTIONS.apiError({ error }),

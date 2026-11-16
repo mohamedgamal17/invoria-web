@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, mergeMap, of, switchMap } from 'rxjs';
 
@@ -21,11 +21,11 @@ export class ProductDetailsEffects {
       ofType(PRODUCT_DETAILS_ACTIONS.loadProduct, PRODUCT_DETAILS_ACTIONS.refreshProduct),
       switchMap(({ productId }) =>
         this.productsApi.getProduct(productId).pipe(
-          mergeMap((res) => {
-            if (res.isSuccess && res.result) {
-              return of(PRODUCT_DETAILS_ACTIONS.loadProductSuccess({ product: res.result }));
+          mergeMap((response) => {
+            if (response.isSuccess && response.result) {
+              return of(PRODUCT_DETAILS_ACTIONS.loadProductSuccess({ product: response.result }));
             }
-            const error = res.error ?? new Error('Failed to load the product.');
+            const error = response.error ?? new Error('Failed to load the product.');
             return of(
               PRODUCT_DETAILS_ACTIONS.loadProductFailure({ error }),
               APP_ERROR_ACTIONS.apiError({ error }),

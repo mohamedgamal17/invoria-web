@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { MessageService } from 'primeng/api';
@@ -27,14 +27,14 @@ export class CustomerMutationsEffects {
       ofType(CUSTOMER_MUTATIONS_ACTIONS.createCustomer),
       exhaustMap(({ request }) =>
         this.customersApi.createCustomer(request).pipe(
-          mergeMap((res) => {
-            if (res.isSuccess && res.result) {
+          mergeMap((response) => {
+            if (response.isSuccess && response.result) {
               return of(
-                CUSTOMER_MUTATIONS_ACTIONS.createCustomerSuccess({ customer: res.result }),
-                CUSTOMERS_LIST_ACTIONS.customerCreated({ customer: res.result }),
+                CUSTOMER_MUTATIONS_ACTIONS.createCustomerSuccess({ customer: response.result }),
+                CUSTOMERS_LIST_ACTIONS.customerCreated({ customer: response.result }),
               );
             }
-            const error = res.error ?? new Error('Failed to create the customer.');
+            const error = response.error ?? new Error('Failed to create the customer.');
             return of(
               CUSTOMER_MUTATIONS_ACTIONS.createCustomerFailure({ error }),
               APP_ERROR_ACTIONS.apiError({ error }),
@@ -73,14 +73,14 @@ export class CustomerMutationsEffects {
       ofType(CUSTOMER_MUTATIONS_ACTIONS.updateCustomer),
       exhaustMap(({ id, request }) =>
         this.customersApi.updateCustomer(id, request).pipe(
-          mergeMap((res) => {
-            if (res.isSuccess && res.result) {
+          mergeMap((response) => {
+            if (response.isSuccess && response.result) {
               return of(
-                CUSTOMER_MUTATIONS_ACTIONS.updateCustomerSuccess({ customer: res.result }),
-                CUSTOMERS_LIST_ACTIONS.customerUpdated({ customer: res.result }),
+                CUSTOMER_MUTATIONS_ACTIONS.updateCustomerSuccess({ customer: response.result }),
+                CUSTOMERS_LIST_ACTIONS.customerUpdated({ customer: response.result }),
               );
             }
-            const error = res.error ?? new Error('Failed to update the customer.');
+            const error = response.error ?? new Error('Failed to update the customer.');
             return of(
               CUSTOMER_MUTATIONS_ACTIONS.updateCustomerFailure({ error }),
               APP_ERROR_ACTIONS.apiError({ error }),

@@ -1,4 +1,4 @@
-import { createFeature, createReducer, on } from '@ngrx/store';
+﻿import { createFeature, createReducer, on } from '@ngrx/store';
 
 import type { PagingInfo } from '../../../../core/models/paging';
 import {

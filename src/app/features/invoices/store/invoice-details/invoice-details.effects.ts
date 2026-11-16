@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, mergeMap, of, switchMap } from 'rxjs';
 
@@ -29,13 +29,13 @@ export class InvoiceDetailsEffects {
       ),
       switchMap(({ invoiceId }) =>
         this.invoicesApi.getInvoice(invoiceId).pipe(
-          mergeMap((res) => {
-            if (res.isSuccess && res.result) {
+          mergeMap((response) => {
+            if (response.isSuccess && response.result) {
               return of(
-                INVOICE_DETAILS_ACTIONS.loadInvoiceSuccess({ invoice: res.result }),
+                INVOICE_DETAILS_ACTIONS.loadInvoiceSuccess({ invoice: response.result }),
               );
             }
-            const error = res.error ?? new Error('Failed to load the invoice.');
+            const error = response.error ?? new Error('Failed to load the invoice.');
             return of(
               INVOICE_DETAILS_ACTIONS.loadInvoiceFailure({ error }),
               APP_ERROR_ACTIONS.apiError({ error }),

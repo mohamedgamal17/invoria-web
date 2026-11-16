@@ -1,4 +1,4 @@
-import { createAction, props } from '@ngrx/store';
+﻿import { createAction, props } from '@ngrx/store';
 
 import type { Supplier } from '../../models/supplier.entity';
 import type { SupplierDetailsTab } from './supplier-details.reducer';

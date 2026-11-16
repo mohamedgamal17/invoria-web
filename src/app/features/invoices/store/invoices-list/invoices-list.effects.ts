@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import {
@@ -64,16 +64,16 @@ export class InvoicesListEffects {
     };
 
     return this.invoicesApi.listInvoices(request).pipe(
-      mergeMap((res) => {
-        if (res.isSuccess && res.result) {
+      mergeMap((response) => {
+        if (response.isSuccess && response.result) {
           return of(
             INVOICES_LIST_ACTIONS.loadInvoicesSuccess({
-              invoices: res.result.data,
-              info: res.result.info,
+              invoices: response.result.data,
+              info: response.result.info,
             }),
           );
         }
-        const error = res.error ?? new Error('Failed to load invoices.');
+        const error = response.error ?? new Error('Failed to load invoices.');
         return of(
           INVOICES_LIST_ACTIONS.loadInvoicesFailure({ error }),
           APP_ERROR_ACTIONS.apiError({ error }),

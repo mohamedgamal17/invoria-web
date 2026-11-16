@@ -1,4 +1,4 @@
-import { createAction, props } from '@ngrx/store';
+﻿import { createAction, props } from '@ngrx/store';
 
 import type { Product } from '../../models/product.entity';
 import type { ProductDetailsTab } from './product-details.reducer';

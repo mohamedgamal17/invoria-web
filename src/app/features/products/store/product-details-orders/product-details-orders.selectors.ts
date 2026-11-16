@@ -1,4 +1,4 @@
-import { createSelector } from '@ngrx/store';
+﻿import { createSelector } from '@ngrx/store';
 
 import { LOAD_STATUS } from '../../../../shared/models/load-status';
 import { productDetailsFeature } from '../product-details/product-details.reducer';

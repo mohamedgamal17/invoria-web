@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { MessageService } from 'primeng/api';
 import { catchError, exhaustMap, from, mergeMap, of, tap } from 'rxjs';
@@ -30,9 +30,9 @@ export class PayablesMutationsEffects {
       ofType(PAYABLES_MUTATIONS_ACTIONS.settlePayable),
       exhaustMap(({ payableId, amount }) =>
         this.payablesApi.settlePayable(payableId, { Amount: amount }).pipe(
-          mergeMap((res) => {
-            if (!res.isSuccess || !res.result) {
-              const error = res.error ?? new Error('Failed to settle the payable.');
+          mergeMap((response) => {
+            if (!response.isSuccess || !response.result) {
+              const error = response.error ?? new Error('Failed to settle the payable.');
               return of(
                 PAYABLES_MUTATIONS_ACTIONS.settlePayableFailure({ error }),
                 APP_ERROR_ACTIONS.apiError({ error }),
@@ -40,7 +40,7 @@ export class PayablesMutationsEffects {
             }
             // Enrich the returned entity before any slice folds it in, so the
             // list row and the details view keep their resolved party/source refs.
-            return from(this.enrichPayable(res.result)).pipe(
+            return from(this.enrichPayable(response.result)).pipe(
               mergeMap((payable) =>
                 of(
                   PAYABLES_MUTATIONS_ACTIONS.settlePayableSuccess({ payable, amount }),

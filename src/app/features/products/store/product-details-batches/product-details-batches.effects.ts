@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import {
@@ -99,11 +99,11 @@ export class ProductBatchesEffects {
           PurchasePrice: payload.purchasePrice,
         };
         return this.batchesApi.createBatch(request).pipe(
-          mergeMap((res) => {
-            if (res.isSuccess && res.result) {
-              return of(PRODUCT_BATCHES_ACTIONS.createBatchSuccess({ batch: res.result }));
+          mergeMap((response) => {
+            if (response.isSuccess && response.result) {
+              return of(PRODUCT_BATCHES_ACTIONS.createBatchSuccess({ batch: response.result }));
             }
-            const error = res.error ?? new Error('Failed to create the batch.');
+            const error = response.error ?? new Error('Failed to create the batch.');
             return of(
               PRODUCT_BATCHES_ACTIONS.createBatchFailure({ error }),
               APP_ERROR_ACTIONS.apiError({ error }),
@@ -129,11 +129,11 @@ export class ProductBatchesEffects {
           PurchasePrice: payload.purchasePrice,
         };
         return this.batchesApi.updateBatch(id, request).pipe(
-          mergeMap((res) => {
-            if (res.isSuccess && res.result) {
-              return of(PRODUCT_BATCHES_ACTIONS.updateBatchSuccess({ batch: res.result }));
+          mergeMap((response) => {
+            if (response.isSuccess && response.result) {
+              return of(PRODUCT_BATCHES_ACTIONS.updateBatchSuccess({ batch: response.result }));
             }
-            const error = res.error ?? new Error('Failed to update the batch.');
+            const error = response.error ?? new Error('Failed to update the batch.');
             return of(
               PRODUCT_BATCHES_ACTIONS.updateBatchFailure({ error }),
               APP_ERROR_ACTIONS.apiError({ error }),
@@ -172,16 +172,16 @@ export class ProductBatchesEffects {
       Length: state.pageSize,
     };
     return this.batchesApi.listBatches(request).pipe(
-      mergeMap((res) => {
-        if (res.isSuccess && res.result) {
+      mergeMap((response) => {
+        if (response.isSuccess && response.result) {
           return of(
             PRODUCT_BATCHES_ACTIONS.loadBatchesSuccess({
-              batches: res.result.data,
-              info: res.result.info,
+              batches: response.result.data,
+              info: response.result.info,
             }),
           );
         }
-        const error = res.error ?? new Error('Failed to load the batches.');
+        const error = response.error ?? new Error('Failed to load the batches.');
         return of(
           PRODUCT_BATCHES_ACTIONS.loadBatchesFailure({ error }),
           APP_ERROR_ACTIONS.apiError({ error }),

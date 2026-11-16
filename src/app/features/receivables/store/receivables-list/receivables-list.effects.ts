@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import {
@@ -65,9 +65,9 @@ export class ReceivablesListEffects {
     };
 
     return this.receivablesApi.listReceivables(request).pipe(
-      mergeMap((res) => {
-        if (!res.isSuccess || !res.result) {
-          const error = res.error ?? new Error('Failed to load receivables.');
+      mergeMap((response) => {
+        if (!response.isSuccess || !response.result) {
+          const error = response.error ?? new Error('Failed to load receivables.');
           return of(
             RECEIVABLES_LIST_ACTIONS.loadReceivablesFailure({ error }),
             APP_ERROR_ACTIONS.apiError({ error }),
@@ -75,8 +75,8 @@ export class ReceivablesListEffects {
         }
         return of(
           RECEIVABLES_LIST_ACTIONS.loadReceivablesSuccess({
-            receivables: res.result.data,
-            info: res.result.info,
+            receivables: response.result.data,
+            info: response.result.info,
           }),
         );
       }),

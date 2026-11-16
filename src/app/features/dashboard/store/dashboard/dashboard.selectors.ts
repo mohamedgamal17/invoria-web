@@ -1,4 +1,4 @@
-import { createSelector } from '@ngrx/store';
+﻿import { createSelector } from '@ngrx/store';
 
 import { LOAD_STATUS } from '../../../../shared/models/load-status';
 import type { OrderSalesProfitReportPeriod } from '../../../orders/models/order-report.entity';

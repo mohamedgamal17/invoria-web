@@ -1,4 +1,4 @@
-import { createAction, props } from '@ngrx/store';
+﻿import { createAction, props } from '@ngrx/store';
 
 import type { ReportOverview } from '../../../../shared/models/report-overview';
 import type { ReportPeriod } from '../../../../shared/models/report-period';

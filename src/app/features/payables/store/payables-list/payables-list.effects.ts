@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import {
@@ -70,15 +70,15 @@ export class PayablesListEffects {
     };
 
     return this.payablesApi.listPayables(request).pipe(
-      mergeMap((res) => {
-        if (!res.isSuccess || !res.result) {
-          const error = res.error ?? new Error('Failed to load payables.');
+      mergeMap((response) => {
+        if (!response.isSuccess || !response.result) {
+          const error = response.error ?? new Error('Failed to load payables.');
           return of(
             PAYABLES_LIST_ACTIONS.loadPayablesFailure({ error }),
             APP_ERROR_ACTIONS.apiError({ error }),
           );
         }
-        const page = res.result;
+        const page = response.result;
         // Enrich (hydrate) the raw page before it reaches the store — the
         // store only ever holds UI-ready payables.
         return from(this.enrichPage(page.data)).pipe(

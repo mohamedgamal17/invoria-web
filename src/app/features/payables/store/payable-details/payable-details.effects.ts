@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, from, map, mergeMap, of, switchMap } from 'rxjs';
 
@@ -25,9 +25,9 @@ export class PayableDetailsEffects {
       ofType(PAYABLE_DETAILS_ACTIONS.loadPayable),
       switchMap(({ payableId }) =>
         this.payablesApi.getPayable(payableId).pipe(
-          mergeMap((res) => {
-            if (!res.isSuccess || !res.result) {
-              const error = res.error ?? new Error('Failed to load the payable.');
+          mergeMap((response) => {
+            if (!response.isSuccess || !response.result) {
+              const error = response.error ?? new Error('Failed to load the payable.');
               return of(
                 PAYABLE_DETAILS_ACTIONS.loadPayableFailure({ error }),
                 APP_ERROR_ACTIONS.apiError({ error }),
@@ -35,7 +35,7 @@ export class PayableDetailsEffects {
             }
             // Enrich (hydrate) the server-omitted party/source refs before the
             // entity reaches the store — the store only holds UI-ready payables.
-            return from(this.enrichPayable(res.result)).pipe(
+            return from(this.enrichPayable(response.result)).pipe(
               map((payable) => PAYABLE_DETAILS_ACTIONS.loadPayableSuccess({ payable })),
             );
           }),

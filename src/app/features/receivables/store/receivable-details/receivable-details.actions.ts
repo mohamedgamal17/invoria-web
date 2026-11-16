@@ -1,4 +1,4 @@
-import { createAction, props } from '@ngrx/store';
+﻿import { createAction, props } from '@ngrx/store';
 
 import type { Receivable } from '../../models/receivable.entity';
 import type { ReceivableDetailsTab } from './receivable-details.reducer';

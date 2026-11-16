@@ -1,4 +1,4 @@
-import { createFeature, createReducer, on } from '@ngrx/store';
+﻿import { createFeature, createReducer, on } from '@ngrx/store';
 
 import type { ReportOverview } from '../../../../shared/models/report-overview';
 import { LOAD_STATUS } from '../../../../shared/models/load-status';

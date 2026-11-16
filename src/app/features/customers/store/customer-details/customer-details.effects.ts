@@ -18,11 +18,11 @@ export class CustomerDetailsEffects {
       ofType(CUSTOMER_DETAILS_ACTIONS.loadCustomer),
       switchMap(({ customerId }) =>
         this.customersApi.getCustomer(customerId).pipe(
-          mergeMap((res) => {
-            if (res.isSuccess && res.result) {
-              return of(CUSTOMER_DETAILS_ACTIONS.loadCustomerSuccess({ customer: res.result }));
+          mergeMap((response) => {
+            if (response.isSuccess && response.result) {
+              return of(CUSTOMER_DETAILS_ACTIONS.loadCustomerSuccess({ customer: response.result }));
             }
-            const error = res.error ?? new Error('Failed to load customer.');
+            const error = response.error ?? new Error('Failed to load customer.');
             return of(
               CUSTOMER_DETAILS_ACTIONS.loadCustomerFailure({ error }),
               APP_ERROR_ACTIONS.apiError({ error }),

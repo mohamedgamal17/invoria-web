@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, map, mergeMap, of, switchMap } from 'rxjs';
 
@@ -22,15 +22,15 @@ export class ReceivableDetailsEffects {
       ofType(RECEIVABLE_DETAILS_ACTIONS.loadReceivable),
       switchMap(({ receivableId }) =>
         this.receivablesApi.getReceivable(receivableId).pipe(
-          mergeMap((res) => {
-            if (!res.isSuccess || !res.result) {
-              const error = res.error ?? new Error('Failed to load the receivable.');
+          mergeMap((response) => {
+            if (!response.isSuccess || !response.result) {
+              const error = response.error ?? new Error('Failed to load the receivable.');
               return of(
                 RECEIVABLE_DETAILS_ACTIONS.loadReceivableFailure({ error }),
                 APP_ERROR_ACTIONS.apiError({ error }),
               );
             }
-            return of(RECEIVABLE_DETAILS_ACTIONS.loadReceivableSuccess({ receivable: res.result }));
+            return of(RECEIVABLE_DETAILS_ACTIONS.loadReceivableSuccess({ receivable: response.result }));
           }),
           catchError((error: unknown) =>
             of(

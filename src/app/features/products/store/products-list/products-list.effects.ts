@@ -63,16 +63,16 @@ export class ProductsListEffects {
     };
 
     return this.productsApi.listProducts(request).pipe(
-      mergeMap((res) => {
-        if (res.isSuccess && res.result) {
+      mergeMap((response) => {
+        if (response.isSuccess && response.result) {
           return of(
             PRODUCTS_LIST_ACTIONS.loadProductsSuccess({
-              products: res.result.data,
-              info: res.result.info,
+              products: response.result.data,
+              info: response.result.info,
             }),
           );
         }
-        const error = res.error ?? new Error('Failed to load products.');
+        const error = response.error ?? new Error('Failed to load products.');
         return of(
           PRODUCTS_LIST_ACTIONS.loadProductsFailure({ error }),
           APP_ERROR_ACTIONS.apiError({ error }),

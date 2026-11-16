@@ -1,4 +1,4 @@
-import { createSelector } from '@ngrx/store';
+﻿import { createSelector } from '@ngrx/store';
 
 import { EMPTY_PAGING_INFO } from '../../../../core/models/paging';
 import { LOAD_STATUS } from '../../../../shared/models/load-status';

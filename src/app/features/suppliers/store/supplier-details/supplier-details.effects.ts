@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of, mergeMap, catchError, switchMap } from 'rxjs';
 
@@ -18,11 +18,11 @@ export class SupplierDetailsEffects {
       ofType(SUPPLIER_DETAILS_ACTIONS.loadSupplier),
       switchMap(({ supplierId }) =>
         this.suppliersApi.getSupplier(supplierId).pipe(
-          mergeMap((res) => {
-            if (res.isSuccess && res.result) {
-              return of(SUPPLIER_DETAILS_ACTIONS.loadSupplierSuccess({ supplier: res.result }));
+          mergeMap((response) => {
+            if (response.isSuccess && response.result) {
+              return of(SUPPLIER_DETAILS_ACTIONS.loadSupplierSuccess({ supplier: response.result }));
             }
-            const error = res.error ?? new Error('Failed to load supplier.');
+            const error = response.error ?? new Error('Failed to load supplier.');
             return of(
               SUPPLIER_DETAILS_ACTIONS.loadSupplierFailure({ error }),
               APP_ERROR_ACTIONS.apiError({ error }),

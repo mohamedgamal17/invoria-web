@@ -103,26 +103,26 @@ export class CustomerOrdersEffects {
     }
 
     return this.listCustomerOrdersApi.listOrders(request).pipe(
-      map((res): ApiResponse<Paging<UiOrder>> => ({
-        isSuccess: res.isSuccess,
-        result: res.result
+      map((response): ApiResponse<Paging<UiOrder>> => ({
+        isSuccess: response.isSuccess,
+        result: response.result
           ? {
-              data: res.result.data.map(orderToUiOrder),
-              info: res.result.info,
+              data: response.result.data.map(orderToUiOrder),
+              info: response.result.info,
             }
           : undefined,
-        error: res.error,
+        error: response.error,
       })),
-      mergeMap((res) => {
-        if (res.isSuccess && res.result) {
+      mergeMap((response) => {
+        if (response.isSuccess && response.result) {
           return of(
             CUSTOMER_ORDERS_ACTIONS.loadOrdersSuccess({
-              orders: res.result.data,
-              info: res.result.info,
+              orders: response.result.data,
+              info: response.result.info,
             }),
           );
         }
-        const error = res.error ?? new Error('Failed to load customer orders.');
+        const error = response.error ?? new Error('Failed to load customer orders.');
         return of(
           CUSTOMER_ORDERS_ACTIONS.loadOrdersFailure({ error }),
           APP_ERROR_ACTIONS.apiError({ error }),

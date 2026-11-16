@@ -1,4 +1,4 @@
-import { createSelector } from '@ngrx/store';
+﻿import { createSelector } from '@ngrx/store';
 
 import { LOAD_STATUS } from '../../../../shared/models/load-status';
 import { invoiceDetailsFeature } from './invoice-details.reducer';

@@ -1,4 +1,4 @@
-import { createAction, props } from '@ngrx/store';
+﻿import { createAction, props } from '@ngrx/store';
 
 import type { PurchaseOrder } from '../../models/purchase-order.entity';
 import type { PurchaseOrderDetailsTab } from './purchase-order-details.reducer';

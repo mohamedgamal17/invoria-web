@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { Observable, catchError, forkJoin, map, mergeMap, of, switchMap } from 'rxjs';
@@ -29,15 +29,15 @@ export class PurchaseOrderDetailsEffects {
       ofType(PURCHASE_ORDER_DETAILS_ACTIONS.loadPurchaseOrder),
       switchMap(({ purchaseOrderId }) =>
         this.purchaseOrdersApi.getPurchaseOrder(purchaseOrderId).pipe(
-          mergeMap((res) => {
-            if (res.isSuccess && res.result) {
+          mergeMap((response) => {
+            if (response.isSuccess && response.result) {
               return of(
                 PURCHASE_ORDER_DETAILS_ACTIONS.loadPurchaseOrderSuccess({
-                  purchaseOrder: res.result,
+                  purchaseOrder: response.result,
                 }),
               );
             }
-            const error = res.error ?? new Error('Failed to load the purchase order.');
+            const error = response.error ?? new Error('Failed to load the purchase order.');
             return of(
               PURCHASE_ORDER_DETAILS_ACTIONS.loadPurchaseOrderFailure({ error }),
               APP_ERROR_ACTIONS.apiError({ error }),
@@ -85,9 +85,9 @@ export class PurchaseOrderDetailsEffects {
     return forkJoin(
       toFetch.map((productId) =>
         this.productsApi.getProduct(productId).pipe(
-          map((res) => {
+          map((response) => {
             const name =
-              res.isSuccess && res.result?.name?.trim() ? res.result.name.trim() : productId;
+              response.isSuccess && response.result?.name?.trim() ? response.result.name.trim() : productId;
             return { productId, name };
           }),
           catchError(() => of({ productId, name: productId })),

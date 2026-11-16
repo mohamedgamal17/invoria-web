@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import {
@@ -62,16 +62,16 @@ export class SuppliersListEffects {
     };
 
     return this.suppliersApi.listSuppliers(request).pipe(
-      mergeMap((res) => {
-        if (res.isSuccess && res.result) {
+      mergeMap((response) => {
+        if (response.isSuccess && response.result) {
           return of(
             SUPPLIERS_LIST_ACTIONS.loadSuppliersSuccess({
-              suppliers: res.result.data,
-              info: res.result.info,
+              suppliers: response.result.data,
+              info: response.result.info,
             }),
           );
         }
-        const error = res.error ?? new Error('Failed to load suppliers.');
+        const error = response.error ?? new Error('Failed to load suppliers.');
         return of(
           SUPPLIERS_LIST_ACTIONS.loadSuppliersFailure({ error }),
           APP_ERROR_ACTIONS.apiError({ error }),

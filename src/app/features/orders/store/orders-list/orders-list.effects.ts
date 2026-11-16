@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import {
@@ -66,16 +66,16 @@ export class OrdersListEffects {
     };
 
     return this.ordersApi.listOrders(request).pipe(
-      mergeMap((res) => {
-        if (res.isSuccess && res.result) {
+      mergeMap((response) => {
+        if (response.isSuccess && response.result) {
           return of(
             ORDERS_LIST_ACTIONS.loadOrdersSuccess({
-              orders: res.result.data.map(orderToUiOrder),
-              info: res.result.info,
+              orders: response.result.data.map(orderToUiOrder),
+              info: response.result.info,
             }),
           );
         }
-        const error = res.error ?? new Error('Failed to load orders.');
+        const error = response.error ?? new Error('Failed to load orders.');
         return of(
           ORDERS_LIST_ACTIONS.loadOrdersFailure({ error }),
           APP_ERROR_ACTIONS.apiError({ error }),

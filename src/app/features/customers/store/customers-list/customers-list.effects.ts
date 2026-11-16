@@ -54,16 +54,16 @@ export class CustomersListEffects {
     };
 
     return this.customersApi.listCustomers(request).pipe(
-      mergeMap((res) => {
-        if (res.isSuccess && res.result) {
+      mergeMap((response) => {
+        if (response.isSuccess && response.result) {
           return of(
             CUSTOMERS_LIST_ACTIONS.loadCustomersSuccess({
-              customers: res.result.data,
-              info: res.result.info,
+              customers: response.result.data,
+              info: response.result.info,
             }),
           );
         }
-        const error = res.error ?? new Error('Failed to load customers.');
+        const error = response.error ?? new Error('Failed to load customers.');
         return of(
           CUSTOMERS_LIST_ACTIONS.loadCustomersFailure({ error }),
           APP_ERROR_ACTIONS.apiError({ error }),

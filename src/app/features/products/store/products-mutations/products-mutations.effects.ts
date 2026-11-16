@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { MessageService } from 'primeng/api';
@@ -27,14 +27,14 @@ export class ProductsMutationsEffects {
       ofType(PRODUCT_MUTATIONS_ACTIONS.createProduct),
       exhaustMap(({ request }) =>
         this.productsApi.createProduct(request).pipe(
-          mergeMap((res) => {
-            if (res.isSuccess && res.result) {
+          mergeMap((response) => {
+            if (response.isSuccess && response.result) {
               return of(
-                PRODUCT_MUTATIONS_ACTIONS.createProductSuccess({ product: res.result }),
-                PRODUCTS_LIST_ACTIONS.productCreated({ product: res.result }),
+                PRODUCT_MUTATIONS_ACTIONS.createProductSuccess({ product: response.result }),
+                PRODUCTS_LIST_ACTIONS.productCreated({ product: response.result }),
               );
             }
-            const error = res.error ?? new Error('Failed to create the product.');
+            const error = response.error ?? new Error('Failed to create the product.');
             return of(
               PRODUCT_MUTATIONS_ACTIONS.createProductFailure({ error }),
               APP_ERROR_ACTIONS.apiError({ error }),
@@ -73,14 +73,14 @@ export class ProductsMutationsEffects {
       ofType(PRODUCT_MUTATIONS_ACTIONS.updateProduct),
       exhaustMap(({ id, request }) =>
         this.productsApi.updateProduct(id, request).pipe(
-          mergeMap((res) => {
-            if (res.isSuccess && res.result) {
+          mergeMap((response) => {
+            if (response.isSuccess && response.result) {
               return of(
-                PRODUCT_MUTATIONS_ACTIONS.updateProductSuccess({ product: res.result }),
-                PRODUCTS_LIST_ACTIONS.productUpdated({ product: res.result }),
+                PRODUCT_MUTATIONS_ACTIONS.updateProductSuccess({ product: response.result }),
+                PRODUCTS_LIST_ACTIONS.productUpdated({ product: response.result }),
               );
             }
-            const error = res.error ?? new Error('Failed to update the product.');
+            const error = response.error ?? new Error('Failed to update the product.');
             return of(
               PRODUCT_MUTATIONS_ACTIONS.updateProductFailure({ error }),
               APP_ERROR_ACTIONS.apiError({ error }),
@@ -119,14 +119,14 @@ export class ProductsMutationsEffects {
       ofType(PRODUCT_MUTATIONS_ACTIONS.deleteProduct),
       exhaustMap(({ id }) =>
         this.productsApi.deleteProduct(id).pipe(
-          mergeMap((res) => {
-            if (res.isSuccess) {
+          mergeMap((response) => {
+            if (response.isSuccess) {
               return of(
                 PRODUCT_MUTATIONS_ACTIONS.deleteProductSuccess({ id }),
                 PRODUCTS_LIST_ACTIONS.productDeleted({ id }),
               );
             }
-            const error = res.error ?? new Error('Failed to delete the product.');
+            const error = response.error ?? new Error('Failed to delete the product.');
             return of(
               PRODUCT_MUTATIONS_ACTIONS.deleteProductFailure({ error }),
               APP_ERROR_ACTIONS.apiError({ error }),

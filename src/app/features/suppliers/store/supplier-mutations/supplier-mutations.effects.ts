@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { MessageService } from 'primeng/api';
@@ -27,14 +27,14 @@ export class SupplierMutationsEffects {
       ofType(SUPPLIER_MUTATIONS_ACTIONS.createSupplier),
       exhaustMap(({ request }) =>
         this.suppliersApi.createSupplier(request).pipe(
-          mergeMap((res) => {
-            if (res.isSuccess && res.result) {
+          mergeMap((response) => {
+            if (response.isSuccess && response.result) {
               return of(
-                SUPPLIER_MUTATIONS_ACTIONS.createSupplierSuccess({ supplier: res.result }),
-                SUPPLIERS_LIST_ACTIONS.supplierCreated({ supplier: res.result }),
+                SUPPLIER_MUTATIONS_ACTIONS.createSupplierSuccess({ supplier: response.result }),
+                SUPPLIERS_LIST_ACTIONS.supplierCreated({ supplier: response.result }),
               );
             }
-            const error = res.error ?? new Error('Failed to create the supplier.');
+            const error = response.error ?? new Error('Failed to create the supplier.');
             return of(
               SUPPLIER_MUTATIONS_ACTIONS.createSupplierFailure({ error }),
               APP_ERROR_ACTIONS.apiError({ error }),
@@ -73,14 +73,14 @@ export class SupplierMutationsEffects {
       ofType(SUPPLIER_MUTATIONS_ACTIONS.updateSupplier),
       exhaustMap(({ id, request }) =>
         this.suppliersApi.updateSupplier(id, request).pipe(
-          mergeMap((res) => {
-            if (res.isSuccess && res.result) {
+          mergeMap((response) => {
+            if (response.isSuccess && response.result) {
               return of(
-                SUPPLIER_MUTATIONS_ACTIONS.updateSupplierSuccess({ supplier: res.result }),
-                SUPPLIERS_LIST_ACTIONS.supplierUpdated({ supplier: res.result }),
+                SUPPLIER_MUTATIONS_ACTIONS.updateSupplierSuccess({ supplier: response.result }),
+                SUPPLIERS_LIST_ACTIONS.supplierUpdated({ supplier: response.result }),
               );
             }
-            const error = res.error ?? new Error('Failed to update the supplier.');
+            const error = response.error ?? new Error('Failed to update the supplier.');
             return of(
               SUPPLIER_MUTATIONS_ACTIONS.updateSupplierFailure({ error }),
               APP_ERROR_ACTIONS.apiError({ error }),

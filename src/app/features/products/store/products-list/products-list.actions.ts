@@ -1,4 +1,4 @@
-import { createAction, props } from '@ngrx/store';
+﻿import { createAction, props } from '@ngrx/store';
 
 import type { PagingInfo } from '../../../../core/models/paging';
 import type { Product } from '../../models/product.entity';

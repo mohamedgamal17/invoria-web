@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { MessageService } from 'primeng/api';
 import { catchError, exhaustMap, mergeMap, of, tap } from 'rxjs';
@@ -26,9 +26,9 @@ export class ReceivablesMutationsEffects {
       ofType(RECEIVABLES_MUTATIONS_ACTIONS.settleReceivable),
       exhaustMap(({ receivableId, amount }) =>
         this.receivablesApi.settleReceivable(receivableId, { Amount: amount }).pipe(
-          mergeMap((res) => {
-            if (!res.isSuccess || !res.result) {
-              const error = res.error ?? new Error('Failed to settle the receivable.');
+          mergeMap((response) => {
+            if (!response.isSuccess || !response.result) {
+              const error = response.error ?? new Error('Failed to settle the receivable.');
               return of(
                 RECEIVABLES_MUTATIONS_ACTIONS.settleReceivableFailure({ error }),
                 APP_ERROR_ACTIONS.apiError({ error }),
@@ -36,10 +36,10 @@ export class ReceivablesMutationsEffects {
             }
             return of(
               RECEIVABLES_MUTATIONS_ACTIONS.settleReceivableSuccess({
-                receivable: res.result,
+                receivable: response.result,
                 amount,
               }),
-              RECEIVABLES_LIST_ACTIONS.receivableUpdated({ receivable: res.result }),
+              RECEIVABLES_LIST_ACTIONS.receivableUpdated({ receivable: response.result }),
             );
           }),
           catchError((error: unknown) =>
