@@ -1,5 +1,5 @@
-import { DatePipe } from '@angular/common';
-import { Component, computed, effect, inject, untracked } from '@angular/core';
+﻿import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
@@ -46,6 +46,7 @@ import { invoiceDetailsTabToSlug, toInvoiceDetailsTab } from '../../utils/invoic
     InvoiceDetailsOverviewCardComponent,
     InvoiceDetailsItemsTabComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './invoice-details-page.component.html',
 })
 export class InvoiceDetailsPageComponent {

@@ -97,7 +97,7 @@
         <p-tabpanel [value]="tabs.Overview">
           <div class="pt-5 w-full">
             <app-purchase-order-details-overview-tab
-              [po]="po"
+              [purchaseOrder]="po"
               [currencyCode]="currencyCode"
               [supplierLine]="supplierLine(po)"
             />
@@ -106,7 +106,7 @@
         <p-tabpanel [value]="tabs.Lines">
           <div class="pt-5 min-w-0">
             <app-purchase-order-details-lines-tab
-              [po]="po"
+              [purchaseOrder]="po"
               [currencyCode]="currencyCode"
               [lineLabel]="lineLabelFn"
             />

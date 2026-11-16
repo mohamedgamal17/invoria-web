@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
+﻿import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, linkedSignal, signal } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, finalize, map, of, take } from 'rxjs';
@@ -47,6 +47,7 @@ import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confi
     PageHeaderComponent,
   ],
   providers: [MessageService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './return-details-page.component.html',
 })
 export class ReturnDetailsPageComponent {
@@ -78,15 +79,15 @@ export class ReturnDetailsPageComponent {
         return of(null);
       }
       return this.returnsApi.getReturn(id).pipe(
-        map((res) => {
-          if (!res.isSuccess || !res.result) {
-            this.showApiError(res.error);
+        map((response) => {
+          if (!response.isSuccess || !response.result) {
+            this.showApiError(response.error);
             return null;
           }
-          return res.result;
+          return response.result;
         }),
-        catchError((err: unknown) => {
-          this.showApiError(err);
+        catchError((error: unknown) => {
+          this.showApiError(error);
           return of(null);
         }),
       );
@@ -95,7 +96,7 @@ export class ReturnDetailsPageComponent {
 
   readonly displayReturn = linkedSignal({
     source: () => this.returnResource.value(),
-    computation: (ret) => (ret ? { ...ret } : null),
+    computation: (returnedOrder) => (returnedOrder ? { ...returnedOrder } : null),
   });
 
   readonly error = computed<string>(() => {
@@ -159,20 +160,20 @@ export class ReturnDetailsPageComponent {
         finalize(() => this.actionSaving.set(false)),
       )
       .subscribe({
-        next: (res) => {
-          if (!res.isSuccess || !res.result) {
-            this.messageService.add(presentApiError(res.error).toast);
+        next: (response) => {
+          if (!response.isSuccess || !response.result) {
+            this.messageService.add(presentApiError(response.error).toast);
             return;
           }
-          this.displayReturn.set(res.result);
+          this.displayReturn.set(response.result);
           this.messageService.add({
             severity: 'success',
             summary: 'Success',
             detail: `${this.returnActionFacade.meta(action).label} action completed.`,
           });
         },
-        error: (err: unknown) => {
-          this.messageService.add(presentApiError(err).toast);
+        error: (error: unknown) => {
+          this.messageService.add(presentApiError(error).toast);
         },
       });
   }

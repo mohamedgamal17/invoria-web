@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+﻿import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -43,6 +43,7 @@ import { SEARCH_DEBOUNCE_MS } from '../../../../shared/models/debounce';
   selector: 'app-order-form-page',
   standalone: true,
   imports: [CommonModule, ButtonModule, CardModule, OrderFormComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './order-form-page.component.html'
 })
 export class OrderFormPageComponent {
@@ -174,14 +175,14 @@ export class OrderFormPageComponent {
       })
       .pipe(
         take(1),
-        map((res) => {
-          if (!res.isSuccess || !res.result) {
-            throw res.error ? new ApiHttpError(res.error) : new Error('Failed to create order.');
+        map((response) => {
+          if (!response.isSuccess || !response.result) {
+            throw response.error ? new ApiHttpError(response.error) : new Error('Failed to create order.');
           }
-          return res.result;
+          return response.result;
         }),
-        catchError((err: unknown) => {
-          this.showCreateError(err);
+        catchError((error: unknown) => {
+          this.showCreateError(error);
           return EMPTY;
         }),
         finalize(() => this.saving.set(false))
@@ -207,23 +208,23 @@ export class OrderFormPageComponent {
         finalize(() => this.saving.set(false))
       )
       .subscribe({
-        next: (res) => {
-          if (!res.isSuccess || !res.result) {
-            this.messageService.add({ ...presentApiError(res.error).toast });
+        next: (response) => {
+          if (!response.isSuccess || !response.result) {
+            this.messageService.add({ ...presentApiError(response.error).toast });
             return;
           }
           this.store.dispatch(
-            ORDERS_LIST_ACTIONS.orderUpdated({ order: orderToUiOrder(res.result) })
+            ORDERS_LIST_ACTIONS.orderUpdated({ order: orderToUiOrder(response.result) })
           );
           this.messageService.add({
             severity: 'success',
             summary: 'Success',
             detail: 'Order updated successfully.'
           });
-          void this.router.navigate(['../../', res.result.id], { relativeTo: this.route });
+          void this.router.navigate(['../../', response.result.id], { relativeTo: this.route });
         },
-        error: (err: unknown) => {
-          this.messageService.add({ ...presentApiError(err).toast });
+        error: (error: unknown) => {
+          this.messageService.add({ ...presentApiError(error).toast });
         }
       });
   }
@@ -252,12 +253,12 @@ export class OrderFormPageComponent {
         finalize(() => this.loading.set(false))
       )
       .subscribe({
-        next: (res) => {
-          if (!res.isSuccess || !res.result) {
-            this.messageService.add({ ...presentApiError(res.error).toast });
+        next: (response) => {
+          if (!response.isSuccess || !response.result) {
+            this.messageService.add({ ...presentApiError(response.error).toast });
             return;
           }
-          const full = orderToUiOrder(res.result);
+          const full = orderToUiOrder(response.result);
           this.orderNumber.set(full.orderNumber);
           this.initialItems.set([...(full.items || [])]);
           this.totalAmount.set(full.netOfTotalOrderAmount);
@@ -266,13 +267,13 @@ export class OrderFormPageComponent {
             full.customerId ? ({ id: full.customerId, name: full.customerName } as Customer) : null
           );
         },
-        error: (err: unknown) => {
-          this.messageService.add({ ...presentApiError(err).toast });
+        error: (error: unknown) => {
+          this.messageService.add({ ...presentApiError(error).toast });
         }
       });
   }
 
-  private showCreateError(err: unknown): void {
-    this.messageService.add({ ...presentApiError(err).toast });
+  private showCreateError(error: unknown): void {
+    this.messageService.add({ ...presentApiError(error).toast });
   }
 }

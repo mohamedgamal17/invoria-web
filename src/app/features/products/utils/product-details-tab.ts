@@ -1,4 +1,4 @@
-import { ProductDetailsTab } from '../store/product-details/product-details.reducer';
+﻿import { ProductDetailsTab } from '../store/product-details/product-details.reducer';
 
 const TAB_VALUES = Object.values(ProductDetailsTab) as string[];
 

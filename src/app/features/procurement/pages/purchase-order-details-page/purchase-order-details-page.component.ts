@@ -1,5 +1,5 @@
-import { CommonModule, formatDate } from '@angular/common';
-import { Component, computed, effect, inject, LOCALE_ID, untracked } from '@angular/core';
+﻿import { CommonModule, formatDate } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, LOCALE_ID, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
@@ -63,6 +63,7 @@ import {
     PurchaseOrderDetailsLinesTabComponent,
     PurchaseOrderDetailsHistoryTabComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './purchase-order-details-page.component.html',
 })
 /**

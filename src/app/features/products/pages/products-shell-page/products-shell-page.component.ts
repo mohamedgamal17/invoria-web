@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 
@@ -6,6 +6,7 @@ import { ToastModule } from 'primeng/toast';
   selector: 'app-products-shell-page',
   standalone: true,
   imports: [RouterOutlet, ToastModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './products-shell-page.component.html',
 })
 export class ProductsShellPageComponent {}

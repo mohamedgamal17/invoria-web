@@ -1,4 +1,4 @@
-/** Tabs of the invoice details page, as zero-based `p-tabs` indexes. */
+﻿/** Tabs of the invoice details page, as zero-based `p-tabs` indexes. */
 export type InvoiceDetailsTab = 0 | 1;
 
 /** URL slugs for the details tabs. */

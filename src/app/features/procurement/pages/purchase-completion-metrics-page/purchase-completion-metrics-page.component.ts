@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, linkedSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, linkedSignal } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, map, of } from 'rxjs';
@@ -48,6 +48,7 @@ function parsePeriodParam(raw: string | null): ReportPeriod | null {
     PurchaseCompletionMetricsListComponent
   ],
   providers: [MessageService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './purchase-completion-metrics-page.component.html'
 })
 export class PurchaseCompletionMetricsPageComponent {
@@ -104,15 +105,15 @@ export class PurchaseCompletionMetricsPageComponent {
     defaultValue: EMPTY_COMPLETION_TUPLE,
     stream: ({ params }) =>
       this.purchaseOrdersApi.listPurchaseCompletionReportMetrics(params).pipe(
-        map((res) => {
-          if (!res.isSuccess || !res.result) {
-            this.showApiError(res.error);
+        map((response) => {
+          if (!response.isSuccess || !response.result) {
+            this.showApiError(response.error);
             return EMPTY_COMPLETION_TUPLE;
           }
-          return [res.result.data, res.result.info] as [PurchaseCompletionReportPeriod[], PagingInfo];
+          return [response.result.data, response.result.info] as [PurchaseCompletionReportPeriod[], PagingInfo];
         }),
-        catchError((err: unknown) => {
-          this.showApiError(err);
+        catchError((error: unknown) => {
+          this.showApiError(error);
           return of(EMPTY_COMPLETION_TUPLE);
         })
       )
@@ -120,12 +121,12 @@ export class PurchaseCompletionMetricsPageComponent {
 
   readonly displayRows = linkedSignal({
     source: () => this.metricsLinkSource(),
-    computation: (src) => [...src.rows]
+    computation: (source) => [...source.rows]
   });
 
   readonly displayPaging = linkedSignal({
     source: () => this.metricsLinkSource(),
-    computation: (src) => ({ ...src.paging })
+    computation: (source) => ({ ...source.paging })
   });
 
   onFiltersChange(filters: PurchaseCompletionMetricsFilters): void {

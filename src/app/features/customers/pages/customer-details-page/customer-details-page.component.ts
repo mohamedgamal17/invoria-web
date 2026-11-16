@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
@@ -51,6 +51,7 @@ import { customerOrdersSelectors } from '../../store/customer-details-orders/cus
     CustomerDetailsProfileComponent,
     CustomerDetailsOrdersTabComponent
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './customer-details-page.component.html'
 })
 export class CustomerDetailsPageComponent {

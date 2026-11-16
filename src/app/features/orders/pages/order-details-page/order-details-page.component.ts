@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+﻿import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
@@ -75,6 +75,7 @@ import { orderDetailsTabToSlug, toOrderDetailsTab } from '../../utils/order-deta
     ToastModule,
   ],
   providers: [MessageService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './order-details-page.component.html',
 })
 export class OrderDetailsPageComponent {

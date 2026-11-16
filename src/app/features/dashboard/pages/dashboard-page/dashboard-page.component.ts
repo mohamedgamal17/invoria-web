@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
 
 import { Store } from '@ngrx/store';
 
@@ -14,8 +14,7 @@ import { DASHBOARD_ACTIONS } from '../../store/dashboard/dashboard.actions';
 import { dashboardSelectors } from '../../store/dashboard/dashboard.selectors';
 
 import {
-  REPORT_PERIOD_LABELS,
-  REPORT_SERIES_PERIODS,
+  REPORT_SERIES_PERIOD_OPTIONS,
   ReportPeriod
 } from '../../../../shared/models/report-period';
 import type { EChartsCoreOption } from 'echarts/core';
@@ -42,15 +41,13 @@ import {
     SkeletonModule,
     ButtonModule
   ],
-  templateUrl: './dashboard-page.component.html'
+  templateUrl: './dashboard-page.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DashboardPageComponent implements OnInit {
   private readonly store = inject(Store);
 
-  readonly periodOptions = REPORT_SERIES_PERIODS.map((periodValue) => ({
-    label: REPORT_PERIOD_LABELS[periodValue],
-    value: periodValue
-  }));
+  readonly periodOptions = REPORT_SERIES_PERIOD_OPTIONS;
 
   // Icons for modern KPI cards
   readonly customersIcon = Users;

@@ -1,4 +1,4 @@
-import { ReceivableDetailsTab } from '../store/receivable-details/receivable-details.reducer';
+﻿import { ReceivableDetailsTab } from '../store/receivable-details/receivable-details.reducer';
 
 const TAB_VALUES = Object.values(ReceivableDetailsTab) as string[];
 

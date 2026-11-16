@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -7,6 +7,7 @@ import { CardModule } from 'primeng/card';
   selector: 'app-service-unavailable-page',
   standalone: true,
   imports: [ButtonModule, CardModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './service-unavailable-page.component.html',
 })
 export class ServiceUnavailablePageComponent {

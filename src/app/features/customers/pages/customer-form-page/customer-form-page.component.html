@@ -30,7 +30,6 @@
               pInputText
               formControlName="name"
               class="w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all"
-              [disabled]="saving()"
               placeholder="Enter customer name"
             />
             @if (form.controls.name.invalid && form.controls.name.touched) {

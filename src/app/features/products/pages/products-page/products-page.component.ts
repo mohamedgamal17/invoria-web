@@ -1,4 +1,4 @@
-import { Component, inject, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, untracked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Store } from '@ngrx/store';
@@ -37,6 +37,7 @@ import {
     ProductsBreadcrumbComponent,
     NameFilterPanelComponent
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './products-page.component.html',
 })
 export class ProductsPageComponent {

@@ -1,4 +1,4 @@
-import { Component, inject, untracked } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, inject, untracked } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, map, of } from 'rxjs';
@@ -41,6 +41,7 @@ const SUPPLIER_OPTIONS_PAGE_SIZE = 200;
     PayablesFilterPanelComponent,
     PayableListComponent
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './payables-page.component.html'
 })
 export class PayablesPageComponent {

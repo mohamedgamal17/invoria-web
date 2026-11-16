@@ -1,4 +1,4 @@
-import { Component, inject, untracked } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, inject, untracked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Store } from '@ngrx/store';
@@ -21,6 +21,7 @@ import { OrderListComponent } from '../../components/order-list/order-list.compo
   selector: 'app-orders-page',
   standalone: true,
   imports: [OrderHeaderComponent, OrdersFilterPanelComponent, OrderListComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './orders-page.component.html'
 })
 export class OrdersPageComponent {

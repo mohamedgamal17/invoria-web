@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, untracked } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, computed, effect, inject, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
@@ -52,6 +52,7 @@ import { supplierPurchaseOrdersSelectors } from '../../store/supplier-details-pu
     SupplierDetailsProfileComponent,
     SupplierDetailsPurchaseOrdersTabComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './supplier-details-page.component.html',
 })
 export class SupplierDetailsPageComponent {

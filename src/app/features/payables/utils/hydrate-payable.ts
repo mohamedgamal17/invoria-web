@@ -1,4 +1,4 @@
-import type { Payable } from '../models/payable.entity';
+﻿import type { Payable } from '../models/payable.entity';
 
 /**
  * Payable with the server-omitted party/source refs hydrated for display.

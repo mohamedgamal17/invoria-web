@@ -33,7 +33,6 @@
               pInputText
               formControlName="name"
               class="w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all"
-              [disabled]="saving()"
               placeholder="Supplier display name"
             />
             @if (form.controls.name.hasError('required') && form.controls.name.touched) {
@@ -58,7 +57,6 @@
               pInputText
               formControlName="contactEmail"
               class="w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all"
-              [disabled]="saving()"
               placeholder="Optional"
             />
             @if (form.controls.contactEmail.invalid && form.controls.contactEmail.touched) {
@@ -79,7 +77,6 @@
               pInputText
               formControlName="phone"
               class="w-full rounded-lg border-border bg-surface-2 focus:ring-2 focus:ring-focus transition-all"
-              [disabled]="saving()"
               placeholder="Optional"
             />
             @if (form.controls.phone.invalid && form.controls.phone.touched) {

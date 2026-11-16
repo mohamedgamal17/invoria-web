@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, take } from 'rxjs';
@@ -32,6 +32,7 @@ import type { UpdateCustomerRequest } from '../../models/update-customer.request
     MessageModule,
     ToastModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './customer-form-page.component.html',
 })
 export class CustomerFormPageComponent {
@@ -123,19 +124,19 @@ export class CustomerFormPageComponent {
         finalize(() => this.loading.set(false)),
       )
       .subscribe({
-        next: (res) => {
-          if (!res.isSuccess || !res.result) {
+        next: (response) => {
+          if (!response.isSuccess || !response.result) {
             this.messageService.add({
-              ...presentApiError(res.error).toast,
+              ...presentApiError(response.error).toast,
             });
             void this.router.navigate(['/customers']);
             return;
           }
-          const customerResult = res.result;
+          const customerResult = response.result;
           this.form.reset({ name: customerResult.name });
         },
-        error: (err: unknown) => {
-          this.messageService.add({ ...presentApiError(err).toast });
+        error: (error: unknown) => {
+          this.messageService.add({ ...presentApiError(error).toast });
           void this.router.navigate(['/customers']);
         },
       });

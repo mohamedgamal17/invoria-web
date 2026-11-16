@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -50,6 +50,7 @@ import { SuppliersApiService } from '../../../suppliers/services/suppliers-api.s
   standalone: true,
   imports: [CommonModule, ButtonModule, CardModule, ToastModule, PurchaseOrderFormComponent],
   providers: [MessageService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './purchase-order-form-page.component.html'
 })
 export class PurchaseOrderFormPageComponent {
@@ -165,10 +166,10 @@ export class PurchaseOrderFormPageComponent {
           finalize(() => this.saving.set(false))
         )
         .subscribe({
-          next: (res) => {
-            if (!res.isSuccess || !res.result) {
+          next: (response) => {
+            if (!response.isSuccess || !response.result) {
               this.messageService.add({
-                ...presentApiError(res.error).toast
+                ...presentApiError(response.error).toast
               });
               return;
             }
@@ -177,10 +178,10 @@ export class PurchaseOrderFormPageComponent {
               summary: 'Success',
               detail: 'Purchase order created.'
             });
-            void this.router.navigate(['/procurement', res.result.id]);
+            void this.router.navigate(['/procurement', response.result.id]);
           },
-          error: (err: unknown) => {
-            this.messageService.add({ ...presentApiError(err).toast });
+          error: (error: unknown) => {
+            this.messageService.add({ ...presentApiError(error).toast });
           }
         });
       return;
@@ -198,10 +199,10 @@ export class PurchaseOrderFormPageComponent {
         finalize(() => this.saving.set(false))
       )
       .subscribe({
-        next: (res) => {
-          if (!res.isSuccess || !res.result) {
+        next: (response) => {
+          if (!response.isSuccess || !response.result) {
             this.messageService.add({
-              ...presentApiError(res.error).toast
+              ...presentApiError(response.error).toast
             });
             return;
           }
@@ -212,8 +213,8 @@ export class PurchaseOrderFormPageComponent {
           });
           void this.router.navigate(['/procurement', id]);
         },
-        error: (err: unknown) => {
-          this.messageService.add({ ...presentApiError(err).toast });
+        error: (error: unknown) => {
+          this.messageService.add({ ...presentApiError(error).toast });
         }
       });
   }
@@ -245,15 +246,15 @@ export class PurchaseOrderFormPageComponent {
       .getPurchaseOrder(id)
       .pipe(take(1), finalize(() => this.loading.set(false)))
       .subscribe({
-        next: (res) => {
-          if (!res.isSuccess || !res.result) {
+        next: (response) => {
+          if (!response.isSuccess || !response.result) {
             this.messageService.add({
-              ...presentApiError(res.error).toast
+              ...presentApiError(response.error).toast
             });
             void this.router.navigate(['/procurement']);
             return;
           }
-          const po = res.result;
+          const po = response.result;
           if (!canEditPurchaseOrder(po.state)) {
             this.messageService.add({
               severity: 'warn',
@@ -265,8 +266,8 @@ export class PurchaseOrderFormPageComponent {
           }
           this.patchFromPurchaseOrder(po);
         },
-        error: (err: unknown) => {
-          this.messageService.add({ ...presentApiError(err).toast });
+        error: (error: unknown) => {
+          this.messageService.add({ ...presentApiError(error).toast });
           void this.router.navigate(['/procurement']);
         }
       });
@@ -300,9 +301,9 @@ export class PurchaseOrderFormPageComponent {
     forkJoin(
       uniqueIds.map((productId) =>
         this.productsApi.getProduct(productId).pipe(
-          map((res) => {
+          map((response) => {
             const name =
-              res.isSuccess && res.result?.name?.trim() ? res.result.name.trim() : productId;
+              response.isSuccess && response.result?.name?.trim() ? response.result.name.trim() : productId;
             return { productId, name };
           }),
           catchError(() => of({ productId, name: productId }))

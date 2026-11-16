@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+﻿import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, take } from 'rxjs';
@@ -38,6 +38,7 @@ const PHONE_MAX = 64;
     MessageModule,
     ToastModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './supplier-form-page.component.html',
 })
 export class SupplierFormPageComponent {
@@ -83,6 +84,14 @@ export class SupplierFormPageComponent {
   });
 
   constructor() {
+    effect(() => {
+      if (this.saving()) {
+        this.form.disable({ emitEvent: false });
+      } else {
+        this.form.enable({ emitEvent: false });
+      }
+    });
+
     if (this.mode() === 'edit' && this.supplierId()) {
       this.loadSupplier(this.supplierId() as string);
     }
@@ -141,23 +150,23 @@ export class SupplierFormPageComponent {
         finalize(() => this.loading.set(false)),
       )
       .subscribe({
-        next: (res) => {
-          if (!res.isSuccess || !res.result) {
+        next: (response) => {
+          if (!response.isSuccess || !response.result) {
             this.messageService.add({
-              ...presentApiError(res.error).toast,
+              ...presentApiError(response.error).toast,
             });
             void this.router.navigate(['/suppliers']);
             return;
           }
-          const supplierResult = res.result;
+          const supplierResult = response.result;
           this.form.reset({
             name: supplierResult.name,
             contactEmail: supplierResult.contactEmail ?? '',
             phone: supplierResult.phone ?? '',
           });
         },
-        error: (err: unknown) => {
-          this.messageService.add({ ...presentApiError(err).toast });
+        error: (error: unknown) => {
+          this.messageService.add({ ...presentApiError(error).toast });
           void this.router.navigate(['/suppliers']);
         },
       });

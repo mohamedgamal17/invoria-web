@@ -1,5 +1,5 @@
-import { DatePipe } from '@angular/common';
-import { Component, computed, effect, inject, untracked } from '@angular/core';
+﻿import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
@@ -55,6 +55,7 @@ import { receivableDetailsSelectors } from '../../store/receivable-details/recei
     ReceivableSettlementsTabComponent,
     SettleModalComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './receivable-details-page.component.html',
 })
 export class ReceivableDetailsPageComponent {

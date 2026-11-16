@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, take } from 'rxjs';
@@ -12,6 +12,7 @@ import { MessageModule } from 'primeng/message';
 import { MessageService } from 'primeng/api';
 
 import { presentApiError } from '../../../../core/http/api-error.presenter';
+import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 import { LOAD_STATUS } from '../../../../shared/models/load-status';
 import { PRODUCT_MUTATIONS_ACTIONS } from '../../store/products-mutations/products-mutations.actions';
 import { productsMutationsFeature } from '../../store/products-mutations/products-mutations.reducer';
@@ -33,6 +34,7 @@ import type { UpdateProductRequest } from '../../models/update-product.request';
     MessageModule,
     ProductsBreadcrumbComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './product-form-page.component.html',
 })
 export class ProductFormPageComponent {
@@ -42,6 +44,8 @@ export class ProductFormPageComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(FormBuilder);
+
+  readonly currencyCode = DEFAULT_CURRENCY_CODE;
 
   readonly mode = computed<'create' | 'edit'>(() =>
     this.route.snapshot.data['mode'] === 'edit' ? 'edit' : 'create',
@@ -88,6 +92,14 @@ export class ProductFormPageComponent {
   private readonly loadedName = signal('');
 
   constructor() {
+    effect(() => {
+      if (this.saving()) {
+        this.form.disable({ emitEvent: false });
+      } else {
+        this.form.enable({ emitEvent: false });
+      }
+    });
+
     if (this.mode() === 'edit' && this.productId()) {
       this.loadProduct(this.productId() as string);
     }
@@ -139,23 +151,23 @@ export class ProductFormPageComponent {
         finalize(() => this.loading.set(false)),
       )
       .subscribe({
-        next: (res) => {
-          if (!res.isSuccess || !res.result) {
+        next: (response) => {
+          if (!response.isSuccess || !response.result) {
             this.messageService.add({
-              ...presentApiError(res.error).toast,
+              ...presentApiError(response.error).toast,
             });
             void this.router.navigate(['/products']);
             return;
           }
-          const productResult = res.result;
+          const productResult = response.result;
           this.loadedName.set(productResult.name);
           this.form.reset({
             name: productResult.name,
             price: productResult.price,
           });
         },
-        error: (err: unknown) => {
-          this.messageService.add({ ...presentApiError(err).toast });
+        error: (error: unknown) => {
+          this.messageService.add({ ...presentApiError(error).toast });
           void this.router.navigate(['/products']);
         },
       });

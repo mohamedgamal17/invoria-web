@@ -1,4 +1,4 @@
-/** Tabs of the order details page, as zero-based `p-tabs` indexes. */
+﻿/** Tabs of the order details page, as zero-based `p-tabs` indexes. */
 export type OrderDetailsTab = 0 | 1 | 2 | 3;
 
 /** URL slugs for the details tabs. */

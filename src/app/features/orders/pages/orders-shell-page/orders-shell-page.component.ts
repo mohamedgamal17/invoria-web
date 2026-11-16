@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -8,6 +8,7 @@ import { MessageService } from 'primeng/api';
   standalone: true,
   imports: [RouterOutlet, ToastModule],
   providers: [MessageService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './orders-shell-page.component.html',
 })
 export class OrdersShellPageComponent {}

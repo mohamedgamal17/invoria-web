@@ -1,5 +1,5 @@
 ﻿import { CommonModule } from '@angular/common';
-import { Component, computed, inject, linkedSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, linkedSignal } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, map, of } from 'rxjs';
@@ -43,6 +43,7 @@ const EMPTY_RETURNS_TUPLE: [Return[], PagingInfo] = [
     ReturnListComponent
   ],
   providers: [MessageService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './returns-page.component.html'
 })
 export class ReturnsPageComponent {
@@ -104,15 +105,15 @@ export class ReturnsPageComponent {
     defaultValue: EMPTY_RETURNS_TUPLE,
     stream: ({ params }) =>
       this.returnsApi.listReturns(params).pipe(
-        map((res) => {
-          if (!res.isSuccess || !res.result) {
-            this.showApiError(res.error);
+        map((response) => {
+          if (!response.isSuccess || !response.result) {
+            this.showApiError(response.error);
             return EMPTY_RETURNS_TUPLE;
           }
-          return [res.result.data, res.result.info] as [Return[], PagingInfo];
+          return [response.result.data, response.result.info] as [Return[], PagingInfo];
         }),
-        catchError((err: unknown) => {
-          this.showApiError(err);
+        catchError((error: unknown) => {
+          this.showApiError(error);
           return of(EMPTY_RETURNS_TUPLE);
         })
       )
@@ -120,16 +121,16 @@ export class ReturnsPageComponent {
 
   readonly displayReturns = linkedSignal({
     source: () => this.returnsLinkSource(),
-    computation: (src) => [...src.returns]
+    computation: (source) => [...source.returns]
   });
 
   readonly displayPaging = linkedSignal({
     source: () => this.returnsLinkSource(),
-    computation: (src) => ({ ...src.paging })
+    computation: (source) => ({ ...source.paging })
   });
 
-  goToDetails(ret: Return): void {
-    void this.router.navigate([ret.id], { relativeTo: this.route });
+  goToDetails(returnItem: Return): void {
+    void this.router.navigate([returnItem.id], { relativeTo: this.route });
   }
 
   onPageChange(event: PaginatorPageEvent): void {

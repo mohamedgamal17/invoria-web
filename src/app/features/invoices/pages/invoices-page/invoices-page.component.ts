@@ -1,4 +1,4 @@
-import { Component, inject, untracked } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, inject, untracked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Store } from '@ngrx/store';
@@ -33,6 +33,7 @@ import { invoicesListSelectors } from '../../store/invoices-list/invoices-list.s
     InvoicesFilterPanelComponent,
     InvoiceListComponent
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './invoices-page.component.html'
 })
 export class InvoicesPageComponent {

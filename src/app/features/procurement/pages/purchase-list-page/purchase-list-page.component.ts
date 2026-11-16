@@ -1,4 +1,4 @@
-import { Component, inject, untracked } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, inject, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -27,6 +27,7 @@ import { purchaseOrdersListSelectors } from '../../store/purchase-orders-list/pu
     PurchaseOrdersFilterPanelComponent,
     PurchaseOrderListComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './purchase-list-page.component.html',
 })
 /**

@@ -1,4 +1,5 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, ActivatedRoute } from '@angular/router';
 import { catchError, of } from 'rxjs';
 
@@ -13,8 +14,7 @@ import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-head
 import { KpiCardComponent } from '../../../../shared/ui/kpi-card/kpi-card.component';
 import { OrdersApiService } from '../../services/orders-api.service';
 import {
-  REPORT_PERIOD_LABELS,
-  REPORT_SERIES_PERIODS,
+  REPORT_SERIES_PERIOD_OPTIONS,
   ReportPeriod
 } from '../../../../shared/models/report-period';
 import type { ReportOverview } from '../../../../shared/models/report-overview';
@@ -36,19 +36,18 @@ import { Calendar, CalendarRange, Clock, DollarSign, TrendingDown, TrendingUp, W
     KpiCardComponent
   ],
   providers: [MessageService],
-  templateUrl: './order-sales-report-page.component.html'
+  templateUrl: './order-sales-report-page.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OrderSalesReportPageComponent implements OnInit {
   private readonly ordersApi = inject(OrdersApiService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly ReportPeriod = ReportPeriod;
-  readonly periodOptions = REPORT_SERIES_PERIODS.map((value) => ({
-    label: REPORT_PERIOD_LABELS[value],
-    value: value
-  }));
+  readonly periodOptions = REPORT_SERIES_PERIOD_OPTIONS;
 
   // Icons
   readonly salesIcon = DollarSign;
@@ -161,21 +160,27 @@ export class OrderSalesReportPageComponent implements OnInit {
 
   private loadOverview(): void {
     this.isOverviewLoading.set(true);
-    this.ordersApi.getOrderSalesReportOverview().pipe(catchError((error) => {
-      this.handleError(error);
-      return of(null);
-    })).subscribe({
-      next: (res) => {
-        if (res?.isSuccess && res.result) {
-          this.overview.set(res.result);
+    this.ordersApi
+      .getOrderSalesReportOverview()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError((error) => {
+          this.handleError(error);
+          return of(null);
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          if (response?.isSuccess && response.result) {
+            this.overview.set(response.result);
+          }
+          this.isOverviewLoading.set(false);
+        },
+        error: (error) => {
+          this.handleError(error);
+          this.isOverviewLoading.set(false);
         }
-        this.isOverviewLoading.set(false);
-      },
-      error: (err) => {
-        this.handleError(err);
-        this.isOverviewLoading.set(false);
-      }
-    });
+      });
   }
 
   private ensureMetrics(period: ReportPeriod): void {
@@ -183,36 +188,42 @@ export class OrderSalesReportPageComponent implements OnInit {
     if (this.metricsLoadingSet().has(period)) return;
 
     this.metricsLoadingSet.update((current) => new Set(current).add(period));
-    const req = { Period: period, Skip: 0, Length: 14 } as const;
+    const metricsRequest = { Period: period, Skip: 0, Length: 14 } as const;
 
     // Metrics endpoint is paged; for trend we fetch last 14 periods chronologically reversed on server.
-    this.ordersApi.listOrderSalesReportMetrics(req).pipe(catchError((error) => {
-      this.handleError(error);
-      return of(null);
-    })).subscribe({
-      next: (res) => {
-        if (res?.isSuccess && res.result) {
-          const copy = [...(res.result.data ?? [])];
-          this.metricsCache.update((current) => new Map(current).set(period, copy));
-        } else {
-          if (res && !res.isSuccess) this.handleError(res.error);
-          // Do not cache error/empty — allows retry on next selection per spec
+    this.ordersApi
+      .listOrderSalesReportMetrics(metricsRequest)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError((error) => {
+          this.handleError(error);
+          return of(null);
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          if (response?.isSuccess && response.result) {
+            const copy = [...(response.result.data ?? [])];
+            this.metricsCache.update((current) => new Map(current).set(period, copy));
+          } else {
+            if (response && !response.isSuccess) this.handleError(response.error);
+            // Do not cache error/empty — allows retry on next selection per spec
+          }
+          this.metricsLoadingSet.update((current) => {
+            const next = new Set(current);
+            next.delete(period);
+            return next;
+          });
+        },
+        error: (error) => {
+          this.handleError(error);
+          this.metricsLoadingSet.update((current) => {
+            const next = new Set(current);
+            next.delete(period);
+            return next;
+          });
         }
-        this.metricsLoadingSet.update((current) => {
-          const next = new Set(current);
-          next.delete(period);
-          return next;
-        });
-      },
-      error: (err) => {
-        this.handleError(err);
-        this.metricsLoadingSet.update((current) => {
-          const next = new Set(current);
-          next.delete(period);
-          return next;
-        });
-      }
-    });
+      });
   }
 
   // Kept for backwards compat if called externally

@@ -1,4 +1,4 @@
-import { Component, inject, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, untracked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Store } from '@ngrx/store';
@@ -34,6 +34,7 @@ import {
     CustomerListComponent,
     NameFilterPanelComponent
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './customers-page.component.html'
 })
 export class CustomersPageComponent {
