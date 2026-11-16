@@ -48,8 +48,8 @@ export class ProductOrdersLoaderService {
 
     return forkJoin(pageRequests).pipe(
       map((responses) => {
-        const rest = responses.flatMap((res) =>
-          res.isSuccess && res.result ? res.result.data : []
+        const rest = responses.flatMap((response) =>
+          response.isSuccess && response.result ? response.result.data : []
         );
         return [...data, ...rest];
       })

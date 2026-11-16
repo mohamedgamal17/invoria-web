@@ -34,7 +34,7 @@ export class PayableReferenceResolverService {
     if (!cached) {
       cached = firstValueFrom(
         this.suppliersApi.getSupplier(key).pipe(
-          map((res) => (res.isSuccess && res.result ? res.result.name : null)),
+          map((response) => (response.isSuccess && response.result ? response.result.name : null)),
           catchError(() => of(null))
         )
       );
@@ -54,7 +54,7 @@ export class PayableReferenceResolverService {
     if (!cached) {
       cached = firstValueFrom(
         this.purchaseOrdersApi.getPurchaseOrder(key).pipe(
-          map((res) => (res.isSuccess && res.result ? res.result.purchaseNumber : null)),
+          map((response) => (response.isSuccess && response.result ? response.result.purchaseNumber : null)),
           catchError(() => of(null))
         )
       );
