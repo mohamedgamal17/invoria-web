@@ -1,4 +1,4 @@
-export interface Entity {
+﻿export interface Entity {
   id: string;
   createdAt: string;
   createdBy?: string;

@@ -1,15 +1,14 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-
-import { ButtonModule } from 'primeng/button';
 
 import { ConfirmDialogComponent } from './shared/ui/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ButtonModule, ConfirmDialogComponent],
+  standalone: true,
+  imports: [RouterOutlet, ConfirmDialogComponent],
   templateUrl: './app.html',
-  styleUrl: './app.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
   protected readonly title = signal('invoria-web');

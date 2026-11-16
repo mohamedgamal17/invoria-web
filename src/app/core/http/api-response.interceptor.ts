@@ -60,12 +60,12 @@ export const apiResponseInterceptor: HttpInterceptorFn = (
       }
       return event;
     }),
-    catchError((err: unknown) => {
+    catchError((error: unknown) => {
       // Convert HttpErrorResponse / unknown into a consistent Error type that UI can display.
-      if (err instanceof ApiHttpError) {
-        return throwError(() => err);
+      if (error instanceof ApiHttpError) {
+        return throwError(() => error);
       }
-      const normalized = normalizeApiError(err);
+      const normalized = normalizeApiError(error);
       return throwError(() => new ApiHttpError(normalized));
     })
   );
