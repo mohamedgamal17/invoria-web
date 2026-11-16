@@ -10,6 +10,18 @@
     PrimeNG is the canonical palette; Tailwind is a consumer, not an owner.
     This keeps existing templates working while eliminating palette contradictions. */
 @theme {
+  /* Typography scale — complete mapping */
+  --font-size-3xs: var(--ty-3xs);
+  --font-size-2xs: var(--ty-2xs);
+
+  /* Letter-spacing tokens */
+  --tracking-caps: var(--ls-caps);
+
+  /* Semantic border */
+  --color-border-subtle: var(--c-border-subtle);
+
+  /* Existing mappings retained */
+
   --color-surface-0: var(--c-surface-0);
   --color-surface: var(--c-surface);
   --color-surface-2: var(--c-surface-2);
@@ -57,7 +69,8 @@
   --ease-standard: var(--m-ease-standard);
 }
 
-@import 'tailwindcss';
+@import './styles/labels.css';
+
 
 /* Shared visual helpers — now driven by PrimeNG semantics */
 .invoria-gradient-surface {

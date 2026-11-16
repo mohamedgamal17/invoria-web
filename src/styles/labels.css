@@ -1,0 +1,23 @@
+/* Label utility classes generated to replace repetitive class combos */
+.label-xs {
+  font-size: var(--ty-2xs); /* 10px */
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--ls-caps);
+  color: var(--c-muted-foreground);
+}
+
+.label-sm {
+  font-size: var(--ty-3xs); /* 11px */
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--ls-caps);
+  color: var(--c-muted-foreground);
+}
+
+.label-eyebrow {
+  font-size: var(--ty-3xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--ls-caps);
+}

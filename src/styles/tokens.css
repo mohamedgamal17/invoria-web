@@ -81,3 +81,26 @@
 /* NOTE: No `.dark` block — PrimeNG generates dark scheme variables under `.dark`
    via darkModeSelector. The --c-* aliases above automatically resolve to dark values
    because they proxy to --p-* which PrimeNG redefines in dark mode. */
+
+/* ── NEW: Base measures ────────────────────────────────── */
+
+:root {
+  /* Letter-spacing scale (owned by app) */
+  --t-tracking-tight: -0.025em;
+  --t-tracking-normal: 0;
+  --t-tracking-wide: 0.025em;
+  --t-tracking-wider: 0.05em;
+  --t-tracking-widest: 0.1em;
+  --t-tracking-caps: 0.16em;    /* for uppercase labels */
+
+  /* NEW: Subtle border — normalized from /40, /50, /60 variants */
+  --c-border-subtle: color-mix(in srgb, var(--p-content-border-color), transparent 50%);
+
+  /* Semantic letter-spacing */
+  --ls-tight: var(--t-tracking-tight);
+  --ls-normal: var(--t-tracking-normal);
+  --ls-wide: var(--t-tracking-wide);
+  --ls-wider: var(--t-tracking-wider);
+  --ls-widest: var(--t-tracking-widest);
+  --ls-caps: var(--t-tracking-caps);
+}
