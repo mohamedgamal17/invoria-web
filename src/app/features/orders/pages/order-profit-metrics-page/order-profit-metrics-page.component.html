@@ -7,10 +7,16 @@
     eyebrow="Ordering · Reports"
     eyebrowIcon="pi pi-table"
   >
-    <p-button label="Back to charts" icon="pi pi-chart-line" severity="secondary" [outlined]="true" (onClick)="goToCharts()" />
+    <p-button
+      label="Back to charts"
+      icon="pi pi-chart-line"
+      severity="secondary"
+      [outlined]="true"
+      (onClick)="goToCharts()"
+    />
   </app-page-header>
 
-  <app-order-profit-metrics-filter-panel
+  <app-report-period-filter-panel
     [period]="selectedPeriod()"
     [loading]="metricsResource.isLoading()"
     (filtersChange)="onFiltersChange($event)"

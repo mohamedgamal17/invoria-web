@@ -1,41 +1,12 @@
 <p-toast />
 
 <section class="flex flex-col gap-8">
-  <p-button
-    icon="pi pi-arrow-left"
-    label="Back to orders"
-    [text]="true"
-    styleClass="px-0 text-sm text-muted-foreground hover:text-foreground self-start"
-    (onClick)="backToList()"
-  />
+  <app-details-toolbar backLabel="Back to orders" (back)="backToList()" />
 
   @if (loading()) {
-    <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
-      <div class="space-y-5 p-1">
-        <p-skeleton height="2rem" width="45%"></p-skeleton>
-        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <p-skeleton height="5.5rem"></p-skeleton>
-          <p-skeleton height="5.5rem"></p-skeleton>
-          <p-skeleton height="5.5rem"></p-skeleton>
-        </div>
-        <p-skeleton height="1rem" width="80%"></p-skeleton>
-      </div>
-    </p-card>
-  } @else if (error()) {
-    <p-card styleClass="border border-destructive/30 rounded-2xl shadow-sm">
-      <div class="flex flex-col gap-4 p-1 sm:flex-row sm:items-center sm:justify-between">
-        <div class="space-y-1">
-          <h2 class="text-base font-semibold text-foreground">Unable to load order</h2>
-          <p class="text-sm text-destructive">{{ error() }}</p>
-        </div>
-        <p-button
-          label="Retry"
-          icon="pi pi-refresh"
-          styleClass="rounded-xl px-4 py-2.5 text-sm font-semibold"
-          (onClick)="retry()"
-        />
-      </div>
-    </p-card>
+    <app-details-skeleton />
+  } @else if (error(); as errorMessage) {
+    <app-error-card title="Unable to load order" [message]="errorMessage" (retry)="retry()" />
   } @else if (displayOrder(); as order) {
     <app-page-header
       [title]="order.orderNumber"
@@ -77,18 +48,26 @@
             class="flex items-center gap-2 rounded-xl border border-border/60 bg-surface-2 px-3 py-2 text-sm no-underline text-inherit hover:bg-surface-3 transition-colors cursor-pointer"
           >
             <i class="pi pi-undo text-accent text-xs"></i>
-            <span class="font-medium">{{ summary.count }} {{ summary.count === 1 ? 'item' : 'items' }} returned</span>
+            <span class="font-medium"
+              >{{ summary.count }} {{ summary.count === 1 ? 'item' : 'items' }} returned</span
+            >
             <span class="text-muted-foreground">·</span>
-            <span class="font-semibold tabular-nums">{{ currencyCode }} {{ summary.total | number:'1.2-2' }}</span>
+            <span class="font-semibold tabular-nums"
+              >{{ currencyCode }} {{ summary.total | number: '1.2-2' }}</span
+            >
           </a>
         } @else {
           <div
             class="flex items-center gap-2 rounded-xl border border-border/60 bg-surface-2 px-3 py-2 text-sm"
           >
             <i class="pi pi-undo text-accent text-xs"></i>
-            <span class="font-medium">{{ summary.count }} {{ summary.count === 1 ? 'item' : 'items' }} returned</span>
+            <span class="font-medium"
+              >{{ summary.count }} {{ summary.count === 1 ? 'item' : 'items' }} returned</span
+            >
             <span class="text-muted-foreground">·</span>
-            <span class="font-semibold tabular-nums">{{ currencyCode }} {{ summary.total | number:'1.2-2' }}</span>
+            <span class="font-semibold tabular-nums"
+              >{{ currencyCode }} {{ summary.total | number: '1.2-2' }}</span
+            >
           </div>
         }
       }
@@ -105,31 +84,28 @@
 
     <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" [lazy]="true">
       <p-tablist>
-        <p-tab [value]="0">Summary</p-tab>
-        <p-tab [value]="1">Line items</p-tab>
-        <p-tab [value]="2">Payment</p-tab>
-        <p-tab [value]="3">Returns</p-tab>
+        <p-tab [value]="tabs.Summary">Summary</p-tab>
+        <p-tab [value]="tabs.LineItems">Line items</p-tab>
+        <p-tab [value]="tabs.Payment">Payment</p-tab>
+        <p-tab [value]="tabs.Returns">Returns</p-tab>
       </p-tablist>
       <p-tabpanels>
-        <p-tabpanel [value]="0">
+        <p-tabpanel [value]="tabs.Summary">
           <div class="pt-5">
             <app-order-summary-card [order]="order" [currencyCode]="currencyCode" />
           </div>
         </p-tabpanel>
-        <p-tabpanel [value]="1">
+        <p-tabpanel [value]="tabs.LineItems">
           <div class="pt-5">
             <app-order-details-line-items-tab [order]="order" [currencyCode]="currencyCode" />
           </div>
         </p-tabpanel>
-        <p-tabpanel [value]="2">
+        <p-tabpanel [value]="tabs.Payment">
           <div class="pt-5">
-            <app-order-details-payment-tab
-              [order]="order"
-              [currencyCode]="currencyCode"
-            />
+            <app-order-details-payment-tab [order]="order" [currencyCode]="currencyCode" />
           </div>
         </p-tabpanel>
-        <p-tabpanel [value]="3">
+        <p-tabpanel [value]="tabs.Returns">
           <div class="pt-5">
             <app-order-details-return-items-tab
               [order]="order"
@@ -182,7 +158,7 @@
 
 <app-order-return-items-dialog
   [(visible)]="showReturnDialogOnComplete"
-  [orderItems]="(displayOrder()?.items ?? [])"
+  [orderItems]="displayOrder()?.items ?? []"
   [existingReturnItems]="[]"
   [saving]="returnSaving()"
   (submitRequest)="onReturnSubmitComplete($event)"

@@ -13,15 +13,19 @@
     (clearFilters)="onClearFilters()"
   />
 
-  <app-payable-list
-    [payables]="payables()"
+  <app-financial-obligation-list
+    [obligations]="payables()"
     [isListLoading]="listLoading()"
     [totalRecords]="paging().totalCount"
     [first]="first()"
     [pageSize]="pageSize()"
+    entityPlural="payables"
+    partyLabel="Supplier"
+    sourceLabel="Purchase Order"
+    sourceDisplayKey="purchaseNumber"
     [pageSizeOptions]="pageSizeOptions"
     (pageChange)="onPageChange($event)"
     (clearFilters)="onClearFilters()"
-    (viewPayable)="goToDetails($event)"
+    (viewObligation)="goToDetails($event)"
   />
 </section>

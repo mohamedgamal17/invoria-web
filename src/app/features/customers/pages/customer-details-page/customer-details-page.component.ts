@@ -1,27 +1,36 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, untracked } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  untracked,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
 
 import { Store } from '@ngrx/store';
-import {ButtonModule} from 'primeng/button';
+import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
-import type { OrdersListFilters } from '../../../orders/components/orders-filter-panel/orders-filter-panel.component';
+import type { OrdersListFilters } from '../../../orders/models/orders-list.filters';
 import type { UiOrder } from '../../../orders/models/order-ui.model';
 import { PaginationService } from '../../../../shared/utils/pagination.service';
 import { type PaginatorPageEvent } from '../../../../shared/models/pagination';
 import { UrlStateService } from '../../../../shared/utils/url-state.service';
 import { CustomerDetailsOrdersTabComponent } from '../../components/customer-details-orders-tab/customer-details-orders-tab.component';
 import { CustomerDetailsProfileComponent } from '../../components/customer-details-profile/customer-details-profile.component';
-import { CustomerDetailsToolbarComponent } from '../../components/customer-details-toolbar/customer-details-toolbar.component';
+import { DetailsToolbarComponent } from '../../../../shared/ui/details-toolbar/details-toolbar.component';
+import { DetailsSkeletonComponent } from '../../../../shared/ui/details-skeleton/details-skeleton.component';
+import { ErrorCardComponent } from '../../../../shared/ui/error-card/error-card.component';
 import { CUSTOMER_DETAILS_ACTIONS } from '../../store/customer-details/customer-details.actions';
 import { CustomerDetailsTab } from '../../store/customer-details/customer-details.reducer';
 import { customerDetailsSelectors } from '../../store/customer-details/customer-details.selectors';
-import { toCustomerDetailsTab } from '../../utils/customer-details-tab';
+import { parseStringEnumTab } from '../../../../shared/navigation/query-param-parsers';
 import { CUSTOMER_ORDERS_ACTIONS } from '../../store/customer-details-orders/customer-details-orders.actions';
 import { customerOrdersSelectors } from '../../store/customer-details-orders/customer-details-orders.selectors';
 
@@ -40,19 +49,20 @@ import { customerOrdersSelectors } from '../../store/customer-details-orders/cus
   imports: [
     ButtonModule,
     CardModule,
-    SkeletonModule,
+    DetailsSkeletonComponent,
+    ErrorCardComponent,
     ToastModule,
     Tabs,
     TabList,
     Tab,
     TabPanels,
     TabPanel,
-    CustomerDetailsToolbarComponent,
+    DetailsToolbarComponent,
     CustomerDetailsProfileComponent,
-    CustomerDetailsOrdersTabComponent
+    CustomerDetailsOrdersTabComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './customer-details-page.component.html'
+  templateUrl: './customer-details-page.component.html',
 })
 export class CustomerDetailsPageComponent {
   readonly tabs = CustomerDetailsTab;
@@ -84,7 +94,7 @@ export class CustomerDetailsPageComponent {
 
   private readonly orderId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
-    { initialValue: this.route.snapshot.paramMap.get('id') ?? '' }
+    { initialValue: this.route.snapshot.paramMap.get('id') ?? '' },
   );
 
   constructor() {
@@ -95,7 +105,7 @@ export class CustomerDetailsPageComponent {
         return;
       }
       untracked(() =>
-        this.store.dispatch(CUSTOMER_DETAILS_ACTIONS.loadCustomer({ customerId: id }))
+        this.store.dispatch(CUSTOMER_DETAILS_ACTIONS.loadCustomer({ customerId: id })),
       );
     });
   }
@@ -120,7 +130,7 @@ export class CustomerDetailsPageComponent {
     if (value === undefined || value === null) {
       return;
     }
-    const next = toCustomerDetailsTab(value);
+    const next = parseStringEnumTab(CustomerDetailsTab, value);
     if (next === null) {
       return;
     }
@@ -134,13 +144,13 @@ export class CustomerDetailsPageComponent {
   onOrdersPageChange(event: PaginatorPageEvent): void {
     const { pageIndex: newPageIndex, pageSize: rows } = this.pagination.pageIndexFromEvent(
       event,
-      untracked(this.pageSize)
+      untracked(this.pageSize),
     );
     // Presentation glue only: page navigation scrolls to top; the state (reducer)
     // decides whether the change is real and warrants an API call.
     const isManualPageChange = newPageIndex !== untracked(this.pageIndex);
     this.store.dispatch(
-      CUSTOMER_ORDERS_ACTIONS.pageChange({ pageIndex: newPageIndex, pageSize: rows })
+      CUSTOMER_ORDERS_ACTIONS.pageChange({ pageIndex: newPageIndex, pageSize: rows }),
     );
     if (isManualPageChange) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -163,12 +173,12 @@ export class CustomerDetailsPageComponent {
   private replaceUrlQuery(
     tabValue: CustomerDetailsTab,
     pageIndex = untracked(this.pageIndex),
-    pageSize = untracked(this.pageSize)
+    pageSize = untracked(this.pageSize),
   ): void {
     void this.urlState.replaceQueryParams(this.route, {
       tab: tabValue,
       page: pageIndex,
-      rows: pageSize
+      rows: pageSize,
     });
   }
 }

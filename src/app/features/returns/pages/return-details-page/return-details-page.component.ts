@@ -1,5 +1,12 @@
 ﻿import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, linkedSignal, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  linkedSignal,
+  signal,
+} from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, finalize, map, of, take } from 'rxjs';
@@ -23,7 +30,9 @@ import {
   type ReturnActionKey,
 } from '../../models/return-actions';
 import { returnStatusUserLabel } from '../../models/return-status.enum';
-import { ReturnDetailsToolbarComponent } from '../../components/return-details-toolbar/return-details-toolbar.component';
+import { DetailsToolbarComponent } from '../../../../shared/ui/details-toolbar/details-toolbar.component';
+import { DetailsSkeletonComponent } from '../../../../shared/ui/details-skeleton/details-skeleton.component';
+import { ErrorCardComponent } from '../../../../shared/ui/error-card/error-card.component';
 import { ReturnDetailsInfoComponent } from '../../components/return-details-info/return-details-info.component';
 import { ReturnDetailsLinesComponent } from '../../components/return-details-lines/return-details-lines.component';
 import { ReturnProgressComponent } from '../../components/return-progress/return-progress.component';
@@ -38,9 +47,10 @@ import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confi
     CommonModule,
     ButtonModule,
     CardModule,
-    SkeletonModule,
+    DetailsSkeletonComponent,
+    ErrorCardComponent,
     ToastModule,
-    ReturnDetailsToolbarComponent,
+    DetailsToolbarComponent,
     ReturnDetailsInfoComponent,
     ReturnDetailsLinesComponent,
     ReturnProgressComponent,

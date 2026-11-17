@@ -1,27 +1,35 @@
-﻿import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, untracked } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  untracked,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
 
 import { Store } from '@ngrx/store';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { SkeletonModule } from 'primeng/skeleton';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
+import { DetailsToolbarComponent } from '../../../../shared/ui/details-toolbar/details-toolbar.component';
+import { DetailsSkeletonComponent } from '../../../../shared/ui/details-skeleton/details-skeleton.component';
+import { ErrorCardComponent } from '../../../../shared/ui/error-card/error-card.component';
 import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 import { UrlStateService } from '../../../../shared/utils/url-state.service';
+import { parseStringEnumTab } from '../../../../shared/navigation/query-param-parsers';
 import { InvoiceDetailsOverviewCardComponent } from '../../components/invoice-details-overview-card/invoice-details-overview-card.component';
 import { InvoiceDetailsItemsTabComponent } from '../../components/invoice-details-items-tab/invoice-details-items-tab.component';
 import { INVOICE_DETAILS_ACTIONS } from '../../store/invoice-details/invoice-details.actions';
+import { InvoiceDetailsTab } from '../../store/invoice-details/invoice-details.reducer';
 import { invoiceDetailsSelectors } from '../../store/invoice-details/invoice-details.selectors';
-import { invoiceDetailsTabToSlug, toInvoiceDetailsTab } from '../../utils/invoice-details-tab';
 
 /**
  * Smart page (container) for invoice details. It owns only:
- * - the NgRx state mapping (selectors → signals),
+ * - the NgRx state mapping (selectors ? signals),
  * - the trigger effect for the `:id` route param,
  * - the URL write adapter (`tab` query param via `replaceUrl`),
  * - presentation glue (back navigation, retry).
@@ -34,9 +42,9 @@ import { invoiceDetailsTabToSlug, toInvoiceDetailsTab } from '../../utils/invoic
   standalone: true,
   imports: [
     DatePipe,
-    ButtonModule,
-    CardModule,
-    SkeletonModule,
+    DetailsSkeletonComponent,
+    ErrorCardComponent,
+    DetailsToolbarComponent,
     Tabs,
     TabList,
     Tab,
@@ -51,6 +59,7 @@ import { invoiceDetailsTabToSlug, toInvoiceDetailsTab } from '../../utils/invoic
 })
 export class InvoiceDetailsPageComponent {
   readonly currencyCode = DEFAULT_CURRENCY_CODE;
+  readonly tabs = InvoiceDetailsTab;
 
   private readonly store = inject(Store);
   private readonly urlState = inject(UrlStateService);
@@ -102,8 +111,11 @@ export class InvoiceDetailsPageComponent {
     if (value === undefined || value === null) {
       return;
     }
-    const next = toInvoiceDetailsTab(value) ?? 0;
+    const next =
+      parseStringEnumTab(InvoiceDetailsTab, value, {
+        '': InvoiceDetailsTab.Overview,
+      }) ?? InvoiceDetailsTab.Overview;
     this.store.dispatch(INVOICE_DETAILS_ACTIONS.setActiveTab({ activeTab: next }));
-    void this.urlState.replaceQueryParams(this.route, { tab: invoiceDetailsTabToSlug(next) });
+    void this.urlState.replaceQueryParams(this.route, { tab: next });
   }
 }

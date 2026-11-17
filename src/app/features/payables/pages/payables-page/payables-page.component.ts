@@ -1,4 +1,4 @@
-﻿import { ChangeDetectionStrategy, Component, inject, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, untracked } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, map, of } from 'rxjs';
@@ -7,22 +7,23 @@ import { Store } from '@ngrx/store';
 import { ToastModule } from 'primeng/toast';
 
 import { PaginationService } from '../../../../shared/utils/pagination.service';
-import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
+import {
+  DEFAULT_PAGE_SIZE_OPTIONS,
+  type PaginatorPageEvent,
+} from '../../../../shared/models/pagination';
 import { SuppliersApiService } from '../../../suppliers/services/suppliers-api.service';
 import { payablesListSelectors } from '../../store/payables-list/payables-list.selectors';
-import type { Payable } from '../../models/payable.entity';
-import { PayableListComponent } from '../../components/payable-list/payable-list.component';
+import type { FinancialObligation } from '../../../../shared/models/financial-obligation';
+import { FinancialObligationListComponent } from '../../../../shared/ui/financial-obligation-list/financial-obligation-list.component';
 import { PayableHeaderComponent } from '../../components/payable-header/payable-header.component';
-import {
-  PayablesFilterPanelComponent,
-  type PayablesListFilters
-} from '../../components/payables-filter-panel/payables-filter-panel.component';
+import { PayablesFilterPanelComponent } from '../../components/payables-filter-panel/payables-filter-panel.component';
+import type { PayablesListFilters } from '../../models/payables-list.filters';
 
 const SUPPLIER_OPTIONS_PAGE_SIZE = 200;
 
 /**
  * Smart page (container) for the payables list. It owns only:
- * - the NgRx state mapping (selectors → signals),
+ * - the NgRx state mapping (selectors ? signals),
  * - the URL write adapter (`page` / `pageSize` / `supplierId` / `sourceId` /
  *   `isPaid` query params via merge),
  * - presentation glue (scroll behavior, page navigation),
@@ -39,10 +40,10 @@ const SUPPLIER_OPTIONS_PAGE_SIZE = 200;
     ToastModule,
     PayableHeaderComponent,
     PayablesFilterPanelComponent,
-    PayableListComponent
+    FinancialObligationListComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './payables-page.component.html'
+  templateUrl: './payables-page.component.html',
 })
 export class PayablesPageComponent {
   readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
@@ -71,12 +72,12 @@ export class PayablesPageComponent {
     stream: () =>
       this.suppliersApi.searchSuppliers({ Skip: 0, Length: SUPPLIER_OPTIONS_PAGE_SIZE }).pipe(
         map((suppliers) => suppliers.map((supplier) => ({ id: supplier.id, name: supplier.name }))),
-        catchError(() => of([]))
-      )
+        catchError(() => of([])),
+      ),
   });
 
-  goToDetails(payable: Payable): void {
-    void this.router.navigate([payable.id], { relativeTo: this.route });
+  goToDetails(obligation: FinancialObligation): void {
+    void this.router.navigate([obligation.id], { relativeTo: this.route });
   }
 
   onPageChange(event: PaginatorPageEvent): void {
@@ -91,7 +92,7 @@ export class PayablesPageComponent {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { page: pageIndex + 1, pageSize },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
 
     if (isManualPageChange) {
@@ -117,12 +118,10 @@ export class PayablesPageComponent {
         supplierId: normalizedSupplierId || null,
         sourceId: normalizedSourceId || null,
         isPaid:
-          filters.isPaid === null || filters.isPaid === undefined
-            ? null
-            : String(filters.isPaid),
-        page: 1
+          filters.isPaid === null || filters.isPaid === undefined ? null : String(filters.isPaid),
+        page: 1,
       },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
   }
 
@@ -138,7 +137,7 @@ export class PayablesPageComponent {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { supplierId: null, sourceId: null, isPaid: null, page: 1 },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
   }
 }

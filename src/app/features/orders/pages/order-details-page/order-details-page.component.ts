@@ -1,14 +1,20 @@
-﻿import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
 import { DialogModule } from 'primeng/dialog';
-import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
@@ -27,7 +33,10 @@ import { OrderDetailsReturnItemsTabComponent } from '../../components/order-deta
 import { OrderSummaryCardComponent } from '../../components/order-summary-card/order-summary-card.component';
 import { OrderProgressComponent } from '../../components/order-progress/order-progress.component';
 import { RecordPaymentDialogComponent } from '../../components/record-payment-dialog/record-payment-dialog.component';
+import { DetailsSkeletonComponent } from '../../../../shared/ui/details-skeleton/details-skeleton.component';
+import { ErrorCardComponent } from '../../../../shared/ui/error-card/error-card.component';
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
+import { DetailsToolbarComponent } from '../../../../shared/ui/details-toolbar/details-toolbar.component';
 import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 import type { CompleteOrderRequest } from '../../models/complete-order.request';
@@ -36,13 +45,14 @@ import type { RecordOrderPaymentRequest } from '../../models/record-order-paymen
 import type { OrderTransitionAction } from '../../services/order-action.facade';
 import { OrderReturnItemsDialogComponent } from '../../components/order-return-items-dialog/order-return-items-dialog.component';
 import { UrlStateService } from '../../../../shared/utils/url-state.service';
+import { parseStringEnumTab } from '../../../../shared/navigation/query-param-parsers';
 import { ORDER_DETAILS_ACTIONS } from '../../store/order-details/order-details.actions';
+import { OrderDetailsTab } from '../../store/order-details/order-details.reducer';
 import { orderDetailsSelectors } from '../../store/order-details/order-details.selectors';
-import { orderDetailsTabToSlug, toOrderDetailsTab } from '../../utils/order-details-tab';
 
 /**
  * Smart page (container) for order details. It owns only:
- * - the NgRx state mapping (selectors → signals),
+ * - the NgRx state mapping (selectors ? signals),
  * - the URL write adapter (`tab` query param via `replaceUrl`),
  * - presentation glue (dialogs, revision-snapshot comparison, confirmations,
  *   success toasts).
@@ -55,7 +65,6 @@ import { orderDetailsTabToSlug, toOrderDetailsTab } from '../../utils/order-deta
   imports: [
     CommonModule,
     ButtonModule,
-    CardModule,
     DialogModule,
     OrderDetailsLineItemsTabComponent,
     OrderDetailsPaymentTabComponent,
@@ -64,6 +73,7 @@ import { orderDetailsTabToSlug, toOrderDetailsTab } from '../../utils/order-deta
     OrderSummaryCardComponent,
     OrderProgressComponent,
     PageHeaderComponent,
+    DetailsToolbarComponent,
     RecordPaymentDialogComponent,
     RouterLink,
     Tabs,
@@ -71,7 +81,9 @@ import { orderDetailsTabToSlug, toOrderDetailsTab } from '../../utils/order-deta
     Tab,
     TabPanels,
     TabPanel,
-    SkeletonModule,
+    DetailsSkeletonComponent,
+    ErrorCardComponent,
+    DetailsToolbarComponent,
     ToastModule,
   ],
   providers: [MessageService],
@@ -80,6 +92,7 @@ import { orderDetailsTabToSlug, toOrderDetailsTab } from '../../utils/order-deta
 })
 export class OrderDetailsPageComponent {
   readonly currencyCode = DEFAULT_CURRENCY_CODE;
+  readonly tabs = OrderDetailsTab;
   private readonly store = inject(Store);
   private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly messageService = inject(MessageService);
@@ -290,7 +303,7 @@ export class OrderDetailsPageComponent {
   onRecordPayment(): void {
     const order = this.displayOrder();
     if (!order) return;
-    this.store.dispatch(ORDER_DETAILS_ACTIONS.setActiveTab({ activeTab: 2 }));
+    this.store.dispatch(ORDER_DETAILS_ACTIONS.setActiveTab({ activeTab: OrderDetailsTab.Payment }));
     setTimeout(() => this.paymentDialogVisible.set(true));
   }
 
@@ -344,9 +357,13 @@ export class OrderDetailsPageComponent {
     if (value === undefined || value === null) {
       return;
     }
-    const next = toOrderDetailsTab(value) ?? 0;
+    const next =
+      parseStringEnumTab(OrderDetailsTab, value, {
+        overview: OrderDetailsTab.Summary,
+        '': OrderDetailsTab.Summary,
+      }) ?? OrderDetailsTab.Summary;
     this.store.dispatch(ORDER_DETAILS_ACTIONS.setActiveTab({ activeTab: next }));
-    void this.urlState.replaceQueryParams(this.route, { tab: orderDetailsTabToSlug(next) });
+    void this.urlState.replaceQueryParams(this.route, { tab: next });
   }
 
   loadOrder(): void {

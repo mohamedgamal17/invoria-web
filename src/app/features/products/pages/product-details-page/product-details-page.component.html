@@ -2,41 +2,18 @@
 
 <section class="flex flex-col gap-8">
   <app-products-breadcrumb [items]="breadcrumbItems()" />
-  <app-product-details-toolbar (back)="backToList()" />
+  <app-details-toolbar
+    title="Product Details"
+    description="View pricing, stock and lifecycle history for this product."
+    backLabel="Back to Products"
+    (back)="backToList()"
+  />
 
   @if (loading()) {
-    <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
-      <div class="space-y-5 p-1">
-        <p-skeleton height="2rem" width="45%"></p-skeleton>
-        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <p-skeleton height="5.5rem"></p-skeleton>
-          <p-skeleton height="5.5rem"></p-skeleton>
-          <p-skeleton height="5.5rem"></p-skeleton>
-        </div>
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <p-skeleton height="5rem"></p-skeleton>
-          <p-skeleton height="5rem"></p-skeleton>
-          <p-skeleton height="5rem"></p-skeleton>
-          <p-skeleton height="5rem"></p-skeleton>
-        </div>
-      </div>
-    </p-card>
+    <app-details-skeleton />
   } @else if (error(); as inlineError) {
-    <p-card styleClass="border border-destructive/30 rounded-2xl shadow-sm">
-      <div class="flex flex-col gap-4 p-1 sm:flex-row sm:items-center sm:justify-between">
-        <div class="space-y-1">
-          <h2 class="text-base font-semibold text-foreground">Unable to load product</h2>
-          <p class="text-sm text-destructive">{{ inlineError }}</p>
-        </div>
-        <p-button
-          label="Retry"
-          icon="pi pi-refresh"
-          styleClass="rounded-xl px-4 py-2.5 text-sm font-semibold"
-          (onClick)="retry()"
-        />
-      </div>
-    </p-card>
-  } @else if (product(); as p) {
+    <app-error-card title="Unable to load product" [message]="inlineError" (retry)="retry()" />
+  } @else if (product(); as product) {
     <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" [lazy]="true">
       <p-tablist>
         <p-tab [value]="tabs.Info">Info</p-tab>
@@ -45,15 +22,19 @@
       </p-tablist>
       <p-tabpanels>
         <p-tabpanel [value]="tabs.Info">
-          <app-product-details-info-panel [product]="p" (edit)="goToEdit()" />
+          <app-product-details-info-panel [product]="product" (edit)="goToEdit()" />
         </p-tabpanel>
 
         <p-tabpanel [value]="tabs.Batches">
           <div class="pt-6">
             <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
               <div class="mb-4 flex flex-col gap-1 border-b border-border pb-4">
-                <span class="text-xs font-bold uppercase tracking-widest text-primary">Inventory</span>
-                <p class="m-0 text-sm text-muted-foreground">Manage batches and stock for this product.</p>
+                <span class="text-xs font-bold uppercase tracking-widest text-primary"
+                  >Inventory</span
+                >
+                <p class="m-0 text-sm text-muted-foreground">
+                  Manage batches and stock for this product.
+                </p>
               </div>
               <app-product-batches-panel
                 [batches]="batches()"
@@ -64,8 +45,8 @@
                 [first]="first()"
                 [pageSize]="pageSize()"
                 [pageSizeOptions]="pageSizeOptions"
-                (pageChange)="onBatchesPageChange($event)"
                 (save)="onBatchesSave($event)"
+                (pageChange)="onBatchesPageChange($event)"
               />
             </p-card>
           </div>
@@ -73,21 +54,13 @@
 
         <p-tabpanel [value]="tabs.Orders">
           <div class="pt-6">
-            <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
-              <div class="mb-4 flex flex-col gap-1 border-b border-border pb-4">
-                <span class="text-xs font-bold uppercase tracking-widest text-primary">Orders</span>
-                <p class="m-0 text-sm text-muted-foreground">
-                  Line subtotals, return subtotals, and net amounts for this product across customer orders.
-                </p>
-              </div>
-              <app-product-details-orders-panel
-                [rows]="productOrderRows()"
-                [aggregate]="productOrdersAggregate()"
-                [loading]="productOrdersLoading()"
-                (viewOrder)="onViewProductOrder($event)"
-                (reload)="onReloadProductOrders()"
-              />
-            </p-card>
+            <app-product-details-orders-panel
+              [rows]="productOrderRows()"
+              [aggregate]="productOrdersAggregate()"
+              [loading]="productOrdersLoading()"
+              (viewOrder)="onViewProductOrder($event)"
+              (reload)="onReloadProductOrders()"
+            />
           </div>
         </p-tabpanel>
       </p-tabpanels>

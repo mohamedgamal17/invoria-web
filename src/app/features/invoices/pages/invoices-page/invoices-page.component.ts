@@ -1,4 +1,4 @@
-﻿import { ChangeDetectionStrategy, Component, inject, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, untracked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Store } from '@ngrx/store';
@@ -6,17 +6,18 @@ import { Store } from '@ngrx/store';
 import { type Invoice } from '../../models/invoice.entity';
 import { InvoiceListComponent } from '../../components/invoice-list/invoice-list.component';
 import { InvoiceHeaderComponent } from '../../components/invoice-header/invoice-header.component';
+import { InvoicesFilterPanelComponent } from '../../components/invoices-filter-panel/invoices-filter-panel.component';
+import type { InvoicesListFilters } from '../../models/invoices-list.filters';
 import {
-  InvoicesFilterPanelComponent,
-  type InvoicesListFilters
-} from '../../components/invoices-filter-panel/invoices-filter-panel.component';
-import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
+  DEFAULT_PAGE_SIZE_OPTIONS,
+  type PaginatorPageEvent,
+} from '../../../../shared/models/pagination';
 import { PaginationService } from '../../../../shared/utils/pagination.service';
 import { invoicesListSelectors } from '../../store/invoices-list/invoices-list.selectors';
 
 /**
  * Smart page (container) for the invoices list. It owns only:
- * - the NgRx state mapping (selectors → signals),
+ * - the NgRx state mapping (selectors ? signals),
  * - the URL write adapter (`page` / `pageSize` / `customerId` / `orderId`
  *   query params via merge),
  * - presentation glue (scroll behavior, details navigation).
@@ -28,13 +29,9 @@ import { invoicesListSelectors } from '../../store/invoices-list/invoices-list.s
 @Component({
   selector: 'app-invoices-page',
   standalone: true,
-  imports: [
-    InvoiceHeaderComponent,
-    InvoicesFilterPanelComponent,
-    InvoiceListComponent
-  ],
+  imports: [InvoiceHeaderComponent, InvoicesFilterPanelComponent, InvoiceListComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './invoices-page.component.html'
+  templateUrl: './invoices-page.component.html',
 })
 export class InvoicesPageComponent {
   readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
@@ -50,7 +47,9 @@ export class InvoicesPageComponent {
   readonly listLoading = this.store.selectSignal(invoicesListSelectors.selectIsLoading);
   readonly pageIndex = this.store.selectSignal(invoicesListSelectors.selectPageIndex);
   readonly pageSize = this.store.selectSignal(invoicesListSelectors.selectPageSize);
-  readonly customerIdFromRoute = this.store.selectSignal(invoicesListSelectors.selectCustomerIdFilter);
+  readonly customerIdFromRoute = this.store.selectSignal(
+    invoicesListSelectors.selectCustomerIdFilter,
+  );
   readonly orderIdFromRoute = this.store.selectSignal(invoicesListSelectors.selectOrderIdFilter);
   readonly first = this.store.selectSignal(invoicesListSelectors.selectFirst);
 
@@ -70,7 +69,7 @@ export class InvoicesPageComponent {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { page: pageIndex + 1, pageSize },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
 
     if (isManualPageChange) {
@@ -93,9 +92,9 @@ export class InvoicesPageComponent {
       queryParams: {
         customerId: customerIdFilter || null,
         orderId: orderIdFilter || null,
-        page: 1
+        page: 1,
       },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
   }
 
@@ -107,7 +106,7 @@ export class InvoicesPageComponent {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { customerId: null, orderId: null, page: 1 },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
   }
 }

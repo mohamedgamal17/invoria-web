@@ -1,5 +1,13 @@
-﻿import { CommonModule, formatDate } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, LOCALE_ID, untracked } from '@angular/core';
+import { CommonModule, formatDate } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  LOCALE_ID,
+  untracked,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
@@ -7,11 +15,13 @@ import { map } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
+import { ErrorCardComponent } from '../../../../shared/ui/error-card/error-card.component';
+import { DetailsSkeletonComponent } from '../../../../shared/ui/details-skeleton/details-skeleton.component';
+import { DetailsToolbarComponent } from '../../../../shared/ui/details-toolbar/details-toolbar.component';
 import { LOAD_STATUS } from '../../../../shared/models/load-status';
 import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 import { UrlStateService } from '../../../../shared/utils/url-state.service';
@@ -36,7 +46,7 @@ import { purchaseOrdersMutationsFeature } from '../../store/purchase-orders-muta
 import { PURCHASE_ORDER_DETAILS_ACTIONS } from '../../store/purchase-order-details/purchase-order-details.actions';
 import { PurchaseOrderDetailsTab } from '../../store/purchase-order-details/purchase-order-details.reducer';
 import { purchaseOrderDetailsSelectors } from '../../store/purchase-order-details/purchase-order-details.selectors';
-import { toPurchaseOrderDetailsTab } from '../../utils/purchase-order-details-tab';
+import { parseStringEnumTab } from '../../../../shared/navigation/query-param-parsers';
 import { PurchaseOrderDetailsOverviewTabComponent } from '../../components/purchase-order-details-overview-tab/purchase-order-details-overview-tab.component';
 import { PurchaseOrderDetailsLinesTabComponent } from '../../components/purchase-order-details-lines-tab/purchase-order-details-lines-tab.component';
 import {
@@ -51,7 +61,9 @@ import {
     CommonModule,
     ButtonModule,
     CardModule,
-    SkeletonModule,
+    ErrorCardComponent,
+    DetailsSkeletonComponent,
+    DetailsToolbarComponent,
     ToastModule,
     TagModule,
     Tabs,
@@ -68,7 +80,7 @@ import {
 })
 /**
  * Smart page (container) for purchase order details. It owns only:
- * - the NgRx state mapping (selectors → signals),
+ * - the NgRx state mapping (selectors ? signals),
  * - the URL write adapter (`tab` query param via `replaceUrl`),
  * - presentation glue (navigation, state-transition confirmation dialog).
  * The URL *read* side lives in the `store/purchase-order-details-url` effects
@@ -170,7 +182,7 @@ export class PurchaseOrderDetailsPageComponent {
     if (value === undefined || value === null) {
       return;
     }
-    const next = toPurchaseOrderDetailsTab(value);
+    const next = parseStringEnumTab(PurchaseOrderDetailsTab, value);
     if (next === null) {
       return;
     }

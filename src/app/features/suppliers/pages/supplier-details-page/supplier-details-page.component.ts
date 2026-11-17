@@ -1,4 +1,11 @@
-﻿import { ChangeDetectionStrategy, Component, computed, effect, inject, untracked } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  untracked,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
@@ -10,24 +17,26 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
-import type { PurchaseOrdersListFilters } from '../../../procurement/components/purchase-orders-filter-panel/purchase-orders-filter-panel.component';
+import type { PurchaseOrdersListFilters } from '../../../procurement/models/purchase-orders-list.filters';
 import type { PurchaseOrder } from '../../../procurement/models/purchase-order.entity';
 import { type PaginatorPageEvent } from '../../../../shared/models/pagination';
 import { PaginationService } from '../../../../shared/utils/pagination.service';
 import { UrlStateService } from '../../../../shared/utils/url-state.service';
 import { SupplierDetailsProfileComponent } from '../../components/supplier-details-profile/supplier-details-profile.component';
 import { SupplierDetailsPurchaseOrdersTabComponent } from '../../components/supplier-details-purchase-orders-tab/supplier-details-purchase-orders-tab.component';
-import { SupplierDetailsToolbarComponent } from '../../components/supplier-details-toolbar/supplier-details-toolbar.component';
+import { DetailsToolbarComponent } from '../../../../shared/ui/details-toolbar/details-toolbar.component';
+import { DetailsSkeletonComponent } from '../../../../shared/ui/details-skeleton/details-skeleton.component';
+import { ErrorCardComponent } from '../../../../shared/ui/error-card/error-card.component';
 import { SUPPLIER_DETAILS_ACTIONS } from '../../store/supplier-details/supplier-details.actions';
 import { SupplierDetailsTab } from '../../store/supplier-details/supplier-details.reducer';
 import { supplierDetailsSelectors } from '../../store/supplier-details/supplier-details.selectors';
-import { toSupplierDetailsTab } from '../../utils/supplier-details-tab';
+import { parseStringEnumTab } from '../../../../shared/navigation/query-param-parsers';
 import { SUPPLIER_PURCHASE_ORDERS_ACTIONS } from '../../store/supplier-details-purchase-orders/supplier-details-purchase-orders.actions';
 import { supplierPurchaseOrdersSelectors } from '../../store/supplier-details-purchase-orders/supplier-details-purchase-orders.selectors';
 
 /**
  * Smart page (container) for supplier details. It owns only:
- * - the NgRx state mapping (selectors → signals),
+ * - the NgRx state mapping (selectors ? signals),
  * - the URL write adapter (`tab` / `page` / `rows` query params via `replaceUrl`),
  * - presentation glue (scroll behavior, page navigation).
  * The URL *read* side lives in the `store/supplier-details-url` effects
@@ -41,14 +50,15 @@ import { supplierPurchaseOrdersSelectors } from '../../store/supplier-details-pu
   imports: [
     ButtonModule,
     CardModule,
-    SkeletonModule,
+    DetailsSkeletonComponent,
+    ErrorCardComponent,
     ToastModule,
     Tabs,
     TabList,
     Tab,
     TabPanels,
     TabPanel,
-    SupplierDetailsToolbarComponent,
+    DetailsToolbarComponent,
     SupplierDetailsProfileComponent,
     SupplierDetailsPurchaseOrdersTabComponent,
   ],
@@ -120,7 +130,7 @@ export class SupplierDetailsPageComponent {
     if (value === undefined || value === null) {
       return;
     }
-    const next = toSupplierDetailsTab(value);
+    const next = parseStringEnumTab(SupplierDetailsTab, value);
     if (next === null) {
       return;
     }

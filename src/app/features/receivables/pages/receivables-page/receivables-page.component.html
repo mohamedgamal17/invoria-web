@@ -12,15 +12,19 @@
     (clearFilters)="onClearFilters()"
   />
 
-  <app-receivable-list
-    [receivables]="receivables()"
+  <app-financial-obligation-list
+    [obligations]="receivables()"
     [isListLoading]="listLoading()"
     [totalRecords]="paging().totalCount"
     [first]="first()"
     [pageSize]="pageSize()"
+    entityPlural="receivables"
+    partyLabel="Customer"
+    sourceLabel="Order"
+    sourceDisplayKey="orderNumber"
     [pageSizeOptions]="pageSizeOptions"
     (pageChange)="onPageChange($event)"
     (clearFilters)="onClearFilters()"
-    (viewReceivable)="goToDetails($event)"
+    (viewObligation)="goToDetails($event)"
   />
 </section>

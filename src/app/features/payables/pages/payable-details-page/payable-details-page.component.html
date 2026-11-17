@@ -1,45 +1,23 @@
 <p-toast />
 
 <section class="flex flex-col gap-8">
-  <p-button
-    icon="pi pi-arrow-left"
-    label="Back to payables"
-    [text]="true"
-    styleClass="px-0 text-sm text-muted-foreground hover:text-foreground self-start"
-    (onClick)="backToList()"
-  />
+  <app-details-toolbar backLabel="Back to payables" (back)="backToList()" />
 
   @if (loading()) {
-    <p-card styleClass="border border-border/60 rounded-2xl shadow-sm">
-      <div class="space-y-5 p-1">
-        <p-skeleton height="2rem" width="45%"></p-skeleton>
-        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <p-skeleton height="5.5rem"></p-skeleton>
-          <p-skeleton height="5.5rem"></p-skeleton>
-          <p-skeleton height="5.5rem"></p-skeleton>
-        </div>
-        <p-skeleton height="1rem" width="80%"></p-skeleton>
-      </div>
-    </p-card>
-  } @else if (requestError()) {
-    <p-card styleClass="border border-destructive/30 rounded-2xl shadow-sm">
-      <div class="flex flex-col gap-4 p-1 sm:flex-row sm:items-center sm:justify-between">
-        <div class="space-y-1">
-          <h2 class="text-base font-semibold text-foreground">Unable to load payable</h2>
-          <p class="text-sm text-destructive">{{ requestError() }}</p>
-        </div>
-        <p-button
-          label="Retry"
-          icon="pi pi-refresh"
-          styleClass="rounded-xl px-4 py-2.5 text-sm font-semibold"
-          (onClick)="retry()"
-        />
-      </div>
-    </p-card>
+    <app-details-skeleton />
+  } @else if (requestError(); as errorMessage) {
+    <app-error-card title="Unable to load payable" [message]="errorMessage" (retry)="retry()" />
   } @else if (payable(); as payable) {
     <app-page-header
       [title]="payable.id"
-      [description]="'Supplier: ' + payable.partyId + ' &middot; Purchase order: ' + payable.sourceId + ' &middot; ' + (payable.createdAt | date: 'medium')"
+      [description]="
+        'Supplier: ' +
+        payable.partyId +
+        ' &middot; Purchase order: ' +
+        payable.sourceId +
+        ' &middot; ' +
+        (payable.createdAt | date: 'medium')
+      "
       eyebrow="Payable"
       eyebrowIcon="pi pi-file"
     />
@@ -52,8 +30,14 @@
       <p-tabpanels>
         <p-tabpanel [value]="tabs.Overview">
           <div class="pt-5">
-            <app-payable-details-overview-card
-              [payable]="payable"
+            <app-financial-obligation-overview-card
+              [obligation]="payable"
+              entityLabel="Payable"
+              partyLabel="Supplier"
+              sourceLabel="Purchase Order"
+              partyRoute="/suppliers"
+              sourceRoute="/procurement"
+              sourceDisplayKey="purchaseNumber"
               [currencyCode]="currencyCode"
               (settleRequest)="openSettleModal()"
             />
@@ -61,10 +45,11 @@
         </p-tabpanel>
         <p-tabpanel [value]="tabs.Settlements">
           <div class="pt-5">
-            <app-payable-settlements-tab
+            <app-settlements-tab
               [settlements]="payable.settlements"
               [currencyCode]="currencyCode"
               [outstandingAmount]="payable.outstandingAmount"
+              entityName="payable"
               (settleRequest)="openSettleModal()"
             />
           </div>

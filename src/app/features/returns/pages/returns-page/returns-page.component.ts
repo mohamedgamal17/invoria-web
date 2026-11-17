@@ -1,4 +1,4 @@
-﻿import { CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, linkedSignal } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -11,26 +11,24 @@ import type { PagingInfo } from '../../../../core/models/paging';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
 import { parseOptionalEnumQueryParam } from '../../../../shared/navigation/query-param-parsers';
 import { PaginationService } from '../../../../shared/utils/pagination.service';
-import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
+import {
+  DEFAULT_PAGE_SIZE_OPTIONS,
+  type PaginatorPageEvent,
+} from '../../../../shared/models/pagination';
 import { ReturnsApiService } from '../../services/returns-api.service';
 import type { Return } from '../../models/return.entity';
 import type { ListReturnRequest } from '../../models/list-return.request';
 import { ReturnType } from '../../models/return-type.enum';
 import { ReturnHeaderComponent } from '../../components/return-header/return-header.component';
-import {
-  ReturnsFilterPanelComponent,
-  type ReturnsListFilters
-} from '../../components/returns-filter-panel/returns-filter-panel.component';
+import { ReturnsFilterPanelComponent } from '../../components/returns-filter-panel/returns-filter-panel.component';
+import type { ReturnsListFilters } from '../../models/returns-list.filters';
 import { ReturnListComponent } from '../../components/return-list/return-list.component';
 
 const RETURN_TYPE_VALUES = Object.values(ReturnType).filter(
-  (value): value is number => typeof value === 'number'
+  (value): value is number => typeof value === 'number',
 );
 
-const EMPTY_RETURNS_TUPLE: [Return[], PagingInfo] = [
-  [],
-  { length: 0, skip: 0, totalCount: 0 }
-];
+const EMPTY_RETURNS_TUPLE: [Return[], PagingInfo] = [[], { length: 0, skip: 0, totalCount: 0 }];
 
 @Component({
   selector: 'app-returns-page',
@@ -40,11 +38,11 @@ const EMPTY_RETURNS_TUPLE: [Return[], PagingInfo] = [
     ToastModule,
     ReturnHeaderComponent,
     ReturnsFilterPanelComponent,
-    ReturnListComponent
+    ReturnListComponent,
   ],
   providers: [MessageService],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './returns-page.component.html'
+  templateUrl: './returns-page.component.html',
 })
 export class ReturnsPageComponent {
   readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
@@ -62,25 +60,25 @@ export class ReturnsPageComponent {
         const raw = paramMap.get('page');
         const pageNumber = raw ? parseInt(raw, 10) : 1;
         return Number.isFinite(pageNumber) && pageNumber >= 1 ? pageNumber : 1;
-      })
+      }),
     ),
-    { initialValue: 1 }
+    { initialValue: 1 },
   );
 
   /** Page size from ?pageSize= (must be in pageSizeOptions; default 25). */
   readonly pageSize = toSignal(
     this.route.queryParamMap.pipe(
-      map((paramMap) => this.pagination.pageSizeFromQuery(Number(paramMap.get('pageSize'))))
+      map((paramMap) => this.pagination.pageSizeFromQuery(Number(paramMap.get('pageSize')))),
     ),
-    { initialValue: 25 }
+    { initialValue: 25 },
   );
 
   /** Return type filter from ?type= (optional enum). */
   readonly typeFilterFromRoute = toSignal(
     this.route.queryParamMap.pipe(
-      map((paramMap) => parseOptionalEnumQueryParam(paramMap, 'type', RETURN_TYPE_VALUES))
+      map((paramMap) => parseOptionalEnumQueryParam(paramMap, 'type', RETURN_TYPE_VALUES)),
     ),
-    { initialValue: null as number | null }
+    { initialValue: null as number | null },
   );
 
   /** 0-based page index derived from the URL. */
@@ -89,7 +87,7 @@ export class ReturnsPageComponent {
   readonly listRequest = computed((): ListReturnRequest => {
     const req: ListReturnRequest = {
       Skip: this.pageIndex() * this.pageSize(),
-      Length: this.pageSize()
+      Length: this.pageSize(),
     };
     const type = this.typeFilterFromRoute();
     if (type != null) {
@@ -115,18 +113,18 @@ export class ReturnsPageComponent {
         catchError((error: unknown) => {
           this.showApiError(error);
           return of(EMPTY_RETURNS_TUPLE);
-        })
-      )
+        }),
+      ),
   });
 
   readonly displayReturns = linkedSignal({
     source: () => this.returnsLinkSource(),
-    computation: (source) => [...source.returns]
+    computation: (source) => [...source.returns],
   });
 
   readonly displayPaging = linkedSignal({
     source: () => this.returnsLinkSource(),
-    computation: (source) => ({ ...source.paging })
+    computation: (source) => ({ ...source.paging }),
   });
 
   goToDetails(returnItem: Return): void {
@@ -145,9 +143,9 @@ export class ReturnsPageComponent {
         relativeTo: this.route,
         queryParams: {
           page: newPageIndex + 1,
-          pageSize: rows
+          pageSize: rows,
         },
-        queryParamsHandling: 'merge'
+        queryParamsHandling: 'merge',
       });
 
       if (isManualPageChange) {
@@ -165,9 +163,9 @@ export class ReturnsPageComponent {
       relativeTo: this.route,
       queryParams: {
         type: filters.type != null ? String(filters.type) : null,
-        page: 1
+        page: 1,
       },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
   }
 
@@ -180,9 +178,9 @@ export class ReturnsPageComponent {
       relativeTo: this.route,
       queryParams: {
         type: null,
-        page: 1
+        page: 1,
       },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
   }
 
@@ -195,7 +193,7 @@ export class ReturnsPageComponent {
     return {
       request: this.listRequest(),
       returns,
-      paging
+      paging,
     };
   }
 

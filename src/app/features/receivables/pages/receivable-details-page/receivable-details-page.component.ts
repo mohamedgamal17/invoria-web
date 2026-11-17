@@ -1,23 +1,30 @@
-﻿import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, untracked } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  untracked,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
 
 import { Store } from '@ngrx/store';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
 import { LOAD_STATUS } from '../../../../shared/models/load-status';
 import { UrlStateService } from '../../../../shared/utils/url-state.service';
 import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
-import { toReceivableDetailsTab } from '../../utils/receivable-details-tab';
+import { parseStringEnumTab } from '../../../../shared/navigation/query-param-parsers';
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
-import { ReceivableDetailsOverviewCardComponent } from '../../components/receivable-details-overview-card/receivable-details-overview-card.component';
-import { ReceivableSettlementsTabComponent } from '../../components/receivable-settlements-tab/receivable-settlements-tab.component';
+import { DetailsToolbarComponent } from '../../../../shared/ui/details-toolbar/details-toolbar.component';
+import { DetailsSkeletonComponent } from '../../../../shared/ui/details-skeleton/details-skeleton.component';
+import { ErrorCardComponent } from '../../../../shared/ui/error-card/error-card.component';
+import { SettlementsTabComponent } from '../../../../shared/ui/settlements-tab/settlements-tab.component';
+import { FinancialObligationOverviewCardComponent } from '../../../../shared/ui/financial-obligation-overview-card/financial-obligation-overview-card.component';
 import { SettleModalComponent } from '../../../../shared/ui/settle-modal/settle-modal.component';
 import { RECEIVABLES_MUTATIONS_ACTIONS } from '../../store/receivables-mutations/receivables-mutations.actions';
 import { receivablesMutationsFeature } from '../../store/receivables-mutations/receivables-mutations.reducer';
@@ -27,7 +34,7 @@ import { receivableDetailsSelectors } from '../../store/receivable-details/recei
 
 /**
  * Smart page (container) for receivable details. It owns only:
- * - the NgRx state mapping (selectors → signals),
+ * - the NgRx state mapping (selectors ? signals),
  * - the URL write adapter (`tab` query param via `replaceUrl`),
  * - presentation glue (navigation, settle modal intents).
  * The URL *read* side lives in the `store/receivable-details-url` effects
@@ -41,9 +48,9 @@ import { receivableDetailsSelectors } from '../../store/receivable-details/recei
   standalone: true,
   imports: [
     DatePipe,
-    ButtonModule,
-    CardModule,
-    SkeletonModule,
+    DetailsSkeletonComponent,
+    ErrorCardComponent,
+    DetailsToolbarComponent,
     ToastModule,
     Tabs,
     TabList,
@@ -51,8 +58,8 @@ import { receivableDetailsSelectors } from '../../store/receivable-details/recei
     TabPanels,
     TabPanel,
     PageHeaderComponent,
-    ReceivableDetailsOverviewCardComponent,
-    ReceivableSettlementsTabComponent,
+    FinancialObligationOverviewCardComponent,
+    SettlementsTabComponent,
     SettleModalComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -122,7 +129,7 @@ export class ReceivableDetailsPageComponent {
     if (value === undefined || value === null) {
       return;
     }
-    const next = toReceivableDetailsTab(value);
+    const next = parseStringEnumTab(ReceivableDetailsTab, value);
     if (next === null) {
       return;
     }

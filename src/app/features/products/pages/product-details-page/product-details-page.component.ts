@@ -1,21 +1,32 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, untracked } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  untracked,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
 import { LOAD_STATUS } from '../../../../shared/models/load-status';
 import { PaginationService } from '../../../../shared/utils/pagination.service';
 import { UrlStateService } from '../../../../shared/utils/url-state.service';
-import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
+import {
+  DEFAULT_PAGE_SIZE_OPTIONS,
+  type PaginatorPageEvent,
+} from '../../../../shared/models/pagination';
 import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
+import { DetailsToolbarComponent } from '../../../../shared/ui/details-toolbar/details-toolbar.component';
+import { DetailsSkeletonComponent } from '../../../../shared/ui/details-skeleton/details-skeleton.component';
+import { ErrorCardComponent } from '../../../../shared/ui/error-card/error-card.component';
 import { ProductsBreadcrumbComponent } from '../../components/products-breadcrumb/products-breadcrumb.component';
-import { ProductDetailsToolbarComponent } from '../../components/product-details-toolbar/product-details-toolbar.component';
 import { ProductDetailsInfoPanelComponent } from '../../components/product-details-info-panel/product-details-info-panel.component';
 import { ProductDetailsOrdersPanelComponent } from '../../components/product-details-orders-panel/product-details-orders-panel.component';
 import { ProductBatchesPanelComponent } from '../../../inventory/components/product-batches-panel.component';
@@ -30,7 +41,7 @@ import { PRODUCT_BATCHES_ACTIONS } from '../../store/product-details-batches/pro
 import { productBatchesSelectors } from '../../store/product-details-batches/product-details-batches.selectors';
 import { PRODUCT_ORDERS_ACTIONS } from '../../store/product-details-orders/product-details-orders.actions';
 import { productOrdersSelectors } from '../../store/product-details-orders/product-details-orders.selectors';
-import { toProductDetailsTab } from '../../utils/product-details-tab';
+import { parseStringEnumTab } from '../../../../shared/navigation/query-param-parsers';
 import type { ProductOrderRowSummary } from '../../models/product-order-summary';
 
 /**
@@ -48,7 +59,6 @@ import type { ProductOrderRowSummary } from '../../models/product-order-summary'
   imports: [
     ButtonModule,
     CardModule,
-    SkeletonModule,
     ToastModule,
     Tabs,
     TabList,
@@ -56,7 +66,9 @@ import type { ProductOrderRowSummary } from '../../models/product-order-summary'
     TabPanels,
     TabPanel,
     ProductsBreadcrumbComponent,
-    ProductDetailsToolbarComponent,
+    DetailsToolbarComponent,
+    DetailsSkeletonComponent,
+    ErrorCardComponent,
     ProductDetailsInfoPanelComponent,
     ProductBatchesPanelComponent,
     ProductDetailsOrdersPanelComponent,
@@ -101,12 +113,8 @@ export class ProductDetailsPageComponent {
 
   // --- Orders store (lazy tab gate + product-level order summaries) --------
   readonly productOrderRows = this.store.selectSignal(productOrdersSelectors.selectRows);
-  readonly productOrdersAggregate = this.store.selectSignal(
-    productOrdersSelectors.selectAggregate,
-  );
-  readonly productOrdersLoading = this.store.selectSignal(
-    productOrdersSelectors.selectIsLoading,
-  );
+  readonly productOrdersAggregate = this.store.selectSignal(productOrdersSelectors.selectAggregate);
+  readonly productOrdersLoading = this.store.selectSignal(productOrdersSelectors.selectIsLoading);
 
   readonly breadcrumbItems = computed(() => {
     const product = this.product();
@@ -126,9 +134,7 @@ export class ProductDetailsPageComponent {
       if (!id) {
         return;
       }
-      untracked(() =>
-        this.store.dispatch(PRODUCT_DETAILS_ACTIONS.loadProduct({ productId: id })),
-      );
+      untracked(() => this.store.dispatch(PRODUCT_DETAILS_ACTIONS.loadProduct({ productId: id })));
     });
   }
 
@@ -152,7 +158,7 @@ export class ProductDetailsPageComponent {
     if (value === undefined || value === null) {
       return;
     }
-    const next = toProductDetailsTab(value);
+    const next = parseStringEnumTab(ProductDetailsTab, value);
     if (next === null) {
       return;
     }

@@ -25,6 +25,7 @@ import {
 } from '../../store/orders-list/orders-list.reducer';
 import {
   ORDER_DETAILS_FEATURE_KEY,
+  OrderDetailsTab,
   orderDetailsReducer,
 } from '../../store/order-details/order-details.reducer';
 import { OrderDetailsEffects } from '../../store/order-details/order-details.effects';
@@ -78,10 +79,10 @@ describe('OrderDetailsPageComponent', () => {
           name: 'Widget',
           price: 10,
           stock: { actualQuantity: 0, reservedQuantity: 0 },
-          createdAt: ''
-        }
-      }
-    ]
+          createdAt: '',
+        },
+      },
+    ],
   };
 
   async function setup(paramMap: Record<string, string>) {
@@ -89,28 +90,28 @@ describe('OrderDetailsPageComponent', () => {
     getOrder = vi.fn().mockReturnValue(
       of({
         isSuccess: true as const,
-        result: baseOrder
-      })
+        result: baseOrder,
+      }),
     );
     recordOrderPayment = vi.fn().mockReturnValue(
       of({
         isSuccess: true as const,
-        result: baseOrder
-      })
+        result: baseOrder,
+      }),
     );
     mockFacade = {
       execute: vi.fn().mockReturnValue(
         of({
           isSuccess: true as const,
-          result: { ...baseOrder, status: OrderStatus.Processing }
-        })
+          result: { ...baseOrder, status: OrderStatus.Processing },
+        }),
       ),
       meta: vi.fn().mockReturnValue({
         label: 'Accept',
         icon: 'pi pi-check',
         severity: 'info' as const,
-        routeSegment: 'accept'
-      })
+        routeSegment: 'accept',
+      }),
     };
 
     await TestBed.configureTestingModule({
@@ -131,16 +132,16 @@ describe('OrderDetailsPageComponent', () => {
             queryParamMap: EMPTY,
             snapshot: {
               paramMap: convertToParamMap(paramMap),
-              queryParamMap: convertToParamMap({})
-            }
-          }
+              queryParamMap: convertToParamMap({}),
+            },
+          },
         },
         {
           provide: Router,
-          useValue: { navigate: vi.fn().mockResolvedValue(true) }
-        }
+          useValue: { navigate: vi.fn().mockResolvedValue(true) },
+        },
       ],
-      schemas: [NO_ERRORS_SCHEMA]
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OrderDetailsPageComponent);
@@ -166,13 +167,13 @@ describe('OrderDetailsPageComponent', () => {
   });
 
   it('changes tab via onTabChange', () => {
-    component.onTabChange(1);
-    expect(component.activeTab()).toBe(1);
+    component.onTabChange(OrderDetailsTab.LineItems);
+    expect(component.activeTab()).toBe(OrderDetailsTab.LineItems);
   });
 
-  it('falls back to tab 0 for unknown tab string', () => {
+  it('falls back to the summary tab for unknown tab string', () => {
     component.onTabChange('unknown');
-    expect(component.activeTab()).toBe(0);
+    expect(component.activeTab()).toBe(OrderDetailsTab.Summary);
   });
 
   it('availableActions includes requestRevision when Processing', async () => {
@@ -181,9 +182,9 @@ describe('OrderDetailsPageComponent', () => {
         isSuccess: true as const,
         result: {
           ...baseOrder,
-          status: OrderStatus.Processing
-        }
-      })
+          status: OrderStatus.Processing,
+        },
+      }),
     );
     component.loadOrder();
     fixture.detectChanges();
@@ -200,9 +201,9 @@ describe('OrderDetailsPageComponent', () => {
         isSuccess: true as const,
         result: {
           ...baseOrder,
-          status: OrderStatus.Revision
-        }
-      })
+          status: OrderStatus.Revision,
+        },
+      }),
     );
     component.loadOrder();
     fixture.detectChanges();
@@ -219,9 +220,9 @@ describe('OrderDetailsPageComponent', () => {
         isSuccess: true as const,
         result: {
           ...baseOrder,
-          status: OrderStatus.Processing
-        }
-      })
+          status: OrderStatus.Processing,
+        },
+      }),
     );
     component.loadOrder();
     fixture.detectChanges();
@@ -236,9 +237,9 @@ describe('OrderDetailsPageComponent', () => {
         isSuccess: true as const,
         result: {
           ...baseOrder,
-          status: OrderStatus.Completed
-        }
-      })
+          status: OrderStatus.Completed,
+        },
+      }),
     );
     component.loadOrder();
     fixture.detectChanges();
@@ -255,16 +256,16 @@ describe('OrderDetailsPageComponent', () => {
           ...baseOrder,
           status: OrderStatus.Completed,
           amountPaid: 20,
-          paymentStatus: PaymentStatus.Paid
-        }
-      })
+          paymentStatus: PaymentStatus.Paid,
+        },
+      }),
     );
 
     component.paymentDialogVisible.set(true);
     component.recordPayment({
       PaidAmount: 20,
       PaymentMethod: OrderPaymentMethod.Cash,
-      PaidAt: null
+      PaidAt: null,
     });
     fixture.detectChanges();
     await fixture.whenStable();
@@ -272,7 +273,7 @@ describe('OrderDetailsPageComponent', () => {
     expect(recordOrderPayment).toHaveBeenCalledWith('ord_1', {
       PaidAmount: 20,
       PaymentMethod: OrderPaymentMethod.Cash,
-      PaidAt: null
+      PaidAt: null,
     });
     expect(component.displayOrder()?.amountPaid).toBe(20);
     expect(component.paymentSaving()).toBe(false);
@@ -284,15 +285,15 @@ describe('OrderDetailsPageComponent', () => {
       of({
         isSuccess: false as const,
         result: null,
-        error: new Error('payment rejected')
-      })
+        error: new Error('payment rejected'),
+      }),
     );
 
     component.paymentDialogVisible.set(true);
     component.recordPayment({
       PaidAmount: 20,
       PaymentMethod: OrderPaymentMethod.Cash,
-      PaidAt: null
+      PaidAt: null,
     });
     fixture.detectChanges();
     await fixture.whenStable();

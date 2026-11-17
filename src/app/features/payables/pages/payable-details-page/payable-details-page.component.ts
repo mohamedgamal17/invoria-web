@@ -1,13 +1,17 @@
-﻿import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, untracked } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  untracked,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
 
 import { Store } from '@ngrx/store';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
@@ -15,10 +19,13 @@ import { LOAD_STATUS } from '../../../../shared/models/load-status';
 import { UrlStateService } from '../../../../shared/utils/url-state.service';
 import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 import type { Payable } from '../../models/payable.entity';
-import { toPayableDetailsTab } from '../../utils/payable-details-tab';
+import { parseStringEnumTab } from '../../../../shared/navigation/query-param-parsers';
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
-import { PayableDetailsOverviewCardComponent } from '../../components/payable-details-overview-card/payable-details-overview-card.component';
-import { PayableSettlementsTabComponent } from '../../components/payable-settlements-tab/payable-settlements-tab.component';
+import { DetailsToolbarComponent } from '../../../../shared/ui/details-toolbar/details-toolbar.component';
+import { DetailsSkeletonComponent } from '../../../../shared/ui/details-skeleton/details-skeleton.component';
+import { ErrorCardComponent } from '../../../../shared/ui/error-card/error-card.component';
+import { SettlementsTabComponent } from '../../../../shared/ui/settlements-tab/settlements-tab.component';
+import { FinancialObligationOverviewCardComponent } from '../../../../shared/ui/financial-obligation-overview-card/financial-obligation-overview-card.component';
 import { SettleModalComponent } from '../../../../shared/ui/settle-modal/settle-modal.component';
 import { PAYABLES_MUTATIONS_ACTIONS } from '../../store/payables-mutations/payables-mutations.actions';
 import { payablesMutationsFeature } from '../../store/payables-mutations/payables-mutations.reducer';
@@ -28,7 +35,7 @@ import { payableDetailsSelectors } from '../../store/payable-details/payable-det
 
 /**
  * Smart page (container) for payable details. It owns only:
- * - the NgRx state mapping (selectors → signals),
+ * - the NgRx state mapping (selectors ? signals),
  * - the URL write adapter (`tab` query param via `replaceUrl`),
  * - presentation glue (navigation, settle modal intents).
  * The URL *read* side lives in the `store/payable-details-url` effects
@@ -42,9 +49,9 @@ import { payableDetailsSelectors } from '../../store/payable-details/payable-det
   standalone: true,
   imports: [
     DatePipe,
-    ButtonModule,
-    CardModule,
-    SkeletonModule,
+    DetailsSkeletonComponent,
+    ErrorCardComponent,
+    DetailsToolbarComponent,
     ToastModule,
     Tabs,
     TabList,
@@ -52,12 +59,12 @@ import { payableDetailsSelectors } from '../../store/payable-details/payable-det
     TabPanels,
     TabPanel,
     PageHeaderComponent,
-    PayableDetailsOverviewCardComponent,
-    PayableSettlementsTabComponent,
-    SettleModalComponent
+    FinancialObligationOverviewCardComponent,
+    SettlementsTabComponent,
+    SettleModalComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './payable-details-page.component.html'
+  templateUrl: './payable-details-page.component.html',
 })
 export class PayableDetailsPageComponent {
   readonly tabs = PayableDetailsTab;
@@ -95,9 +102,7 @@ export class PayableDetailsPageComponent {
       if (!payableId) {
         return;
       }
-      untracked(() =>
-        this.store.dispatch(PAYABLE_DETAILS_ACTIONS.loadPayable({ payableId })),
-      );
+      untracked(() => this.store.dispatch(PAYABLE_DETAILS_ACTIONS.loadPayable({ payableId })));
     });
   }
 
@@ -117,7 +122,7 @@ export class PayableDetailsPageComponent {
     if (value === undefined || value === null) {
       return;
     }
-    const next = toPayableDetailsTab(value);
+    const next = parseStringEnumTab(PayableDetailsTab, value);
     if (next === null) {
       return;
     }

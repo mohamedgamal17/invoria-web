@@ -16,24 +16,30 @@ import type { ListOrderSalesProfitReportRequest } from '../../models/list-order-
 import type { PagingInfo } from '../../../../core/models/paging';
 import { presentApiError } from '../../../../core/http/api-error.presenter';
 import { PaginationService } from '../../../../shared/utils/pagination.service';
-import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
 import {
-  OrderProfitMetricsFilterPanelComponent,
-  type ProfitMetricsFilters
-} from '../../components/order-profit-metrics-filter-panel/order-profit-metrics-filter-panel.component';
+  COMPACT_PAGE_SIZE_OPTIONS,
+  type PaginatorPageEvent,
+} from '../../../../shared/models/pagination';
+import { ReportPeriodFilterPanelComponent } from '../../../../shared/ui/report-period-filter-panel/report-period-filter-panel.component';
+import type { ReportPeriodFilters } from '../../../../shared/models/report-period';
 import { OrderProfitMetricsListComponent } from '../../components/order-profit-metrics-list/order-profit-metrics-list.component';
 
 const EMPTY_PROFIT_TUPLE: [OrderSalesProfitReportPeriod[], PagingInfo] = [
   [],
-  { length: 0, skip: 0, totalCount: 0 }
+  { length: 0, skip: 0, totalCount: 0 },
 ];
 
-const REPORT_PERIOD_VALUES = Object.values(ReportPeriod).filter((value): value is number => typeof value === 'number');
+const REPORT_PERIOD_VALUES = Object.values(ReportPeriod).filter(
+  (value): value is number => typeof value === 'number',
+);
 
 function parsePeriodParam(raw: string | null): ReportPeriod | null {
   if (!raw) return null;
   const parsedPeriod = parseInt(raw, 10);
-  return REPORT_PERIOD_VALUES.includes(parsedPeriod) && REPORT_SERIES_PERIODS.includes(parsedPeriod as ReportPeriod) ? (parsedPeriod as ReportPeriod) : null;
+  return REPORT_PERIOD_VALUES.includes(parsedPeriod) &&
+    REPORT_SERIES_PERIODS.includes(parsedPeriod as ReportPeriod)
+    ? (parsedPeriod as ReportPeriod)
+    : null;
 }
 
 @Component({
@@ -44,15 +50,15 @@ function parsePeriodParam(raw: string | null): ReportPeriod | null {
     ToastModule,
     ButtonModule,
     PageHeaderComponent,
-    OrderProfitMetricsFilterPanelComponent,
-    OrderProfitMetricsListComponent
+    ReportPeriodFilterPanelComponent,
+    OrderProfitMetricsListComponent,
   ],
   providers: [MessageService],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './order-profit-metrics-page.component.html'
+  templateUrl: './order-profit-metrics-page.component.html',
 })
 export class OrderProfitMetricsPageComponent {
-  readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
+  readonly pageSizeOptions = COMPACT_PAGE_SIZE_OPTIONS;
 
   private readonly pagination = inject(PaginationService);
   private readonly ordersApi = inject(OrdersApiService);
@@ -64,9 +70,9 @@ export class OrderProfitMetricsPageComponent {
 
   private readonly periodFromRoute = toSignal(
     this.route.queryParamMap.pipe(
-      map((paramMap) => parsePeriodParam(paramMap.get('period')) ?? ReportPeriod.Daily)
+      map((paramMap) => parsePeriodParam(paramMap.get('period')) ?? ReportPeriod.Daily),
     ),
-    { initialValue: ReportPeriod.Daily }
+    { initialValue: ReportPeriod.Daily },
   );
 
   readonly selectedPeriod = computed(() => this.periodFromRoute());
@@ -77,16 +83,16 @@ export class OrderProfitMetricsPageComponent {
         const raw = paramMap.get('page');
         const pageNumber = raw ? parseInt(raw, 10) : 1;
         return Number.isFinite(pageNumber) && pageNumber >= 1 ? pageNumber : 1;
-      })
+      }),
     ),
-    { initialValue: 1 }
+    { initialValue: 1 },
   );
 
   readonly pageSize = toSignal(
     this.route.queryParamMap.pipe(
-      map((paramMap) => this.pagination.pageSizeFromQuery(Number(paramMap.get('pageSize'))))
+      map((paramMap) => this.pagination.pageSizeFromQuery(Number(paramMap.get('pageSize')))),
     ),
-    { initialValue: 25 }
+    { initialValue: 25 },
   );
 
   readonly pageIndex = computed(() => Math.max(0, this.pageFromRoute() - 1));
@@ -96,11 +102,14 @@ export class OrderProfitMetricsPageComponent {
     (): ListOrderSalesProfitReportRequest => ({
       Period: this.selectedPeriod(),
       Skip: this.pageIndex() * this.pageSize(),
-      Length: this.pageSize()
-    })
+      Length: this.pageSize(),
+    }),
   );
 
-  readonly metricsResource = rxResource<[OrderSalesProfitReportPeriod[], PagingInfo], ListOrderSalesProfitReportRequest>({
+  readonly metricsResource = rxResource<
+    [OrderSalesProfitReportPeriod[], PagingInfo],
+    ListOrderSalesProfitReportRequest
+  >({
     params: () => this.listRequest(),
     defaultValue: EMPTY_PROFIT_TUPLE,
     stream: ({ params }) =>
@@ -110,31 +119,34 @@ export class OrderProfitMetricsPageComponent {
             this.showApiError(response.error);
             return EMPTY_PROFIT_TUPLE;
           }
-          return [response.result.data, response.result.info] as [OrderSalesProfitReportPeriod[], PagingInfo];
+          return [response.result.data, response.result.info] as [
+            OrderSalesProfitReportPeriod[],
+            PagingInfo,
+          ];
         }),
         catchError((error: unknown) => {
           this.showApiError(error);
           return of(EMPTY_PROFIT_TUPLE);
-        })
-      )
+        }),
+      ),
   });
 
   readonly displayRows = linkedSignal({
     source: () => this.metricsLinkSource(),
-    computation: (source) => [...source.rows]
+    computation: (source) => [...source.rows],
   });
 
   readonly displayPaging = linkedSignal({
     source: () => this.metricsLinkSource(),
-    computation: (src) => ({ ...src.paging })
+    computation: (src) => ({ ...src.paging }),
   });
 
-  onFiltersChange(filters: ProfitMetricsFilters): void {
+  onFiltersChange(filters: ReportPeriodFilters): void {
     if (filters.period === this.selectedPeriod()) return;
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { period: filters.period, page: 1 },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
   }
 
@@ -143,20 +155,21 @@ export class OrderProfitMetricsPageComponent {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { period: ReportPeriod.Daily, page: 1 },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
   }
 
   onPageChange(event: PaginatorPageEvent): void {
     const firstEvt = event.first ?? 0;
     const rows = event.rows ?? this.pageSize();
-    const newPageIndex = event.page !== undefined ? event.page : Math.floor(firstEvt / Math.max(rows, 1));
+    const newPageIndex =
+      event.page !== undefined ? event.page : Math.floor(firstEvt / Math.max(rows, 1));
     if (this.pageIndex() !== newPageIndex || this.pageSize() !== rows) {
       const isManualPageChange = this.pageIndex() !== newPageIndex;
       void this.router.navigate([], {
         relativeTo: this.route,
         queryParams: { page: newPageIndex + 1, pageSize: rows },
-        queryParamsHandling: 'merge'
+        queryParamsHandling: 'merge',
       });
       if (isManualPageChange) window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -166,11 +179,15 @@ export class OrderProfitMetricsPageComponent {
     void this.router.navigate(['../'], {
       relativeTo: this.route,
       queryParams: { period: this.selectedPeriod() },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
   }
 
-  private metricsLinkSource(): { request: ListOrderSalesProfitReportRequest; rows: OrderSalesProfitReportPeriod[]; paging: PagingInfo } {
+  private metricsLinkSource(): {
+    request: ListOrderSalesProfitReportRequest;
+    rows: OrderSalesProfitReportPeriod[];
+    paging: PagingInfo;
+  } {
     const [rows, paging] = this.metricsResource.value();
     return { request: this.listRequest(), rows, paging };
   }

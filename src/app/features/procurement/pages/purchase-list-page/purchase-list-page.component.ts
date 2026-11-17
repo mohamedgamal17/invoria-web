@@ -1,4 +1,4 @@
-﻿import { ChangeDetectionStrategy, Component, inject, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -9,12 +9,13 @@ import { Store } from '@ngrx/store';
 import type { PurchaseOrder } from '../../models/purchase-order.entity';
 import { PurchaseOrderHeaderComponent } from '../../components/purchase-order-header/purchase-order-header.component';
 import { PurchaseOrderListComponent } from '../../components/purchase-order-list/purchase-order-list.component';
-import {
-  PurchaseOrdersFilterPanelComponent,
-  type PurchaseOrdersListFilters,
-} from '../../components/purchase-orders-filter-panel/purchase-orders-filter-panel.component';
+import { PurchaseOrdersFilterPanelComponent } from '../../components/purchase-orders-filter-panel/purchase-orders-filter-panel.component';
+import type { PurchaseOrdersListFilters } from '../../models/purchase-orders-list.filters';
 import { PaginationService } from '../../../../shared/utils/pagination.service';
-import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
+import {
+  DEFAULT_PAGE_SIZE_OPTIONS,
+  type PaginatorPageEvent,
+} from '../../../../shared/models/pagination';
 import { purchaseOrdersListSelectors } from '../../store/purchase-orders-list/purchase-orders-list.selectors';
 
 @Component({
@@ -32,7 +33,7 @@ import { purchaseOrdersListSelectors } from '../../store/purchase-orders-list/pu
 })
 /**
  * Smart page (container) for the purchase orders list. It owns only:
- * - the NgRx state mapping (selectors → signals),
+ * - the NgRx state mapping (selectors ? signals),
  * - the URL write adapter (`page` / `pageSize` / `number` / `status` query params via merge),
  * - presentation glue (scroll behavior, page navigation).
  * The URL *read* side lives in the `store/purchase-orders-list-url` effects

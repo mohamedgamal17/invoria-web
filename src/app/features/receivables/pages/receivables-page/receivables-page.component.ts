@@ -1,22 +1,23 @@
-﻿import { ChangeDetectionStrategy, Component, inject, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, untracked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { ToastModule } from 'primeng/toast';
 
 import { PaginationService } from '../../../../shared/utils/pagination.service';
-import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
-import { receivablesListSelectors } from '../../store/receivables-list/receivables-list.selectors';
-import type { Receivable } from '../../models/receivable.entity';
-import { ReceivableListComponent } from '../../components/receivable-list/receivable-list.component';
-import { ReceivableHeaderComponent } from '../../components/receivable-header/receivable-header.component';
 import {
-  ReceivablesFilterPanelComponent,
-  type ReceivablesListFilters,
-} from '../../components/receivables-filter-panel/receivables-filter-panel.component';
+  DEFAULT_PAGE_SIZE_OPTIONS,
+  type PaginatorPageEvent,
+} from '../../../../shared/models/pagination';
+import { receivablesListSelectors } from '../../store/receivables-list/receivables-list.selectors';
+import type { FinancialObligation } from '../../../../shared/models/financial-obligation';
+import { FinancialObligationListComponent } from '../../../../shared/ui/financial-obligation-list/financial-obligation-list.component';
+import { ReceivableHeaderComponent } from '../../components/receivable-header/receivable-header.component';
+import { ReceivablesFilterPanelComponent } from '../../components/receivables-filter-panel/receivables-filter-panel.component';
+import type { ReceivablesListFilters } from '../../models/receivables-list.filters';
 
 /**
  * Smart page (container) for the receivables list. It owns only:
- * - the NgRx state mapping (selectors → signals),
+ * - the NgRx state mapping (selectors ? signals),
  * - the URL write adapter (`page` / `pageSize` / `partyId` / `sourceId` /
  *   `isPaid` query params via merge),
  * - presentation glue (scroll behavior, page navigation).
@@ -32,7 +33,7 @@ import {
     ToastModule,
     ReceivableHeaderComponent,
     ReceivablesFilterPanelComponent,
-    ReceivableListComponent,
+    FinancialObligationListComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './receivables-page.component.html',
@@ -56,8 +57,8 @@ export class ReceivablesPageComponent {
   readonly pageSize = this.store.selectSignal(receivablesListSelectors.selectPageSize);
   private readonly pageIndex = this.store.selectSignal(receivablesListSelectors.selectPageIndex);
 
-  goToDetails(receivable: Receivable): void {
-    void this.router.navigate([receivable.id], { relativeTo: this.route });
+  goToDetails(obligation: FinancialObligation): void {
+    void this.router.navigate([obligation.id], { relativeTo: this.route });
   }
 
   onPageChange(event: PaginatorPageEvent): void {

@@ -1,4 +1,4 @@
-﻿import { ChangeDetectionStrategy, Component, inject, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, untracked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Store } from '@ngrx/store';
@@ -6,15 +6,13 @@ import { Store } from '@ngrx/store';
 import { PaginationService } from '../../../../shared/utils/pagination.service';
 import {
   DEFAULT_PAGE_SIZE_OPTIONS,
-  type PaginatorPageEvent
+  type PaginatorPageEvent,
 } from '../../../../shared/models/pagination';
 import { ordersListSelectors } from '../../store/orders-list/orders-list.selectors';
 import type { UiOrder } from '../../models/order-ui.model';
 import { OrderHeaderComponent } from '../../components/order-header/order-header.component';
-import {
-  OrdersFilterPanelComponent,
-  type OrdersListFilters
-} from '../../components/orders-filter-panel/orders-filter-panel.component';
+import { OrdersFilterPanelComponent } from '../../components/orders-filter-panel/orders-filter-panel.component';
+import type { OrdersListFilters } from '../../models/orders-list.filters';
 import { OrderListComponent } from '../../components/order-list/order-list.component';
 
 @Component({
@@ -22,7 +20,7 @@ import { OrderListComponent } from '../../components/order-list/order-list.compo
   standalone: true,
   imports: [OrderHeaderComponent, OrdersFilterPanelComponent, OrderListComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './orders-page.component.html'
+  templateUrl: './orders-page.component.html',
 })
 export class OrdersPageComponent {
   readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
@@ -40,7 +38,9 @@ export class OrdersPageComponent {
   readonly pageSize = this.store.selectSignal(ordersListSelectors.selectPageSize);
   readonly orderNumberFilter = this.store.selectSignal(ordersListSelectors.selectOrderNumberFilter);
   readonly statusFilter = this.store.selectSignal(ordersListSelectors.selectStatusFilter);
-  readonly paymentStatusFilter = this.store.selectSignal(ordersListSelectors.selectPaymentStatusFilter);
+  readonly paymentStatusFilter = this.store.selectSignal(
+    ordersListSelectors.selectPaymentStatusFilter,
+  );
   readonly paymentTypeFilter = this.store.selectSignal(ordersListSelectors.selectPaymentTypeFilter);
   readonly first = this.store.selectSignal(ordersListSelectors.selectFirst);
 
@@ -64,7 +64,7 @@ export class OrdersPageComponent {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { page: pageIndex + 1, pageSize },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
 
     if (isManualPageChange) {
@@ -88,12 +88,11 @@ export class OrdersPageComponent {
       queryParams: {
         q: normalized || null,
         status: filters.status != null ? String(filters.status) : null,
-        paymentStatus:
-          filters.paymentStatus != null ? String(filters.paymentStatus) : null,
+        paymentStatus: filters.paymentStatus != null ? String(filters.paymentStatus) : null,
         paymentType: filters.paymentType != null ? String(filters.paymentType) : null,
-        page: 1
+        page: 1,
       },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
   }
 
@@ -114,9 +113,9 @@ export class OrdersPageComponent {
         status: null,
         paymentStatus: null,
         paymentType: null,
-        page: 1
+        page: 1,
       },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
   }
 }

@@ -33,9 +33,7 @@ import { CustomerDetailsUrlEffects } from '../../store/customer-details-url/cust
 import { AppErrorEffects } from '../../../../shared/store/app-error.effects';
 import type { Customer } from '../../models/customer.entity';
 
-function createActivatedRouteMock(
-  initialParams: Record<string, string> = { id: 'cust_1' }
-) {
+function createActivatedRouteMock(initialParams: Record<string, string> = { id: 'cust_1' }) {
   const paramMap$ = new BehaviorSubject(convertToParamMap(initialParams));
   return {
     paramMap$,
@@ -43,10 +41,10 @@ function createActivatedRouteMock(
       paramMap: paramMap$.asObservable(),
       get snapshot() {
         return {
-          paramMap: paramMap$.value
+          paramMap: paramMap$.value,
         };
-      }
-    }
+      },
+    },
   };
 }
 
@@ -63,17 +61,17 @@ function navigateUrl(query: Record<string, string>, id = 'cust_1'): void {
     routerNavigationAction({
       payload: {
         routerState: routerState,
-        event: { id: 1, url, urlAfterRedirects: url } as unknown as RoutesRecognized
-      }
-    })
+        event: { id: 1, url, urlAfterRedirects: url } as unknown as RoutesRecognized,
+      },
+    }),
   );
   store.dispatch(
     routerNavigatedAction({
       payload: {
         routerState: routerState,
-        event: { id: 1, url, urlAfterRedirects: url } as unknown as NavigationEnd
-      }
-    })
+        event: { id: 1, url, urlAfterRedirects: url } as unknown as NavigationEnd,
+      },
+    }),
   );
 }
 
@@ -84,7 +82,7 @@ function navigateUrl(query: Record<string, string>, id = 'cust_1'): void {
  */
 function fakeRouterState(
   queryParams: Record<string, string>,
-  id: string
+  id: string,
 ): SerializedRouterStateSnapshot {
   const leafRoute = {
     params: { id },
@@ -96,7 +94,7 @@ function fakeRouterState(
     queryParams,
     fragment: null,
     firstChild: undefined,
-    children: []
+    children: [],
   };
   return {
     url: `/customers/${id}`,
@@ -110,8 +108,8 @@ function fakeRouterState(
       queryParams,
       fragment: null,
       firstChild: leafRoute,
-      children: [leafRoute]
-    }
+      children: [leafRoute],
+    },
   } as unknown as SerializedRouterStateSnapshot;
 }
 
@@ -120,7 +118,7 @@ function makeTestBed(
     getCustomer?: ReturnType<typeof vi.fn>;
     listOrders?: ReturnType<typeof vi.fn>;
     initialParams?: Record<string, string>;
-  } = {}
+  } = {},
 ) {
   const getCustomer =
     overrides.getCustomer ??
@@ -130,9 +128,9 @@ function makeTestBed(
         result: {
           id: 'cust_1',
           name: 'Acme Retail',
-          createdAt: '2026-01-01T00:00:00.000Z'
-        } satisfies Customer
-      })
+          createdAt: '2026-01-01T00:00:00.000Z',
+        } satisfies Customer,
+      }),
     );
 
   const listOrders =
@@ -142,13 +140,13 @@ function makeTestBed(
         isSuccess: true as const,
         result: {
           data: [],
-          info: { length: 0, skip: 0, totalCount: 0 }
-        }
-      })
+          info: { length: 0, skip: 0, totalCount: 0 },
+        },
+      }),
     );
 
   const { route, paramMap$ } = createActivatedRouteMock(
-    overrides.initialParams ?? { id: 'cust_1' }
+    overrides.initialParams ?? { id: 'cust_1' },
   );
 
   const providers = [
@@ -160,26 +158,24 @@ function makeTestBed(
       CustomerDetailsEffects,
       CustomerOrdersEffects,
       CustomerDetailsUrlEffects,
-      AppErrorEffects
+      AppErrorEffects,
     ),
     MessageService,
     { provide: CustomersApiService, useValue: { getCustomer } },
     { provide: OrdersApiService, useValue: { listOrders } },
     { provide: ActivatedRoute, useValue: route },
-    { provide: Router, useValue: { navigate: vi.fn().mockResolvedValue(true) } }
+    { provide: Router, useValue: { navigate: vi.fn().mockResolvedValue(true) } },
   ];
 
   return { getCustomer, listOrders, paramMap$, providers };
 }
 
-async function bootstrap(
-  overrides: Parameters<typeof makeTestBed>[0]
-): Promise<FixtureBundle> {
+async function bootstrap(overrides: Parameters<typeof makeTestBed>[0]): Promise<FixtureBundle> {
   TestBed.resetTestingModule();
   const { providers, paramMap$ } = makeTestBed(overrides);
   await TestBed.configureTestingModule({
     imports: [CustomerDetailsPageComponent, NoopAnimationsModule],
-    providers
+    providers,
   }).compileComponents();
 
   const fixture = TestBed.createComponent(CustomerDetailsPageComponent);
@@ -200,7 +196,7 @@ describe('CustomerDetailsPageComponent (NgRx stores)', () => {
       globalThis.ResizeObserver = class {
         observe(): void {}
         unobserve(): void {}
-        disconnect(): void {};
+        disconnect(): void {}
       };
     }
   });
@@ -289,8 +285,8 @@ describe('CustomerDetailsPageComponent (NgRx stores)', () => {
       [],
       expect.objectContaining({
         replaceUrl: true,
-        queryParams: expect.objectContaining({ tab: 'orders' })
-      })
+        queryParams: expect.objectContaining({ tab: 'orders' }),
+      }),
     );
   });
 
@@ -307,16 +303,18 @@ describe('CustomerDetailsPageComponent (NgRx stores)', () => {
     const customer = {
       id: 'cust_1',
       name: 'Acme Retail',
-      createdAt: '2026-01-01T00:00:00.000Z'
+      createdAt: '2026-01-01T00:00:00.000Z',
     } satisfies Customer;
     const customer2 = { ...customer, id: 'cust_2', name: 'Beta Co' } satisfies Customer;
-    const getCustomer = vi.fn().mockImplementation((id: string) =>
-      of(
-        id === 'cust_1'
-          ? { isSuccess: true as const, result: customer }
-          : { isSuccess: true as const, result: customer2 }
-      )
-    );
+    const getCustomer = vi
+      .fn()
+      .mockImplementation((id: string) =>
+        of(
+          id === 'cust_1'
+            ? { isSuccess: true as const, result: customer }
+            : { isSuccess: true as const, result: customer2 },
+        ),
+      );
 
     const { paramMap$, component, fixture } = await bootstrap({ getCustomer });
     expect(component.customer()?.id).toBe('cust_1');
@@ -335,7 +333,7 @@ describe('CustomerDetailsPageComponent error presentation', () => {
       globalThis.ResizeObserver = class {
         observe(): void {}
         unobserve(): void {}
-        disconnect(): void {};
+        disconnect(): void {}
       };
     }
   });
@@ -344,18 +342,18 @@ describe('CustomerDetailsPageComponent error presentation', () => {
     const failedGetCustomer = vi.fn().mockReturnValue(
       of({
         isSuccess: false as const,
-        error: { kind: 'api', title: 'Request failed', detail: 'Server error' }
-      })
+        error: { kind: 'api', title: 'Request failed', detail: 'Server error' },
+      }),
     );
     const { providers } = makeTestBed({
       getCustomer: failedGetCustomer,
-      initialParams: { id: 'cust_fail' }
+      initialParams: { id: 'cust_fail' },
     });
 
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
       imports: [CustomerDetailsPageComponent, NoopAnimationsModule],
-      providers
+      providers,
     }).compileComponents();
 
     const addSpy = vi.spyOn(TestBed.inject(MessageService), 'add');
@@ -374,7 +372,11 @@ describe('CustomerDetailsPageComponent error presentation', () => {
 /* ------------------------------------------------------------------ */
 
 function createCustomerStub(): ReturnType<typeof vi.fn> {
-  const customer: Customer = { id: 'cust_1', name: 'Acme Retail', createdAt: '2026-01-01T00:00:00.000Z' };
+  const customer: Customer = {
+    id: 'cust_1',
+    name: 'Acme Retail',
+    createdAt: '2026-01-01T00:00:00.000Z',
+  };
   return vi.fn().mockReturnValue(of({ isSuccess: true as const, result: customer }));
 }
 
@@ -382,7 +384,7 @@ function createOrdersStub(): ReturnType<typeof vi.fn> {
   return vi.fn().mockReturnValue(
     of({
       isSuccess: true as const,
-      result: { data: [], info: { length: 0, skip: 0, totalCount: 0 } }
-    })
+      result: { data: [], info: { length: 0, skip: 0, totalCount: 0 } },
+    }),
   );
 }
