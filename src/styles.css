@@ -1,7 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 
+@import 'tailwindcss';
 @import './styles/tokens.css';
 @import './styles/typography.css';
+@import './styles/labels.css';
 @import 'primeicons/primeicons.css';
 
 /* Tailwind v4 CSS-first theming
@@ -11,8 +13,8 @@
     This keeps existing templates working while eliminating palette contradictions. */
 @theme {
   /* Typography scale — complete mapping */
-  --font-size-3xs: var(--ty-3xs);
-  --font-size-2xs: var(--ty-2xs);
+  --text-3xs: var(--ty-3xs);
+  --text-2xs: var(--ty-2xs);
 
   /* Letter-spacing tokens */
   --tracking-caps: var(--ls-caps);
@@ -23,6 +25,7 @@
   /* Existing mappings retained */
 
   --color-surface-0: var(--c-surface-0);
+  --color-surface-1: var(--c-surface);
   --color-surface: var(--c-surface);
   --color-surface-2: var(--c-surface-2);
   --color-surface-3: var(--c-surface-3);
@@ -61,16 +64,11 @@
   --shadow-glow-sm: var(--sh-glow-sm);
   --shadow-glow-md: var(--sh-glow-md);
 
-  --font-size-2xs: 0.625rem;
-
   --duration-150: var(--m-duration-150);
   --duration-200: var(--m-duration-200);
   --duration-300: var(--m-duration-300);
   --ease-standard: var(--m-ease-standard);
 }
-
-@import './styles/labels.css';
-
 
 /* Shared visual helpers — now driven by PrimeNG semantics */
 .invoria-gradient-surface {
