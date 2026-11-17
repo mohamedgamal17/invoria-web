@@ -1,21 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ButtonModule } from 'primeng/button';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 
-import { SEARCH_DEBOUNCE_MS } from '../../../../shared/models/debounce';
+import { createDebouncedInput } from '../../../../shared/utils/debounce-input';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
-
-export type InvoicesListFilters = {
-  customerId: string;
-  orderId: string;
-};
+import type { InvoicesListFilters } from '../../models/invoices-list.filters';
 
 @Component({
   selector: 'app-invoices-filter-panel',
@@ -27,64 +20,36 @@ export type InvoicesListFilters = {
     IconFieldModule,
     InputIconModule,
     InputTextModule,
-    SurfaceCardComponent
+    SurfaceCardComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './invoices-filter-panel.component.html'
+  templateUrl: './invoices-filter-panel.component.html',
 })
 export class InvoicesFilterPanelComponent {
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly customerIdInput$ = new Subject<string>();
-  private readonly orderIdInput$ = new Subject<string>();
-
   customerId = input<string>('');
   orderId = input<string>('');
   loading = input(false);
 
-  readonly localCustomerId = signal('');
-  readonly localOrderId = signal('');
-
   filtersChange = output<InvoicesListFilters>();
   clearFilters = output<void>();
 
-  constructor() {
-    effect(() => {
-      this.localCustomerId.set(this.customerId());
-    });
+  private readonly debouncedCustomerId = createDebouncedInput(this.customerId, (value) =>
+    this.emitFilters({ customerId: value }),
+  );
 
-    effect(() => {
-      this.localOrderId.set(this.orderId());
-    });
+  private readonly debouncedOrderId = createDebouncedInput(this.orderId, (value) =>
+    this.emitFilters({ orderId: value }),
+  );
 
-    this.customerIdInput$
-      .pipe(
-        debounceTime(SEARCH_DEBOUNCE_MS),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe((value) => {
-        this.emitFilters({ customerId: value });
-      });
-
-    this.orderIdInput$
-      .pipe(
-        debounceTime(SEARCH_DEBOUNCE_MS),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe((value) => {
-        this.emitFilters({ orderId: value });
-      });
-  }
+  readonly localCustomerId = this.debouncedCustomerId.value;
+  readonly localOrderId = this.debouncedOrderId.value;
 
   onCustomerIdInput(value: string): void {
-    this.localCustomerId.set(value);
-    this.customerIdInput$.next(value);
+    this.debouncedCustomerId.set(value);
   }
 
   onOrderIdInput(value: string): void {
-    this.localOrderId.set(value);
-    this.orderIdInput$.next(value);
+    this.debouncedOrderId.set(value);
   }
 
   onClear(): void {
@@ -94,7 +59,7 @@ export class InvoicesFilterPanelComponent {
   private emitFilters(patch: Partial<InvoicesListFilters>): void {
     this.filtersChange.emit({
       customerId: patch.customerId !== undefined ? patch.customerId : this.localCustomerId(),
-      orderId: patch.orderId !== undefined ? patch.orderId : this.localOrderId()
+      orderId: patch.orderId !== undefined ? patch.orderId : this.localOrderId(),
     });
   }
 }

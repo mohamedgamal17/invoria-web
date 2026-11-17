@@ -8,7 +8,10 @@ import { TableModule } from 'primeng/table';
 
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
-import { type PaginatorPageEvent } from '../../../../shared/models/pagination';
+import {
+  COMPACT_PAGE_SIZE_OPTIONS,
+  type PaginatorPageEvent,
+} from '../../../../shared/models/pagination';
 import type { PurchaseCompletionReportPeriod } from '../../models/purchase-order-report.entity';
 import { ReportPeriod } from '../../../../shared/models/report-period';
 import { formatPeriodLabel } from '../../../../shared/charts/echarts-presets';
@@ -16,9 +19,17 @@ import { formatPeriodLabel } from '../../../../shared/charts/echarts-presets';
 @Component({
   selector: 'app-purchase-completion-metrics-list',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, PaginatorModule, SkeletonModule, EmptyStateComponent, SurfaceCardComponent],
+  imports: [
+    CommonModule,
+    TableModule,
+    ButtonModule,
+    PaginatorModule,
+    SkeletonModule,
+    EmptyStateComponent,
+    SurfaceCardComponent,
+  ],
   templateUrl: './purchase-completion-metrics-list.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PurchaseCompletionMetricsListComponent {
   readonly ReportPeriod = ReportPeriod;
@@ -27,7 +38,7 @@ export class PurchaseCompletionMetricsListComponent {
   totalRecords = input(0);
   first = input(0);
   pageSize = input(10);
-  pageSizeOptions = input([5, 10, 20]);
+  pageSizeOptions = input(COMPACT_PAGE_SIZE_OPTIONS);
   loading = input(false);
   selectedPeriod = input<ReportPeriod>(ReportPeriod.Daily);
 
@@ -35,7 +46,7 @@ export class PurchaseCompletionMetricsListComponent {
   clearFilters = output<void>();
 
   readonly skeletonRows = computed(() =>
-    Array.from({ length: this.pageSize() }, (_, index) => index)
+    Array.from({ length: this.pageSize() }, (_, index) => index),
   );
 
   formatPeriod(dateIso: string): string {

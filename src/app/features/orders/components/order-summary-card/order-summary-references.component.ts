@@ -1,5 +1,6 @@
-﻿import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { createClipboardNotifier } from '../../../../shared/utils/clipboard';
 import type { UiOrder } from '../../models/order-ui.model';
 
 @Component({
@@ -12,13 +13,10 @@ import type { UiOrder } from '../../models/order-ui.model';
 export class OrderSummaryReferencesComponent {
   readonly order = input.required<UiOrder>();
 
-  readonly copiedKey = signal<string | null>(null);
+  private readonly clipboard = createClipboardNotifier();
+  readonly copiedKey = this.clipboard.copiedKey;
 
   copy(value: string, key: string): void {
-    navigator.clipboard.writeText(value);
-    this.copiedKey.set(key);
-    setTimeout(() => {
-      this.copiedKey.set(null);
-    }, 500);
+    this.clipboard.copy(value, key);
   }
 }

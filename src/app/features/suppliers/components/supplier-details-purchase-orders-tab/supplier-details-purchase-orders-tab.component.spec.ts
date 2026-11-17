@@ -1,4 +1,4 @@
-﻿import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { SupplierDetailsPurchaseOrdersTabComponent } from './supplier-details-purchase-orders-tab.component';
 import { PurchaseState } from '../../../procurement/enums/purchase-state.enum';
 import type { PurchaseOrder } from '../../../procurement/models/purchase-order.entity';
-import type { PurchaseOrdersListFilters } from '../../../procurement/components/purchase-orders-filter-panel/purchase-orders-filter-panel.component';
+import type { PurchaseOrdersListFilters } from '../../../procurement/models/purchase-orders-list.filters';
 
 describe('SupplierDetailsPurchaseOrdersTabComponent (presentational)', () => {
   let component: SupplierDetailsPurchaseOrdersTabComponent;

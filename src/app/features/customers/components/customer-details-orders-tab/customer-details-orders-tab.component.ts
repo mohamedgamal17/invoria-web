@@ -2,11 +2,12 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
 import type { PagingInfo } from '../../../../core/models/paging';
-import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
 import {
-  OrdersFilterPanelComponent,
-  type OrdersListFilters
-} from '../../../orders/components/orders-filter-panel/orders-filter-panel.component';
+  DEFAULT_PAGE_SIZE_OPTIONS,
+  type PaginatorPageEvent,
+} from '../../../../shared/models/pagination';
+import { OrdersFilterPanelComponent } from '../../../orders/components/orders-filter-panel/orders-filter-panel.component';
+import type { OrdersListFilters } from '../../../orders/models/orders-list.filters';
 import { OrderListComponent } from '../../../orders/components/order-list/order-list.component';
 import type { UiOrder } from '../../../orders/models/order-ui.model';
 
@@ -15,7 +16,7 @@ import type { UiOrder } from '../../../orders/models/order-ui.model';
   standalone: true,
   imports: [CommonModule, OrdersFilterPanelComponent, OrderListComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './customer-details-orders-tab.component.html'
+  templateUrl: './customer-details-orders-tab.component.html',
 })
 export class CustomerDetailsOrdersTabComponent {
   readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;

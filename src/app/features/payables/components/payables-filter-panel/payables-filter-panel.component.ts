@@ -1,26 +1,24 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, output, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ButtonModule } from 'primeng/button';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 
-import { SEARCH_DEBOUNCE_MS } from '../../../../shared/models/debounce';
+import { createDebouncedInput } from '../../../../shared/utils/debounce-input';
+import type { SelectOption } from '../../../../shared/models/select-option';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
-
-export type PayablesListFilters = {
-  supplierId: string;
-  sourceId: string;
-  isPaid: boolean | null;
-};
-
-type PaidFilterOption = { label: string; value: boolean | null };
-type SupplierFilterOption = { label: string; value: string };
+import type { PayablesListFilters, SupplierRef } from '../../models/payables-list.filters';
 
 @Component({
   selector: 'app-payables-filter-panel',
@@ -33,56 +31,44 @@ type SupplierFilterOption = { label: string; value: string };
     InputIconModule,
     InputTextModule,
     SelectModule,
-    SurfaceCardComponent
+    SurfaceCardComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './payables-filter-panel.component.html'
+  templateUrl: './payables-filter-panel.component.html',
 })
 export class PayablesFilterPanelComponent {
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly sourceIdInput$ = new Subject<string>();
-
   /** Supplier options (id -> name) loaded once by the smart page. */
-  suppliers = input<{ id: string; name: string }[]>([]);
+  suppliers = input<SupplierRef[]>([]);
   supplierId = input<string>('');
   sourceId = input<string>('');
   isPaid = input<boolean | null>(null);
   loading = input(false);
 
   readonly localSupplierId = signal('');
-  readonly localSourceId = signal('');
 
-  readonly supplierOptions = computed<SupplierFilterOption[]>(() =>
-    this.suppliers().map((supplier) => ({ label: supplier.name, value: supplier.id }))
+  readonly supplierOptions = computed<SelectOption<string>[]>(() =>
+    this.suppliers().map((supplier) => ({ label: supplier.name, value: supplier.id })),
   );
 
   filtersChange = output<PayablesListFilters>();
   clearFilters = output<void>();
 
-  readonly isPaidOptions: PaidFilterOption[] = [
+  readonly isPaidOptions: SelectOption<boolean | null>[] = [
     { label: 'All', value: null },
     { label: 'Paid', value: true },
-    { label: 'Unpaid', value: false }
+    { label: 'Unpaid', value: false },
   ];
+
+  private readonly debouncedSourceId = createDebouncedInput(this.sourceId, (value) =>
+    this.emitFilters({ sourceId: value }),
+  );
+
+  readonly localSourceId = this.debouncedSourceId.value;
 
   constructor() {
     effect(() => {
       this.localSupplierId.set(this.supplierId());
     });
-
-    effect(() => {
-      this.localSourceId.set(this.sourceId());
-    });
-
-    this.sourceIdInput$
-      .pipe(
-        debounceTime(SEARCH_DEBOUNCE_MS),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe((value) => {
-        this.emitFilters({ sourceId: value });
-      });
   }
 
   onSupplierIdChange(value: string | null | undefined): void {
@@ -91,8 +77,7 @@ export class PayablesFilterPanelComponent {
   }
 
   onSourceIdInput(value: string): void {
-    this.localSourceId.set(value);
-    this.sourceIdInput$.next(value);
+    this.debouncedSourceId.set(value);
   }
 
   onIsPaidChange(value: boolean | null | undefined): void {
@@ -107,7 +92,7 @@ export class PayablesFilterPanelComponent {
     this.filtersChange.emit({
       supplierId: patch.supplierId !== undefined ? patch.supplierId : this.localSupplierId(),
       sourceId: patch.sourceId !== undefined ? patch.sourceId : this.localSourceId(),
-      isPaid: patch.isPaid !== undefined ? patch.isPaid : this.isPaid()
+      isPaid: patch.isPaid !== undefined ? patch.isPaid : this.isPaid(),
     });
   }
 }

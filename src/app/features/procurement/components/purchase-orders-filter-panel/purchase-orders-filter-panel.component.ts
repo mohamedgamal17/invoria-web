@@ -1,27 +1,20 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ButtonModule } from 'primeng/button';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 
-import { SEARCH_DEBOUNCE_MS } from '../../../../shared/models/debounce';
-import { numericEnumValues } from '../../../../shared/utils/numeric-enum-values';
+import type { SelectOption } from '../../../../shared/models/select-option';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
+import { createDebouncedInput } from '../../../../shared/utils/debounce-input';
+import { numericEnumValues } from '../../../../shared/utils/numeric-enum-values';
+import { buildSelectOptions } from '../../../../shared/utils/select-options';
 import { PurchaseState } from '../../enums/purchase-state.enum';
+import type { PurchaseOrdersListFilters } from '../../models/purchase-orders-list.filters';
 import { purchaseStateLabel } from '../../models/purchase-state.display';
-
-export type PurchaseOrdersListFilters = {
-  purchaseNumber: string;
-  status: number | null;
-};
-
-type FilterOption = { label: string; value: number | null };
 
 @Component({
   selector: 'app-purchase-orders-filter-panel',
@@ -34,52 +27,33 @@ type FilterOption = { label: string; value: number | null };
     InputIconModule,
     InputTextModule,
     SelectModule,
-    SurfaceCardComponent
+    SurfaceCardComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './purchase-orders-filter-panel.component.html'
+  templateUrl: './purchase-orders-filter-panel.component.html',
 })
 export class PurchaseOrdersFilterPanelComponent {
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly purchaseNumberInput$ = new Subject<string>();
-
   purchaseNumber = input<string>('');
   status = input<number | null>(null);
   loading = input(false);
 
-  /** Draft PO number for the text field; synced from `purchaseNumber` when the parent input changes. */
-  readonly localPurchaseNumber = signal('');
-
   filtersChange = output<PurchaseOrdersListFilters>();
   clearFilters = output<void>();
 
-  constructor() {
-    effect(() => {
-      this.localPurchaseNumber.set(this.purchaseNumber());
-    });
+  private readonly debouncedPurchaseNumber = createDebouncedInput(this.purchaseNumber, (value) =>
+    this.emitFilters({ purchaseNumber: value }),
+  );
 
-    this.purchaseNumberInput$
-      .pipe(
-        debounceTime(SEARCH_DEBOUNCE_MS),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe((value) => {
-        this.emitFilters({ purchaseNumber: value });
-      });
-  }
+  readonly localPurchaseNumber = this.debouncedPurchaseNumber.value;
 
-  readonly statusOptions: FilterOption[] = [
+  readonly statusOptions: SelectOption<number | null>[] = buildSelectOptions(
+    numericEnumValues(PurchaseState),
+    purchaseStateLabel,
     { label: 'All statuses', value: null },
-    ...numericEnumValues(PurchaseState).map((value) => ({
-      label: purchaseStateLabel(value),
-      value: value
-    }))
-  ];
+  );
 
   onPurchaseNumberInput(value: string): void {
-    this.localPurchaseNumber.set(value);
-    this.purchaseNumberInput$.next(value);
+    this.debouncedPurchaseNumber.set(value);
   }
 
   onStatusChange(value: number | null | undefined): void {
@@ -93,7 +67,7 @@ export class PurchaseOrdersFilterPanelComponent {
   private emitFilters(patch: Partial<PurchaseOrdersListFilters>): void {
     this.filtersChange.emit({
       purchaseNumber: patch.purchaseNumber ?? this.localPurchaseNumber(),
-      status: patch.status !== undefined ? patch.status : this.status()
+      status: patch.status !== undefined ? patch.status : this.status(),
     });
   }
 }

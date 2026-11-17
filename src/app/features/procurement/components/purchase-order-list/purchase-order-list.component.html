@@ -61,7 +61,7 @@
           }
         </td>
         <td class="px-4 py-5 text-right text-sm font-bold tabular-nums text-foreground">
-          {{ currencyCode() }} {{ row.totalAmount | number:'1.2-2' }}
+          {{ currencyCode() }} {{ row.totalAmount | number: '1.2-2' }}
         </td>
         <td class="px-4 py-5 text-right">
           <p-button
@@ -76,30 +76,16 @@
     </ng-template>
 
     <ng-template pTemplate="loadingbody">
-      @for (_ of skeletonRows(); track _) {
-        <tr>
-          <td class="px-4 py-5"><p-skeleton height="1rem" width="40%"></p-skeleton></td>
-          @if (showSupplierColumn()) {
-            <td class="px-4 py-5"><p-skeleton height="1rem" width="55%"></p-skeleton></td>
-          }
-          <td class="px-4 py-5"><p-skeleton height="1.5rem" width="4.5rem" borderRadius="6px"></p-skeleton></td>
-          <td class="px-4 py-5"><p-skeleton height="1rem" width="5rem"></p-skeleton></td>
-          <td class="px-4 py-5 text-right"><p-skeleton height="1rem" width="4rem" styleClass="ml-auto"></p-skeleton></td>
-          <td class="px-4 py-5 text-right">
-            <p-skeleton height="2rem" width="4.5rem" borderRadius="6px" styleClass="ml-auto"></p-skeleton>
-          </td>
-        </tr>
-      }
+      <app-list-skeleton variant="table" [count]="pageSize()" [columns]="skeletonColumns()" />
     </ng-template>
 
     <ng-template pTemplate="emptymessage">
       <tr>
         <td [attr.colspan]="tableColspan()" class="px-4 py-12 text-center">
-          <div class="flex flex-col items-center gap-3">
-            <i class="pi pi-inbox text-4xl text-muted-foreground opacity-20"></i>
-            <div class="text-base font-medium text-foreground">No purchase orders found</div>
-            <p class="text-sm text-muted-foreground">Purchase orders will appear here when available.</p>
-          </div>
+          <app-empty-state
+            title="No purchase orders found"
+            description="Purchase orders will appear here when available."
+          />
         </td>
       </tr>
     </ng-template>

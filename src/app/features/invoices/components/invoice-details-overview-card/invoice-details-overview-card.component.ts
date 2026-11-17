@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CardModule } from 'primeng/card';
@@ -8,6 +8,7 @@ import { ButtonModule } from 'primeng/button';
 
 import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
+import { createClipboardNotifier } from '../../../../shared/utils/clipboard';
 import type { Invoice } from '../../models/invoice.entity';
 
 @Component({
@@ -20,20 +21,19 @@ import type { Invoice } from '../../models/invoice.entity';
     DividerModule,
     TooltipModule,
     ButtonModule,
-    SurfaceCardComponent
+    SurfaceCardComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './invoice-details-overview-card.component.html'
+  templateUrl: './invoice-details-overview-card.component.html',
 })
 export class InvoiceDetailsOverviewCardComponent {
   invoice = input.required<Invoice>();
   currencyCode = input<string>(DEFAULT_CURRENCY_CODE);
 
-  readonly copiedKey = signal<string | null>(null);
+  private readonly clipboard = createClipboardNotifier();
+  readonly copiedKey = this.clipboard.copiedKey;
 
   copy(value: string, key: string): void {
-    navigator.clipboard.writeText(value);
-    this.copiedKey.set(key);
-    setTimeout(() => this.copiedKey.set(null), 500);
+    this.clipboard.copy(value, key);
   }
 }

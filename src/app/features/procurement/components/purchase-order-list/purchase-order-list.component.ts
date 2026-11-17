@@ -4,12 +4,19 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { PaginatorModule } from 'primeng/paginator';
-import { SkeletonModule } from 'primeng/skeleton';
 
 import type { PurchaseOrder } from '../../models/purchase-order.entity';
 import { purchaseStateLabel, purchaseStateSeverity } from '../../models/purchase-state.display';
-import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
+import {
+  DEFAULT_PAGE_SIZE_OPTIONS,
+  type PaginatorPageEvent,
+} from '../../../../shared/models/pagination';
 import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
+import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
+import {
+  ListSkeletonComponent,
+  type ListSkeletonColumn,
+} from '../../../../shared/ui/list-skeleton/list-skeleton.component';
 
 @Component({
   selector: 'app-purchase-order-list',
@@ -20,10 +27,11 @@ import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
     ButtonModule,
     TagModule,
     PaginatorModule,
-    SkeletonModule
+    EmptyStateComponent,
+    ListSkeletonComponent,
   ],
   templateUrl: './purchase-order-list.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PurchaseOrderListComponent {
   protected readonly currencyCode = signal(DEFAULT_CURRENCY_CODE);
@@ -44,9 +52,14 @@ export class PurchaseOrderListComponent {
   readonly stateLabel = purchaseStateLabel;
   readonly stateSeverity = purchaseStateSeverity;
 
-  readonly skeletonRows = computed(() =>
-    Array.from({ length: this.pageSize() }, (_, index) => index)
-  );
+  readonly skeletonColumns = computed<ListSkeletonColumn[]>(() => [
+    { width: '40%' },
+    ...(this.showSupplierColumn() ? [{ width: '55%' }] : []),
+    { width: '4.5rem' },
+    { width: '5rem' },
+    { width: '4rem', align: 'right' as const },
+    { width: '', actions: 1, align: 'right' as const },
+  ]);
 
   supplierDisplay(row: PurchaseOrder): string {
     const name = row.supplier?.name?.trim();

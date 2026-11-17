@@ -4,20 +4,26 @@
     <app-list-skeleton variant="mobile" [count]="pageSize()" [columns]="skeletonColumns" />
   } @else if (products().length > 0) {
     @for (product of products(); track product.id) {
-      <div class="rounded-xl border border-border bg-surface p-4 shadow-sm hover:border-primary/30 transition-all active:scale-[0.98]">
+      <div
+        class="rounded-xl border border-border bg-surface p-4 shadow-sm hover:border-primary/30 transition-all active:scale-[0.98]"
+      >
         <div class="flex items-start justify-between gap-3 mb-1">
           <div class="flex flex-col min-w-0 flex-1">
-            <span
-              class="truncate text-base font-bold text-foreground text-left"
-            >{{ product.name }}</span>
-            <span class="text-xs text-muted-foreground mt-0.5">Updated {{ product.lastModifiedAt | date:'shortDate' }}</span>
+            <span class="truncate text-base font-bold text-foreground text-left">{{
+              product.name
+            }}</span>
+            <span class="text-xs text-muted-foreground mt-0.5"
+              >Updated {{ product.lastModifiedAt | date: 'shortDate' }}</span
+            >
           </div>
-          <span class="inline-flex items-center gap-2 text-sm font-semibold shrink-0 whitespace-nowrap"
+          <span
+            class="inline-flex items-center gap-2 text-sm font-semibold shrink-0 whitespace-nowrap"
             [class.text-success]="getStockSeverity(product) === 'success'"
             [class.text-warning]="getStockSeverity(product) === 'warn'"
             [class.text-danger]="getStockSeverity(product) === 'danger'"
           >
-            <span class="w-2 h-2 rounded-full inline-block shrink-0"
+            <span
+              class="w-2 h-2 rounded-full inline-block shrink-0"
               [class.bg-success]="getStockSeverity(product) === 'success'"
               [class.bg-warning]="getStockSeverity(product) === 'warn'"
               [class.bg-danger]="getStockSeverity(product) === 'danger'"
@@ -25,14 +31,22 @@
             {{ stockStatusLabel(product) }}
           </span>
         </div>
-        
-        <div class="flex items-center justify-between gap-4 mb-4 px-1"
-          [attr.aria-label]="formatQuantitySummary(product.stock.actualQuantity, product.stock.reservedQuantity)"
-          [attr.title]="formatQuantitySummary(product.stock.actualQuantity, product.stock.reservedQuantity)"
+
+        <div
+          class="flex items-center justify-between gap-4 mb-4 px-1"
+          [attr.aria-label]="
+            formatQuantitySummary(product.stock.actualQuantity, product.stock.reservedQuantity)
+          "
+          [attr.title]="
+            formatQuantitySummary(product.stock.actualQuantity, product.stock.reservedQuantity)
+          "
         >
           <div class="flex flex-col gap-0.5">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Available</span>
-            <span class="text-lg font-black tabular-nums"
+            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
+              >Available</span
+            >
+            <span
+              class="text-lg font-black tabular-nums"
               [class.text-success]="getStockSeverity(product) === 'success'"
               [class.text-warning]="getStockSeverity(product) === 'warn'"
               [class.text-danger]="getStockSeverity(product) === 'danger'"
@@ -40,17 +54,22 @@
               {{ availableQuantity(product) }}
             </span>
           </div>
-          <div class="flex flex-col items-end gap-0.5 text-[11px] text-muted-foreground tabular-nums">
+          <div
+            class="flex flex-col items-end gap-0.5 text-[11px] text-muted-foreground tabular-nums"
+          >
             <span>{{ product.stock.actualQuantity }} actual</span>
             <span>{{ product.stock.reservedQuantity }} reserved</span>
           </div>
         </div>
-        
+
         <div class="flex justify-between items-center pt-4 border-t border-border/50">
           <div class="flex flex-col">
-            <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-0.5">Price</span>
+            <span
+              class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-0.5"
+              >Price</span
+            >
             <span class="text-lg font-black text-foreground tabular-nums">
-              {{ currencyCode() }} {{ product.price | number:'1.2-2' }}
+              {{ currencyCode() }} {{ product.price | number: '1.2-2' }}
             </span>
           </div>
           <div class="flex flex-col items-end gap-2">
@@ -76,7 +95,9 @@
 
   <!-- Mobile Pagination -->
   <div class="mt-8 pb-4 flex flex-col items-center gap-4">
-    <div class="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] bg-muted/30 px-3 py-1 rounded-full border border-border/50">
+    <div
+      class="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] bg-muted/30 px-3 py-1 rounded-full border border-border/50"
+    >
       Displaying {{ products().length }} of {{ totalRecords() }} products
     </div>
     <p-paginator
@@ -91,7 +112,6 @@
     />
   </div>
 </div>
-
 
 <!-- Desktop Table View -->
 <app-surface-card tone="neutral" class="hidden md:block overflow-visible">
@@ -122,24 +142,16 @@
     <!-- Table Header -->
     <ng-template pTemplate="header">
       <tr>
-        <th class="px-4 py-5 font-bold uppercase tracking-wider">
-          Product Details
-        </th>
-        <th class="px-4 py-5 font-bold uppercase tracking-wider text-right tabular-nums">
-          Price
-        </th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider">Product Details</th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider text-right tabular-nums">Price</th>
         <th class="px-4 py-5 font-bold uppercase tracking-wider text-right tabular-nums">
           Available
         </th>
         <th class="px-4 py-5 font-bold uppercase tracking-wider text-right tabular-nums">
           Reserved
         </th>
-        <th class="px-4 py-5 font-bold uppercase tracking-wider text-center">
-          Status
-        </th>
-        <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">
-          Actions
-        </th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider text-center">Status</th>
+        <th class="px-4 py-5 font-bold uppercase tracking-wider text-right">Actions</th>
       </tr>
     </ng-template>
 
@@ -148,24 +160,31 @@
       <tr>
         <td class="px-4 py-5">
           <div class="flex flex-col min-w-0">
-            <span
-              class="truncate text-sm font-semibold text-foreground text-left"
-            >{{ product.name }}</span>
-            <span class="text-xs text-muted-foreground mt-0.5">Updated {{ product.lastModifiedAt | date:'shortDate' }}</span>
+            <span class="truncate text-sm font-semibold text-foreground text-left">{{
+              product.name
+            }}</span>
+            <span class="text-xs text-muted-foreground mt-0.5"
+              >Updated {{ product.lastModifiedAt | date: 'shortDate' }}</span
+            >
           </div>
         </td>
         <td class="px-4 py-5 text-right">
           <div class="text-sm font-bold text-foreground tabular-nums">
-            {{ currencyCode() }} {{ product.price | number:'1.2-2' }}
+            {{ currencyCode() }} {{ product.price | number: '1.2-2' }}
           </div>
         </td>
         <td class="px-4 py-5 text-right">
-          <span class="text-sm font-bold tabular-nums"
+          <span
+            class="text-sm font-bold tabular-nums"
             [class.text-success]="getStockSeverity(product) === 'success'"
             [class.text-warning]="getStockSeverity(product) === 'warn'"
             [class.text-danger]="getStockSeverity(product) === 'danger'"
-            [attr.aria-label]="formatQuantitySummary(product.stock.actualQuantity, product.stock.reservedQuantity)"
-            [attr.title]="formatQuantitySummary(product.stock.actualQuantity, product.stock.reservedQuantity)"
+            [attr.aria-label]="
+              formatQuantitySummary(product.stock.actualQuantity, product.stock.reservedQuantity)
+            "
+            [attr.title]="
+              formatQuantitySummary(product.stock.actualQuantity, product.stock.reservedQuantity)
+            "
           >
             {{ availableQuantity(product) }}
           </span>
@@ -176,12 +195,14 @@
           </span>
         </td>
         <td class="px-4 py-5 text-center">
-          <span class="inline-flex items-center justify-center gap-2 text-sm font-semibold whitespace-nowrap"
+          <span
+            class="inline-flex items-center justify-center gap-2 text-sm font-semibold whitespace-nowrap"
             [class.text-success]="getStockSeverity(product) === 'success'"
             [class.text-warning]="getStockSeverity(product) === 'warn'"
             [class.text-danger]="getStockSeverity(product) === 'danger'"
           >
-            <span class="w-2 h-2 rounded-full inline-block shrink-0"
+            <span
+              class="w-2 h-2 rounded-full inline-block shrink-0"
               [class.bg-success]="getStockSeverity(product) === 'success'"
               [class.bg-warning]="getStockSeverity(product) === 'warn'"
               [class.bg-danger]="getStockSeverity(product) === 'danger'"
@@ -212,16 +233,12 @@
     <ng-template pTemplate="emptymessage">
       <tr>
         <td colspan="6" class="px-4 py-12 text-center">
-          <div class="flex flex-col items-center gap-3">
-            <i class="pi pi-inbox text-4xl text-muted-foreground opacity-20"></i>
-            <div class="text-base font-medium text-foreground">No products found</div>
-            <p class="text-sm text-muted-foreground">Try adjusting your search or create a new product.</p>
-            <p-button
-              label="Clear filters"
-              [link]="true"
-              (onClick)="clearFilters.emit()"
-            />
-          </div>
+          <app-empty-state
+            title="No products found"
+            description="Try adjusting your search or create a new product."
+          >
+            <p-button label="Clear filters" [link]="true" (onClick)="clearFilters.emit()" />
+          </app-empty-state>
         </td>
       </tr>
     </ng-template>

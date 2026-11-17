@@ -1,4 +1,4 @@
-﻿import { CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import type { PagingInfo } from '../../../../core/models/paging';
 import {
@@ -6,10 +6,8 @@ import {
   type PaginatorPageEvent,
 } from '../../../../shared/models/pagination';
 import { PurchaseOrderListComponent } from '../../../procurement/components/purchase-order-list/purchase-order-list.component';
-import {
-  PurchaseOrdersFilterPanelComponent,
-  type PurchaseOrdersListFilters,
-} from '../../../procurement/components/purchase-orders-filter-panel/purchase-orders-filter-panel.component';
+import { PurchaseOrdersFilterPanelComponent } from '../../../procurement/components/purchase-orders-filter-panel/purchase-orders-filter-panel.component';
+import type { PurchaseOrdersListFilters } from '../../../procurement/models/purchase-orders-list.filters';
 import type { PurchaseOrder } from '../../../procurement/models/purchase-order.entity';
 
 @Component({

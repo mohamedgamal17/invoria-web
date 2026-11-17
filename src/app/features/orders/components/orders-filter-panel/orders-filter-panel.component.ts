@@ -1,35 +1,26 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ButtonModule } from 'primeng/button';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 
-import { SEARCH_DEBOUNCE_MS } from '../../../../shared/models/debounce';
-import { numericEnumValues } from '../../../../shared/utils/numeric-enum-values';
+import type { SelectOption } from '../../../../shared/models/select-option';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
+import { createDebouncedInput } from '../../../../shared/utils/debounce-input';
+import { numericEnumValues } from '../../../../shared/utils/numeric-enum-values';
+import { buildSelectOptions } from '../../../../shared/utils/select-options';
 import { getOrderStatusLabel } from '../../models/order-actions';
 import { OrderStatus } from '../../models/order.entity';
 import {
   PaymentStatus,
   PaymentType,
   paymentStatusLabel,
-  paymentTypeLabel
+  paymentTypeLabel,
 } from '../../models/order-payment.enums';
-
-export type OrdersListFilters = {
-  orderNumber: string;
-  status: number | null;
-  paymentStatus: number | null;
-  paymentType: number | null;
-};
-
-type FilterOption = { label: string; value: number | null };
+import type { OrdersListFilters } from '../../models/orders-list.filters';
 
 @Component({
   selector: 'app-orders-filter-panel',
@@ -42,70 +33,47 @@ type FilterOption = { label: string; value: number | null };
     InputIconModule,
     InputTextModule,
     SelectModule,
-    SurfaceCardComponent
+    SurfaceCardComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './orders-filter-panel.component.html'
+  templateUrl: './orders-filter-panel.component.html',
 })
 export class OrdersFilterPanelComponent {
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly orderNumberInput$ = new Subject<string>();
-
   orderNumber = input<string>('');
   status = input<number | null>(null);
   paymentStatus = input<number | null>(null);
   paymentType = input<number | null>(null);
   loading = input(false);
 
-  /** Draft order number for the text field; synced from `orderNumber` when the parent input changes. */
-  readonly localOrderNumber = signal('');
-
   filtersChange = output<OrdersListFilters>();
   clearFilters = output<void>();
 
-  constructor() {
-    effect(() => {
-      this.localOrderNumber.set(this.orderNumber());
-    });
+  private readonly debouncedOrderNumber = createDebouncedInput(this.orderNumber, (value) =>
+    this.emitFilters({ orderNumber: value }),
+  );
 
-    this.orderNumberInput$
-      .pipe(
-        debounceTime(SEARCH_DEBOUNCE_MS),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe((value) => {
-        this.emitFilters({ orderNumber: value });
-      });
-  }
+  readonly localOrderNumber = this.debouncedOrderNumber.value;
 
-  readonly statusOptions: FilterOption[] = [
+  readonly statusOptions: SelectOption<number | null>[] = buildSelectOptions(
+    numericEnumValues(OrderStatus),
+    getOrderStatusLabel,
     { label: 'All statuses', value: null },
-    ...numericEnumValues(OrderStatus).map((value) => ({
-      label: getOrderStatusLabel(value),
-      value: value
-    }))
-  ];
+  );
 
-  readonly paymentStatusOptions: FilterOption[] = [
+  readonly paymentStatusOptions: SelectOption<number | null>[] = buildSelectOptions(
+    numericEnumValues(PaymentStatus),
+    paymentStatusLabel,
     { label: 'All payment statuses', value: null },
-    ...numericEnumValues(PaymentStatus).map((value) => ({
-      label: paymentStatusLabel(value),
-      value: value
-    }))
-  ];
+  );
 
-  readonly paymentTypeOptions: FilterOption[] = [
+  readonly paymentTypeOptions: SelectOption<number | null>[] = buildSelectOptions(
+    numericEnumValues(PaymentType),
+    paymentTypeLabel,
     { label: 'All payment types', value: null },
-    ...numericEnumValues(PaymentType).map((value) => ({
-      label: paymentTypeLabel(value),
-      value: value
-    }))
-  ];
+  );
 
   onOrderNumberInput(value: string): void {
-    this.localOrderNumber.set(value);
-    this.orderNumberInput$.next(value);
+    this.debouncedOrderNumber.set(value);
   }
 
   onStatusChange(value: number | null | undefined): void {
@@ -128,9 +96,8 @@ export class OrdersFilterPanelComponent {
     this.filtersChange.emit({
       orderNumber: patch.orderNumber ?? this.localOrderNumber(),
       status: patch.status !== undefined ? patch.status : this.status(),
-      paymentStatus:
-        patch.paymentStatus !== undefined ? patch.paymentStatus : this.paymentStatus(),
-      paymentType: patch.paymentType !== undefined ? patch.paymentType : this.paymentType()
+      paymentStatus: patch.paymentStatus !== undefined ? patch.paymentStatus : this.paymentStatus(),
+      paymentType: patch.paymentType !== undefined ? patch.paymentType : this.paymentType(),
     });
   }
 }

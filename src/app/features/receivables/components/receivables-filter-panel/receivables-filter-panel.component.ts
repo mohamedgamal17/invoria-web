@@ -1,25 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ButtonModule } from 'primeng/button';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 
-import { SEARCH_DEBOUNCE_MS } from '../../../../shared/models/debounce';
+import { createDebouncedInput } from '../../../../shared/utils/debounce-input';
+import type { SelectOption } from '../../../../shared/models/select-option';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
-
-export type ReceivablesListFilters = {
-  partyId: string;
-  sourceId: string;
-  isPaid: boolean | null;
-};
-
-type PaidFilterOption = { label: string; value: boolean | null };
+import type { ReceivablesListFilters } from '../../models/receivables-list.filters';
 
 @Component({
   selector: 'app-receivables-filter-panel',
@@ -32,71 +23,43 @@ type PaidFilterOption = { label: string; value: boolean | null };
     InputIconModule,
     InputTextModule,
     SelectModule,
-    SurfaceCardComponent
+    SurfaceCardComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './receivables-filter-panel.component.html'
+  templateUrl: './receivables-filter-panel.component.html',
 })
 export class ReceivablesFilterPanelComponent {
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly partyIdInput$ = new Subject<string>();
-  private readonly sourceIdInput$ = new Subject<string>();
-
   partyId = input<string>('');
   sourceId = input<string>('');
   isPaid = input<boolean | null>(null);
   loading = input(false);
 
-  readonly localPartyId = signal('');
-  readonly localSourceId = signal('');
-
   filtersChange = output<ReceivablesListFilters>();
   clearFilters = output<void>();
 
-  readonly isPaidOptions: PaidFilterOption[] = [
+  readonly isPaidOptions: SelectOption<boolean | null>[] = [
     { label: 'All', value: null },
     { label: 'Paid', value: true },
-    { label: 'Unpaid', value: false }
+    { label: 'Unpaid', value: false },
   ];
 
-  constructor() {
-    effect(() => {
-      this.localPartyId.set(this.partyId());
-    });
+  private readonly debouncedPartyId = createDebouncedInput(this.partyId, (value) =>
+    this.emitFilters({ partyId: value }),
+  );
 
-    effect(() => {
-      this.localSourceId.set(this.sourceId());
-    });
+  private readonly debouncedSourceId = createDebouncedInput(this.sourceId, (value) =>
+    this.emitFilters({ sourceId: value }),
+  );
 
-    this.partyIdInput$
-      .pipe(
-        debounceTime(SEARCH_DEBOUNCE_MS),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe((value) => {
-        this.emitFilters({ partyId: value });
-      });
-
-    this.sourceIdInput$
-      .pipe(
-        debounceTime(SEARCH_DEBOUNCE_MS),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe((value) => {
-        this.emitFilters({ sourceId: value });
-      });
-  }
+  readonly localPartyId = this.debouncedPartyId.value;
+  readonly localSourceId = this.debouncedSourceId.value;
 
   onPartyIdInput(value: string): void {
-    this.localPartyId.set(value);
-    this.partyIdInput$.next(value);
+    this.debouncedPartyId.set(value);
   }
 
   onSourceIdInput(value: string): void {
-    this.localSourceId.set(value);
-    this.sourceIdInput$.next(value);
+    this.debouncedSourceId.set(value);
   }
 
   onIsPaidChange(value: boolean | null | undefined): void {
@@ -111,7 +74,7 @@ export class ReceivablesFilterPanelComponent {
     this.filtersChange.emit({
       partyId: patch.partyId !== undefined ? patch.partyId : this.localPartyId(),
       sourceId: patch.sourceId !== undefined ? patch.sourceId : this.localSourceId(),
-      isPaid: patch.isPaid !== undefined ? patch.isPaid : this.isPaid()
+      isPaid: patch.isPaid !== undefined ? patch.isPaid : this.isPaid(),
     });
   }
 }

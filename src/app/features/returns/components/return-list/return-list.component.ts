@@ -1,18 +1,25 @@
-﻿import { CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { PaginatorModule } from 'primeng/paginator';
-import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
+import { SkeletonModule } from 'primeng/skeleton';
 
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
+import {
+  ListSkeletonComponent,
+  type ListSkeletonColumn,
+} from '../../../../shared/ui/list-skeleton/list-skeleton.component';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
 
 import type { Return } from '../../models/return.entity';
 import { returnTypeLabel } from '../../models/return-type.enum';
 import { returnStatusUserLabel, returnStatusSeverity } from '../../models/return-status.enum';
-import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../shared/models/pagination';
+import {
+  DEFAULT_PAGE_SIZE_OPTIONS,
+  type PaginatorPageEvent,
+} from '../../../../shared/models/pagination';
 
 @Component({
   selector: 'app-return-list',
@@ -22,13 +29,14 @@ import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginatorPageEvent } from '../../../../
     ButtonModule,
     TableModule,
     PaginatorModule,
-    SkeletonModule,
     TagModule,
+    SkeletonModule,
     EmptyStateComponent,
-    SurfaceCardComponent
+    ListSkeletonComponent,
+    SurfaceCardComponent,
   ],
   templateUrl: './return-list.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReturnListComponent {
   returns = input.required<Return[]>();
@@ -42,13 +50,20 @@ export class ReturnListComponent {
   pageChange = output<PaginatorPageEvent>();
   clearFilters = output<void>();
 
+  readonly skeletonColumns: ListSkeletonColumn[] = [
+    { width: '60%' },
+    { width: '40%' },
+    { width: '30%' },
+    { width: '20%' },
+    { width: '40%' },
+    { width: '', actions: 1, align: 'right' },
+  ];
+
   readonly skeletonRows = computed(() =>
-    Array.from({ length: this.pageSize() }, (_, index) => index)
+    Array.from({ length: this.pageSize() }, (_, index) => index),
   );
 
   protected readonly returnTypeLabel = returnTypeLabel;
   protected readonly returnStatusUserLabel = returnStatusUserLabel;
   protected readonly returnStatusSeverity = returnStatusSeverity;
 }
-
-

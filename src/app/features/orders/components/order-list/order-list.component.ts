@@ -7,19 +7,20 @@ import { TooltipModule } from 'primeng/tooltip';
 import { PaginatorModule } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
 import { EmptyStateComponent } from '../../../../shared/ui/empty-state/empty-state.component';
+import {
+  ListSkeletonComponent,
+  type ListSkeletonColumn,
+} from '../../../../shared/ui/list-skeleton/list-skeleton.component';
 import { SurfaceCardComponent } from '../../../../shared/ui/surface-card/surface-card.component';
 import { type PaginatorPageEvent } from '../../../../shared/models/pagination';
 import type { UiOrder } from '../../models/order-ui.model';
 import { OrderStatus } from '../../models/order.entity';
-import {
-  getOrderStatusLabel,
-  getOrderStatusUserLabel
-} from '../../models/order-actions';
+import { getOrderStatusLabel, getOrderStatusUserLabel } from '../../models/order-actions';
 import {
   PaymentStatus,
   PaymentType,
   paymentStatusLabel,
-  paymentTypeLabel
+  paymentTypeLabel,
 } from '../../models/order-payment.enums';
 import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
 
@@ -35,10 +36,11 @@ import { DEFAULT_CURRENCY_CODE } from '../../../../shared/models/currency';
     PaginatorModule,
     SkeletonModule,
     EmptyStateComponent,
-    SurfaceCardComponent
+    ListSkeletonComponent,
+    SurfaceCardComponent,
   ],
   templateUrl: './order-list.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrderListComponent {
   protected readonly currencyCode = signal(DEFAULT_CURRENCY_CODE);
@@ -58,13 +60,23 @@ export class OrderListComponent {
   delete = output<UiOrder>();
   clearFilters = output<void>();
 
+  readonly skeletonColumns: ListSkeletonColumn[] = [
+    { width: '60%', lines: 2 },
+    { width: '70%' },
+    { width: '5rem' },
+    { width: '5rem' },
+    { width: '4.5rem' },
+    { width: '4rem', align: 'right' },
+    { width: '', actions: 2, align: 'right' },
+  ];
+
   readonly skeletonRows = computed(() =>
-    Array.from({ length: this.pageSize() }, (_, index) => index)
+    Array.from({ length: this.pageSize() }, (_, index) => index),
   );
 
   getOrderStatusSeverity(
-    status: OrderStatus
-  ): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined {
+    status: OrderStatus,
+  ): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' | undefined {
     switch (status) {
       case OrderStatus.Completed:
         return 'success';
@@ -104,8 +116,8 @@ export class OrderListComponent {
   }
 
   getPaymentStatusSeverity(
-    status: PaymentStatus | undefined
-  ): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined {
+    status: PaymentStatus | undefined,
+  ): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' | undefined {
     if (status === undefined) return 'secondary';
     switch (status) {
       case PaymentStatus.Paid:
@@ -120,8 +132,8 @@ export class OrderListComponent {
   }
 
   getPaymentTypeSeverity(
-    type: PaymentType | undefined
-  ): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined {
+    type: PaymentType | undefined,
+  ): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' | undefined {
     if (type === undefined) return 'secondary';
     switch (type) {
       case PaymentType.Immediate:
