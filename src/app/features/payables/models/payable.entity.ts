@@ -1,5 +1,8 @@
-import type { Entity } from '../../../core/models/entity';
-import type { FinancialObligationStatus } from '../../../shared/models/financial-obligation-status';
+import type {
+  FinancialObligation,
+  FinancialObligationPartyRef,
+  FinancialObligationSourceRef,
+} from '../../../shared/models/financial-obligation';
 
 /**
  * Minimal read-only reference for the optional inline `Party`
@@ -8,7 +11,7 @@ import type { FinancialObligationStatus } from '../../../shared/models/financial
  * party/source — so these refs are resolved via the suppliers
  * and purchase orders API services (see docs/architecture/overview.md exceptions).
  */
-export interface PayablePartyRef {
+export interface PayablePartyRef extends FinancialObligationPartyRef {
   id: string;
   name: string;
 }
@@ -17,7 +20,7 @@ export interface PayablePartyRef {
  * Optional inline `Source` reference hydrated client-side from
  * `PurchaseOrderDto` (`purchaseNumber`) for display purposes.
  */
-export interface PayableSourceRef {
+export interface PayableSourceRef extends FinancialObligationSourceRef {
   id: string;
   purchaseNumber: string;
 }
@@ -29,7 +32,7 @@ export interface PayableSettlement {
   settledAt: string;
 }
 
-export interface Payable extends Entity {
+export interface Payable extends FinancialObligation {
   /**
    * Wire name `PartyId`.
    * Currently always references a supplier (`/suppliers/:partyId`).
@@ -44,8 +47,5 @@ export interface Payable extends Entity {
   party?: PayablePartyRef | null;
   /** Optional inline source ref (purchase order number), hydrated client-side. */
   source?: PayableSourceRef | null;
-  amount: number;
-  outstandingAmount: number;
-  status: FinancialObligationStatus;
   settlements: PayableSettlement[];
 }

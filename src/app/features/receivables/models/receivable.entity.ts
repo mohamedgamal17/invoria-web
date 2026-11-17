@@ -1,5 +1,8 @@
-import type { Entity } from '../../../core/models/entity';
-import type { FinancialObligationStatus } from '../../../shared/models/financial-obligation-status';
+import type {
+  FinancialObligation,
+  FinancialObligationPartyRef,
+  FinancialObligationSourceRef,
+} from '../../../shared/models/financial-obligation';
 import type { OrderStatus } from '../../orders/models/order.entity';
 import type { PaymentType } from '../../orders/models/order-payment.enums';
 
@@ -7,7 +10,7 @@ import type { PaymentType } from '../../orders/models/order-payment.enums';
  * Minimal read-only reference for the optional inline `Party`
  * (`CustomerDto`) returned by the receivables API.
  */
-export interface ReceivablePartyRef {
+export interface ReceivablePartyRef extends FinancialObligationPartyRef {
   id: string;
   name: string;
 }
@@ -17,7 +20,7 @@ export interface ReceivablePartyRef {
  * (`PublicOrderDto`) returned by the receivables API.
  * Enum values reference the `orders` feature contracts (`import type` only).
  */
-export interface ReceivableSource {
+export interface ReceivableSource extends FinancialObligationSourceRef {
   id: string;
   orderNumber: string;
   customerId: string;
@@ -40,7 +43,7 @@ export interface ReceivableSettlement {
   settledAt: string;
 }
 
-export interface Receivable extends Entity {
+export interface Receivable extends FinancialObligation {
   /**
    * Wire name `PartyId`.
    * Currently always references a customer (`/customers/:partyId`).
@@ -55,8 +58,5 @@ export interface Receivable extends Entity {
   party?: ReceivablePartyRef | null;
   /** Optional inline source order (`PublicOrderDto`) with the full order summary. */
   source?: ReceivableSource | null;
-  amount: number;
-  outstandingAmount: number;
-  status: FinancialObligationStatus;
   settlements: ReceivableSettlement[];
 }
