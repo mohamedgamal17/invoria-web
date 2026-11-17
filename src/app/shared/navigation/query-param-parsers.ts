@@ -24,7 +24,28 @@ export function parseOptionalEnumScalarParam(
 export function parseOptionalEnumQueryParam(
   map: ParamMap,
   key: string,
-  allowed: readonly number[]
+  allowed: readonly number[],
 ): number | null {
   return parseOptionalEnumScalarParam(map.get(key), allowed);
+}
+
+/**
+ * Validates a raw tab query param value against a string enum.
+ * `aliases` maps legacy slugs (e.g. `overview`) onto canonical tab values.
+ * Returns the matching enum value or `null` if invalid/missing.
+ */
+export function parseStringEnumTab<EnumMap extends Record<string, string>>(
+  enumMap: EnumMap,
+  value: string | number | null,
+  aliases: Readonly<Record<string, EnumMap[keyof EnumMap]>> = {},
+): EnumMap[keyof EnumMap] | null {
+  if (value === null) {
+    return null;
+  }
+  const raw = typeof value === 'number' ? String(value) : value;
+  if (Object.prototype.hasOwnProperty.call(aliases, raw)) {
+    return aliases[raw];
+  }
+  const tabValues = Object.values(enumMap) as EnumMap[keyof EnumMap][];
+  return tabValues.includes(raw as EnumMap[keyof EnumMap]) ? (raw as EnumMap[keyof EnumMap]) : null;
 }

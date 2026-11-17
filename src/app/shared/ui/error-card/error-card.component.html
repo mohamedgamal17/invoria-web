@@ -1,0 +1,14 @@
+<p-card styleClass="border border-destructive/30 rounded-2xl shadow-sm">
+  <div class="flex flex-col gap-4 p-1 sm:flex-row sm:items-center sm:justify-between">
+    <div class="space-y-1">
+      <h2 class="text-base font-semibold text-foreground">{{ title() }}</h2>
+      <p class="text-sm text-destructive">{{ message() }}</p>
+    </div>
+    <p-button
+      [label]="retryLabel()"
+      icon="pi pi-refresh"
+      styleClass="rounded-xl px-4 py-2.5 text-sm font-semibold"
+      (onClick)="retry.emit()"
+    />
+  </div>
+</p-card>

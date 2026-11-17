@@ -12,6 +12,12 @@ export const DEFAULT_PAGE_SIZE = 25;
  */
 export const DEFAULT_PAGE_SIZE_OPTIONS: number[] = [25, 50, 100, 200];
 
+/** Page size for compact metrics/report tables. */
+export const COMPACT_PAGE_SIZE = 10;
+
+/** Page-size options for compact metrics/report tables. */
+export const COMPACT_PAGE_SIZE_OPTIONS: number[] = [5, 10, 20];
+
 /**
  * Standard page-change event contract for every list/paginator `pageChange`
  * output and `onPageChange` handler. A structural supertype of PrimeNG

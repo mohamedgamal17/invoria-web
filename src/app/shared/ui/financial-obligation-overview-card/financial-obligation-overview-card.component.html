@@ -1,0 +1,163 @@
+<div class="grid gap-6 lg:grid-cols-2">
+  <app-surface-card tone="neutral">
+    <div class="flex flex-col gap-4">
+      <div class="flex items-center gap-2">
+        <i class="pi pi-info-circle text-accent text-sm"></i>
+        <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground"
+          >{{ entityLabel() }} Information</span
+        >
+      </div>
+      <div class="grid gap-3">
+        <div class="flex items-center justify-between border-b border-border/40 pb-2">
+          <span class="text-xs font-medium text-muted-foreground">{{ entityLabel() }} ID</span>
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-mono font-semibold text-foreground">{{
+              obligation().id
+            }}</span>
+            <p-button
+              (click)="copy(obligation().id, 'obligationId')"
+              [icon]="copiedKey() === 'obligationId' ? 'pi pi-check' : 'pi pi-copy'"
+              severity="secondary"
+              size="small"
+              [text]="true"
+              [pTooltip]="'Copy ' + entityLabel().toLowerCase() + ' ID'"
+              tooltipPosition="left"
+            />
+          </div>
+        </div>
+        <div class="flex items-center justify-between border-b border-border/40 pb-2">
+          <span class="text-xs font-medium text-muted-foreground">{{ partyLabel() }}</span>
+          <div class="flex items-center gap-2">
+            <a
+              [routerLink]="[partyRoute(), obligation().partyId]"
+              class="text-sm text-primary hover:text-primary-emphasis hover:underline transition-colors inline-flex items-center gap-1"
+              [pTooltip]="obligation().partyId"
+              tooltipPosition="left"
+            >
+              {{ obligation().party?.name ?? obligation().partyId }}
+              <i class="pi pi-external-link text-xs"></i>
+            </a>
+            <p-button
+              (click)="copy(obligation().partyId, 'partyId')"
+              [icon]="copiedKey() === 'partyId' ? 'pi pi-check' : 'pi pi-copy'"
+              severity="secondary"
+              size="small"
+              [text]="true"
+              [pTooltip]="'Copy ' + partyLabel().toLowerCase() + ' ID'"
+              tooltipPosition="left"
+            />
+          </div>
+        </div>
+        <div class="flex items-center justify-between border-b border-border/40 pb-2">
+          <span class="text-xs font-medium text-muted-foreground">{{ sourceLabel() }}</span>
+          <div class="flex items-center gap-2">
+            <a
+              [routerLink]="[sourceRoute(), obligation().sourceId]"
+              class="text-sm text-primary hover:text-primary-emphasis hover:underline transition-colors inline-flex items-center gap-1"
+              [pTooltip]="obligation().sourceId"
+              tooltipPosition="left"
+            >
+              {{ sourceDisplay(obligation()) }}
+              <i class="pi pi-external-link text-xs"></i>
+            </a>
+            <p-button
+              (click)="copy(obligation().sourceId, 'sourceId')"
+              [icon]="copiedKey() === 'sourceId' ? 'pi pi-check' : 'pi pi-copy'"
+              severity="secondary"
+              size="small"
+              [text]="true"
+              [pTooltip]="'Copy ' + sourceLabel().toLowerCase() + ' ID'"
+              tooltipPosition="left"
+            />
+          </div>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium text-muted-foreground">Status</span>
+          <p-tag
+            [value]="statusLabel(obligation().status)"
+            [severity]="statusSeverity(obligation().status)"
+          />
+        </div>
+      </div>
+    </div>
+  </app-surface-card>
+
+  <app-surface-card tone="neutral">
+    <div class="flex flex-col gap-4">
+      <div class="flex items-center gap-2">
+        <i class="pi pi-wallet text-accent text-sm"></i>
+        <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground"
+          >Financial Summary</span
+        >
+      </div>
+      <div class="grid gap-3">
+        <div class="flex items-center justify-between border-b border-border/40 pb-2">
+          <span class="text-xs font-medium text-muted-foreground">Amount</span>
+          <span class="text-sm font-semibold tabular-nums text-foreground"
+            >{{ currencyCode() }} {{ obligation().amount | number: '1.2-2' }}</span
+          >
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-foreground">Outstanding Amount</span>
+          <div class="flex items-center gap-3">
+            <span class="text-lg font-bold tabular-nums text-accent"
+              >{{ currencyCode() }} {{ obligation().outstandingAmount | number: '1.2-2' }}</span
+            >
+            @if (obligation().outstandingAmount > 0) {
+              <p-button
+                (onClick)="settleRequest.emit()"
+                icon="pi pi-check-circle"
+                label="Settle"
+                size="small"
+                styleClass="rounded-lg px-3 py-1.5 text-xs font-bold"
+                pTooltip="Record a settlement"
+                tooltipPosition="left"
+              />
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </app-surface-card>
+
+  <app-surface-card tone="neutral" class="lg:col-span-2">
+    <div class="flex flex-col gap-4">
+      <div class="flex items-center gap-2">
+        <i class="pi pi-history text-accent text-sm"></i>
+        <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground"
+          >Audit Trail</span
+        >
+      </div>
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <span class="block text-[10px] font-medium text-muted-foreground uppercase tracking-wider"
+            >Created By</span
+          >
+          <span class="text-sm font-medium text-foreground">{{
+            obligation().createdBy || '—'
+          }}</span>
+        </div>
+        <div>
+          <span class="block text-[10px] font-medium text-muted-foreground uppercase tracking-wider"
+            >Created At</span
+          >
+          <span class="text-sm text-foreground">{{ obligation().createdAt | date: 'medium' }}</span>
+        </div>
+        <div>
+          <span class="block text-[10px] font-medium text-muted-foreground uppercase tracking-wider"
+            >Last Modified By</span
+          >
+          <span class="text-sm text-foreground">{{ obligation().lastModifiedBy || '—' }}</span>
+        </div>
+        <div>
+          <span class="block text-[10px] font-medium text-muted-foreground uppercase tracking-wider"
+            >Last Modified At</span
+          >
+          <span class="text-sm text-foreground">{{
+            obligation().lastModifiedAt | date: 'medium'
+          }}</span>
+        </div>
+      </div>
+    </div>
+  </app-surface-card>
+</div>

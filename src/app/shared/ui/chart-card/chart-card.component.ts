@@ -7,22 +7,27 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import {
   REPORT_SERIES_PERIOD_OPTIONS,
   ReportPeriod,
-  type ReportPeriodOption
+  type ReportPeriodOption,
 } from '../../../shared/models/report-period';
 import {
   generatePlaceholderCategoryLabels,
   resolvePlaceholderYInterval,
   resolvePlaceholderYMax,
-  type PlaceholderYKind
+  type PlaceholderYKind,
 } from '../../../shared/charts/chart-placeholder';
-import { chartToken, echartsAxisColor, echartsGridColor, echartsLabelColor } from '../../../shared/charts/echarts-presets';
+import {
+  chartToken,
+  echartsAxisColor,
+  echartsGridColor,
+  echartsLabelColor,
+} from '../../../shared/charts/echarts-presets';
 import { ThemeService } from '../../../core/theme/theme.service';
 
 /**
  * Canonical ECharts wrapper for the app.
  * Prefer this over raw <div echarts> or PrimeNG Chart.
  * Smart pages compute `EChartsCoreOption` via `computed()` and pass via [options].
- * See `.opencode/skills/charts/SKILL.md` for the full convention.
+ * See `.agents/skills/charts/SKILL.md` for the full convention.
  *
  * Period selector is encapsulated here for reuse across reports (Daily/Monthly/Yearly).
  * Use [showPeriodSelector]="true" + [selectedPeriod]/ (periodChange) for one-line integration.
@@ -33,7 +38,7 @@ import { ThemeService } from '../../../core/theme/theme.service';
   imports: [NgxEchartsDirective, SkeletonModule, FormsModule, SelectButtonModule],
   templateUrl: './chart-card.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'block w-full' }
+  host: { class: 'block w-full' },
 })
 export class ChartCardComponent {
   private readonly themeService = inject(ThemeService);
@@ -80,7 +85,14 @@ export class ChartCardComponent {
     return {
       tooltip: { trigger: 'axis', show: false },
       legend: { show: false, data: [], bottom: 0 },
-      grid: { left: 16, right: 16, top: 16, bottom: 36, containLabel: true, borderColor: 'transparent' },
+      grid: {
+        left: 16,
+        right: 16,
+        top: 16,
+        bottom: 36,
+        containLabel: true,
+        borderColor: 'transparent',
+      },
       xAxis: {
         type: 'category',
         data: xData,
@@ -93,9 +105,9 @@ export class ChartCardComponent {
           color: labelColor,
           interval: 0,
           rotate: isDaily ? 0 : 18,
-          lineHeight: isDaily ? 12 : undefined
+          lineHeight: isDaily ? 12 : undefined,
         } as unknown as Record<string, unknown>,
-        splitLine: { show: false }
+        splitLine: { show: false },
       },
       yAxis: {
         type: 'value',
@@ -104,11 +116,11 @@ export class ChartCardComponent {
         interval: yInterval,
         axisLine: { show: false },
         axisLabel: { fontSize: 10, color: labelColor },
-        splitLine: { show: true, lineStyle: { type: 'dashed', color: gridColor } }
+        splitLine: { show: true, lineStyle: { type: 'dashed', color: gridColor } },
       },
       series: [],
       ...(this.emptyText()
-        ? {
+        ? ({
             graphic: {
               type: 'text',
               left: 'center',
@@ -117,11 +129,11 @@ export class ChartCardComponent {
                 text: this.emptyText(),
                 fill: labelColor,
                 fontSize: 12,
-                fontWeight: 500
-              }
-            }
-          } as unknown as EChartsCoreOption
-        : {})
+                fontWeight: 500,
+              },
+            },
+          } as unknown as EChartsCoreOption)
+        : {}),
     };
   });
 

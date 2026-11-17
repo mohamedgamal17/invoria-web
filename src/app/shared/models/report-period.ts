@@ -28,11 +28,15 @@ export interface ReportPeriodOption {
   value: ReportPeriod;
 }
 
+/** Filter payload emitted by shared report/metrics filter panels. */
+export interface ReportPeriodFilters {
+  period: ReportPeriod;
+}
+
 /** Pre-computed options array for PrimeNG selects/dropdowns across dashboard, reports, and charts. */
 export const REPORT_SERIES_PERIOD_OPTIONS: ReportPeriodOption[] = REPORT_SERIES_PERIODS.map(
   (periodValue) => ({
     label: REPORT_PERIOD_LABELS[periodValue],
     value: periodValue,
-  })
+  }),
 );
-
