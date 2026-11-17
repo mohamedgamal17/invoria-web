@@ -1,4 +1,4 @@
-﻿import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { LOAD_STATUS } from '../../../../shared/models/load-status';
 import type { InvoiceItem } from '../../models/invoice.entity';
@@ -6,6 +6,7 @@ import type { Invoice } from '../../models/invoice.entity';
 import { INVOICE_DETAILS_ACTIONS } from './invoice-details.actions';
 import {
   INVOICE_DETAILS_INITIAL_STATE,
+  InvoiceDetailsTab,
   invoiceDetailsReducer,
   type InvoiceDetailsState,
 } from './invoice-details.reducer';
@@ -39,63 +40,59 @@ const LOADED: InvoiceDetailsState = {
 describe('invoiceDetailsReducer', () => {
   describe('setActiveTab', () => {
     it('returns the same state object for an identical tab', () => {
-      const primed = { ...LOADED, activeTab: 1 };
+      const primed = { ...LOADED, activeTab: InvoiceDetailsTab.Items };
       expect(
-        invoiceDetailsReducer(primed, { ...INVOICE_DETAILS_ACTIONS.setActiveTab({ activeTab: 1 }) }),
+        invoiceDetailsReducer(primed, {
+          ...INVOICE_DETAILS_ACTIONS.setActiveTab({ activeTab: InvoiceDetailsTab.Items }),
+        }),
       ).toBe(primed);
     });
 
     it('applies a real tab change', () => {
-      const next = invoiceDetailsReducer(
-        LOADED,
-        { ...INVOICE_DETAILS_ACTIONS.setActiveTab({ activeTab: 1 }) },
-      );
-      expect(next.activeTab).toBe(1);
+      const next = invoiceDetailsReducer(LOADED, {
+        ...INVOICE_DETAILS_ACTIONS.setActiveTab({ activeTab: InvoiceDetailsTab.Items }),
+      });
+      expect(next.activeTab).toBe(InvoiceDetailsTab.Items);
       expect(next.invoice).toBe(INVOICE);
     });
   });
 
   describe('loadInvoice', () => {
     it('resets the entity and starts loading', () => {
-      const next = invoiceDetailsReducer(
-        LOADED,
-        { ...INVOICE_DETAILS_ACTIONS.loadInvoice({ invoiceId: 'inv_2' }) },
-      );
+      const next = invoiceDetailsReducer(LOADED, {
+        ...INVOICE_DETAILS_ACTIONS.loadInvoice({ invoiceId: 'inv_2' }),
+      });
       expect(next.invoiceId).toBe('inv_2');
       expect(next.invoice).toBeNull();
       expect(next.request.status).toBe(LOAD_STATUS.Loading);
     });
 
     it('resets the tab only when switching invoices', () => {
-      const primed = { ...LOADED, activeTab: 1 };
-      const same = invoiceDetailsReducer(
-        primed,
-        { ...INVOICE_DETAILS_ACTIONS.loadInvoice({ invoiceId: 'inv_1' }) },
-      );
-      expect(same.activeTab).toBe(1);
-      const other = invoiceDetailsReducer(
-        primed,
-        { ...INVOICE_DETAILS_ACTIONS.loadInvoice({ invoiceId: 'inv_2' }) },
-      );
-      expect(other.activeTab).toBe(0);
+      const primed = { ...LOADED, activeTab: InvoiceDetailsTab.Items };
+      const same = invoiceDetailsReducer(primed, {
+        ...INVOICE_DETAILS_ACTIONS.loadInvoice({ invoiceId: 'inv_1' }),
+      });
+      expect(same.activeTab).toBe(InvoiceDetailsTab.Items);
+      const other = invoiceDetailsReducer(primed, {
+        ...INVOICE_DETAILS_ACTIONS.loadInvoice({ invoiceId: 'inv_2' }),
+      });
+      expect(other.activeTab).toBe(InvoiceDetailsTab.Overview);
     });
   });
 
   describe('refreshInvoice', () => {
     it('keeps the entity visible for the same invoice', () => {
-      const next = invoiceDetailsReducer(
-        LOADED,
-        { ...INVOICE_DETAILS_ACTIONS.refreshInvoice({ invoiceId: 'inv_1' }) },
-      );
+      const next = invoiceDetailsReducer(LOADED, {
+        ...INVOICE_DETAILS_ACTIONS.refreshInvoice({ invoiceId: 'inv_1' }),
+      });
       expect(next.invoice).toBe(INVOICE);
       expect(next.request.status).toBe(LOAD_STATUS.Loading);
     });
 
     it('ignores a foreign id', () => {
-      const next = invoiceDetailsReducer(
-        LOADED,
-        { ...INVOICE_DETAILS_ACTIONS.refreshInvoice({ invoiceId: 'inv_2' }) },
-      );
+      const next = invoiceDetailsReducer(LOADED, {
+        ...INVOICE_DETAILS_ACTIONS.refreshInvoice({ invoiceId: 'inv_2' }),
+      });
       expect(next).toBe(LOADED);
     });
   });

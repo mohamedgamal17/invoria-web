@@ -1,6 +1,6 @@
-﻿import { createAction, props } from '@ngrx/store';
+import { createAction, props } from '@ngrx/store';
 
-import type { PurchaseOrdersListFilters } from '../../../procurement/components/purchase-orders-filter-panel/purchase-orders-filter-panel.component';
+import type { PurchaseOrdersListFilters } from '../../../procurement/models/purchase-orders-list.filters';
 import type { PagingInfo } from '../../../../core/models/paging';
 import type { PurchaseOrder } from '../../../procurement/models/purchase-order.entity';
 

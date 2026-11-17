@@ -8,6 +8,7 @@ import type { UiOrder } from '../../models/order-ui.model';
 import { ORDER_DETAILS_ACTIONS } from './order-details.actions';
 import {
   ORDER_DETAILS_INITIAL_STATE,
+  OrderDetailsTab,
   orderDetailsReducer,
   type OrderDetailsState,
 } from './order-details.reducer';
@@ -40,63 +41,59 @@ const LOADED: OrderDetailsState = {
 describe('orderDetailsReducer', () => {
   describe('setActiveTab', () => {
     it('returns the same state object for an identical tab', () => {
-      const primed = { ...LOADED, activeTab: 2 };
+      const primed = { ...LOADED, activeTab: OrderDetailsTab.Payment };
       expect(
-        orderDetailsReducer(primed, { ...ORDER_DETAILS_ACTIONS.setActiveTab({ activeTab: 2 }) }),
+        orderDetailsReducer(primed, {
+          ...ORDER_DETAILS_ACTIONS.setActiveTab({ activeTab: OrderDetailsTab.Payment }),
+        }),
       ).toBe(primed);
     });
 
     it('applies a real tab change', () => {
-      const next = orderDetailsReducer(
-        LOADED,
-        { ...ORDER_DETAILS_ACTIONS.setActiveTab({ activeTab: 3 }) },
-      );
-      expect(next.activeTab).toBe(3);
+      const next = orderDetailsReducer(LOADED, {
+        ...ORDER_DETAILS_ACTIONS.setActiveTab({ activeTab: OrderDetailsTab.Returns }),
+      });
+      expect(next.activeTab).toBe(OrderDetailsTab.Returns);
       expect(next.order).toBe(ORDER);
     });
   });
 
   describe('loadOrder', () => {
     it('resets the entity and starts loading', () => {
-      const next = orderDetailsReducer(
-        LOADED,
-        { ...ORDER_DETAILS_ACTIONS.loadOrder({ orderId: 'ord_2' }) },
-      );
+      const next = orderDetailsReducer(LOADED, {
+        ...ORDER_DETAILS_ACTIONS.loadOrder({ orderId: 'ord_2' }),
+      });
       expect(next.orderId).toBe('ord_2');
       expect(next.order).toBeNull();
       expect(next.request.status).toBe(LOAD_STATUS.Loading);
     });
 
     it('resets the tab only when switching orders', () => {
-      const primed = { ...LOADED, activeTab: 2 };
-      const same = orderDetailsReducer(
-        primed,
-        { ...ORDER_DETAILS_ACTIONS.loadOrder({ orderId: 'ord_1' }) },
-      );
-      expect(same.activeTab).toBe(2);
-      const other = orderDetailsReducer(
-        primed,
-        { ...ORDER_DETAILS_ACTIONS.loadOrder({ orderId: 'ord_2' }) },
-      );
-      expect(other.activeTab).toBe(0);
+      const primed = { ...LOADED, activeTab: OrderDetailsTab.Payment };
+      const same = orderDetailsReducer(primed, {
+        ...ORDER_DETAILS_ACTIONS.loadOrder({ orderId: 'ord_1' }),
+      });
+      expect(same.activeTab).toBe(OrderDetailsTab.Payment);
+      const other = orderDetailsReducer(primed, {
+        ...ORDER_DETAILS_ACTIONS.loadOrder({ orderId: 'ord_2' }),
+      });
+      expect(other.activeTab).toBe(OrderDetailsTab.Summary);
     });
   });
 
   describe('refreshOrder', () => {
     it('keeps the entity visible for the same order', () => {
-      const next = orderDetailsReducer(
-        LOADED,
-        { ...ORDER_DETAILS_ACTIONS.refreshOrder({ orderId: 'ord_1' }) },
-      );
+      const next = orderDetailsReducer(LOADED, {
+        ...ORDER_DETAILS_ACTIONS.refreshOrder({ orderId: 'ord_1' }),
+      });
       expect(next.order).toBe(ORDER);
       expect(next.request.status).toBe(LOAD_STATUS.Loading);
     });
 
     it('ignores a foreign id', () => {
-      const next = orderDetailsReducer(
-        LOADED,
-        { ...ORDER_DETAILS_ACTIONS.refreshOrder({ orderId: 'ord_2' }) },
-      );
+      const next = orderDetailsReducer(LOADED, {
+        ...ORDER_DETAILS_ACTIONS.refreshOrder({ orderId: 'ord_2' }),
+      });
       expect(next).toBe(LOADED);
     });
   });
@@ -126,10 +123,9 @@ describe('orderDetailsReducer', () => {
 
   describe('recordAction', () => {
     it('starts the saving request and records the last action without touching the load slice', () => {
-      const next = orderDetailsReducer(
-        LOADED,
-        { ...ORDER_DETAILS_ACTIONS.recordAction({ action: 'accept', orderId: 'ord_1' }) },
-      );
+      const next = orderDetailsReducer(LOADED, {
+        ...ORDER_DETAILS_ACTIONS.recordAction({ action: 'accept', orderId: 'ord_1' }),
+      });
       expect(next.lastAction).toBe('accept');
       expect(next.savingRequest.status).toBe(LOAD_STATUS.Loading);
       expect(next.request.status).toBe(LOAD_STATUS.Loaded);
@@ -137,14 +133,12 @@ describe('orderDetailsReducer', () => {
     });
 
     it('folds the returned entity and bumps the success nonce', () => {
-      const saving = orderDetailsReducer(
-        LOADED,
-        { ...ORDER_DETAILS_ACTIONS.recordAction({ action: 'complete', orderId: 'ord_1' }) },
-      );
-      const next = orderDetailsReducer(
-        saving,
-        { ...ORDER_DETAILS_ACTIONS.recordActionSuccess({ action: 'complete', order: UPDATED }) },
-      );
+      const saving = orderDetailsReducer(LOADED, {
+        ...ORDER_DETAILS_ACTIONS.recordAction({ action: 'complete', orderId: 'ord_1' }),
+      });
+      const next = orderDetailsReducer(saving, {
+        ...ORDER_DETAILS_ACTIONS.recordActionSuccess({ action: 'complete', order: UPDATED }),
+      });
       expect(next.order).toBe(UPDATED);
       expect(next.savingRequest.status).toBe(LOAD_STATUS.Loaded);
       expect(next.savingRequest.error).toBeNull();
@@ -152,14 +146,12 @@ describe('orderDetailsReducer', () => {
     });
 
     it('applies failure without clearing the loaded entity', () => {
-      const saving = orderDetailsReducer(
-        LOADED,
-        { ...ORDER_DETAILS_ACTIONS.recordAction({ action: 'cancel', orderId: 'ord_1' }) },
-      );
-      const next = orderDetailsReducer(
-        saving,
-        { ...ORDER_DETAILS_ACTIONS.recordActionFailure({ error: new Error('boom') }) },
-      );
+      const saving = orderDetailsReducer(LOADED, {
+        ...ORDER_DETAILS_ACTIONS.recordAction({ action: 'cancel', orderId: 'ord_1' }),
+      });
+      const next = orderDetailsReducer(saving, {
+        ...ORDER_DETAILS_ACTIONS.recordActionFailure({ error: new Error('boom') }),
+      });
       expect(next.order).toBe(ORDER);
       expect(next.savingRequest.status).toBe(LOAD_STATUS.Error);
       expect(next.savingRequest.failureNonce).toBe(1);
@@ -170,15 +162,12 @@ describe('orderDetailsReducer', () => {
 
   describe('recordPayment', () => {
     it('starts the payment request without touching the load or transition slices', () => {
-      const next = orderDetailsReducer(
-        LOADED,
-        {
-          ...ORDER_DETAILS_ACTIONS.recordPayment({
-            orderId: 'ord_1',
-            body: { PaidAmount: 100, PaymentMethod: OrderPaymentMethod.BankTransfer, PaidAt: null },
-          }),
-        },
-      );
+      const next = orderDetailsReducer(LOADED, {
+        ...ORDER_DETAILS_ACTIONS.recordPayment({
+          orderId: 'ord_1',
+          body: { PaidAmount: 100, PaymentMethod: OrderPaymentMethod.BankTransfer, PaidAt: null },
+        }),
+      });
       expect(next.paymentRequest.status).toBe(LOAD_STATUS.Loading);
       expect(next.request.status).toBe(LOAD_STATUS.Loaded);
       expect(next.savingRequest.status).toBe(LOAD_STATUS.Idle);
@@ -186,20 +175,20 @@ describe('orderDetailsReducer', () => {
     });
 
     it('folds the returned entity in and bumps the payment success nonce', () => {
-      const paid: UiOrder = { ...ORDER, status: OrderStatus.Completed, paymentStatus: PaymentStatus.Paid };
-      const saving = orderDetailsReducer(
-        LOADED,
-        {
-          ...ORDER_DETAILS_ACTIONS.recordPayment({
-            orderId: 'ord_1',
-            body: { PaidAmount: 100, PaymentMethod: OrderPaymentMethod.BankTransfer, PaidAt: null },
-          }),
-        },
-      );
-      const next = orderDetailsReducer(
-        saving,
-        { ...ORDER_DETAILS_ACTIONS.recordPaymentSuccess({ order: paid }) },
-      );
+      const paid: UiOrder = {
+        ...ORDER,
+        status: OrderStatus.Completed,
+        paymentStatus: PaymentStatus.Paid,
+      };
+      const saving = orderDetailsReducer(LOADED, {
+        ...ORDER_DETAILS_ACTIONS.recordPayment({
+          orderId: 'ord_1',
+          body: { PaidAmount: 100, PaymentMethod: OrderPaymentMethod.BankTransfer, PaidAt: null },
+        }),
+      });
+      const next = orderDetailsReducer(saving, {
+        ...ORDER_DETAILS_ACTIONS.recordPaymentSuccess({ order: paid }),
+      });
       expect(next.order).toBe(paid);
       expect(next.paymentRequest.status).toBe(LOAD_STATUS.Loaded);
       expect(next.paymentRequest.error).toBeNull();
@@ -207,19 +196,15 @@ describe('orderDetailsReducer', () => {
     });
 
     it('applies failure without clearing the loaded entity', () => {
-      const saving = orderDetailsReducer(
-        LOADED,
-        {
-          ...ORDER_DETAILS_ACTIONS.recordPayment({
-            orderId: 'ord_1',
-            body: { PaidAmount: 100, PaymentMethod: OrderPaymentMethod.BankTransfer, PaidAt: null },
-          }),
-        },
-      );
-      const next = orderDetailsReducer(
-        saving,
-        { ...ORDER_DETAILS_ACTIONS.recordPaymentFailure({ error: new Error('boom') }) },
-      );
+      const saving = orderDetailsReducer(LOADED, {
+        ...ORDER_DETAILS_ACTIONS.recordPayment({
+          orderId: 'ord_1',
+          body: { PaidAmount: 100, PaymentMethod: OrderPaymentMethod.BankTransfer, PaidAt: null },
+        }),
+      });
+      const next = orderDetailsReducer(saving, {
+        ...ORDER_DETAILS_ACTIONS.recordPaymentFailure({ error: new Error('boom') }),
+      });
       expect(next.order).toBe(ORDER);
       expect(next.paymentRequest.status).toBe(LOAD_STATUS.Error);
       expect(next.paymentRequest.failureNonce).toBe(1);

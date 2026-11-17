@@ -8,7 +8,7 @@ import {
   type AsyncRequestState,
 } from '../../../../shared/models/async-request-state';
 import { LOAD_STATUS } from '../../../../shared/models/load-status';
-import type { OrdersListFilters } from '../../../orders/components/orders-filter-panel/orders-filter-panel.component';
+import type { OrdersListFilters } from '../../../orders/models/orders-list.filters';
 import type { UiOrder } from '../../../orders/models/order-ui.model';
 import { CUSTOMER_ORDERS_ACTIONS } from './customer-details-orders.actions';
 

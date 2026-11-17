@@ -1,4 +1,4 @@
-﻿import { Injectable, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store, type Action } from '@ngrx/store';
 import { getRouterSelectors, routerNavigatedAction } from '@ngrx/router-store';
@@ -6,7 +6,8 @@ import { filter, map, mergeMap, of, withLatestFrom } from 'rxjs';
 import type { Params } from '@angular/router';
 
 import { scalarParamValue } from '../../../../shared/utils/url-query-params';
-import { toPurchaseOrderDetailsTab } from '../../utils/purchase-order-details-tab';
+import { parseStringEnumTab } from '../../../../shared/navigation/query-param-parsers';
+import { PurchaseOrderDetailsTab } from '../purchase-order-details/purchase-order-details.reducer';
 import { PURCHASE_ORDER_DETAILS_ACTIONS } from '../purchase-order-details/purchase-order-details.actions';
 import { purchaseOrderDetailsSelectors } from '../purchase-order-details/purchase-order-details.selectors';
 
@@ -59,7 +60,7 @@ export class PurchaseOrderDetailsUrlEffects {
 
   /** Builds the state actions for one URL query; reducers no-op identical values. */
   private actionsFromUrlQuery(queryParams: Params): Action[] {
-    const tab = toPurchaseOrderDetailsTab(scalarParamValue(queryParams['tab']));
+    const tab = parseStringEnumTab(PurchaseOrderDetailsTab, scalarParamValue(queryParams['tab']));
     const actions: Action[] = [];
     if (tab !== null) {
       actions.push(PURCHASE_ORDER_DETAILS_ACTIONS.setActiveTab({ activeTab: tab }));

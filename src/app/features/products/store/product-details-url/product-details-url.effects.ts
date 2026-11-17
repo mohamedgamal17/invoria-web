@@ -7,7 +7,7 @@ import type { Params } from '@angular/router';
 
 import { numberParamValue, scalarParamValue } from '../../../../shared/utils/url-query-params';
 import { PaginationService } from '../../../../shared/utils/pagination.service';
-import { toProductDetailsTab } from '../../utils/product-details-tab';
+import { parseStringEnumTab } from '../../../../shared/navigation/query-param-parsers';
 import { PRODUCT_DETAILS_ACTIONS } from '../product-details/product-details.actions';
 import { productDetailsSelectors } from '../product-details/product-details.selectors';
 import { ProductDetailsTab } from '../product-details/product-details.reducer';
@@ -74,7 +74,7 @@ export class ProductDetailsUrlEffects {
    *  while `batchesTabOpened` is false, so one URL batch funnels into exactly one
    *  fetch that already sees the settled paging values. */
   private actionsFromUrlQuery(queryParams: Params): Action[] {
-    const tab = toProductDetailsTab(scalarParamValue(queryParams['tab']));
+    const tab = parseStringEnumTab(ProductDetailsTab, scalarParamValue(queryParams['tab']));
     const actions: Action[] = [
       PRODUCT_BATCHES_ACTIONS.setPagingFromUrl({
         pageIndex: pageIndexFromPageParam(numberParamValue(queryParams['page'])),

@@ -6,8 +6,9 @@ import { filter, map, mergeMap, of, withLatestFrom } from 'rxjs';
 import type { Params } from '@angular/router';
 
 import { scalarParamValue } from '../../../../shared/utils/url-query-params';
-import { toOrderDetailsTab } from '../../utils/order-details-tab';
+import { parseStringEnumTab } from '../../../../shared/navigation/query-param-parsers';
 import { ORDER_DETAILS_ACTIONS } from '../order-details/order-details.actions';
+import { OrderDetailsTab } from '../order-details/order-details.reducer';
 import { orderDetailsSelectors } from '../order-details/order-details.selectors';
 
 const { selectQueryParams, selectRouteParams } = getRouterSelectors();
@@ -59,7 +60,10 @@ export class OrderDetailsUrlEffects {
   /** Builds the state actions for one URL query; reducers no-op identical values. */
   private actionsFromUrlQuery(queryParams: Params): Action[] {
     const actions: Action[] = [];
-    const tab = toOrderDetailsTab(scalarParamValue(queryParams['tab']));
+    const tab = parseStringEnumTab(OrderDetailsTab, scalarParamValue(queryParams['tab']), {
+      overview: OrderDetailsTab.Summary,
+      '': OrderDetailsTab.Summary,
+    });
     if (tab !== null) {
       actions.push(ORDER_DETAILS_ACTIONS.setActiveTab({ activeTab: tab }));
     }

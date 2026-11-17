@@ -6,8 +6,9 @@ import { filter, map, mergeMap, of, withLatestFrom } from 'rxjs';
 import type { Params } from '@angular/router';
 
 import { scalarParamValue } from '../../../../shared/utils/url-query-params';
-import { toInvoiceDetailsTab } from '../../utils/invoice-details-tab';
+import { parseStringEnumTab } from '../../../../shared/navigation/query-param-parsers';
 import { INVOICE_DETAILS_ACTIONS } from '../invoice-details/invoice-details.actions';
+import { InvoiceDetailsTab } from '../invoice-details/invoice-details.reducer';
 import { invoiceDetailsSelectors } from '../invoice-details/invoice-details.selectors';
 
 const { selectQueryParams, selectRouteParams } = getRouterSelectors();
@@ -59,7 +60,9 @@ export class InvoiceDetailsUrlEffects {
   /** Builds the state actions for one URL query; reducers no-op identical values. */
   private actionsFromUrlQuery(queryParams: Params): Action[] {
     const actions: Action[] = [];
-    const tab = toInvoiceDetailsTab(scalarParamValue(queryParams['tab']));
+    const tab = parseStringEnumTab(InvoiceDetailsTab, scalarParamValue(queryParams['tab']), {
+      '': InvoiceDetailsTab.Overview,
+    });
     if (tab !== null) {
       actions.push(INVOICE_DETAILS_ACTIONS.setActiveTab({ activeTab: tab }));
     }

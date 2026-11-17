@@ -1,6 +1,6 @@
-﻿import { createAction, props } from '@ngrx/store';
+import { createAction, props } from '@ngrx/store';
 
-import type { OrdersListFilters } from '../../../orders/components/orders-filter-panel/orders-filter-panel.component';
+import type { OrdersListFilters } from '../../../orders/models/orders-list.filters';
 import type { PagingInfo } from '../../../../core/models/paging';
 import type { UiOrder } from '../../../orders/models/order-ui.model';
 

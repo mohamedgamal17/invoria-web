@@ -13,11 +13,18 @@ import { ORDER_DETAILS_ACTIONS } from './order-details.actions';
 
 export const ORDER_DETAILS_FEATURE_KEY = 'orderDetails';
 
+/** Tabs of the order details page. Values double as URL query slugs. */
+export enum OrderDetailsTab {
+  Summary = 'summary',
+  LineItems = 'lineItems',
+  Payment = 'payment',
+  Returns = 'returns',
+}
+
 export interface OrderDetailsState {
   orderId: string | null;
   order: UiOrder | null;
-  /** Zero-based index of the details tabs (summary / lineItems / payment / returns). */
-  activeTab: number;
+  activeTab: OrderDetailsTab;
   /** Load (initial fetch or refresh) request. */
   request: AsyncRequestState;
   /** Confirmed order-transition request (accept / requestRevision / complete / cancel). */
@@ -35,7 +42,7 @@ export interface OrderDetailsState {
 export const ORDER_DETAILS_INITIAL_STATE: OrderDetailsState = {
   orderId: null,
   order: null,
-  activeTab: 0,
+  activeTab: OrderDetailsTab.Summary,
   request: INITIAL_ASYNC_REQUEST_STATE,
   savingRequest: INITIAL_ASYNC_REQUEST_STATE,
   paymentRequest: INITIAL_ASYNC_REQUEST_STATE,
@@ -51,16 +58,14 @@ export const orderDetailsReducer = createReducer(
     ...state,
     orderId,
     order: null,
-    activeTab: state.orderId === orderId ? state.activeTab : 0,
+    activeTab: state.orderId === orderId ? state.activeTab : OrderDetailsTab.Summary,
     request: startLoading(state.request),
   })),
 
   // Background refresh of the same order: the entity stays visible while the
   // aggregate values are being refetched.
   on(ORDER_DETAILS_ACTIONS.refreshOrder, (state, { orderId }) =>
-    orderId === state.orderId
-      ? { ...state, request: startLoading(state.request) }
-      : state,
+    orderId === state.orderId ? { ...state, request: startLoading(state.request) } : state,
   ),
 
   on(ORDER_DETAILS_ACTIONS.loadOrderSuccess, (state, { order }) => ({

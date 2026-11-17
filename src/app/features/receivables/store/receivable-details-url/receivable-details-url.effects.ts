@@ -1,4 +1,4 @@
-﻿import { Injectable, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { getRouterSelectors, routerNavigatedAction } from '@ngrx/router-store';
@@ -6,7 +6,7 @@ import { filter, map, withLatestFrom } from 'rxjs';
 import type { Params } from '@angular/router';
 
 import { scalarParamValue } from '../../../../shared/utils/url-query-params';
-import { toReceivableDetailsTab } from '../../utils/receivable-details-tab';
+import { parseStringEnumTab } from '../../../../shared/navigation/query-param-parsers';
 import { RECEIVABLE_DETAILS_ACTIONS } from '../receivable-details/receivable-details.actions';
 import { receivableDetailsSelectors } from '../receivable-details/receivable-details.selectors';
 import { ReceivableDetailsTab } from '../receivable-details/receivable-details.reducer';
@@ -55,7 +55,10 @@ export class ReceivableDetailsUrlEffects {
           receivable.id === routeParams['id'],
       ),
       map(([, queryParams]) => {
-        const tab = toReceivableDetailsTab(scalarParamValue((queryParams as Params)['tab']));
+        const tab = parseStringEnumTab(
+          ReceivableDetailsTab,
+          scalarParamValue((queryParams as Params)['tab']),
+        );
         return RECEIVABLE_DETAILS_ACTIONS.setActiveTab({
           activeTab: tab ?? ReceivableDetailsTab.Overview,
         });

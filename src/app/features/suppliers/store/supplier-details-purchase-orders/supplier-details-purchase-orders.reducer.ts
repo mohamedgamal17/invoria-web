@@ -1,4 +1,4 @@
-﻿import { createFeature, createReducer, on } from '@ngrx/store';
+import { createFeature, createReducer, on } from '@ngrx/store';
 
 import type { PagingInfo } from '../../../../core/models/paging';
 import {
@@ -8,7 +8,7 @@ import {
   type AsyncRequestState,
 } from '../../../../shared/models/async-request-state';
 import { LOAD_STATUS } from '../../../../shared/models/load-status';
-import type { PurchaseOrdersListFilters } from '../../../procurement/components/purchase-orders-filter-panel/purchase-orders-filter-panel.component';
+import type { PurchaseOrdersListFilters } from '../../../procurement/models/purchase-orders-list.filters';
 import type { PurchaseOrder } from '../../../procurement/models/purchase-order.entity';
 import { SUPPLIER_PURCHASE_ORDERS_ACTIONS } from './supplier-details-purchase-orders.actions';
 

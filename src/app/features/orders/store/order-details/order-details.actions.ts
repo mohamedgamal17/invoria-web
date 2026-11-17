@@ -4,6 +4,7 @@ import type { CompleteOrderRequest } from '../../models/complete-order.request';
 import type { UiOrder } from '../../models/order-ui.model';
 import type { RecordOrderPaymentRequest } from '../../models/record-order-payment.request';
 import type { OrderTransitionAction } from '../../services/order-action.facade';
+import type { OrderDetailsTab } from './order-details.reducer';
 
 /** State module for the order details page: `order`, `activeTab`, load + transition-action requests. */
 export const ORDER_DETAILS_ACTIONS = {
@@ -17,19 +18,13 @@ export const ORDER_DETAILS_ACTIONS = {
    */
   refreshOrder: createAction('[Order Details] Refresh Order', props<{ orderId: string }>()),
 
-  loadOrderSuccess: createAction(
-    '[Order Details] Load Order Success',
-    props<{ order: UiOrder }>(),
-  ),
+  loadOrderSuccess: createAction('[Order Details] Load Order Success', props<{ order: UiOrder }>()),
 
-  loadOrderFailure: createAction(
-    '[Order Details] Load Order Failure',
-    props<{ error: unknown }>(),
-  ),
+  loadOrderFailure: createAction('[Order Details] Load Order Failure', props<{ error: unknown }>()),
 
   setActiveTab: createAction(
     '[Order Details] Set Active Tab',
-    props<{ activeTab: number }>(),
+    props<{ activeTab: OrderDetailsTab }>(),
   ),
 
   /** Confirmed order transition (accept / requestRevision / complete / cancel) via the facade. */

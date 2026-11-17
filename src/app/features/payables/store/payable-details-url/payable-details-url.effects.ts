@@ -1,4 +1,4 @@
-﻿import { Injectable, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { getRouterSelectors, routerNavigatedAction } from '@ngrx/router-store';
@@ -6,7 +6,7 @@ import { filter, map, withLatestFrom } from 'rxjs';
 import type { Params } from '@angular/router';
 
 import { scalarParamValue } from '../../../../shared/utils/url-query-params';
-import { toPayableDetailsTab } from '../../utils/payable-details-tab';
+import { parseStringEnumTab } from '../../../../shared/navigation/query-param-parsers';
 import { PAYABLE_DETAILS_ACTIONS } from '../payable-details/payable-details.actions';
 import { payableDetailsSelectors } from '../payable-details/payable-details.selectors';
 import { PayableDetailsTab } from '../payable-details/payable-details.reducer';
@@ -55,7 +55,10 @@ export class PayableDetailsUrlEffects {
           payable.id === routeParams['id'],
       ),
       map(([, queryParams]) => {
-        const tab = toPayableDetailsTab(scalarParamValue((queryParams as Params)['tab']));
+        const tab = parseStringEnumTab(
+          PayableDetailsTab,
+          scalarParamValue((queryParams as Params)['tab']),
+        );
         return PAYABLE_DETAILS_ACTIONS.setActiveTab({
           activeTab: tab ?? PayableDetailsTab.Overview,
         });

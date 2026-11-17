@@ -1,4 +1,4 @@
-﻿import { Injectable, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store, type Action } from '@ngrx/store';
 import { getRouterSelectors, routerNavigatedAction } from '@ngrx/router-store';
@@ -7,7 +7,7 @@ import { filter, map, mergeMap, of, withLatestFrom } from 'rxjs';
 import type { Params } from '@angular/router';
 import { PaginationService } from '../../../../shared/utils/pagination.service';
 import { numberParamValue, scalarParamValue } from '../../../../shared/utils/url-query-params';
-import { toSupplierDetailsTab } from '../../utils/supplier-details-tab';
+import { parseStringEnumTab } from '../../../../shared/navigation/query-param-parsers';
 import { SUPPLIER_DETAILS_ACTIONS } from '../supplier-details/supplier-details.actions';
 import { SupplierDetailsTab } from '../supplier-details/supplier-details.reducer';
 import { supplierDetailsSelectors } from '../supplier-details/supplier-details.selectors';
@@ -66,7 +66,7 @@ export class SupplierDetailsUrlEffects {
    *  idle while `purchaseOrdersTabOpened` is false, so one URL batch funnels into
    *  exactly one fetch that already sees the settled paging values. */
   private actionsFromUrlQuery(queryParams: Params): Action[] {
-    const tab = toSupplierDetailsTab(scalarParamValue(queryParams['tab']));
+    const tab = parseStringEnumTab(SupplierDetailsTab, scalarParamValue(queryParams['tab']));
     const actions: Action[] = [
       // Absent/invalid params yield the helpers' defaults from the parse (`0` / default page size).
       SUPPLIER_PURCHASE_ORDERS_ACTIONS.setPagingFromUrl({

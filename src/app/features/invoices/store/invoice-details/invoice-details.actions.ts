@@ -1,6 +1,7 @@
 ﻿import { createAction, props } from '@ngrx/store';
 
 import type { Invoice } from '../../models/invoice.entity';
+import type { InvoiceDetailsTab } from './invoice-details.reducer';
 
 /**
  * State module for the invoice details page: `invoice`, `activeTab` and the
@@ -28,6 +29,6 @@ export const INVOICE_DETAILS_ACTIONS = {
 
   setActiveTab: createAction(
     '[Invoice Details] Set Active Tab',
-    props<{ activeTab: number }>(),
+    props<{ activeTab: InvoiceDetailsTab }>(),
   ),
 } as const;

@@ -12,11 +12,16 @@ import { INVOICE_DETAILS_ACTIONS } from './invoice-details.actions';
 
 export const INVOICE_DETAILS_FEATURE_KEY = 'invoiceDetails';
 
+/** Tabs of the invoice details page. Values double as URL query slugs. */
+export enum InvoiceDetailsTab {
+  Overview = 'overview',
+  Items = 'items',
+}
+
 export interface InvoiceDetailsState {
   invoiceId: string | null;
   invoice: Invoice | null;
-  /** Zero-based index of the details tabs (overview / items). */
-  activeTab: number;
+  activeTab: InvoiceDetailsTab;
   /** Load (initial fetch or refresh) request. */
   request: AsyncRequestState;
 }
@@ -24,7 +29,7 @@ export interface InvoiceDetailsState {
 export const INVOICE_DETAILS_INITIAL_STATE: InvoiceDetailsState = {
   invoiceId: null,
   invoice: null,
-  activeTab: 0,
+  activeTab: InvoiceDetailsTab.Overview,
   request: INITIAL_ASYNC_REQUEST_STATE,
 };
 
@@ -35,16 +40,14 @@ export const invoiceDetailsReducer = createReducer(
     ...state,
     invoiceId,
     invoice: null,
-    activeTab: state.invoiceId === invoiceId ? state.activeTab : 0,
+    activeTab: state.invoiceId === invoiceId ? state.activeTab : InvoiceDetailsTab.Overview,
     request: startLoading(state.request),
   })),
 
   // Background refresh of the same invoice: the entity stays visible while it
   // is being refetched (the retry affordance).
   on(INVOICE_DETAILS_ACTIONS.refreshInvoice, (state, { invoiceId }) =>
-    invoiceId === state.invoiceId
-      ? { ...state, request: startLoading(state.request) }
-      : state,
+    invoiceId === state.invoiceId ? { ...state, request: startLoading(state.request) } : state,
   ),
 
   on(INVOICE_DETAILS_ACTIONS.loadInvoiceSuccess, (state, { invoice }) => ({
