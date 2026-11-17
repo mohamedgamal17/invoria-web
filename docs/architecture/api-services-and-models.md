@@ -19,6 +19,9 @@ Shared contracts live in:
 - [`src/app/core/models/paging.ts`](../../src/app/core/models/paging.ts) — `Paging<T>`, `PagingInfo`.
 - [`src/app/core/models/entity.ts`](../../src/app/core/models/entity.ts) — `Entity` base fields (`id`, `createdAt`, `createdBy`, audit fields).
 - [`src/app/shared/models/pagination.ts`](../../src/app/shared/models/pagination.ts) — pagination UI contracts: `DEFAULT_PAGE_SIZE`, `DEFAULT_PAGE_SIZE_OPTIONS`, `PaginatorPageEvent`, `PageState`. Feature pages must import these instead of re-declaring `[25, 50, 100, 200]`; runtime paging helpers (`pageSizeFromQuery`, `normalizePageSize`, `pageIndexFromEvent`) live in [`pagination.service.ts`](../../src/app/shared/utils/pagination.service.ts) and take **numbers only** (parse helpers return concrete defaults: `0` for indices, `DEFAULT_PAGE_SIZE` for sizes).
+- [`src/app/shared/models/financial-obligation.ts`](../../src/app/shared/models/financial-obligation.ts) - shared payable/receivable contract: `FinancialObligation`, `FinancialObligationPartyRef`, `FinancialObligationSourceRef`.
+- [`src/app/shared/models/select-option.ts`](../../src/app/shared/models/select-option.ts) - `SelectOption<TValue>` used by filter panels; build arrays with [`buildSelectOptions`](../../src/app/shared/utils/select-options.ts).
+- `COMPACT_PAGE_SIZE` / `COMPACT_PAGE_SIZE_OPTIONS` in `shared/models/pagination.ts` - compact paging for metrics lists (`10`, `[5, 10, 20]`).
 
 ---
 
@@ -41,6 +44,15 @@ Optional convenience aliases (e.g. `Pick<Entity, 'name'>` for form drafts) may l
 - **Purpose**: Describe **HTTP inputs only**—request bodies and/or query shapes—not persisted domain entities.
 - **Naming**: `[action]-[entity].request.ts` (kebab-case), e.g. `create-customer.request.ts`, `update-customer.request.ts`, `list-customer.request.ts`.
 - **Swagger alignment**: Use property names required by the API (e.g. body `{ Name: string }`, query `Skip` / `Length` as in OpenAPI).
+
+---
+
+## UI filter DTO files (`[entity]-list.filters.ts`)
+
+- **Location**: `src/app/features/<feature>/models/`.
+- **Purpose**: Describe the **filter state** shared by a list page, its filter panel, and its NgRx list actions/reducer. These are UI contracts, not HTTP request bodies.
+- **Naming**: `[entity]-list.filters.ts`, e.g. `orders-list.filters.ts`, `payables-list.filters.ts`.
+- Keep the matching pagination fields (`page`, `pageSize`) out of this type when the slice stores them separately; the page combines filters and paging when dispatching the HTTP list request.
 
 ---
 

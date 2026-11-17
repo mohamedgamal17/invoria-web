@@ -13,7 +13,7 @@ Use it with the [docs index](../README.md) and [Architecture overview](./overvie
 4. Angular Signals must manage local UI state in components; inputs/outputs use `input()` / `output()` / `model()`, not `@Input()` / `@Output()`.
 5. Services must expose Observables for async operations; smart pages/store effects perform the calls — presentational components never inject an API service, `Router`, or `MessageService`.
 6. Standalone components are the default.
-7. Cross-feature UI primitives come from `shared/ui` (`app-chart-card`, `app-kpi-card`, `app-list-skeleton`, `app-name-filter-panel`, `app-status-steps`, `app-settle-modal`, `app-autosearch`, `app-confirm-dialog`, `app-page-header`) — do not re-implement them per feature.
+7. Cross-feature UI primitives come from `shared/ui` (`app-chart-card`, `app-kpi-card`, `app-list-skeleton`, `app-details-toolbar`, `app-details-skeleton`, `app-empty-state`, `app-financial-obligation-list`, `app-financial-obligation-overview-card`, `app-report-period-filter-panel`, `app-name-filter-panel`, `app-status-steps`, `app-settle-modal`, `app-autosearch`, `app-confirm-dialog`, `app-page-header`) — do not re-implement them per feature.
 8. Money and counts render through `shared/utils/format.ts` (`formatCurrency` / `formatNumber`); currency is `DEFAULT_CURRENCY_CODE` (`EGP`) from `shared/models/currency.ts` — never a hardcoded `'USD'` / `'EGP'` literal.
 
 ## Allowed vs Disallowed Patterns
@@ -94,7 +94,7 @@ A UI change is done only when all items pass:
 - PrimeNG-first: no custom replacement of existing PrimeNG interactive components.
 - Tailwind-first styling: layout and visual tweaks are class-driven; status/tone colors are semantic tokens (`text-success`, `text-danger`, `text-warning`), never palette hues.
 - No unmanaged CSS: component CSS is absent or minimal with explicit justification; shared animations live in `src/styles.css`.
-- Shared primitives reused where applicable (`app-chart-card`, `app-kpi-card`, `app-list-skeleton`, `app-name-filter-panel`, `app-status-steps`, `app-settle-modal`, `app-autosearch`).
+- Shared primitives reused where applicable (`app-chart-card`, `app-kpi-card`, `app-list-skeleton`, `app-details-toolbar`, `app-empty-state`, `app-financial-obligation-list`, `app-financial-obligation-overview-card`, `app-report-period-filter-panel`, `app-name-filter-panel`, `app-status-steps`, `app-settle-modal`, `app-autosearch`).
 - Presentational components have signal I/O only and no API/Router/MessageService injection.
 - Responsive behavior works at mobile and desktop breakpoints.
 - Validation, loading, disabled, and empty states are represented.

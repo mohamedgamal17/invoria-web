@@ -1,10 +1,11 @@
-# Invoria Web — AGENTS.md
+# Invoria Web - AGENTS.md
 
 > [!NOTE]
-> This repository is configured for Google Antigravity. The primary rules file is [GEMINI.md](./GEMINI.md), with modular rules in [.agents/rules/](.agents/rules/) and workflows in [.agents/workflows/](.agents/workflows/).
+> This repository keeps all agent guidance under [`.agents/`](.agents/). The primary rules file is [`.agents/GEMINI.md`](.agents/GEMINI.md); this file only points to it.
 
-For detailed guidelines, see:
-- [GEMINI.md](./GEMINI.md) — Comprehensive Antigravity configuration, tech stack, commands, and hard constraints.
-- [docs/README.md](docs/README.md) — 3-tier canonical project documentation index.
-- [.agents/rules/](.agents/rules/) — Specialized rules for architecture, coding standards, component design, state, UI, testing, and security.
-- [.agents/workflows/](.agents/workflows/) — Standard workflows for feature implementation, refactoring, debugging, testing, review, and documentation.
+- Canonical agent configuration: [`.agents/GEMINI.md`](.agents/GEMINI.md)
+- Agent directory overview: [`.agents/README.md`](.agents/README.md)
+- Modular rules: [`.agents/rules/`](.agents/rules/)
+- Workflows: [`.agents/workflows/`](.agents/workflows/)
+- Skills: [`.agents/skills/`](.agents/skills/)
+- Project documentation index: [`docs/README.md`](docs/README.md)

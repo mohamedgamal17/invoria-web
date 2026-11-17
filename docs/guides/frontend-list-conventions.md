@@ -19,7 +19,9 @@ This document describes **Angular** patterns used for data tables and card lists
   - `pageSizeOptions = [25, 50, 100, 200]`
   - Default `pageSize` when missing or invalid: **25**
 
-Parent pages pass `[pageSizeOptions]` into list components so the paginator stays in sync with URL parsing.
+- **Compact metrics lists** (order/procurement sales and completion reports) use `COMPACT_PAGE_SIZE_OPTIONS = [5, 10, 20]` with default `COMPACT_PAGE_SIZE = 10` from [`shared/models/pagination.ts`](../../src/app/shared/models/pagination.ts); pass the same array into `pageSizeOptions` and validate `pageSize` against it.
+
+Parent pages pass `[pageSizeOptions]` into list components so the paginator stays in sync with URL parsing. Payables and receivables share `app-financial-obligation-list` and therefore share one paging contract.
 
 Every `pageChange` output and its `onPageChange` handler uses **`PaginatorPageEvent`** from [`shared/models/pagination.ts`](../../src/app/shared/models/pagination.ts) — never `PaginatorState | TablePageEvent` and never an inline `{ first?, rows? }` shape. The contract is structurally compatible with both `p-paginator` (`PaginatorState`) and `p-table` (`TablePageEvent`) emissions, so a single type covers every list component; `PaginationService.pageIndexFromEvent` consumes it.
 

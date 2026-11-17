@@ -17,7 +17,7 @@ It complements [api-services-and-models.md](./api-services-and-models.md) for HT
 
 - **`pages/`** — Smart container (e.g. `customers-page`): store selector mapping, URL write glue, navigation. No data fetching, no local async state.
 - **`components/`** — Presentational UI: list/table, detail panels, tabs, dialogs. No feature service injection, no `Router`, no `MessageService`. Cross-feature primitives (filter panel, list skeleton, settle modal, status steps, KPI card, chart card) live in `shared/ui`.
-- **`utils/`** — Feature-local pure helpers (e.g. tab-slug validation); promote to `shared/utils` when a second feature needs them.
+- **`utils/`** — Feature-local pure helpers (e.g. payables hydration); promote to `shared/utils` when a second feature needs them.
 - **`services/`** — `CustomersApiService`: `HttpClient` only, returns `Observable<ApiResponse<...>>`. Only effects inject it, never pages directly.
 - **`models/`** — `*.entity.ts` for domain types; `*.request.ts` for list/body shapes.
 - **`store/`** — One state module per page/usage, each self-contained: `actions.ts`, `reducer.ts`, `selectors.ts`, `effects.ts`, plus a separate `<feature>-url/` adapter effect folder when the URL drives the state (see [§3](#3-ngrx-feature-store-modules-customers-reference)).
@@ -106,15 +106,21 @@ Follows `core/` `provideStore`/`provideRouterStore` plus **route-scoped state**:
 
 Before adding markup to a feature `components/`, check `shared/ui/`. The shared set today:
 
-| Primitive | Use it for |
-|-----------|-----------|
-| `app-list-skeleton` | Any list/table/card loading state (`variant`, `count`, `columns`) — declare a `skeletonColumns` array in the list component. |
-| `app-name-filter-panel` | Single `name` filter on list pages (debounced, `NameListFilters`); pass `label` + `inputId`. |
-| `app-status-steps` | Progress timelines (orders/returns use thin feature wrappers over it). |
-| `app-settle-modal` | Payable/receivable settlement dialog. |
-| `app-kpi-card` | KPI tiles (`tone` = `primary` \| `success` \| `warning` \| `danger`, semantic tokens only). |
-| `app-chart-card` | Every chart (see the `charts` skill). |
-| `app-page-header` | Page header shell. |
+| Primitive                                | Use it for                                                                                                                   |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `app-list-skeleton`                      | Any list/table/card loading state (`variant`, `count`, `columns`) — declare a `skeletonColumns` array in the list component. |
+| `app-name-filter-panel`                  | Single `name` filter on list pages (debounced, `NameListFilters`); pass `label` + `inputId`.                                 |
+| `app-status-steps`                       | Progress timelines (orders/returns use thin feature wrappers over it).                                                       |
+| `app-settle-modal`                       | Payable/receivable settlement dialog.                                                                                        |
+| `app-kpi-card`                           | KPI tiles (`tone` = `primary` \| `success` \| `warning` \| `danger`, semantic tokens only).                                  |
+| `app-chart-card`                         | Every chart (see the `charts` skill).                                                                                        |
+| `app-page-header`                        | Page header shell.                                                                                                           |
+| `app-details-toolbar`                    | Details back/title/description toolbar (titled card or back-only).                                                           |
+| `app-details-skeleton`                   | Standard details-page loading skeleton.                                                                                      |
+| `app-empty-state`                        | Shared empty state with icon, title, description, and projected actions.                                                     |
+| `app-financial-obligation-overview-card` | Payable/receivable overview card (party/source links, status, amounts, audit trail).                                         |
+| `app-financial-obligation-list`          | Payable/receivable paged list (mobile cards + desktop table) over `FinancialObligation`.                                     |
+| `app-report-period-filter-panel`         | Shared report-period selector (`ReportPeriodFilters`) for metrics pages.                                                     |
 
 Products' list skeleton is the only sanctioned duplicate (different card/table layout). If a second feature needs the same markup, extract to `shared/ui` — do not copy.
 
@@ -148,22 +154,21 @@ Products' list skeleton is the only sanctioned duplicate (different card/table l
 
 ## 7. File reference
 
-| Role | Path |
-|------|------|
-| Smart page | `src/app/features/customers/pages/customers-page/customers-page.component.ts` |
-| Page template | `src/app/features/customers/pages/customers-page/customers-page.component.html` |
-| List store module | `src/app/features/customers/store/customers-list/` |
-| List URL adapter | `src/app/features/customers/store/customers-list-url/customers-list-url.effects.ts` |
-| Details store modules | `src/app/features/customers/store/customer-details/`, `store/customer-details-orders/`, `store/customer-details-url/` |
-| Feature route wiring | `src/app/features/customers/customers.routes.ts` |
-| List UI | `src/app/features/customers/components/customer-list/` |
-| Filter panel | `src/app/shared/ui/name-filter-panel/name-filter-panel.component.ts` (shared) |
-| Create/edit form | `src/app/features/customers/pages/customer-form-page/` (page owns the form + submit) |
-| List skeleton | `src/app/shared/ui/list-skeleton/list-skeleton.component.ts` (shared) |
-| API | `src/app/features/customers/services/customers-api.service.ts` |
-| Models | `src/app/features/customers/models/` |
-| Global error presentation | `src/app/shared/store/app-error.effects.ts` |
-
+| Role                      | Path                                                                                                                  |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Smart page                | `src/app/features/customers/pages/customers-page/customers-page.component.ts`                                         |
+| Page template             | `src/app/features/customers/pages/customers-page/customers-page.component.html`                                       |
+| List store module         | `src/app/features/customers/store/customers-list/`                                                                    |
+| List URL adapter          | `src/app/features/customers/store/customers-list-url/customers-list-url.effects.ts`                                   |
+| Details store modules     | `src/app/features/customers/store/customer-details/`, `store/customer-details-orders/`, `store/customer-details-url/` |
+| Feature route wiring      | `src/app/features/customers/customers.routes.ts`                                                                      |
+| List UI                   | `src/app/features/customers/components/customer-list/`                                                                |
+| Filter panel              | `src/app/shared/ui/name-filter-panel/name-filter-panel.component.ts` (shared)                                         |
+| Create/edit form          | `src/app/features/customers/pages/customer-form-page/` (page owns the form + submit)                                  |
+| List skeleton             | `src/app/shared/ui/list-skeleton/list-skeleton.component.ts` (shared)                                                 |
+| API                       | `src/app/features/customers/services/customers-api.service.ts`                                                        |
+| Models                    | `src/app/features/customers/models/`                                                                                  |
+| Global error presentation | `src/app/shared/store/app-error.effects.ts`                                                                           |
 
 ---
 
@@ -172,7 +177,7 @@ Products' list skeleton is the only sanctioned duplicate (different card/table l
 - **No single-character identifiers** — every variable, parameter, function, and method name is at least 2 characters and describes its **role**, not its type. This applies to **all** arrow-callback parameters (`.map`, `.filter`, `.find`, `.some`, `subscribe({ next, error })`, comparators) in pages, components, services, effects, reducers, and specs — short scopes are not an excuse.
 - Role vocabulary (canonical examples): `paramMap`, `query`/`nameFilter`/`tabQuery` (search text), `pageNumber`, `pageIndex`/`itemIndex`/`index` (iteration), `value` (guarded values; type guards keep the param name: `(value): value is X`), `error`/`err` (error callbacks; `err` when an outer `error` variable exists), `attempt` (retry loops), `snapshotItem`, `left`/`right` (comparators), `fixture` (tests), `point`/`date` (chart data).
 - **Only exemptions**: `_` unused placeholder, generic type parameters `T`/`E`, and **string/URL keys** named `q` (e.g. `paramMap.get('q')`, `queryParams: { q: null }`) which mirror the URL contract and must not be renamed.
-- Full detail + self-audit scan commands: [`.opencode/skills/ts-naming-conventions/SKILL.md`](../../.opencode/skills/ts-naming-conventions/SKILL.md).
+- Full detail + self-audit scan commands: [`.agents/skills/ts-naming-conventions/SKILL.md`](../../.agents/skills/ts-naming-conventions/SKILL.md).
 
 ---
 

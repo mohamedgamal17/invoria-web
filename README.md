@@ -6,12 +6,13 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 The docs map starts at [docs/README.md](docs/README.md): it links per-folder indexes
 (`docs/architecture/README.md`, `docs/guides/README.md`), which list every doc with
-per-section anchors. Agent-facing rules and configuration are in [GEMINI.md](GEMINI.md)
-(Google Antigravity) and [`.opencode/AGENTS.md`](.opencode/AGENTS.md).
+per-section anchors. Agent-facing rules and configuration live in [`.agents/GEMINI.md`](.agents/GEMINI.md) and
+[`.agents/README.md`](.agents/README.md).
 
 ## Design tokens (Tailwind v4)
 
 Tokens live in:
+
 - `src/styles/tokens.css` (CSS variables for light + dark)
 - `src/styles.css` (Tailwind `@theme` mapping)
 
@@ -85,4 +86,3 @@ To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use th
 ```bash
 ng test
 ```
-

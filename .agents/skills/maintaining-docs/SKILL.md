@@ -1,6 +1,6 @@
 ---
 name: maintaining-docs
-description: Use when introducing a new cross-cutting/feature pattern, changing existing conventions, or touching any docs/.opencode files — defines where documentation lives in this repo (docs/ vs .opencode/AGENTS.md vs skills), the same-PR update rule, whether content is a doc or a skill, naming and linking conventions, and the docs-index maintenance contract.
+description: Use when introducing a new cross-cutting/feature pattern, changing existing conventions, or touching any docs/ and .agents/ files — defines where documentation lives in this repo (docs/ vs .agents/GEMINI.md vs .agents/skills), the same-PR update rule, whether content is a doc or a skill, naming and linking conventions, and the docs-index maintenance contract.
 compatibility: Invoria Web (Angular 21)
 ---
 
@@ -10,11 +10,11 @@ Two kinds of knowledge live in this repo. Classify **before writing** anything n
 
 ## 1. The doc/skill split
 
-| Content | Where |
-| --- | --- |
-| **Always-on** summary every agent must know (stack, commands, hard constraints, checklist of most-violated rules) | `.opencode/AGENTS.md` — keep it short (~70 lines max); detail goes down to docs/skills |
-| **Enforced, procedural workflow** triggered by a specific task (`consider`/`use when` style) | `.opencode/skills/<skill-name>/SKILL.md` with `name`/`description`/`compatibility` frontmatter — e.g. pagination state, list mutations, charts, report scaffolds |
-| **High-level reference**: architecture facts, dependency rules, design system, feature guides | `docs/` — see below |
+| Content                                                                                                           | Where                                                                                                                                                          |
+| ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Always-on** summary every agent must know (stack, commands, hard constraints, checklist of most-violated rules) | `.agents/GEMINI.md` — keep it short (~70 lines max); detail goes down to docs/skills                                                                           |
+| **Enforced, procedural workflow** triggered by a specific task (`consider`/`use when` style)                      | `.agents/skills/<skill-name>/SKILL.md` with `name`/`description`/`compatibility` frontmatter — e.g. pagination state, list mutations, charts, report scaffolds |
+| **High-level reference**: architecture facts, dependency rules, design system, feature guides                     | `docs/` — see below                                                                                                                                            |
 
 ## 2. `docs/` layout and the indexing contract
 
@@ -33,7 +33,7 @@ docs/
 - Every docs folder owns a `README.md` index (doc → one-line topic → section anchor
   links); `docs/README.md` only links the folder indexes, so adding a doc means
   updating **one** folder index, and adding a folder means updating the aggregator.
-- `.opencode/AGENTS.md` must not list individual docs — it links `docs/README.md`
+- `.agents/GEMINI.md` must not list individual docs — it links `docs/README.md`
   as the single navigation entry point (the skills index stays in AGENTS.md).
 - Filenames: `kebab-case.md`; one topic per file; no barrel/aggregating docs (a folder
   `README.md` that only indexes siblings is an index, not an aggregator of content).
@@ -48,7 +48,7 @@ docs/
   and/or skill **in the same PR**. Unwritten conventions are drift.
 - If new content doesn't fit an existing file: create a doc (add it to the owning
   folder's `README.md` index; register it in `docs/README.md` only if you created a
-  new folder) and/or a skill (register it in the skills index in `.opencode/AGENTS.md`).
+  new folder) and/or a skill (register it in the skills index in `.agents/GEMINI.md`).
 - If a rule is removed/replaced: update or delete its doc/skill **and** fix every inbound
   link (search the repo for the old path).
 - The folder `README.md` indexes and `docs/README.md` are the index of record for docs;
@@ -58,7 +58,7 @@ docs/
 
 1. Correct folder per the split above (doc ≠ skill ≠ AGENTS.md)?
 2. Owning folder's `README.md` index updated? (+ `docs/README.md` if a new folder;
-   + AGENTS.md skills index if a new skill?)
+   - AGENTS.md skills index if a new skill?)
 3. All links resolve from the file's own location (mind the depth)?
 4. Frontmatter `description` on skills written as a **trigger** ("Use when…"), not a title?
 5. No duplication: content appears in exactly one canonical place; other files link to it?

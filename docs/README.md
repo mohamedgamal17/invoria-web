@@ -7,13 +7,13 @@ Single navigation entry point for all docs. The index is hierarchical:
 3. **The docs themselves** — canonical content; every rule lives in exactly one of them.
 
 Always-on agent rules (stack, commands, hard constraints, skills index) live in
-[`.opencode/AGENTS.md`](../.opencode/AGENTS.md), which points here for navigation; enforced,
-task-triggered workflows are skills under [`.opencode/skills/`](../.opencode/skills/).
+[`.agents/GEMINI.md`](../.agents/GEMINI.md), which points here for navigation; enforced,
+task-triggered workflows are skills under [`.agents/skills/`](../.agents/skills/).
 
-| Folder index | What's inside |
-|--------------|---------------|
+| Folder index                                     | What's inside                                                                                                                                                                         |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [architecture/README.md](architecture/README.md) | Reference: overview (structure/dependency rules/state patterns), component design (NgRx + signals pages), API services & models, design consistency (PrimeNG/Tailwind + PR checklist) |
-| [guides/README.md](guides/README.md) | Task guides: frontend list conventions (tables/paging/URL state), order workflow (statuses/stepper/gating), testing conventions (Vitest patterns) |
+| [guides/README.md](guides/README.md)             | Task guides: frontend list conventions (tables/paging/URL state), order workflow (statuses/stepper/gating), testing conventions (Vitest patterns)                                     |
 
 ## Maintenance
 

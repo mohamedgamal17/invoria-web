@@ -5,9 +5,11 @@ This document describes the architectural patterns, project structure, and techn
 Folder index with per-doc/section anchors: [architecture/README.md](./README.md).
 
 ## 1. Architecture Style
+
 Invoria Web follows a **Feature-Based Angular Architecture** using **Standalone Components**. The application is designed for high cohesion within features and low coupling between them.
 
 ### Key Principles
+
 - **Self-Contained Features**: Each feature folder contains its own components, services, and models.
 - **Standalone by Default**: All components are standalone, eliminating the need for `NgModules`.
 - **Reactive State**: State is signals-first (page-local `signal`/`computed`/`rxResource`/`linkedSignal`) and moves to NgRx feature store modules when complexity demands it (see [§5](#5-state-management)). Observables are the boundary for HTTP (typed API services).
@@ -32,9 +34,9 @@ src/app/
 │   └── ...             # Other features (orders, inventory, etc.)
 ├── layout/             # Shell components and navigation
 ├── shared/             # Cross-feature reuse
-│   ├── ui/             # Shared presentational primitives (chart-card, kpi-card, list-skeleton, name-filter-panel, status-steps, settle-modal, app-autosearch, confirm-dialog, page-header)
-│   ├── models/         # Shared constants/types (pagination, debounce, currency, report-period, async-request-state)
-│   ├── utils/          # Shared helpers (format, numeric-enum-values, validators, URL/state services)
+│   ├── ui/             # Shared presentational primitives (chart-card, kpi-card, list-skeleton, details-toolbar, details-skeleton, empty-state, financial-obligation-list, financial-obligation-overview-card, report-period-filter-panel, name-filter-panel, status-steps, settle-modal, app-autosearch, confirm-dialog, page-header)
+│   ├── models/         # Shared constants/types (pagination, debounce, currency, report-period, financial-obligation, select-option, async-request-state)
+│   ├── utils/          # Shared helpers (format, numeric-enum-values, select-options, validators, URL/state services)
 │   ├── charts/         # ECharts presets (`ECHARTS_PALETTE`, `ECHARTS_GRID_COMPACT`, `chartToken`)
 │   ├── entities/       # Base classes for domain models
 │   └── requests/       # Shared HTTP query/body fragments (e.g. paging)
@@ -51,6 +53,7 @@ src/app/
 ## 3. Feature Modules
 
 Each feature (e.g., `products`, `orders`) is organized into:
+
 - **`pages/`**: Contains "Smart Components" that coordinate between services and UI.
 - **`components/`**: Presentational components (lists, panels, tabs, form markup).
 - **`services/`**: Feature-specific data access logic (typed `HttpClient` API services).
@@ -67,14 +70,14 @@ All feature routes are **lazy-loaded** in `app.routes.ts` to optimize initial bu
 We follow a **Smart (Container) vs. Presentational (Dumb)** component pattern.
 
 - **Smart Components** (`*.component.ts` in `pages/`):
-    - Inject the state layer (NgRx `Store` for complex pages, page-local services for simple ones) and the typed API services where the documented cross-feature exceptions allow it.
-    - Handle data fetching and state management.
-    - Manage modal visibility and API interaction.
-    - Example: `ProductsPageComponent` handles list loading, creation, and deletion.
+  - Inject the state layer (NgRx `Store` for complex pages, page-local services for simple ones) and the typed API services where the documented cross-feature exceptions allow it.
+  - Handle data fetching and state management.
+  - Manage modal visibility and API interaction.
+  - Example: `ProductsPageComponent` handles list loading, creation, and deletion.
 - **Presentational Components** (`components/`):
-    - Focus on UI/UX.
-    - Communicate exclusively via signal APIs: `input()`, `output()`, `model()`. Legacy `@Input()`/`@Output()` decorators are not used in new code.
-    - Never inject API services, `Router`, `ActivatedRoute`, or `MessageService`; validated user intent is emitted and the owning page/store performs the effect.
+  - Focus on UI/UX.
+  - Communicate exclusively via signal APIs: `input()`, `output()`, `model()`. Legacy `@Input()`/`@Output()` decorators are not used in new code.
+  - Never inject API services, `Router`, `ActivatedRoute`, or `MessageService`; validated user intent is emitted and the owning page/store performs the effect.
 
 For a **concrete reference** of this split with state in **NgRx feature store modules**, URL-adapter effects, query-param pagination, and shared error presentation—see [Component design rules](./component-design.md) (Customers reference).
 
@@ -94,7 +97,7 @@ The developer decides per page which state pattern applies; the judge is **compl
 
 - **Feature State (NgRx)**: list and detail pages own their state in **feature store modules** under `features/<feature>/store/` (e.g. `customers-list`, `customer-details`, `customer-details-orders`), each self-contained (`actions.ts`, `reducer.ts`, `selectors.ts`, `effects.ts`) and following the conventions in [component-design.md](./component-design.md) §3.
 - **Route-scoped providers**: Slices are attached in `customers.routes.ts` via `provideState(FEATURE_KEY, reducer)` / `provideEffects(...)` on the owning route entry; the router store (`RouterState.Minimal`, provided root-side in `app.config.ts`) feeds URL reads.
-- **URL-driven state**: Components only *write* the URL (`page` / `pageSize` / `q` / `tab` query params); `<feature>-url` adapter effects listen to `routerNavigatedAction` and apply normalized values into the store, so reducers no-op identical values (harmless round-trips).
+- **URL-driven state**: Components only _write_ the URL (`page` / `pageSize` / `q` / `tab` query params); `<feature>-url` adapter effects listen to `routerNavigatedAction` and apply normalized values into the store, so reducers no-op identical values (harmless round-trips).
 - **Request lifecycle**: Every async slice embeds the shared `AsyncRequestState` fragment (`status` / `error` / `failureNonce`) from `shared/models/async-request-state.ts`; data-only effects branch success/failure and forward errors to the global `AppErrorEffects` toast (`AppStateError` presentation), keeping reducers pure.
 - **Global State**: Root-provided store + router-store slice + global error presentation live in `app.config.ts`.
 - **Patterns**: Data-only effects use `withLatestFrom(state)` + `distinctUntilChanged` (state identity) + `switchMap` so superseded queries cancel in-flight requests; `fetchedQuery` identities duplicate-trigger-proof the funnels.
@@ -143,40 +146,52 @@ graph TD
 ## 8. UI & Design System
 
 ### Tailwind Design System (v4)
+
 The application uses **Tailwind CSS 4** with a CSS-first configuration.
+
 - **Semantic Tokens**: Defined in `src/styles/tokens.css` (e.g., `--c-primary`, `--c-surface`).
 - **Mapping**: The `@theme` block in `src/styles.css` maps CSS variables to Tailwind utilities (`bg-primary`, `text-error`).
 - **Consistency**: Hardcoded colors (e.g., `bg-blue-500`, `text-emerald-600`) are discouraged in favor of semantic tokens (`bg-primary`, `text-success`, `text-danger`). Status/tone colors always come from semantic utilities, never from a Tailwind palette hue.
 - **Global keyframes**: Shared animations (e.g. `.pulse-beat` for "live"/allocating indicators) live in `src/styles.css`; components do not declare `styles: []` keyframes.
 
 ### Shared UI primitives (`shared/ui/`)
+
 Cross-feature presentational components. Add a new one when a second feature needs the same markup; keep one-off page chrome in the feature.
 
-| Component | Purpose |
-|-----------|---------|
-| `app-chart-card` | The only ECharts wrapper (period selector, loading skeleton, empty state). |
-| `app-kpi-card` | KPI tile with `tone` (`primary` \| `success` \| `warning` \| `danger`) on semantic tokens. |
-| `app-list-skeleton` | List/table/card loading placeholder driven by `ListSkeletonColumn[]`. |
-| `app-name-filter-panel` | Debounced single `name` filter for list pages (`NameListFilters`). |
-| `app-status-steps` | Progress timeline (`StatusStep[]`, `activeIndex`, optional `caption` / `pulse`). |
-| `app-settle-modal` | Generic payable/receivable settlement dialog. |
-| `app-autosearch` | `ControlValueAccessor` typeahead bound with `formControlName`. |
-| `app-confirm-dialog` + `ConfirmDialogService` | App-wide confirmation host/API. |
-| `app-page-header` | Standard page header shell. |
+| Component                                     | Purpose                                                                                                |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `app-chart-card`                              | The only ECharts wrapper (period selector, loading skeleton, empty state).                             |
+| `app-kpi-card`                                | KPI tile with `tone` (`primary` \| `success` \| `warning` \| `danger`) on semantic tokens.             |
+| `app-list-skeleton`                           | List/table/card loading placeholder driven by `ListSkeletonColumn[]`.                                  |
+| `app-details-toolbar`                         | Details back/title/description toolbar; pass `title` for a titled card or omit it for back-only pages. |
+| `app-details-skeleton`                        | Standard details-page loading skeleton.                                                                |
+| `app-empty-state`                             | Shared empty-state shell with icon, title, description, and projected actions.                         |
+| `app-financial-obligation-overview-card`      | Shared payable/receivable overview card (party/source links, status, amounts, audit trail).            |
+| `app-financial-obligation-list`               | Shared payable/receivable paged list (mobile cards + desktop table) driven by `FinancialObligation`.   |
+| `app-report-period-filter-panel`              | Shared report-period selector (`ReportPeriodFilters`) used by metrics pages.                           |
+| `app-name-filter-panel`                       | Debounced single `name` filter for list pages (`NameListFilters`).                                     |
+| `app-status-steps`                            | Progress timeline (`StatusStep[]`, `activeIndex`, optional `caption` / `pulse`).                       |
+| `app-settle-modal`                            | Generic payable/receivable settlement dialog.                                                          |
+| `app-autosearch`                              | `ControlValueAccessor` typeahead bound with `formControlName`.                                         |
+| `app-confirm-dialog` + `ConfirmDialogService` | App-wide confirmation host/API.                                                                        |
+| `app-page-header`                             | Standard page header shell.                                                                            |
 
 Products' list skeleton is the one intentional exception (distinct card/table layout); everything else uses `app-list-skeleton`.
 
 ### PrimeNG Integration
+
 - **Preset**: A custom `AuraInvoria` preset (`src/styles/primeng/aura.preset.ts`) maps PrimeNG's `--p-*` variables to the application's semantic tokens.
 - **Theming**: PrimeNG components automatically adapt to Light/Dark mode via the `.dark` class on the document root.
 
 ### ECharts Integration
+
 - **Stack**: `echarts` + `ngx-echarts` (`provideEchartsCore` in `src/app/app.config.ts:10`, tree-shaken via `echarts.use(...)`). One-time registration; do not add per-component providers.
 - **Wrapper**: `src/app/shared/ui/chart-card/chart-card.component.ts:1` (`app-chart-card`) — the single chart wrapper in the app; inputs `title`, `subtitle`, `options: EChartsCoreOption | null`, `loading`, `heightClass`. Smart pages compute `EChartsCoreOption` via `computed()` and pass to the card (see `src/app/features/dashboard/pages/dashboard-page/dashboard-page.component.ts`).
 - **Helpers**: `src/app/shared/charts/echarts-presets.ts:1` (`ECHARTS_PALETTE`, `ECHARTS_GRID_COMPACT`, `formatPeriodLabel`).
-- **Convention**: All future charts must use this wrapper. See the `charts` skill (`.opencode/skills/charts/SKILL.md`).
+- **Convention**: All future charts must use this wrapper. See the `charts` skill (`.agents/skills/charts/SKILL.md`).
 
 ### Shared formatting and constants
+
 - **Money/number formatting**: `src/app/shared/utils/format.ts` (`formatCurrency`, `formatNumber`); pages expose them as `readonly formatCurrency = formatCurrency` fields for templates. Never re-declare an inline `Intl.NumberFormat`.
 - **Currency**: `src/app/shared/models/currency.ts` (`DEFAULT_CURRENCY_CODE = 'EGP'`) is the app currency; do not hardcode `'USD'`/`'EGP'` literals in components or services.
 - **Enums/constants**: shared statuses and helpers live in `shared/models` / `shared/utils` (e.g. `financial-obligation-status.ts`, `numeric-enum-values.ts`, `pagination.ts`, `debounce.ts`).
@@ -205,4 +220,4 @@ For **file naming**, **entity vs. request types**, and **typed API service patte
 
 - **New UI primitives go to `shared/ui`** the second feature that needs them (see [§2](#2-project-structure)); do not copy markup between features.
 - **Forms**: Reactive Forms only — no `ngModel`, no mutation of input arrays; dynamic collections are `FormArray<FormGroup<...>>` with custom controls implementing `ControlValueAccessor`.
-- **Boundaries over guardrails**: keep enforcing them in review and in the `.opencode` skills rather than adding lint rules that the current codebase would fail wholesale.
+- **Boundaries over guardrails**: keep enforcing them in review and in the `.agents` skills rather than adding lint rules that the current codebase would fail wholesale.

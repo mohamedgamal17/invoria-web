@@ -7,6 +7,7 @@ This rule defines UI component selection, styling conventions, design tokens, an
 ## 1. PrimeNG First Strategy
 
 Always prefer PrimeNG 21 components over custom HTML/CSS for interactive primitives:
+
 - **Tables & Lists**: `p-table` (desktop), `p-card` (mobile cards).
 - **Dialogs & Drawers**: `p-dialog`, `p-drawer`. Never roll custom overlay logic.
 - **Form Controls**: `p-inputNumber`, `p-inputtext`, `p-select`, `p-datepicker`, `p-checkbox`, `p-toggleSwitch`.
@@ -20,25 +21,28 @@ Always prefer PrimeNG 21 components over custom HTML/CSS for interactive primiti
 ## 2. Tailwind CSS v4 & Semantic Design Tokens
 
 Invoria Web uses Tailwind CSS 4 with a CSS-first configuration:
+
 - Core tokens live in `src/styles/tokens.css` (CSS variables for light and dark themes).
 - `@theme` mapping lives in `src/styles.css`.
 
 ### Semantic Tokens vs. Palette Hues
+
 - **Rule**: Use semantic tokens exclusively for layout, typography, borders, backgrounds, and status indications.
 - **Prohibition on Raw Palette Hues**: Never use Tailwind color palette names (`emerald`, `amber`, `red`, `blue`, `slate`) in component markup or styles.
 
-| Semantic Class | Usage | Prohibited Equivalent |
-|---|---|---|
-| `bg-surface` / `text-foreground` | Main container and card backgrounds | `bg-white`, `text-gray-900` |
-| `bg-surface-2` | Secondary cards, subtle panels | `bg-gray-50`, `bg-slate-100` |
-| `border-border` | Component borders and dividers | `border-gray-200` |
-| `text-muted-foreground` | Secondary or helper text | `text-gray-500` |
-| `text-primary` / `bg-primary` | Primary brand accent and actions | `text-blue-600`, `bg-blue-600` |
-| `text-success` / `bg-success` | Positive state, completed badges | `text-emerald-600`, `bg-green-500` |
-| `text-warning` / `bg-warning` | Pending, review required | `text-amber-600`, `bg-yellow-500` |
-| `text-danger` / `bg-danger` | Failed, error, destructive action | `text-red-600`, `bg-red-500` |
+| Semantic Class                   | Usage                               | Prohibited Equivalent              |
+| -------------------------------- | ----------------------------------- | ---------------------------------- |
+| `bg-surface` / `text-foreground` | Main container and card backgrounds | `bg-white`, `text-gray-900`        |
+| `bg-surface-2`                   | Secondary cards, subtle panels      | `bg-gray-50`, `bg-slate-100`       |
+| `border-border`                  | Component borders and dividers      | `border-gray-200`                  |
+| `text-muted-foreground`          | Secondary or helper text            | `text-gray-500`                    |
+| `text-primary` / `bg-primary`    | Primary brand accent and actions    | `text-blue-600`, `bg-blue-600`     |
+| `text-success` / `bg-success`    | Positive state, completed badges    | `text-emerald-600`, `bg-green-500` |
+| `text-warning` / `bg-warning`    | Pending, review required            | `text-amber-600`, `bg-yellow-500`  |
+| `text-danger` / `bg-danger`      | Failed, error, destructive action   | `text-red-600`, `bg-red-500`       |
 
 ### CSS Animations & Component Styles
+
 - Keep component-scoped styles empty or minimal (`styles: []`).
 - Shared animations (such as `.pulse-beat`) reside centrally in `src/styles.css`. Do not declare `@keyframes` in component stylesheets.
 
@@ -48,17 +52,23 @@ Invoria Web uses Tailwind CSS 4 with a CSS-first configuration:
 
 Before creating markup for a feature component, inspect and reuse the shared primitives:
 
-| Component Selector | File Location | Purpose & Props |
-|---|---|---|
-| `app-chart-card` | `shared/ui/chart-card/` | The only ECharts wrapper in the application. Supports title, options, loading, and period selector. |
-| `app-kpi-card` | `shared/ui/kpi-card/` | KPI metrics tile with `tone` (`primary`, `success`, `warning`, `danger`). |
-| `app-list-skeleton` | `shared/ui/list-skeleton/` | Unified loading skeleton for tables and lists driven by `ListSkeletonColumn[]`. |
-| `app-name-filter-panel` | `shared/ui/name-filter-panel/` | Debounced text filter panel emitting `filtersChange` and `clearFilters`. |
-| `app-status-steps` | `shared/ui/status-steps/` | Stepper and timeline visualization for order/return workflows. |
-| `app-settle-modal` | `shared/ui/settle-modal/` | Modal dialog for payable and receivable settlement. |
-| `app-autosearch` | `shared/ui/autosearch/` | CVA typeahead search component with debounced delegation to smart page. |
-| `app-page-header` | `shared/ui/page-header/` | Standardized header container for titles, breadcrumbs, and primary page actions. |
-| `app-confirm-dialog` | `shared/ui/confirm-dialog/` | Host component for application-wide confirmation dialogs. |
+| Component Selector                       | File Location                                   | Purpose & Props                                                                                     |
+| ---------------------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `app-chart-card`                         | `shared/ui/chart-card/`                         | The only ECharts wrapper in the application. Supports title, options, loading, and period selector. |
+| `app-kpi-card`                           | `shared/ui/kpi-card/`                           | KPI metrics tile with `tone` (`primary`, `success`, `warning`, `danger`).                           |
+| `app-list-skeleton`                      | `shared/ui/list-skeleton/`                      | Unified loading skeleton for tables and lists driven by `ListSkeletonColumn[]`.                     |
+| `app-name-filter-panel`                  | `shared/ui/name-filter-panel/`                  | Debounced text filter panel emitting `filtersChange` and `clearFilters`.                            |
+| `app-status-steps`                       | `shared/ui/status-steps/`                       | Stepper and timeline visualization for order/return workflows.                                      |
+| `app-settle-modal`                       | `shared/ui/settle-modal/`                       | Modal dialog for payable and receivable settlement.                                                 |
+| `app-autosearch`                         | `shared/ui/autosearch/`                         | CVA typeahead search component with debounced delegation to smart page.                             |
+| `app-page-header`                        | `shared/ui/page-header/`                        | Standardized header container for titles, breadcrumbs, and primary page actions.                    |
+| `app-details-toolbar`                    | `shared/ui/details-toolbar/`                    | Details back/title/description toolbar; titled card or back-only mode.                              |
+| `app-details-skeleton`                   | `shared/ui/details-skeleton/`                   | Standard details-page loading skeleton.                                                             |
+| `app-empty-state`                        | `shared/ui/empty-state/`                        | Shared empty state with icon, title, description, and projected actions.                            |
+| `app-financial-obligation-list`          | `shared/ui/financial-obligation-list/`          | Shared payable/receivable paged list over `FinancialObligation`.                                    |
+| `app-financial-obligation-overview-card` | `shared/ui/financial-obligation-overview-card/` | Shared payable/receivable overview card.                                                            |
+| `app-report-period-filter-panel`         | `shared/ui/report-period-filter-panel/`         | Shared report-period selector for metrics pages.                                                    |
+| `app-confirm-dialog`                     | `shared/ui/confirm-dialog/`                     | Host component for application-wide confirmation dialogs.                                           |
 
 ---
 
