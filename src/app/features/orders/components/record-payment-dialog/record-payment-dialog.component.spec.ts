@@ -60,7 +60,7 @@ describe('RecordPaymentDialogComponent', () => {
       expect(component.recordPaymentForm.controls.paidAmount.value).toBe(500);
       expect(component.recordPaymentForm.valid).toBe(true);
 
-      const emissions: Array<{ PaidAmount: number }> = [];
+      const emissions: Array<{ paidAmount: number }> = [];
       const subscription = outputToObservable(component.paymentSubmit).subscribe((request) =>
         emissions.push(request)
       );
@@ -68,9 +68,9 @@ describe('RecordPaymentDialogComponent', () => {
 
       expect(emissions.length).toBe(1);
       expect(emissions[0]).toEqual({
-        PaidAmount: 500,
-        PaymentMethod: OrderPaymentMethod.Cash,
-        PaidAt: null
+        paidAmount: 500,
+        paymentMethod: OrderPaymentMethod.Cash,
+        paidAt: null
       });
       subscription.unsubscribe();
     });
@@ -83,7 +83,7 @@ describe('RecordPaymentDialogComponent', () => {
       component.visible.set(true);
       fixture.detectChanges();
 
-      const emissions: Array<{ PaidAmount: number }> = [];
+      const emissions: Array<{ paidAmount: number }> = [];
       const subscription = outputToObservable(component.paymentSubmit).subscribe((request) =>
         emissions.push(request)
       );
@@ -112,7 +112,7 @@ describe('RecordPaymentDialogComponent', () => {
 
       expect(component.recordPaymentForm.controls.paidAmount.value).toBe(300);
 
-      const emissions: Array<{ PaidAmount: number }> = [];
+      const emissions: Array<{ paidAmount: number }> = [];
       const subscription = outputToObservable(component.paymentSubmit).subscribe((request) =>
         emissions.push(request)
       );
@@ -131,9 +131,9 @@ describe('RecordPaymentDialogComponent', () => {
       component.submitPayment();
       expect(emissions.length).toBe(1);
       expect(emissions[0]).toEqual({
-        PaidAmount: 200,
-        PaymentMethod: OrderPaymentMethod.Cash,
-        PaidAt: null
+        paidAmount: 200,
+        paymentMethod: OrderPaymentMethod.Cash,
+        paidAt: null
       });
       subscription.unsubscribe();
     });
@@ -167,7 +167,7 @@ describe('RecordPaymentDialogComponent', () => {
     component.visible.set(true);
     fixture.detectChanges();
 
-    const emissions: Array<{ PaidAmount: number }> = [];
+    const emissions: Array<{ paidAmount: number }> = [];
     const subscription = outputToObservable(component.paymentSubmit).subscribe((request) =>
       emissions.push(request)
     );

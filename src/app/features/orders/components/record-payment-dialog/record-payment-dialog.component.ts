@@ -176,9 +176,9 @@ export class RecordPaymentDialogComponent implements OnChanges, OnInit {
     }
 
     this.paymentSubmit.emit({
-      PaidAmount: paidAmount,
-      PaymentMethod: rawValue.paymentMethod,
-      PaidAt: null
+      paidAmount: paidAmount,
+      paymentMethod: rawValue.paymentMethod,
+      paidAt: null
     });
   }
 
