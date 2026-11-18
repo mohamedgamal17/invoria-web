@@ -6,9 +6,8 @@ import { ApiResponse } from '../../../core/models/api-response';
 import { Paging } from '../../../core/models/paging';
 import { environment } from '../../../../environments/environment';
 import type { Customer } from '../models/customer.entity';
-import type { CreateCustomerRequest } from '../models/create-customer.request';
+import type { CustomerRequest } from '../models/customer-request';
 import type { ListCustomerRequest } from '../models/list-customer.request';
-import type { UpdateCustomerRequest } from '../models/update-customer.request';
 import type { CustomerCreationReportPeriod } from '../models/customer-report.entity';
 import type { ListCustomerCreationReportRequest } from '../models/list-customer-report.request';
 import type { ReportOverview } from '../../../shared/models/report-overview';
@@ -40,14 +39,14 @@ export class CustomersApiService {
     );
   }
 
-  createCustomer(request: CreateCustomerRequest): Observable<ApiResponse<Customer>> {
+  createCustomer(request: CustomerRequest): Observable<ApiResponse<Customer>> {
     this.assertName(request.Name);
     return this.http.post<ApiResponse<Customer>>(`${this.baseUrl}customers`, request);
   }
 
   updateCustomer(
     id: string,
-    request: UpdateCustomerRequest
+    request: CustomerRequest
   ): Observable<ApiResponse<Customer>> {
     this.assertName(request.Name);
     return this.http.put<ApiResponse<Customer>>(
