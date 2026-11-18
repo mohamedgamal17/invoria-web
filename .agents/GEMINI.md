@@ -54,7 +54,7 @@ This document serves as the persistent project-level rules and entry point for G
    - **Exemptions**: `_` for unused parameters, TypeScript generic parameters (`T`, `E`), and query string keys matching API/URL contracts (`'q'`).
 6. **API Services & Models**:
    - API services must be `providedIn: 'root'`, inject `HttpClient`, and return `Observable<ApiResponse<T>>`.
-   - Separate domain entities (`*.entity.ts`) from HTTP request shapes (`*.request.ts`).
+   - Separate domain entities (`*.entity.ts`) from HTTP request shapes (`*.request.ts`). When create and update accept the same body, define one shared `<entity>-request.ts` (e.g. `customer-request.ts`) and reuse it for both; never duplicate identical create/update request files.
    - **No barrel files** in `models/` (e.g., do not create `models/product.ts` that re-exports types; import direct file contracts).
 7. **Confirmation Dialogs**:
    - Never render `<p-confirmDialog>` or inject `ConfirmationService` directly in feature components. Inject `ConfirmDialogService` and subscribe to the returned `Observable<boolean>`.

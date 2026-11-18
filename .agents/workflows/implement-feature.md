@@ -37,7 +37,7 @@ Determine the state strategy based on feature complexity:
 
 Create models under `src/app/features/<feature>/models/`:
 1. **Entity**: `<entity>.entity.ts` extending `Entity` from `src/app/core/models/entity.ts`. Wire properties must match backend JSON serialized names.
-2. **Requests**: `[action]-[entity].request.ts` (e.g., `list-<entity>.request.ts`, `create-<entity>.request.ts`).
+2. **Requests**: `[action]-[entity].request.ts` (e.g., `list-<entity>.request.ts`, `create-<entity>.request.ts`). When create and update accept the same body, use one shared `<entity>-request.ts` (e.g., `customer-request.ts`) instead of separate create/update files.
    - List requests must extend `PagingQueryRequest` from `src/app/shared/requests/paging-query.request.ts`.
 3. **Strict Constraint**: Do not introduce barrel files (e.g. `product.ts`) that re-export types. Consumers must import `*.entity.ts` and `*.request.ts` directly.
 
@@ -48,7 +48,7 @@ Create models under `src/app/features/<feature>/models/`:
 Create `src/app/features/<feature>/services/<feature>-api.service.ts`:
 - Mark with `@Injectable({ providedIn: 'root' })`.
 - Inject `HttpClient` and derive base URL from `environment.apiUrl`.
-- Accept strongly-typed request interfaces (`ListXRequest`, `CreateXRequest`).
+- Accept strongly-typed request interfaces (`ListXRequest`, shared `<Entity>Request` for create/update; separate `CreateXRequest`/`UpdateXRequest` only when the bodies differ).
 - Return `Observable<ApiResponse<T>>`.
 - Validate required parameters before invoking HTTP, using `throwError` on invalid inputs.
 

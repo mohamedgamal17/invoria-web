@@ -80,7 +80,7 @@ Get-ChildItem -Path src/app -Recurse -Filter *.ts | ForEach-Object {
   - Components: `*.component.ts` and `*.component.html`
   - Services: `*-api.service.ts` or `*.service.ts`
   - Entities: `*.entity.ts`
-  - Requests: `[action]-[entity].request.ts`
+  - Requests: `[action]-[entity].request.ts`; shared create/update body: `<entity>-request.ts`
   - Specifications: `*.spec.ts`
 
 ---

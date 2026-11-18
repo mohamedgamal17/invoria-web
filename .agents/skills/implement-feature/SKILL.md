@@ -21,12 +21,13 @@ Before introducing any new pattern, inspect existing implementations:
 ## Step 3: Define Models (No Barrels)
 Create models under `src/app/features/<feature>/models/`:
 - `<entity>.entity.ts` extending `Entity` from `core/models/entity.ts`.
-- `[action]-[entity].request.ts` (e.g. `list-<entity>.request.ts` extending `PagingQueryRequest`).
+- `[action]-[entity].request.ts` (e.g. `list-<entity>.request.ts` extending `PagingQueryRequest`). When create and update accept the same body, use one shared `<entity>-request.ts` (e.g. `customer-request.ts`) instead of separate `create-*`/`update-*` files.
 - Import direct file contracts; do not create aggregating barrel files.
 
 ## Step 4: Implement Typed API Service
 Create `src/app/features/<feature>/services/<feature>-api.service.ts`:
 - `@Injectable({ providedIn: 'root' })`, inject `HttpClient`, return `Observable<ApiResponse<T>>`.
+- Accept `ListXRequest` and the shared `<Entity>Request` for create/update (or separate `CreateXRequest`/`UpdateXRequest` only when the bodies differ).
 - Pre-validate arguments and reject with `throwError` on invalid input.
 
 ## Step 5: Implement Presentational Components

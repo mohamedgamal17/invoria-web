@@ -20,11 +20,12 @@ Before extracting or building anything new, inspect `src/app/shared/`:
 - Re-declared paging options (`[25, 50, 100, 200]`) or debounce constants (`300`).
 - Re-declared paging request fields (`Skip`, `Length`) instead of extending `PagingQueryRequest`.
 - Aggregating barrel files in `models/` (e.g. `product.ts` that only re-exports types).
+- Separate `create-*`/`update-*` request types with identical fields instead of one shared `<entity>-request.ts`.
 
 ## Step 3: Consolidate to `shared/` & Update Consumers
 1. Extract duplicate logic to `src/app/shared/` (`ui/`, `models/`, `utils/`, or `requests/`).
 2. Update all consuming features to import from the shared path.
-3. Remove redundant feature-local files.
+3. Remove redundant feature-local files, including duplicate create/update request types when one shared `<entity>-request.ts` covers both.
 4. Verify that no circular imports or cross-feature leaks were created.
 
 ## Step 4: Verification

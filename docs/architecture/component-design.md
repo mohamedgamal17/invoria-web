@@ -147,7 +147,7 @@ Products' list skeleton is the only sanctioned duplicate (different card/table l
 ## 6. Models
 
 - **`customer.entity.ts`**: domain interface extending **`Entity`** from `core`.
-- **`create-customer.request.ts`**, **`update-customer.request.ts`**, **`list-customer.request.ts`**: request/query shapes aligned with the API (PascalCase property names if that matches backend JSON).
+- **`customer-request.ts`** (shared create/update body), **`list-customer.request.ts`**: request/query shapes aligned with the API (PascalCase property names if that matches backend JSON).
 - At call sites, use **`satisfies`** on request object literals so literals stay type-checked against the request type.
 
 ---

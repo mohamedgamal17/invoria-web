@@ -19,6 +19,7 @@ local-sync actions. Follow the reference implementation; do not invent new shape
 | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Reference implementation (actions / reducer / effects / spec) | `src/app/features/products/store/products-mutations/`, `src/app/features/products/store/products-list/`                                                                   |
 | Second implementation                                | `src/app/features/customers/store/customer-mutations/`, `src/app/features/customers/store/customers-list/`                                                                |
+| Shared create/update request body                    | `src/app/features/customers/models/customer-request.ts`                                                                                                                   |
 | Form-page dispatch sites                             | `src/app/features/products/pages/product-form-page/product-form-page.component.ts`, `src/app/features/customers/pages/customer-form-page/customer-form-page.component.ts` |
 | Shell-scoped provider wiring                         | `src/app/features/products/products.routes.ts`, `src/app/features/customers/customers.routes.ts`                                                                          |
 | Global error presentation                            | `src/app/shared/store/app-error.effects.ts` (`APP_ERROR_ACTIONS.apiError`)                                                                                                |
@@ -40,6 +41,11 @@ updateProduct: createAction('[Products] Update Product', props<{ id: string; req
 updateProductSuccess: createAction('[Products] Update Product Success', props<{ product: Product }>()),
 updateProductFailure: createAction('[Products] Update Product Failure', props<{ error: unknown }>()),
 ```
+
+> When the API accepts the same body for create and update, type both action
+> payloads with the shared `<entity>-request.ts` interface (e.g.
+> `CustomerRequest`) instead of separate create/update types; update still
+> carries `id`.
 
 ### List slice (`<FEATURE>_LIST_ACTIONS`, `'[Feature List] Verb'` titles)
 
@@ -137,7 +143,7 @@ no-op, not a refetch).
 
 1. Re-read the products reference (`products-mutations` + `products-list`) before
    copying semantics (same-reference no-ops and silent sync are load-bearing).
-2. Create `<store-dir>/<feature>-mutations/` — actions, reducer, effect, spec.
+2. Create `<store-dir>/<feature>-mutations/` — actions, reducer, effect, spec. Use the shared `<entity>-request.ts` for create/update payloads when the bodies are identical.
 3. The mutations effect must dispatch the list sync action in its success `of()`.
 4. Attach mutations providers to the same shell/parent route as the list slice.
 5. Convert the form page into the dumb submit wrapper (§4/§5): no API mutation

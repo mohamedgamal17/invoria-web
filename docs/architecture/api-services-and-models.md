@@ -42,7 +42,7 @@ Optional convenience aliases (e.g. `Pick<Entity, 'name'>` for form drafts) may l
 
 - **Location**: `src/app/features/<feature>/models/`.
 - **Purpose**: Describe **HTTP inputs only**—request bodies and/or query shapes—not persisted domain entities.
-- **Naming**: `[action]-[entity].request.ts` (kebab-case), e.g. `create-customer.request.ts`, `update-customer.request.ts`, `list-customer.request.ts`.
+- **Naming**: `[action]-[entity].request.ts` (kebab-case), e.g. `create-product.request.ts`, `list-customer.request.ts`. When an entity accepts the same body for create and update, share one `<entity>-request.ts` (e.g. `customer-request.ts`) instead of separate create/update files.
 - **Swagger alignment**: Use property names required by the API (e.g. body `{ Name: string }`, query `Skip` / `Length` as in OpenAPI).
 
 ---
@@ -97,6 +97,6 @@ If the wire format cannot be aligned with `Entity` / domain types, **prefer chan
 Use the **customers** feature as the canonical example:
 
 - Service: [`src/app/features/customers/services/customers-api.service.ts`](../../src/app/features/customers/services/customers-api.service.ts)
-- Models: [`src/app/features/customers/models/`](../../src/app/features/customers/models/) (`customer.entity.ts`, `create-customer.request.ts`, `update-customer.request.ts`, `list-customer.request.ts`)
+- Models: [`src/app/features/customers/models/`](../../src/app/features/customers/models/) (`customer.entity.ts`, `customer-request.ts` for create/update, `list-customer.request.ts`)
 
 The **products** feature follows the same layout: entity and requests only (e.g. [`product.entity.ts`](../../src/app/features/products/models/product.entity.ts), `create-product.request.ts`, `list-product.request.ts`), with no aggregating `models/product.ts` barrel.

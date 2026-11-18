@@ -27,6 +27,7 @@ Verify that every modified file passes the repository rules:
 ### 1. Architecture & Boundaries
 - [ ] No unauthorized cross-feature imports (only the 10 whitelist exceptions in `docs/architecture/overview.md §7` are permitted).
 - [ ] No barrel files added to `models/` (entities and requests must be imported from direct file paths).
+- [ ] Create/update share one `<entity>-request.ts` when their request bodies are identical.
 - [ ] Shared-before-duplicate: If a primitive is used across features, is it in `src/app/shared/`?
 - [ ] No circular dependencies introduced.
 

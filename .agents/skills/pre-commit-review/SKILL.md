@@ -18,6 +18,7 @@ git diff --stat
 1. **Architecture & Boundaries**:
    - [ ] No unauthorized cross-feature imports (only the 10 whitelist exceptions in `docs/architecture/overview.md §7`).
    - [ ] No barrel files in `models/`.
+   - [ ] Create/update share one `<entity>-request.ts` when their request bodies are identical.
    - [ ] Shared primitives extracted to `src/app/shared/`.
 2. **Component Design**:
    - [ ] External templates only (`templateUrl: './<name>.component.html'`). No inline `template:`.
