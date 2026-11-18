@@ -1,13 +1,13 @@
 import type { PagingQueryRequest } from '../../../shared/requests/paging-query.request';
 
-/** Query for GET /suppliers?Skip&Length&Name (optional name filter). */
+/** Query for GET /suppliers?skip&length&name (optional name filter). */
 export interface ListSupplierRequest extends PagingQueryRequest {
   /** Server-side case-insensitive substring match on supplier name. */
-  Name?: string | null;
+  name?: string | null;
 }
 
 /** Default paging for supplier autocomplete. */
 export const supplierSearchListRequest: ListSupplierRequest = {
-  Skip: 0,
-  Length: 50
+  skip: 0,
+  length: 50
 };

@@ -7,7 +7,7 @@ import type {
 /**
  * Minimal read-only reference for the optional inline `Party`
  * (`SupplierDto`) that the payables UI hydrates client-side.
- * `PayableDto` wires `PartyId`/`SourceId` only — no inline
+ * `PayableDto` wires `partyId`/`sourceId` only — no inline
  * party/source — so these refs are resolved via the suppliers
  * and purchase orders API services (see docs/architecture/overview.md exceptions).
  */
@@ -34,12 +34,12 @@ export interface PayableSettlement {
 
 export interface Payable extends FinancialObligation {
   /**
-   * Wire name `PartyId`.
+   * Wire name `partyId`.
    * Currently always references a supplier (`/suppliers/:partyId`).
    */
   partyId: string;
   /**
-   * Wire name `SourceId`.
+   * Wire name `sourceId`.
    * Currently always references a purchase order (`/purchase-orders/:sourceId`).
    */
   sourceId: string;

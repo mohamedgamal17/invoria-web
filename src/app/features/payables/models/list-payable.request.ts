@@ -2,8 +2,8 @@ import type { PagingQueryRequest } from '../../../shared/requests/paging-query.r
 
 export interface ListPayableRequest extends PagingQueryRequest {
   /** Optional party (supplier) reference to filter by. */
-  PartyId?: string | null;
+  partyId?: string | null;
   /** Optional source (purchase order) reference to filter by. */
-  SourceId?: string | null;
-  IsPaid?: boolean | null;
+  sourceId?: string | null;
+  isPaid?: boolean | null;
 }

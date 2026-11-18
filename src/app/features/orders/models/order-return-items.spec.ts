@@ -93,7 +93,7 @@ describe('order-return-items', () => {
       { orderItemId: 'line-1', productName: 'A', quantity: 1, maxQuantity: 3 },
       { orderItemId: 'line-1', productName: 'A', quantity: 2, maxQuantity: 3 }
     ]);
-    expect(request.Items).toEqual([{ OrderItemId: 'line-1', Quantity: 3 }]);
+    expect(request.items).toEqual([{ orderItemId: 'line-1', quantity: 3 }]);
   });
 
   it('addAllOrderLinesToReturnDraft: fills every line at max qty', () => {
@@ -125,7 +125,7 @@ describe('order-return-items', () => {
 
   it('mapReturnItemsRequestToUi: joins order lines for display', () => {
     const rows = mapReturnItemsRequestToUi(
-      { Items: [{ OrderItemId: 'l1', Quantity: 2 }] },
+      { items: [{ orderItemId: 'l1', quantity: 2 }] },
       [line('l1', 'p1', 'Widget', 3)]
     );
     expect(rows).toHaveLength(1);

@@ -16,9 +16,9 @@ export function draftItemsToPurchaseOrderLineItems(
 ): CreatePurchaseOrderLineItemRequest[] {
   return items.map((item) => {
     return {
-      ProductId: item.productId,
-      Quantity: item.quantity,
-      UnitPrice: item.unitPrice
+      productId: item.productId,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice
     };
   });
 }

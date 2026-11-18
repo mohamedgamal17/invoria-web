@@ -5,8 +5,8 @@ import type { PaymentType } from './order-payment.enums';
  * Body for POST /orders (Swagger).
  */
 export interface CreateOrderRequest {
-  CustomerId: string;
-  Items: CreateOrderLineItemRequest[];
+  customerId: string;
+  items: CreateOrderLineItemRequest[];
   /** `InvoriaOrderingContractsOrdersOrderPaymentType`; omit for server default. */
-  PaymentType?: PaymentType | null;
+  paymentType?: PaymentType | null;
 }

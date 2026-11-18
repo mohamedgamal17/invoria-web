@@ -99,7 +99,7 @@ export function normalizeReturnDraftForSubmit(draft: ReturnDraftLine[]): AddRetu
   }
 
   return {
-    Items: [...byLine.entries()].map(([OrderItemId, Quantity]) => ({ OrderItemId, Quantity }))
+    items: [...byLine.entries()].map(([orderItemId, quantity]) => ({ orderItemId, quantity }))
   };
 }
 
@@ -113,18 +113,18 @@ export function mapReturnItemsRequestToUi(
 ): OrderReturnItem[] {
   const byLineId = new Map(orderItems.map((item) => [item.id, item]));
 
-  return (request.Items ?? []).map((line) => {
-    const orderLine = byLineId.get(line.OrderItemId);
+  return (request.items ?? []).map((line) => {
+    const orderLine = byLineId.get(line.orderItemId);
     const unitPrice = orderLine?.price ?? 0;
     const orderedQuantity = orderLine?.quantity ?? 0;
 
     return {
-      orderItemId: line.OrderItemId,
+      orderItemId: line.orderItemId,
       productId: orderLine?.productId ?? '',
-      quantity: line.Quantity,
+      quantity: line.quantity,
       orderedQuantity,
       unitPrice,
-      lineReturnTotal: unitPrice * line.Quantity,
+      lineReturnTotal: unitPrice * line.quantity,
       product: orderLine?.product ?? null
     };
   });

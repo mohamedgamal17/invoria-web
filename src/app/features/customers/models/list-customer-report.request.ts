@@ -2,8 +2,8 @@ import type { PagingQueryRequest } from '../../../shared/requests/paging-query.r
 import type { ReportPeriod } from '../../../shared/models/report-period';
 
 /**
- * Query for GET /report/customers/creation/metrics?Period&Skip&Length
+ * Query for GET /report/customers/creation/metrics?period&skip&length
  */
 export interface ListCustomerCreationReportRequest extends PagingQueryRequest {
-  Period: ReportPeriod;
+  period: ReportPeriod;
 }

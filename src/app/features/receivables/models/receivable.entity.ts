@@ -45,12 +45,12 @@ export interface ReceivableSettlement {
 
 export interface Receivable extends FinancialObligation {
   /**
-   * Wire name `PartyId`.
+   * Wire name `partyId`.
    * Currently always references a customer (`/customers/:partyId`).
    */
   partyId: string;
   /**
-   * Wire name `SourceId`.
+   * Wire name `sourceId`.
    * Currently always references an order (`/orders/:sourceId`).
    */
   sourceId: string;

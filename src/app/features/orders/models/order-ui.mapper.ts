@@ -33,8 +33,8 @@ export function orderToUiOrder(order: Order): UiOrder {
 
 export function draftItemsToLineItems(items: OrderItem[]): CreateOrderLineItemRequest[] {
   return items.map((item) => ({
-    ProductId: item.productId,
-    Quantity: item.quantity,
-    Price: item.price
+    productId: item.productId,
+    quantity: item.quantity,
+    price: item.price
   }));
 }

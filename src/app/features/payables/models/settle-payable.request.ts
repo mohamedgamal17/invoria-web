@@ -3,5 +3,5 @@
  * The amount is validated server-side against the payable's outstanding balance.
  */
 export interface SettlePayableRequest {
-  Amount: number;
+  amount: number;
 }

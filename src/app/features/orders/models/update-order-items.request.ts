@@ -4,5 +4,5 @@ import type { CreateOrderLineItemRequest } from './create-order-line-item.reques
  * Body for PUT /orders/{id} (Swagger).
  */
 export interface UpdateOrderItemsRequest {
-  Items: CreateOrderLineItemRequest[];
+  items: CreateOrderLineItemRequest[];
 }

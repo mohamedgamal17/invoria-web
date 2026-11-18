@@ -13,7 +13,7 @@ export interface PurchaseOrderItem {
   lineTotal: number;
 }
 
-/** Populated when list/detail is requested with `IncludeSupplier: true`. */
+/** Populated when list/detail is requested with `includeSupplier: true`. */
 export interface PurchaseOrderSupplierRef {
   id: string;
   name: string;
@@ -40,7 +40,7 @@ export interface PurchaseOrder extends Entity {
   completedDate?: string | null;
   subTotal: number;
   totalAmount: number;
-  /** Omitted or empty when list is fetched with `IncludePurchaseItems: false`. */
+  /** Omitted or empty when list is fetched with `includePurchaseItems: false`. */
   purchaseOrderItems?: PurchaseOrderItem[];
   /** Embedded state transition log when returned by the API. */
   stateHistory?: PurchaseOrderStateTransition[];
