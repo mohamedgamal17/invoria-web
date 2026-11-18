@@ -169,9 +169,9 @@ export class OrderFormPageComponent {
   private createOrder(event: OrderFormSubmitEvent): void {
     this.ordersApi
       .createOrder({
-        CustomerId: event.customerId,
-        Items: draftItemsToLineItems(event.items),
-        PaymentType: event.paymentType
+        customerId: event.customerId,
+        items: draftItemsToLineItems(event.items),
+        paymentType: event.paymentType
       })
       .pipe(
         take(1),
@@ -201,7 +201,7 @@ export class OrderFormPageComponent {
   private updateOrderItems(event: OrderFormSubmitEvent): void {
     this.ordersApi
       .updateOrderItems(this.orderId() as string, {
-        Items: draftItemsToLineItems(event.items)
+        items: draftItemsToLineItems(event.items)
       })
       .pipe(
         take(1),

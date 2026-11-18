@@ -120,8 +120,8 @@ export class ProductFormPageComponent {
 
     const raw = this.form.getRawValue();
     const body: CreateProductRequest = {
-      Name: raw.name.trim(),
-      Price: raw.price,
+      name: raw.name.trim(),
+      price: raw.price,
     };
 
     if (this.mode() === 'create') {

@@ -17,8 +17,7 @@ import { LOAD_STATUS } from '../../../../shared/models/load-status';
 import { SUPPLIER_MUTATIONS_ACTIONS } from '../../store/supplier-mutations/supplier-mutations.actions';
 import { supplierMutationsFeature } from '../../store/supplier-mutations/supplier-mutations.reducer';
 import { SuppliersApiService } from '../../services/suppliers-api.service';
-import type { CreateSupplierRequest } from '../../models/create-supplier.request';
-import type { UpdateSupplierRequest } from '../../models/update-supplier.request';
+import type { SupplierRequest } from '../../models/supplier-request';
 
 /** Matches backend SupplierTableConsts / FluentValidation. */
 const NAME_MAX = 512;
@@ -117,10 +116,10 @@ export class SupplierFormPageComponent {
     const raw = this.form.getRawValue();
     const emailTrim = raw.contactEmail.trim();
     const phoneTrim = raw.phone.trim();
-    const body: CreateSupplierRequest = {
-      Name: raw.name.trim(),
-      ContactEmail: emailTrim ? emailTrim : null,
-      Phone: phoneTrim ? phoneTrim : null,
+    const body: SupplierRequest = {
+      name: raw.name.trim(),
+      contactEmail: emailTrim ? emailTrim : null,
+      phone: phoneTrim ? phoneTrim : null,
     };
 
     if (this.mode() === 'create') {
@@ -136,7 +135,7 @@ export class SupplierFormPageComponent {
     this.store.dispatch(
       SUPPLIER_MUTATIONS_ACTIONS.updateSupplier({
         id,
-        request: body satisfies UpdateSupplierRequest,
+        request: body,
       }),
     );
   }

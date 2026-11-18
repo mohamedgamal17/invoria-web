@@ -221,9 +221,9 @@ describe('CustomerDetailsPageComponent (NgRx stores)', () => {
 
     expect(listOrders).toHaveBeenCalledTimes(1);
     const request = listOrders.mock.calls[0][0];
-    expect(request.CustomerId).toBe('cust_1');
-    expect(request.Skip).toBe(0);
-    expect(request.Length).toBe(25);
+    expect(request.customerId).toBe('cust_1');
+    expect(request.skip).toBe(0);
+    expect(request.length).toBe(25);
     expect(component.activeTab()).toBe(CustomerDetailsTab.Orders);
   });
 
@@ -253,8 +253,8 @@ describe('CustomerDetailsPageComponent (NgRx stores)', () => {
 
     expect(listOrders).toHaveBeenCalledTimes(1);
     const request = listOrders.mock.calls[0][0];
-    expect(request.Skip).toBe(100);
-    expect(request.Length).toBe(50);
+    expect(request.skip).toBe(100);
+    expect(request.length).toBe(50);
   });
 
   it('ignores an unknown tab slug and keeps the default paging values', async () => {
@@ -271,8 +271,8 @@ describe('CustomerDetailsPageComponent (NgRx stores)', () => {
     component.onTabChange(CustomerDetailsTab.Orders);
     fixture.detectChanges();
     const request = listOrders.mock.calls[0][0];
-    expect(request.Skip).toBe(0);
-    expect(request.Length).toBe(25);
+    expect(request.skip).toBe(0);
+    expect(request.length).toBe(25);
   });
 
   it('writes tab/page/rows query params back on tab change', async () => {

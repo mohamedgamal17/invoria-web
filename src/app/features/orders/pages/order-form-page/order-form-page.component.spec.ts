@@ -237,7 +237,7 @@ describe('OrderFormPageComponent', () => {
       items: [{ id: 'line-1', productId: 'p1', quantity: 1, price: 10, product }]
     });
     expect(createOrder).toHaveBeenCalledWith(
-      expect.objectContaining({ CustomerId: 'c1', PaymentType: PaymentType.Immediate })
+      expect.objectContaining({ customerId: 'c1', paymentType: PaymentType.Immediate })
     );
     expect(navigate).toHaveBeenCalledWith(['../', 'ord_new'], expect.anything());
   });

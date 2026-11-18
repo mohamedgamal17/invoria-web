@@ -374,7 +374,7 @@ export class OrderDetailsPageComponent {
 
   onReturnSubmitComplete(request: AddReturnItemsRequest): void {
     this.showReturnDialogOnComplete.set(false);
-    this.recordAction('complete', { ReturnItems: request.Items });
+    this.recordAction('complete', { returnItems: request.items });
   }
 
   onReturnDialogCancel(): void {

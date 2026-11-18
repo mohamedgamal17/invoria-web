@@ -216,11 +216,11 @@ describe('SupplierDetailsPageComponent (NgRx stores)', () => {
 
     expect(listPurchaseOrders).toHaveBeenCalledTimes(1);
     const request = listPurchaseOrders.mock.calls[0][0];
-    expect(request.SupplierId).toBe('sup_1');
-    expect(request.Skip).toBe(0);
-    expect(request.Length).toBe(25);
-    expect(request.IncludePurchaseItems).toBe(false);
-    expect(request.IncludeSupplier).toBe(true);
+    expect(request.supplierId).toBe('sup_1');
+    expect(request.skip).toBe(0);
+    expect(request.length).toBe(25);
+    expect(request.includePurchaseItems).toBe(false);
+    expect(request.includeSupplier).toBe(true);
     expect(component.activeTab()).toBe(SupplierDetailsTab.PurchaseOrders);
   });
 
@@ -233,8 +233,8 @@ describe('SupplierDetailsPageComponent (NgRx stores)', () => {
     fixture.detectChanges();
 
     const lastRequest = listPurchaseOrders.mock.calls[listPurchaseOrders.mock.calls.length - 1][0];
-    expect(lastRequest.Status).toBe(2);
-    expect(lastRequest.SupplierId).toBe('sup_1');
+    expect(lastRequest.status).toBe(2);
+    expect(lastRequest.supplierId).toBe('sup_1');
   });
 
   it('applies the `tab=purchase-orders` query into the store after the supplier is loaded', async () => {
@@ -263,8 +263,8 @@ describe('SupplierDetailsPageComponent (NgRx stores)', () => {
 
     expect(listPurchaseOrders).toHaveBeenCalledTimes(1);
     const request = listPurchaseOrders.mock.calls[0][0];
-    expect(request.Skip).toBe(100);
-    expect(request.Length).toBe(50);
+    expect(request.skip).toBe(100);
+    expect(request.length).toBe(50);
   });
 
   it('ignores an unknown tab slug and keeps the default paging values', async () => {
@@ -281,8 +281,8 @@ describe('SupplierDetailsPageComponent (NgRx stores)', () => {
     component.onTabChange(SupplierDetailsTab.PurchaseOrders);
     fixture.detectChanges();
     const request = listPurchaseOrders.mock.calls[0][0];
-    expect(request.Skip).toBe(0);
-    expect(request.Length).toBe(25);
+    expect(request.skip).toBe(0);
+    expect(request.length).toBe(25);
   });
 
   it('writes tab/page/rows query params back on tab change', async () => {

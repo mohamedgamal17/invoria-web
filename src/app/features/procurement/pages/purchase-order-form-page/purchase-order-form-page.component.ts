@@ -150,8 +150,8 @@ export class PurchaseOrderFormPageComponent {
     }
 
     const body: CreatePurchaseOrderRequest = {
-      SupplierId: supplierId,
-      PurchaseOrderItems: draftItemsToPurchaseOrderLineItems(event.items)
+      supplierId: supplierId,
+      purchaseOrderItems: draftItemsToPurchaseOrderLineItems(event.items)
     };
 
     this.saving.set(true);

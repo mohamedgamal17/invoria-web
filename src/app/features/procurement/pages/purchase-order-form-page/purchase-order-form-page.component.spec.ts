@@ -133,12 +133,12 @@ describe('PurchaseOrderFormPageComponent', () => {
 
     expect(createPurchaseOrder).toHaveBeenCalled();
     const body = createPurchaseOrder.mock.calls[0][0];
-    expect(body.SupplierId).toBe('sup_1');
-    expect(body.PurchaseOrderItems).toHaveLength(1);
-    expect(body.PurchaseOrderItems[0].ProductId).toBe('prod_1');
+    expect(body.supplierId).toBe('sup_1');
+    expect(body.purchaseOrderItems).toHaveLength(1);
+    expect(body.purchaseOrderItems[0].productId).toBe('prod_1');
     expect(body).toEqual({
-      SupplierId: 'sup_1',
-      PurchaseOrderItems: [{ ProductId: 'prod_1', Quantity: 1, UnitPrice: 10 }]
+      supplierId: 'sup_1',
+      purchaseOrderItems: [{ productId: 'prod_1', quantity: 1, unitPrice: 10 }]
     });
   });
 

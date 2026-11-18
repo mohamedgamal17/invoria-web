@@ -188,7 +188,7 @@ export class OrderSalesReportPageComponent implements OnInit {
     if (this.metricsLoadingSet().has(period)) return;
 
     this.metricsLoadingSet.update((current) => new Set(current).add(period));
-    const metricsRequest = { Period: period, Skip: 0, Length: 14 } as const;
+    const metricsRequest = { period: period, skip: 0, length: 14 } as const;
 
     // Metrics endpoint is paged; for trend we fetch last 14 periods chronologically reversed on server.
     this.ordersApi

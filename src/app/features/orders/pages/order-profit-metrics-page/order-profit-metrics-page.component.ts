@@ -100,9 +100,9 @@ export class OrderProfitMetricsPageComponent {
 
   readonly listRequest = computed(
     (): ListOrderSalesProfitReportRequest => ({
-      Period: this.selectedPeriod(),
-      Skip: this.pageIndex() * this.pageSize(),
-      Length: this.pageSize(),
+      period: this.selectedPeriod(),
+      skip: this.pageIndex() * this.pageSize(),
+      length: this.pageSize(),
     }),
   );
 

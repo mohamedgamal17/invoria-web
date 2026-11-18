@@ -71,7 +71,7 @@ describe('SupplierFormPageComponent (NgRx mutations)', () => {
     store = TestBed.inject(Store);
 
     if (state.createRequest) {
-      store.dispatch(SUPPLIER_MUTATIONS_ACTIONS.createSupplier({ request: { Name: 'Primed' } }));
+      store.dispatch(SUPPLIER_MUTATIONS_ACTIONS.createSupplier({ request: { name: 'Primed' } }));
       store.dispatch(
         SUPPLIER_MUTATIONS_ACTIONS.createSupplierFailure({ error: new Error('boom') }),
       );
@@ -96,7 +96,7 @@ describe('SupplierFormPageComponent (NgRx mutations)', () => {
 
     const action = dispatchSpy.mock.calls.at(-1)?.[0];
     expect(action?.type).toBe(SUPPLIER_MUTATIONS_ACTIONS.createSupplier.type);
-    expect(action?.request).toEqual({ Name: 'Valid Name', ContactEmail: null, Phone: null });
+    expect(action?.request).toEqual({ name: 'Valid Name', contactEmail: null, phone: null });
   });
 
   it('submit should not dispatch when the form is invalid', () => {
@@ -110,7 +110,7 @@ describe('SupplierFormPageComponent (NgRx mutations)', () => {
 
   it('saving should follow the mutations store while a create is in flight', async () => {
     await createFormFixture('create');
-    store.dispatch(SUPPLIER_MUTATIONS_ACTIONS.createSupplier({ request: { Name: 'Primed' } }));
+    store.dispatch(SUPPLIER_MUTATIONS_ACTIONS.createSupplier({ request: { name: 'Primed' } }));
     fixture.detectChanges();
 
     expect(component.saving()).toBe(true);
@@ -124,6 +124,6 @@ describe('SupplierFormPageComponent (NgRx mutations)', () => {
     const action = dispatchSpy.mock.calls.at(-1)?.[0];
     expect(action?.type).toBe(SUPPLIER_MUTATIONS_ACTIONS.updateSupplier.type);
     expect(action?.id).toBe('sup_1');
-    expect(action?.request).toEqual({ Name: 'Updated Name', ContactEmail: null, Phone: null });
+    expect(action?.request).toEqual({ name: 'Updated Name', contactEmail: null, phone: null });
   });
 });

@@ -263,17 +263,17 @@ describe('OrderDetailsPageComponent', () => {
 
     component.paymentDialogVisible.set(true);
     component.recordPayment({
-      PaidAmount: 20,
-      PaymentMethod: OrderPaymentMethod.Cash,
-      PaidAt: null,
+      paidAmount: 20,
+      paymentMethod: OrderPaymentMethod.Cash,
+      paidAt: null,
     });
     fixture.detectChanges();
     await fixture.whenStable();
 
     expect(recordOrderPayment).toHaveBeenCalledWith('ord_1', {
-      PaidAmount: 20,
-      PaymentMethod: OrderPaymentMethod.Cash,
-      PaidAt: null,
+      paidAmount: 20,
+      paymentMethod: OrderPaymentMethod.Cash,
+      paidAt: null,
     });
     expect(component.displayOrder()?.amountPaid).toBe(20);
     expect(component.paymentSaving()).toBe(false);
@@ -291,9 +291,9 @@ describe('OrderDetailsPageComponent', () => {
 
     component.paymentDialogVisible.set(true);
     component.recordPayment({
-      PaidAmount: 20,
-      PaymentMethod: OrderPaymentMethod.Cash,
-      PaidAt: null,
+      paidAmount: 20,
+      paymentMethod: OrderPaymentMethod.Cash,
+      paidAt: null,
     });
     fixture.detectChanges();
     await fixture.whenStable();

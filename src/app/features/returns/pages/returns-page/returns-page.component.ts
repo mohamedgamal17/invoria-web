@@ -86,12 +86,12 @@ export class ReturnsPageComponent {
 
   readonly listRequest = computed((): ListReturnRequest => {
     const req: ListReturnRequest = {
-      Skip: this.pageIndex() * this.pageSize(),
-      Length: this.pageSize(),
+      skip: this.pageIndex() * this.pageSize(),
+      length: this.pageSize(),
     };
     const type = this.typeFilterFromRoute();
     if (type != null) {
-      req.Type = type;
+      req.type = type;
     }
     return req;
   });

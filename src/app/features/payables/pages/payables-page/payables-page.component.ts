@@ -70,7 +70,7 @@ export class PayablesPageComponent {
     params: () => undefined,
     defaultValue: [],
     stream: () =>
-      this.suppliersApi.searchSuppliers({ Skip: 0, Length: SUPPLIER_OPTIONS_PAGE_SIZE }).pipe(
+      this.suppliersApi.searchSuppliers({ skip: 0, length: SUPPLIER_OPTIONS_PAGE_SIZE }).pipe(
         map((suppliers) => suppliers.map((supplier) => ({ id: supplier.id, name: supplier.name }))),
         catchError(() => of([])),
       ),

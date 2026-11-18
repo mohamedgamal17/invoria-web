@@ -94,7 +94,7 @@ export class CustomerFormPageComponent {
     }
 
     const raw = this.form.getRawValue();
-    const body: CustomerRequest = { Name: raw.name.trim() };
+    const body: CustomerRequest = { name: raw.name.trim() };
 
     if (this.mode() === 'create') {
       this.store.dispatch(CUSTOMER_MUTATIONS_ACTIONS.createCustomer({ request: body }));
