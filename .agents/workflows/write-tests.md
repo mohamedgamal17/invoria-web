@@ -42,7 +42,7 @@ Map your test scenario to the appropriate layer:
 ### 1. API Service Specs
 - Provide `provideHttpClient()` and `provideHttpClientTesting()`.
 - Inject `HttpTestingController`.
-- Verify the entire HTTP contract: URL, HTTP method, query parameters (e.g. `Skip`, `Length`, `Name`), and request body.
+- Verify the entire HTTP contract: URL, HTTP method, query parameters (e.g. `skip`, `length`, `name`), and request body.
 - Always include `httpTestingController.verify()` in `afterEach()`.
 
 ### 2. Smart Container Specs

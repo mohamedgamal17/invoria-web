@@ -18,7 +18,7 @@ Duplicate `order-sales-report-page` or `order-profit-report-page`.
 
 ```
 features/<domain>/models/<feat>-report.entity.ts                // {date, total*, period: ReportPeriod} — extend ReportOverview<T>
-features/<domain>/models/list-<feat>-report.request.ts          // {Period: ReportPeriod} & PagingQueryRequest {Skip,Length}
+features/<domain>/models/list-<feat>-report.request.ts          // {period: ReportPeriod} & PagingQueryRequest {skip,length}
 features/<domain>/services/<domain>-api.service.ts              // get<Feat>ReportOverview() + list<Feat>ReportMetrics(req) — Observable<ApiResponse<...>>
 features/<domain>/pages/order-<feat>-report-page/               // .ts + .html (smart page) — source of truth
 features/<domain>/pages/order-<feat>-metrics-page/              // table page — rxResource + URL queryParams (period/page/pageSize)
@@ -35,7 +35,7 @@ shared/models/currency.ts                                       // DEFAULT_CURRE
 - `shared/models/report-period.ts`: `enum ReportPeriod { Daily=5, Monthly=10, Yearly=15, AllTime=20 }`, `REPORT_PERIOD_LABELS`, `REPORT_SERIES_PERIODS = [Daily, Monthly, Yearly]`
 - `shared/models/report-overview.ts`: `interface ReportOverview<T> { thisDay, thisMonth, thisYear, allTime: T }`
 - `shared/charts/echarts-presets.ts`: `ECHARTS_PALETTE`, `ECHARTS_GRID_COMPACT`, `formatPeriodLabel(iso, period)` — use for all period labels
-- `shared/requests/paging-query.request.ts`: `{Skip,Length}`
+- `shared/requests/paging-query.request.ts`: `{skip,length}`
 
 ## 4) Component contract (TS)
 
@@ -87,7 +87,7 @@ export class Order<Feat>ReportPageComponent implements OnInit {
   private ensureMetrics(period:ReportPeriod){
     if(this.metricsCache.has(period)||this.metricsLoadingSet.has(period)) return;
     this.metricsLoadingSet.update((loadingSet) => new Set(loadingSet).add(period));
-    const request={Period:period, Skip:0, Length:14} as const;
+    const request={period, skip:0, length:14} as const;
     this.api.list<Feat>ReportMetrics(request).pipe(catchError((error) => { this.handleError(error); return of(null)}))
       .subscribe({ next:result=>{ if(result?.isSuccess&&result.result){ const copy=[...(result.result.data??[])]; this.metricsCache.update((mapCache) => new Map(mapCache).set(period, copy)); } else if(result&&!result.isSuccess) this.handleError(result.error); /* do not cache error */ this.metricsLoadingSet.update((loadingSet) => { const next=new Set(loadingSet); next.delete(period); return next;})},
                  error:err=>{ this.handleError(err); this.metricsLoadingSet.update((loadingSet) => { const next=new Set(loadingSet); next.delete(period); return next;})}});
@@ -96,7 +96,7 @@ export class Order<Feat>ReportPageComponent implements OnInit {
 }
 ```
 
-Rules: `Length:14` fixed; cache only on `isSuccess && result`; **never cache error**;
+Rules: `length:14` fixed; cache only on `isSuccess && result`; **never cache error**;
 swallow duplicate in-flight via `metricsLoadingSet`. (Naming per `ts-naming-conventions`.)
 
 **Formatting is shared, not local**: expose `readonly formatCurrency = formatCurrency;` /

@@ -33,7 +33,7 @@ Before refactoring or extracting code, **inspect existing shared modules** to se
    - `pagination.service.ts`: Runtime paging math and query parsing helpers.
    - `numeric-enum-values.ts`: Enum conversion helpers.
 4. **Shared Request Bases (`src/app/shared/requests/`)**:
-   - `paging-query.request.ts`: `PagingQueryRequest` (`Skip`, `Length`).
+   - `paging-query.request.ts`: `PagingQueryRequest` (`skip`, `length`).
 
 ---
 
@@ -43,7 +43,7 @@ Identify duplication in feature folders:
 - **Duplicate UI Components**: Are features implementing custom loading skeletons, KPI tiles, or chart wrappers instead of using `shared/ui/`?
 - **Hardcoded Constants**: Are components re-declaring `[25, 50, 100, 200]`, `'EGP'`, or `300` ms debounce delays?
 - **Ad-Hoc Formatters**: Are pages creating inline `new Intl.NumberFormat()` instances instead of calling `formatCurrency()`?
-- **Duplicate Request Interfaces**: Are `list-*.request.ts` files declaring their own `Skip` and `Length` properties instead of extending `PagingQueryRequest`?
+- **Duplicate Request Interfaces**: Are `list-*.request.ts` files declaring their own `skip` and `length` properties instead of extending `PagingQueryRequest`?
 - **Aggregating Barrels in `models/`**: Are there `product.ts` or `order.ts` files that merely re-export interfaces from `*.entity.ts` and `*.request.ts`? (These must be removed; consumers should import direct files).
 - **Copied Helpers**: Are tab validation or enum-to-label functions copied between features?
 

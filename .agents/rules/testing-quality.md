@@ -24,20 +24,20 @@ For all `*-api.service.spec.ts` files:
 3. **Contract Verification**: Assert the complete HTTP contract:
    - Request URL and endpoint path.
    - HTTP method (`GET`, `POST`, `PUT`, `DELETE`).
-   - Query string parameters (especially paging `Skip` and `Length`, and filters `Name`).
+   - Query string parameters (especially paging `skip` and `length`, and filters `name`).
    - Request body payload structure.
 4. **Clean Exit**: Always call `httpTestingController.verify()` in `afterEach()` to guarantee no unhandled requests remain.
 
 ```ts
 it('should request customer list with paging parameters', () => {
-  const request = { Skip: 0, Length: 25, Name: 'Acme' };
+  const request = { skip: 0, length: 25, name: 'Acme' };
   service.list(request).subscribe();
 
   const testRequest = httpTestingController.expectOne(
     candidate => candidate.url.includes('/api/customers') &&
-      candidate.params.get('Skip') === '0' &&
-      candidate.params.get('Length') === '25' &&
-      candidate.params.get('Name') === 'Acme'
+      candidate.params.get('skip') === '0' &&
+      candidate.params.get('length') === '25' &&
+      candidate.params.get('name') === 'Acme'
   );
   expect(testRequest.request.method).toBe('GET');
   testRequest.flush({ isSuccess: true, result: mockPagingResult });

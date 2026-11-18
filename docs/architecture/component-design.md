@@ -138,7 +138,7 @@ Products' list skeleton is the only sanctioned duplicate (different card/table l
 
 - **`inject(HttpClient)`**; build **`baseUrl`** from **`environment.apiUrl`**.
 - Expose methods returning **`Observable<ApiResponse<...>>`**.
-- Use a small feature-local helper for **`HttpParams`** (e.g. **`Skip`** / **`Length`** for list).
+- Use a small feature-local helper for **`HttpParams`** (e.g. **`skip`** / **`length`** for list).
 - Validate obvious bad input with **`throwError`** before calling HTTP where appropriate.
 - Pages **never** inject API services for their own list flows — only state-module effects or the page owning that flow do. (Exceptions are the feature cross-imports documented in [overview.md §7](./overview.md#7-dependency-rules), which allow typed API services for autocomplete/report flows and read-only enrichment in the owning page/effect.)
 
@@ -147,7 +147,7 @@ Products' list skeleton is the only sanctioned duplicate (different card/table l
 ## 6. Models
 
 - **`customer.entity.ts`**: domain interface extending **`Entity`** from `core`.
-- **`customer-request.ts`** (shared create/update body), **`list-customer.request.ts`**: request/query shapes aligned with the API (PascalCase property names if that matches backend JSON).
+- **`customer-request.ts`** (shared create/update body), **`list-customer.request.ts`**: request/query shapes aligned with the API (camelCase property names).
 - At call sites, use **`satisfies`** on request object literals so literals stay type-checked against the request type.
 
 ---

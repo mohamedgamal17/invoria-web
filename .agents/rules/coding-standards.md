@@ -76,6 +76,7 @@ Get-ChildItem -Path src/app -Recurse -Filter *.ts | ForEach-Object {
 - **Interfaces / Types**: `PascalCase` (e.g., `Customer`, `ListCustomerRequest`).
 - **Constants / Action Groups**: `UPPER_SNAKE_CASE` (e.g., `DEFAULT_PAGE_SIZE`, `CUSTOMERS_ACTIONS`).
 - **Properties & Methods**: `camelCase` (e.g., `loadCustomers`, `pageIndex`, `isSuccess`).
+- **API request/query DTO properties**: `camelCase` (e.g., `name`, `skip`, `length`, `customerId`). Type names stay `PascalCase`; the wire contract is camelCase.
 - **Direct Suffixes**:
   - Components: `*.component.ts` and `*.component.html`
   - Services: `*-api.service.ts` or `*.service.ts`
@@ -110,9 +111,9 @@ Maintain consistent import grouping separated by single empty lines:
 - **`satisfies` Operator**: When defining request object literals at call sites, use `satisfies` to validate the shape without widening types:
   ```ts
   const request = {
-    Name: this.nameFilter(),
-    Skip: this.pageIndex() * this.pageSize(),
-    Length: this.pageSize()
+    name: this.nameFilter(),
+    skip: this.pageIndex() * this.pageSize(),
+    length: this.pageSize()
   } satisfies ListCustomerRequest;
   ```
 - **Readonly Properties**: Component state mapped from NgRx selectors or signals must be declared `readonly`.

@@ -19,7 +19,7 @@ Before authoring tests, inspect established specs:
 ### 1. API Service Unit Tests
 - Provide `provideHttpClient()` and `provideHttpClientTesting()`.
 - Inject `HttpTestingController`.
-- Verify full contract: URL, HTTP method, query parameters (`Skip`, `Length`, `Name`), and request body.
+- Verify full contract: URL, HTTP method, query parameters (`skip`, `length`, `name`), and request body.
 - Verify controller cleanly in `afterEach(() => httpTestingController.verify())`.
 
 ### 2. Smart Container Component Tests

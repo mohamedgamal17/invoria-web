@@ -41,7 +41,7 @@ Diagnose the issue across application layers:
 - **URL Synchronization**: Mismatch between 1-based page query parameter (`?page=1`) and 0-based index in store or signals. Use `PaginationService` parse helpers.
 - **NgRx Reducer Mutation**: In-place mutation of arrays or state objects instead of returning immutable copies.
 - **Duplicate Query Invalidation**: Reducer failing to clear `fetchedQuery` on failure, preventing retry attempts.
-- **Swagger / Wire Contract Mismatch**: Backend expecting PascalCase query keys (`Skip`, `Length`, `Name`) while request interface used camelCase. Check `swagger.v1.json`.
+- **Wire Contract Mismatch**: Request/query DTOs use camelCase (`skip`, `length`, `name`); the API binds case-insensitively, so a silently ignored filter usually means a typo or a renamed field, not a casing problem. `swagger.v1.json` lists PascalCase but the wire is camelCase.
 - **Form Submission Issues**: Missing `event.preventDefault()` on `(ngSubmit)` or improper `ControlValueAccessor` registration.
 - **Single-Character Naming**: Minification or linting collisions caused by lazy variable names.
 

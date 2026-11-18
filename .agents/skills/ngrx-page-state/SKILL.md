@@ -96,7 +96,7 @@ CUSTOMER_ORDERS_ACTIONS = {
   - `withLatestFrom` the slice state + owning entity; filter on `request.status === LOAD_STATUS.Loading` and entity presence (the reducer vetted the request);
   - `distinctUntilChanged` on the **state reference** (`sameFetchRound = a === b`) to suppress duplicate no-op `Load` copies;
   - `switchMap` so superseding triggers cancel the in-flight request;
-  - build request math from state (`Skip = pageIndex * pageSize`, `Length = pageSize`); map `ApiResponse` → `loadOrdersSuccess` or `loadOrdersFailure` + `APP_ERROR_ACTIONS.apiError({ error })` (global error presentation lives in `AppErrorEffects`; keep slice effects data-only).
+  - build request math from state (`skip = pageIndex * pageSize`, `length = pageSize`); map `ApiResponse` → `loadOrdersSuccess` or `loadOrdersFailure` + `APP_ERROR_ACTIONS.apiError({ error })` (global error presentation lives in `AppErrorEffects`; keep slice effects data-only).
 - **URL adapter effect** (`customer-details-url.effects.ts` pattern):
   - trigger on `routerNavigatedAction` **and** `loadCustomerSuccess` (deep links arrive before the entity exists);
   - guard: route params contain the entity id, the loaded entity matches it, and not still loading;

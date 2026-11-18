@@ -43,7 +43,7 @@ Optional convenience aliases (e.g. `Pick<Entity, 'name'>` for form drafts) may l
 - **Location**: `src/app/features/<feature>/models/`.
 - **Purpose**: Describe **HTTP inputs only**—request bodies and/or query shapes—not persisted domain entities.
 - **Naming**: `[action]-[entity].request.ts` (kebab-case), e.g. `create-product.request.ts`, `list-customer.request.ts`. When an entity accepts the same body for create and update, share one `<entity>-request.ts` (e.g. `customer-request.ts`) instead of separate create/update files.
-- **Swagger alignment**: Use property names required by the API (e.g. body `{ Name: string }`, query `Skip` / `Length` as in OpenAPI).
+- **Swagger alignment**: Use camelCase property names for request/query DTOs (e.g. body `{ name: string }`, query `skip` / `length`). The wire contract is camelCase; `swagger.v1.json` lists PascalCase names but is not the casing the API actually uses.
 
 ---
 
@@ -59,7 +59,7 @@ Optional convenience aliases (e.g. `Pick<Entity, 'name'>` for form drafts) may l
 ## Shared request bases
 
 - **Location**: `src/app/shared/requests/` for cross-feature query or body fragments.
-- **Example**: [`paging-query.request.ts`](../../src/app/shared/requests/paging-query.request.ts) defines `PagingQueryRequest` (`Skip`, `Length`). Feature list requests **extend** it (e.g. `ListCustomerRequest extends PagingQueryRequest`).
+- **Example**: [`paging-query.request.ts`](../../src/app/shared/requests/paging-query.request.ts) defines `PagingQueryRequest` (`skip`, `length`). Feature list requests **extend** it (e.g. `ListCustomerRequest extends PagingQueryRequest`).
 - **Constants**: For repeated fixed queries (e.g. autocomplete fetch window), export a named constant next to the list request type (e.g. `customerSearchListRequest`).
 
 Features may import from `shared/` per dependency rules in [Architecture overview](./overview.md).
@@ -81,7 +81,7 @@ Features may import from `shared/` per dependency rules in [Architecture overvie
 
 ## Components
 
-- Construct request objects at the call site (`{ Name: ... }`, `{ Skip, Length }`) and pass them into the API service.
+- Construct request objects at the call site (`{ name: ... }`, `{ skip, length }`) and pass them into the API service.
 - Unwrap `ApiResponse` in the UI: check `isSuccess` and `result`, and surface `error` via toasts or messages as appropriate.
 
 ---

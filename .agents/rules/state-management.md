@@ -25,9 +25,9 @@ For features following the Signals pattern:
 2. **Derived Request**: Compute API request parameters using `computed()`:
    ```ts
    readonly listRequest = computed(() => ({
-     Name: this.nameFilter(),
-     Skip: this.pageIndex() * this.pageSize(),
-     Length: this.pageSize()
+     name: this.nameFilter(),
+     skip: this.pageIndex() * this.pageSize(),
+     length: this.pageSize()
    } satisfies ListSupplierRequest));
    ```
 3. **Data Fetching via `rxResource`**:

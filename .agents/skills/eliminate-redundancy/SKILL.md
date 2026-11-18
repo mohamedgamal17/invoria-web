@@ -18,7 +18,7 @@ Before extracting or building anything new, inspect `src/app/shared/`:
 - Duplicate loading skeletons, table layouts, or KPI tiles in feature components.
 - Inlined currency formatting (`new Intl.NumberFormat()`) or hardcoded `'EGP'`/`'USD'` strings.
 - Re-declared paging options (`[25, 50, 100, 200]`) or debounce constants (`300`).
-- Re-declared paging request fields (`Skip`, `Length`) instead of extending `PagingQueryRequest`.
+- Re-declared paging request fields (`skip`, `length`) instead of extending `PagingQueryRequest`.
 - Aggregating barrel files in `models/` (e.g. `product.ts` that only re-exports types).
 - Separate `create-*`/`update-*` request types with identical fields instead of one shared `<entity>-request.ts`.
 

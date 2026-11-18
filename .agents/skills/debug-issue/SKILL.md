@@ -26,7 +26,7 @@ Before applying a fix, write or adjust a unit test to reliably reproduce the fai
 - **Paging Sync Mismatch**: 1-based page param in URL vs 0-based pageIndex in state. Use `PaginationService` parse helpers.
 - **Reducer State Mutation**: In-place mutation of arrays or nested objects in NgRx reducers.
 - **Duplicate Query Invalidation**: Reducer failing to clear `fetchedQuery` on failure, preventing retry attempts.
-- **Wire Case Mismatch**: Backend query keys expecting PascalCase (`Skip`, `Length`, `Name`) while client sent camelCase.
+- **Wire Case Mismatch**: A renamed request field no longer reaches the API (DTOs use camelCase; the wire is camelCase and binds case-insensitively).
 - **Single-Character Minification/Collision**: Collision of `e`, `i`, `v` variable names.
 
 ## Step 4: Apply Minimal Fix & Guard Against Regression
