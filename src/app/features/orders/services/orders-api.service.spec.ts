@@ -30,9 +30,9 @@ describe('OrdersApiService', () => {
       await expect(
         firstValueFrom(
           service.listOrders({
-            Skip: -1,
-            Length: 10,
-            IncludeOrderItems: false
+            skip: -1,
+            length: 10,
+            includeOrderItems: false
           })
         )
       ).rejects.toThrow('Invalid Skip.');
@@ -42,9 +42,9 @@ describe('OrdersApiService', () => {
       await expect(
         firstValueFrom(
           service.listOrders({
-            Skip: 0,
-            Length: 0,
-            IncludeOrderItems: false
+            skip: 0,
+            length: 0,
+            includeOrderItems: false
           })
         )
       ).rejects.toThrow('Invalid Length.');
@@ -53,21 +53,21 @@ describe('OrdersApiService', () => {
     it('GETs orders with query params', () => {
       service
         .listOrders({
-          Skip: 0,
-          Length: 25,
-          IncludeOrderItems: true,
-          OrderNumber: 'ORD-1',
-          Status: 5
+          skip: 0,
+          length: 25,
+          includeOrderItems: true,
+          orderNumber: 'ORD-1',
+          status: 5
         })
         .subscribe();
 
       const req = httpMock.expectOne((request) => request.url === `${baseUrl}orders`);
       expect(req.request.method).toBe('GET');
-      expect(req.request.params.get('Skip')).toBe('0');
-      expect(req.request.params.get('Length')).toBe('25');
-      expect(req.request.params.get('IncludeOrderItems')).toBe('true');
-      expect(req.request.params.get('OrderNumber')).toBe('ORD-1');
-      expect(req.request.params.get('Status')).toBe('5');
+      expect(req.request.params.get('skip')).toBe('0');
+      expect(req.request.params.get('length')).toBe('25');
+      expect(req.request.params.get('includeOrderItems')).toBe('true');
+      expect(req.request.params.get('orderNumber')).toBe('ORD-1');
+      expect(req.request.params.get('status')).toBe('5');
       req.flush({ isSuccess: true, result: { data: [], info: { length: 25, skip: 0, totalCount: 0 } } });
     });
   });
@@ -83,16 +83,16 @@ describe('OrdersApiService', () => {
 
   describe('createOrder', () => {
     const validBody = {
-      CustomerId: 'c1',
-      Items: [{ ProductId: 'p1', Quantity: 1, Price: 10 }],
-      PaymentType: PaymentType.Immediate
+      customerId: 'c1',
+      items: [{ productId: 'p1', quantity: 1, price: 10 }],
+      paymentType: PaymentType.Immediate
     };
 
     it('throws when CustomerId missing', () => {
       expect(() =>
         service.createOrder({
-          CustomerId: '   ',
-          Items: validBody.Items
+          customerId: '   ',
+          items: validBody.items
         })
       ).toThrow('CustomerId is required.');
     });
@@ -100,8 +100,8 @@ describe('OrdersApiService', () => {
     it('throws when Items empty', () => {
       expect(() =>
         service.createOrder({
-          CustomerId: 'c1',
-          Items: []
+          customerId: 'c1',
+          items: []
         })
       ).toThrow('At least one line item is required.');
     });
@@ -109,8 +109,8 @@ describe('OrdersApiService', () => {
     it('throws when line item invalid', () => {
       expect(() =>
         service.createOrder({
-          CustomerId: 'c1',
-          Items: [{ ProductId: '', Quantity: 1, Price: 1 }]
+          customerId: 'c1',
+          items: [{ productId: '', quantity: 1, price: 1 }]
         })
       ).toThrow('ProductId is required for each line item.');
     });
@@ -127,12 +127,12 @@ describe('OrdersApiService', () => {
   describe('updateOrderItems', () => {
     it('rejects when Items missing', async () => {
       await expect(
-        firstValueFrom(service.updateOrderItems('id1', { Items: [] }))
+        firstValueFrom(service.updateOrderItems('id1', { items: [] }))
       ).rejects.toThrow('Items is required.');
     });
 
     it('PUTs body to orders/:id', () => {
-      const body = { Items: [{ ProductId: 'p1', Quantity: 2, Price: 5 }] };
+      const body = { items: [{ productId: 'p1', quantity: 2, price: 5 }] };
       service.updateOrderItems('ord_1', body).subscribe();
       const req = httpMock.expectOne(`${baseUrl}orders/ord_1`);
       expect(req.request.method).toBe('PUT');
@@ -145,8 +145,8 @@ describe('OrdersApiService', () => {
     it('throws when PaidAmount invalid', () => {
       expect(() =>
         service.recordOrderPayment('o1', {
-          PaidAmount: 0,
-          PaymentMethod: OrderPaymentMethod.Cash
+          paidAmount: 0,
+          paymentMethod: OrderPaymentMethod.Cash
         })
       ).toThrow('PaidAmount must be a positive number.');
     });
@@ -154,14 +154,14 @@ describe('OrdersApiService', () => {
     it('throws when PaymentMethod invalid', () => {
       expect(() =>
         service.recordOrderPayment('o1', {
-          PaidAmount: 10,
-          PaymentMethod: 999 as OrderPaymentMethod
+          paidAmount: 10,
+          paymentMethod: 999 as OrderPaymentMethod
         })
       ).toThrow('PaymentMethod is invalid.');
     });
 
     it('POSTs to orders/:id/payments', () => {
-      const body = { PaidAmount: 25, PaymentMethod: OrderPaymentMethod.BankTransfer };
+      const body = { paidAmount: 25, paymentMethod: OrderPaymentMethod.BankTransfer };
       service.recordOrderPayment('o1', body).subscribe();
       const req = httpMock.expectOne(`${baseUrl}orders/o1/payments`);
       expect(req.request.method).toBe('POST');
@@ -202,7 +202,7 @@ describe('OrdersApiService', () => {
 
   describe('addReturnItems', () => {
     it('rejects when Items missing', () => {
-      expect(() => service.addReturnItems('id1', { Items: [] })).toThrow(
+      expect(() => service.addReturnItems('id1', { items: [] })).toThrow(
         'At least one return line is required.'
       );
     });
@@ -210,7 +210,7 @@ describe('OrdersApiService', () => {
     it('rejects when OrderItemId missing', () => {
       expect(() =>
         service.addReturnItems('id1', {
-          Items: [{ OrderItemId: '  ', Quantity: 1 }]
+          items: [{ orderItemId: '  ', quantity: 1 }]
         })
       ).toThrow('OrderItemId is required for each return line.');
     });
@@ -218,13 +218,13 @@ describe('OrdersApiService', () => {
     it('rejects when Quantity invalid', () => {
       expect(() =>
         service.addReturnItems('id1', {
-          Items: [{ OrderItemId: 'line-1', Quantity: 0 }]
+          items: [{ orderItemId: 'line-1', quantity: 0 }]
         })
       ).toThrow('Return quantity must be a positive integer.');
     });
 
     it('PUTs body to orders/:id/return-items', () => {
-      const body = { Items: [{ OrderItemId: 'line-1', Quantity: 2 }] };
+      const body = { items: [{ orderItemId: 'line-1', quantity: 2 }] };
       service.addReturnItems('ord_1', body).subscribe();
       const req = httpMock.expectOne(`${baseUrl}orders/ord_1/return-items`);
       expect(req.request.method).toBe('PUT');

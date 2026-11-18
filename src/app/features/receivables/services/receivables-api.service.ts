@@ -18,10 +18,10 @@ export class ReceivablesApiService {
   private readonly baseUrl = `${environment.apiUrl.replace(/\/?$/, '/')}`;
 
   listReceivables(request: ListReceivableRequest): Observable<ApiResponse<Paging<Receivable>>> {
-    if (request.Skip < 0) {
+    if (request.skip < 0) {
       return throwError(() => new Error('Invalid Skip.'));
     }
-    if (request.Length <= 0) {
+    if (request.length <= 0) {
       return throwError(() => new Error('Invalid Length.'));
     }
 
@@ -41,7 +41,7 @@ export class ReceivablesApiService {
     if (!id.trim()) {
       return throwError(() => new Error('Invalid receivable id.'));
     }
-    if (!Number.isFinite(request.Amount) || request.Amount <= 0) {
+    if (!Number.isFinite(request.amount) || request.amount <= 0) {
       return throwError(() => new Error('Invalid settlement amount.'));
     }
 

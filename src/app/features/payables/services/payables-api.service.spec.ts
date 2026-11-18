@@ -39,53 +39,53 @@ describe('PayablesApiService', () => {
 
   it('listPayables builds Skip/Length params and skips empty filters', () => {
     service
-      .listPayables({ Skip: 25, Length: 50, PartyId: '', SourceId: undefined, IsPaid: null })
+      .listPayables({ skip: 25, length: 50, partyId: '', sourceId: undefined, isPaid: null })
       .subscribe();
 
     const req = httpMock.expectOne(
-      (request) => request.url === `${baseUrl}payables` && request.params.get('PartyId') === null
+      (request) => request.url === `${baseUrl}payables` && request.params.get('partyId') === null
     );
     expect(req.request.method).toBe('GET');
-    expect(req.request.params.get('Skip')).toBe('25');
-    expect(req.request.params.get('Length')).toBe('50');
-    expect(req.request.params.get('IsPaid')).toBe(null);
+    expect(req.request.params.get('skip')).toBe('25');
+    expect(req.request.params.get('length')).toBe('50');
+    expect(req.request.params.get('isPaid')).toBe(null);
     req.flush({ isSuccess: true, result: null });
   });
 
   it('listPayables sends IsPaid when provided', () => {
-    service.listPayables({ Skip: 0, Length: 25, IsPaid: true }).subscribe();
+    service.listPayables({ skip: 0, length: 25, isPaid: true }).subscribe();
 
     const req = httpMock.expectOne((request) => request.url === `${baseUrl}payables`);
     expect(req.request.method).toBe('GET');
-    expect(req.request.params.get('IsPaid')).toBe('true');
+    expect(req.request.params.get('isPaid')).toBe('true');
     req.flush({ isSuccess: true, result: null });
   });
 
   it('listPayables throws on invalid paging', () => {
     let error: unknown;
-    service.listPayables({ Skip: -1, Length: 25 }).subscribe({ error: (err) => (error = err) });
+    service.listPayables({ skip: -1, length: 25 }).subscribe({ error: (err) => (error = err) });
     expect(String(error)).toContain('Invalid Skip.');
 
     let lengthError: unknown;
-    service.listPayables({ Skip: 0, Length: 0 }).subscribe({ error: (err) => (lengthError = err) });
+    service.listPayables({ skip: 0, length: 0 }).subscribe({ error: (err) => (lengthError = err) });
     expect(String(lengthError)).toContain('Invalid Length.');
   });
 
   it('settlePayable posts body to payables/:id/settle', () => {
-    service.settlePayable('pay_1', { Amount: 12.5 }).subscribe();
+    service.settlePayable('pay_1', { amount: 12.5 }).subscribe();
     const req = httpMock.expectOne(`${baseUrl}payables/pay_1/settle`);
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ Amount: 12.5 });
+    expect(req.request.body).toEqual({ amount: 12.5 });
     req.flush({ isSuccess: true, result: null });
   });
 
   it('settlePayable throws on invalid id or amount', () => {
     let error: unknown;
-    service.settlePayable('   ', { Amount: 1 }).subscribe({ error: (err) => (error = err) });
+    service.settlePayable('   ', { amount: 1 }).subscribe({ error: (err) => (error = err) });
     expect(String(error)).toContain('Invalid payable id.');
 
     let amountError: unknown;
-    service.settlePayable('pay_1', { Amount: 0 }).subscribe({ error: (err) => (amountError = err) });
+    service.settlePayable('pay_1', { amount: 0 }).subscribe({ error: (err) => (amountError = err) });
     expect(String(amountError)).toContain('Invalid settlement amount.');
   });
 });

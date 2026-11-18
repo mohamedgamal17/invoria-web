@@ -18,10 +18,10 @@ export class PayablesApiService {
   private readonly baseUrl = `${environment.apiUrl.replace(/\/?$/, '/')}`;
 
   listPayables(request: ListPayableRequest): Observable<ApiResponse<Paging<Payable>>> {
-    if (request.Skip < 0) {
+    if (request.skip < 0) {
       return throwError(() => new Error('Invalid Skip.'));
     }
-    if (request.Length <= 0) {
+    if (request.length <= 0) {
       return throwError(() => new Error('Invalid Length.'));
     }
 
@@ -48,7 +48,7 @@ export class PayablesApiService {
     if (!id.trim()) {
       return throwError(() => new Error('Invalid payable id.'));
     }
-    if (!Number.isFinite(request.Amount) || request.Amount <= 0) {
+    if (!Number.isFinite(request.amount) || request.amount <= 0) {
       return throwError(() => new Error('Invalid settlement amount.'));
     }
 

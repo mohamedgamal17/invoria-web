@@ -34,10 +34,10 @@ export class OrdersApiService {
   private readonly baseUrl = `${environment.apiUrl.replace(/\/?$/, '/')}`;
 
   listOrders(request: ListOrderRequest): Observable<ApiResponse<Paging<Order>>> {
-    if (request.Skip < 0) {
+    if (request.skip < 0) {
       return throwError(() => new Error('Invalid Skip.'));
     }
-    if (request.Length <= 0) {
+    if (request.length <= 0) {
       return throwError(() => new Error('Invalid Length.'));
     }
 
@@ -69,10 +69,10 @@ export class OrdersApiService {
   }
 
   updateOrderItems(id: string, request: UpdateOrderItemsRequest): Observable<ApiResponse<Order>> {
-    if (!request.Items?.length) {
+    if (!request.items?.length) {
       return throwError(() => new Error('Items is required.'));
     }
-    for (const line of request.Items) {
+    for (const line of request.items) {
       this.assertLineItem(line);
     }
     return this.http.put<ApiResponse<Order>>(
@@ -126,10 +126,10 @@ export class OrdersApiService {
   listOrderSalesReportMetrics(
     request: ListOrderSalesReportRequest
   ): Observable<ApiResponse<Paging<OrderSalesReportPeriod>>> {
-    if (request.Skip < 0) {
+    if (request.skip < 0) {
       return throwError(() => new Error('Invalid Skip.'));
     }
-    if (request.Length <= 0) {
+    if (request.length <= 0) {
       return throwError(() => new Error('Invalid Length.'));
     }
     return this.http.get<ApiResponse<Paging<OrderSalesReportPeriod>>>(
@@ -149,10 +149,10 @@ export class OrdersApiService {
   listOrderSalesProfitReportMetrics(
     request: ListOrderSalesProfitReportRequest
   ): Observable<ApiResponse<Paging<OrderSalesProfitReportPeriod>>> {
-    if (request.Skip < 0) {
+    if (request.skip < 0) {
       return throwError(() => new Error('Invalid Skip.'));
     }
-    if (request.Length <= 0) {
+    if (request.length <= 0) {
       return throwError(() => new Error('Invalid Length.'));
     }
     return this.http.get<ApiResponse<Paging<OrderSalesProfitReportPeriod>>>(
@@ -172,10 +172,10 @@ export class OrdersApiService {
   listOrderCompletionReportMetrics(
     request: ListOrderCompletionReportRequest
   ): Observable<ApiResponse<Paging<OrderCompletionReportPeriod>>> {
-    if (request.Skip < 0) {
+    if (request.skip < 0) {
       return throwError(() => new Error('Invalid Skip.'));
     }
-    if (request.Length <= 0) {
+    if (request.length <= 0) {
       return throwError(() => new Error('Invalid Length.'));
     }
     return this.http.get<ApiResponse<Paging<OrderCompletionReportPeriod>>>(
@@ -185,54 +185,54 @@ export class OrdersApiService {
   }
 
   private assertCreateBody(request: CreateOrderRequest): void {
-    const customerId = (request.CustomerId || '').trim();
+    const customerId = (request.customerId || '').trim();
     if (!customerId) {
       throw new Error('CustomerId is required.');
     }
-    if (!request.Items?.length) {
+    if (!request.items?.length) {
       throw new Error('At least one line item is required.');
     }
-    for (const line of request.Items) {
+    for (const line of request.items) {
       this.assertLineItem(line);
     }
   }
 
   private assertRecordPaymentBody(request: RecordOrderPaymentRequest): void {
-    if (!Number.isFinite(request.PaidAmount) || request.PaidAmount <= 0) {
+    if (!Number.isFinite(request.paidAmount) || request.paidAmount <= 0) {
       throw new Error('PaidAmount must be a positive number.');
     }
     const methods = new Set(
       Object.values(OrderPaymentMethod).filter((value): value is OrderPaymentMethod => typeof value === 'number')
     );
-    if (!methods.has(request.PaymentMethod)) {
+    if (!methods.has(request.paymentMethod)) {
       throw new Error('PaymentMethod is invalid.');
     }
   }
 
   private assertAddReturnItemsBody(request: AddReturnItemsRequest): void {
-    if (!request.Items?.length) {
+    if (!request.items?.length) {
       throw new Error('At least one return line is required.');
     }
-    for (const line of request.Items) {
-      const orderItemId = (line.OrderItemId || '').trim();
+    for (const line of request.items) {
+      const orderItemId = (line.orderItemId || '').trim();
       if (!orderItemId) {
         throw new Error('OrderItemId is required for each return line.');
       }
-      if (!Number.isInteger(line.Quantity) || line.Quantity < 1) {
+      if (!Number.isInteger(line.quantity) || line.quantity < 1) {
         throw new Error('Return quantity must be a positive integer.');
       }
     }
   }
 
-  private assertLineItem(line: { ProductId: string; Quantity: number; Price: number }): void {
-    const productId = (line.ProductId || '').trim();
+  private assertLineItem(line: { productId: string; quantity: number; price: number }): void {
+    const productId = (line.productId || '').trim();
     if (!productId) {
       throw new Error('ProductId is required for each line item.');
     }
-    if (!Number.isInteger(line.Quantity) || line.Quantity <= 0) {
+    if (!Number.isInteger(line.quantity) || line.quantity <= 0) {
       throw new Error('Quantity must be a positive integer.');
     }
-    if (!Number.isFinite(line.Price) || line.Price < 0) {
+    if (!Number.isFinite(line.price) || line.price < 0) {
       throw new Error('Price must be a valid non-negative number.');
     }
   }

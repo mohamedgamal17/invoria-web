@@ -13,12 +13,12 @@ describe('PurchaseOrdersApiService', () => {
   const baseUrl = `${environment.apiUrl.replace(/\/?$/, '/')}`;
 
   const validBody: CreatePurchaseOrderRequest = {
-    SupplierId: 'sup_1',
-    PurchaseOrderItems: [
+    supplierId: 'sup_1',
+    purchaseOrderItems: [
       {
-        ProductId: 'prod_1',
-        Quantity: 1,
-        UnitPrice: 10
+        productId: 'prod_1',
+        quantity: 1,
+        unitPrice: 10
       }
     ]
   };
@@ -40,7 +40,7 @@ describe('PurchaseOrdersApiService', () => {
       expect(() =>
         service.createPurchaseOrder({
           ...validBody,
-          SupplierId: '   '
+          supplierId: '   '
         })
       ).toThrow('SupplierId is required.');
     });
@@ -49,7 +49,7 @@ describe('PurchaseOrdersApiService', () => {
       expect(() =>
         service.createPurchaseOrder({
           ...validBody,
-          PurchaseOrderItems: []
+          purchaseOrderItems: []
         })
       ).toThrow('At least one purchase order line item is required.');
     });
@@ -58,7 +58,7 @@ describe('PurchaseOrdersApiService', () => {
       expect(() =>
         service.createPurchaseOrder({
           ...validBody,
-          PurchaseOrderItems: [{ ProductId: '', Quantity: 1, UnitPrice: 10 }]
+          purchaseOrderItems: [{ productId: '', quantity: 1, unitPrice: 10 }]
         })
       ).toThrow('ProductId is required for each line item.');
     });
@@ -67,7 +67,7 @@ describe('PurchaseOrdersApiService', () => {
       expect(() =>
         service.createPurchaseOrder({
           ...validBody,
-          PurchaseOrderItems: [{ ProductId: 'prod_1', Quantity: 0, UnitPrice: 10 }]
+          purchaseOrderItems: [{ productId: 'prod_1', quantity: 0, unitPrice: 10 }]
         })
       ).toThrow('Quantity must be a positive integer.');
     });
@@ -76,7 +76,7 @@ describe('PurchaseOrdersApiService', () => {
       expect(() =>
         service.createPurchaseOrder({
           ...validBody,
-          PurchaseOrderItems: [{ ProductId: 'prod_1', Quantity: 1, UnitPrice: 0 }]
+          purchaseOrderItems: [{ productId: 'prod_1', quantity: 1, unitPrice: 0 }]
         })
       ).toThrow('UnitPrice must be greater than zero.');
     });
@@ -85,7 +85,7 @@ describe('PurchaseOrdersApiService', () => {
       expect(() =>
         service.createPurchaseOrder({
           ...validBody,
-          PurchaseOrderItems: [{ ProductId: 'prod_1', Quantity: 1, UnitPrice: -1 }]
+          purchaseOrderItems: [{ productId: 'prod_1', quantity: 1, unitPrice: -1 }]
         })
       ).toThrow('UnitPrice must be greater than zero.');
     });
@@ -104,7 +104,7 @@ describe('PurchaseOrdersApiService', () => {
       expect(() =>
         service.updatePurchaseOrder('po_1', {
           ...validBody,
-          PurchaseOrderItems: [{ ProductId: 'prod_1', Quantity: 1, UnitPrice: 0 }]
+          purchaseOrderItems: [{ productId: 'prod_1', quantity: 1, unitPrice: 0 }]
         })
       ).toThrow('UnitPrice must be greater than zero.');
     });

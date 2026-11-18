@@ -21,10 +21,10 @@ export class CustomersApiService {
   private readonly baseUrl = `${environment.apiUrl.replace(/\/?$/, '/')}`;
 
   listCustomers(request: ListCustomerRequest): Observable<ApiResponse<Paging<Customer>>> {
-    if (request.Skip < 0) {
+    if (request.skip < 0) {
       return throwError(() => new Error('Invalid Skip.'));
     }
-    if (request.Length <= 0) {
+    if (request.length <= 0) {
       return throwError(() => new Error('Invalid Length.'));
     }
 
@@ -40,7 +40,7 @@ export class CustomersApiService {
   }
 
   createCustomer(request: CustomerRequest): Observable<ApiResponse<Customer>> {
-    this.assertName(request.Name);
+    this.assertName(request.name);
     return this.http.post<ApiResponse<Customer>>(`${this.baseUrl}customers`, request);
   }
 
@@ -48,7 +48,7 @@ export class CustomersApiService {
     id: string,
     request: CustomerRequest
   ): Observable<ApiResponse<Customer>> {
-    this.assertName(request.Name);
+    this.assertName(request.name);
     return this.http.put<ApiResponse<Customer>>(
       `${this.baseUrl}customers/${encodeURIComponent(id)}`,
       request
@@ -57,7 +57,7 @@ export class CustomersApiService {
 
   /**
    * Loads customers for orders autocomplete from GET /customers.
-   * Optional `nameFilter` is sent as the `Name` query param when non-empty.
+   * Optional `nameFilter` is sent as the `name` query param when non-empty.
    */
   searchCustomers(
     listRequest: ListCustomerRequest,
@@ -66,7 +66,7 @@ export class CustomersApiService {
     const trimmed = (nameFilter ?? '').trim();
     const request: ListCustomerRequest = {
       ...listRequest,
-      Name: trimmed ? trimmed : null
+      name: trimmed ? trimmed : null
     };
     return this.http
       .get<ApiResponse<Paging<Customer>>>(`${this.baseUrl}customers`, {
@@ -93,10 +93,10 @@ export class CustomersApiService {
   listCustomerCreationReportMetrics(
     request: ListCustomerCreationReportRequest
   ): Observable<ApiResponse<Paging<CustomerCreationReportPeriod>>> {
-    if (request.Skip < 0) {
+    if (request.skip < 0) {
       return throwError(() => new Error('Invalid Skip.'));
     }
-    if (request.Length <= 0) {
+    if (request.length <= 0) {
       return throwError(() => new Error('Invalid Length.'));
     }
     return this.http.get<ApiResponse<Paging<CustomerCreationReportPeriod>>>(

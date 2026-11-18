@@ -28,10 +28,10 @@ export class PurchaseOrdersApiService {
   private readonly baseUrl = `${environment.apiUrl.replace(/\/?$/, '/')}`;
 
   listPurchaseOrders(request: ListPurchaseOrderRequest): Observable<ApiResponse<Paging<PurchaseOrder>>> {
-    if (request.Skip < 0) {
+    if (request.skip < 0) {
       return throwError(() => new Error('Invalid Skip.'));
     }
-    if (request.Length <= 0) {
+    if (request.length <= 0) {
       return throwError(() => new Error('Invalid Length.'));
     }
 
@@ -42,8 +42,8 @@ export class PurchaseOrdersApiService {
 
   getPurchaseOrder(id: string): Observable<ApiResponse<PurchaseOrder>> {
     const params = httpParamsFromRequest({
-      IncludePurchaseItems: true,
-      IncludeSupplier: true
+      includePurchaseItems: true,
+      includeSupplier: true
     });
     return this.http.get<ApiResponse<PurchaseOrder>>(
       `${this.baseUrl}purchase-orders/${encodeURIComponent(id)}`,
@@ -117,10 +117,10 @@ export class PurchaseOrdersApiService {
   listPurchaseSalesReportMetrics(
     request: ListPurchaseSalesReportRequest
   ): Observable<ApiResponse<Paging<PurchaseSalesReportPeriod>>> {
-    if (request.Skip < 0) {
+    if (request.skip < 0) {
       return throwError(() => new Error('Invalid Skip.'));
     }
-    if (request.Length <= 0) {
+    if (request.length <= 0) {
       return throwError(() => new Error('Invalid Length.'));
     }
     return this.http.get<ApiResponse<Paging<PurchaseSalesReportPeriod>>>(
@@ -140,10 +140,10 @@ export class PurchaseOrdersApiService {
   listPurchaseCompletionReportMetrics(
     request: ListPurchaseCompletionReportRequest
   ): Observable<ApiResponse<Paging<PurchaseCompletionReportPeriod>>> {
-    if (request.Skip < 0) {
+    if (request.skip < 0) {
       return throwError(() => new Error('Invalid Skip.'));
     }
-    if (request.Length <= 0) {
+    if (request.length <= 0) {
       return throwError(() => new Error('Invalid Length.'));
     }
     return this.http.get<ApiResponse<Paging<PurchaseCompletionReportPeriod>>>(
@@ -153,31 +153,31 @@ export class PurchaseOrdersApiService {
   }
 
   private assertCreateBody(request: CreatePurchaseOrderRequest): void {
-    const supplierId = (request.SupplierId || '').trim();
+    const supplierId = (request.supplierId || '').trim();
     if (!supplierId) {
       throw new Error('SupplierId is required.');
     }
-    if (!request.PurchaseOrderItems?.length) {
+    if (!request.purchaseOrderItems?.length) {
       throw new Error('At least one purchase order line item is required.');
     }
-    for (const line of request.PurchaseOrderItems) {
+    for (const line of request.purchaseOrderItems) {
       this.assertLineItem(line);
     }
   }
 
   private assertLineItem(line: {
-    ProductId: string;
-    Quantity: number;
-    UnitPrice: number;
+    productId: string;
+    quantity: number;
+    unitPrice: number;
   }): void {
-    const productId = (line.ProductId || '').trim();
+    const productId = (line.productId || '').trim();
     if (!productId) {
       throw new Error('ProductId is required for each line item.');
     }
-    if (!Number.isInteger(line.Quantity) || line.Quantity <= 0) {
+    if (!Number.isInteger(line.quantity) || line.quantity <= 0) {
       throw new Error('Quantity must be a positive integer.');
     }
-    if (!Number.isFinite(line.UnitPrice) || line.UnitPrice <= 0) {
+    if (!Number.isFinite(line.unitPrice) || line.unitPrice <= 0) {
       throw new Error('UnitPrice must be greater than zero.');
     }
   }

@@ -19,13 +19,13 @@ export class BatchesApiService {
   private readonly baseUrl = `${environment.apiUrl.replace(/\/?$/, '/')}`;
 
   listBatches(request: ListBatchRequest): Observable<ApiResponse<Paging<Batch>>> {
-    if (request.Skip < 0) {
+    if (request.skip < 0) {
       return throwError(() => new Error('Invalid Skip.'));
     }
-    if (request.Length <= 0) {
+    if (request.length <= 0) {
       return throwError(() => new Error('Invalid Length.'));
     }
-    const productId = (request.ProductId || '').trim();
+    const productId = (request.productId || '').trim();
     if (!productId) {
       return throwError(() => new Error('ProductId is required.'));
     }
@@ -55,26 +55,26 @@ export class BatchesApiService {
   }
 
   private assertCreateBody(request: CreateBatchRequest): void {
-    const productId = (request.ProductId || '').trim();
+    const productId = (request.productId || '').trim();
     if (!productId) {
       throw new Error('ProductId is required.');
     }
-    const qty = request.Quantity;
+    const qty = request.quantity;
     if (!Number.isFinite(qty) || qty < 1) {
       throw new Error('Quantity must be at least 1.');
     }
-    const price = request.PurchasePrice;
+    const price = request.purchasePrice;
     if (!Number.isFinite(price) || price <= 0) {
       throw new Error('PurchasePrice must be greater than zero.');
     }
   }
 
   private assertUpdateBody(request: UpdateBatchRequest): void {
-    const qty = request.Quantity;
+    const qty = request.quantity;
     if (!Number.isFinite(qty) || qty < 0) {
       throw new Error('Quantity must be a valid non-negative number.');
     }
-    const price = request.PurchasePrice;
+    const price = request.purchasePrice;
     if (!Number.isFinite(price) || price <= 0) {
       throw new Error('PurchasePrice must be greater than zero.');
     }

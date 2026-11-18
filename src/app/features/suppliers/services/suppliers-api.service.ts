@@ -8,8 +8,7 @@ import { environment } from '../../../../environments/environment';
 import { httpParamsFromRequest } from '../../../shared/requests/http-params-from-request';
 import type { Supplier } from '../models/supplier.entity';
 import type { ListSupplierRequest } from '../models/list-supplier.request';
-import type { CreateSupplierRequest } from '../models/create-supplier.request';
-import type { UpdateSupplierRequest } from '../models/update-supplier.request';
+import type { SupplierRequest } from '../models/supplier-request';
 import type { SupplierCreationReportPeriod } from '../models/supplier-report.entity';
 import type { ListSupplierCreationReportRequest } from '../models/list-supplier-report.request';
 import type { ReportOverview } from '../../../shared/models/report-overview';
@@ -31,10 +30,10 @@ export class SuppliersApiService {
   private readonly baseUrl = `${environment.apiUrl.replace(/\/?$/, '/')}`;
 
   listSuppliers(request: ListSupplierRequest): Observable<ApiResponse<Paging<Supplier>>> {
-    if (request.Skip < 0) {
+    if (request.skip < 0) {
       return throwError(() => new Error('Invalid Skip.'));
     }
-    if (request.Length <= 0) {
+    if (request.length <= 0) {
       return throwError(() => new Error('Invalid Length.'));
     }
 
@@ -49,13 +48,13 @@ export class SuppliersApiService {
     );
   }
 
-  createSupplier(request: CreateSupplierRequest): Observable<ApiResponse<Supplier>> {
-    this.assertSupplierName(request.Name);
+  createSupplier(request: SupplierRequest): Observable<ApiResponse<Supplier>> {
+    this.assertSupplierName(request.name);
     return this.http.post<ApiResponse<Supplier>>(`${this.baseUrl}suppliers`, request);
   }
 
-  updateSupplier(id: string, request: UpdateSupplierRequest): Observable<ApiResponse<Supplier>> {
-    this.assertSupplierName(request.Name);
+  updateSupplier(id: string, request: SupplierRequest): Observable<ApiResponse<Supplier>> {
+    this.assertSupplierName(request.name);
     return this.http.put<ApiResponse<Supplier>>(
       `${this.baseUrl}suppliers/${encodeURIComponent(id)}`,
       request
@@ -64,13 +63,13 @@ export class SuppliersApiService {
 
   /**
    * Loads suppliers for autocomplete from GET /suppliers.
-   * Optional `nameFilter` is sent as the `Name` query param when non-empty.
+   * Optional `nameFilter` is sent as the `name` query param when non-empty.
    */
   searchSuppliers(listRequest: ListSupplierRequest, nameFilter?: string): Observable<Supplier[]> {
     const trimmed = (nameFilter ?? '').trim();
     const request: ListSupplierRequest = {
       ...listRequest,
-      Name: trimmed ? trimmed : undefined
+      name: trimmed ? trimmed : undefined
     };
     return this.http
       .get<ApiResponse<Paging<Supplier>>>(`${this.baseUrl}suppliers`, {
@@ -97,10 +96,10 @@ export class SuppliersApiService {
   listSupplierCreationReportMetrics(
     request: ListSupplierCreationReportRequest
   ): Observable<ApiResponse<Paging<SupplierCreationReportPeriod>>> {
-    if (request.Skip < 0) {
+    if (request.skip < 0) {
       return throwError(() => new Error('Invalid Skip.'));
     }
-    if (request.Length <= 0) {
+    if (request.length <= 0) {
       return throwError(() => new Error('Invalid Length.'));
     }
     return this.http.get<ApiResponse<Paging<SupplierCreationReportPeriod>>>(

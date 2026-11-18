@@ -6,7 +6,7 @@ import { SuppliersApiService } from '../../suppliers/services/suppliers-api.serv
 import { PurchaseOrdersApiService } from '../../procurement/services/purchase-orders-api.service';
 
 /**
- * Client-side enrichment for payable `PartyId` / `SourceId` references.
+ * Client-side enrichment for payable `partyId` / `sourceId` references.
  *
  * `PayableDto` wires only the raw reference ids (no inline `Party`
  * or `Source`), so supplier names and purchase order numbers are

@@ -40,10 +40,10 @@ describe('ProductsApiService', () => {
     });
 
     const req = httpMock.expectOne(
-      (request) => request.url === `${baseUrl}products` && request.params.get('Name') === null
+      (request) => request.url === `${baseUrl}products` && request.params.get('name') === null
     );
-    expect(req.request.params.get('Skip')).toBe('0');
-    expect(req.request.params.get('Length')).toBe('20');
+    expect(req.request.params.get('skip')).toBe('0');
+    expect(req.request.params.get('length')).toBe('20');
     req.flush({
       isSuccess: true,
       result: { data: [productRow], pagingInfo: { totalCount: 1 } }
@@ -59,7 +59,7 @@ describe('ProductsApiService', () => {
     });
 
     const req = httpMock.expectOne(
-      (request) => request.url === `${baseUrl}products` && request.params.get('Name') === 'alpha'
+      (request) => request.url === `${baseUrl}products` && request.params.get('name') === 'alpha'
     );
     req.flush({
       isSuccess: true,
@@ -75,7 +75,7 @@ describe('ProductsApiService', () => {
       result = rows;
     });
 
-    const req = httpMock.expectOne(`${baseUrl}products?Skip=0&Length=20`);
+    const req = httpMock.expectOne(`${baseUrl}products?skip=0&length=20`);
     req.flush({ isSuccess: false, result: null });
 
     expect(result).toEqual([]);

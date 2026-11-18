@@ -22,10 +22,10 @@ export class ProductsApiService {
   private readonly baseUrl = `${environment.apiUrl.replace(/\/?$/, '/')}`;
 
   listProducts(request: ListProductRequest): Observable<ApiResponse<Paging<Product>>> {
-    if (request.Skip < 0) {
+    if (request.skip < 0) {
       return throwError(() => new Error('Invalid Skip.'));
     }
-    if (request.Length <= 0) {
+    if (request.length <= 0) {
       return throwError(() => new Error('Invalid Length.'));
     }
 
@@ -64,13 +64,13 @@ export class ProductsApiService {
 
   /**
    * Loads products for autocomplete from GET /products.
-   * Optional `nameFilter` is sent as the `Name` query param when non-empty.
+   * Optional `nameFilter` is sent as the `name` query param when non-empty.
    */
   searchProducts(listRequest: ListProductRequest, nameFilter?: string): Observable<Product[]> {
     const trimmed = (nameFilter ?? '').trim();
     const request: ListProductRequest = {
       ...listRequest,
-      Name: trimmed ? trimmed : undefined
+      name: trimmed ? trimmed : undefined
     };
     return this.http
       .get<ApiResponse<Paging<Product>>>(`${this.baseUrl}products`, {
@@ -97,10 +97,10 @@ export class ProductsApiService {
   listProductCreationReportMetrics(
     request: ListProductCreationReportRequest
   ): Observable<ApiResponse<Paging<ProductCreationReportPeriod>>> {
-    if (request.Skip < 0) {
+    if (request.skip < 0) {
       return throwError(() => new Error('Invalid Skip.'));
     }
-    if (request.Length <= 0) {
+    if (request.length <= 0) {
       return throwError(() => new Error('Invalid Length.'));
     }
     return this.http.get<ApiResponse<Paging<ProductCreationReportPeriod>>>(
@@ -110,8 +110,8 @@ export class ProductsApiService {
   }
 
   private assertCreateOrUpdateBody(request: CreateProductRequest): void {
-    const name = (request.Name || '').trim();
-    const price = request.Price;
+    const name = (request.name || '').trim();
+    const price = request.price;
 
     if (!name) {
       throw new Error('Name is required.');

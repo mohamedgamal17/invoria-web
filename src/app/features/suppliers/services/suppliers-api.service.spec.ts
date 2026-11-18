@@ -64,7 +64,7 @@ describe('SuppliersApiService', () => {
   });
 
   it('createSupplier posts body to suppliers', () => {
-    const body = { Name: 'Y', ContactEmail: null, Phone: null };
+    const body = { name: 'Y', contactEmail: null, phone: null };
     service.createSupplier(body).subscribe();
     const req = httpMock.expectOne(`${baseUrl}suppliers`);
     expect(req.request.method).toBe('POST');
@@ -73,7 +73,7 @@ describe('SuppliersApiService', () => {
   });
 
   it('updateSupplier puts body to suppliers/:id', () => {
-    const body = { Name: 'Y', ContactEmail: null, Phone: null };
+    const body = { name: 'Y', contactEmail: null, phone: null };
     service.updateSupplier('id1', body).subscribe();
     const req = httpMock.expectOne(`${baseUrl}suppliers/id1`);
     expect(req.request.method).toBe('PUT');
@@ -94,10 +94,10 @@ describe('SuppliersApiService', () => {
     });
 
     const req = httpMock.expectOne(
-      (request) => request.url === `${baseUrl}suppliers` && request.params.get('Name') === null
+      (request) => request.url === `${baseUrl}suppliers` && request.params.get('name') === null
     );
-    expect(req.request.params.get('Skip')).toBe('0');
-    expect(req.request.params.get('Length')).toBe('50');
+    expect(req.request.params.get('skip')).toBe('0');
+    expect(req.request.params.get('length')).toBe('50');
     req.flush({
       isSuccess: true,
       result: { data: [supplierRow], pagingInfo: { totalCount: 1 } }
@@ -113,7 +113,7 @@ describe('SuppliersApiService', () => {
     });
 
     const req = httpMock.expectOne(
-      (request) => request.url === `${baseUrl}suppliers` && request.params.get('Name') === 'alpha'
+      (request) => request.url === `${baseUrl}suppliers` && request.params.get('name') === 'alpha'
     );
     req.flush({
       isSuccess: true,
@@ -129,7 +129,7 @@ describe('SuppliersApiService', () => {
       result = rows;
     });
 
-    const req = httpMock.expectOne(`${baseUrl}suppliers?Skip=0&Length=50`);
+    const req = httpMock.expectOne(`${baseUrl}suppliers?skip=0&length=50`);
     req.flush({ isSuccess: false, result: null });
 
     expect(result).toEqual([]);

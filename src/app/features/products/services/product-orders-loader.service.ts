@@ -18,7 +18,7 @@ export class ProductOrdersLoaderService {
   /** Loads all orders (paged) with line items for product-level summaries. */
   loadAllOrdersWithItems(): Observable<UiOrder[]> {
     return this.ordersApi
-      .listOrders({ Skip: 0, Length: PAGE_SIZE, IncludeOrderItems: true })
+      .listOrders({ skip: 0, length: PAGE_SIZE, includeOrderItems: true })
       .pipe(
         switchMap((first) => this.loadRemainingPages(first)),
         map((orders) => orders.map(orderToUiOrder))
@@ -40,9 +40,9 @@ export class ProductOrdersLoaderService {
 
     const pageRequests = Array.from({ length: totalPages - 1 }, (_, index) =>
       this.ordersApi.listOrders({
-        Skip: (index + 1) * PAGE_SIZE,
-        Length: PAGE_SIZE,
-        IncludeOrderItems: true
+        skip: (index + 1) * PAGE_SIZE,
+        length: PAGE_SIZE,
+        includeOrderItems: true
       })
     );
 
