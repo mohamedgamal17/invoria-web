@@ -17,8 +17,7 @@ import { LOAD_STATUS } from '../../../../shared/models/load-status';
 import { CUSTOMER_MUTATIONS_ACTIONS } from '../../store/customer-mutations/customer-mutations.actions';
 import { customerMutationsFeature } from '../../store/customer-mutations/customer-mutations.reducer';
 import { CustomersApiService } from '../../services/customers-api.service';
-import type { CreateCustomerRequest } from '../../models/create-customer.request';
-import type { UpdateCustomerRequest } from '../../models/update-customer.request';
+import type { CustomerRequest } from '../../models/customer-request';
 
 @Component({
   selector: 'app-customer-form-page',
@@ -95,7 +94,7 @@ export class CustomerFormPageComponent {
     }
 
     const raw = this.form.getRawValue();
-    const body: CreateCustomerRequest = { Name: raw.name.trim() };
+    const body: CustomerRequest = { Name: raw.name.trim() };
 
     if (this.mode() === 'create') {
       this.store.dispatch(CUSTOMER_MUTATIONS_ACTIONS.createCustomer({ request: body }));
@@ -110,7 +109,7 @@ export class CustomerFormPageComponent {
     this.store.dispatch(
       CUSTOMER_MUTATIONS_ACTIONS.updateCustomer({
         id,
-        request: body satisfies UpdateCustomerRequest,
+        request: body,
       }),
     );
   }
