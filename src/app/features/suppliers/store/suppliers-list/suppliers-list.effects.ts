@@ -56,9 +56,9 @@ export class SuppliersListEffects {
 
   private executeFetch(state: SuppliersListState) {
     const request: ListSupplierRequest = {
-      Skip: state.pageIndex * state.pageSize,
-      Length: state.pageSize,
-      Name: state.nameFilter || null,
+      skip: state.pageIndex * state.pageSize,
+      length: state.pageSize,
+      name: state.nameFilter || null,
     };
 
     return this.suppliersApi.listSuppliers(request).pipe(

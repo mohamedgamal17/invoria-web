@@ -29,7 +29,7 @@ export class PayablesMutationsEffects {
     this.actions$.pipe(
       ofType(PAYABLES_MUTATIONS_ACTIONS.settlePayable),
       exhaustMap(({ payableId, amount }) =>
-        this.payablesApi.settlePayable(payableId, { Amount: amount }).pipe(
+        this.payablesApi.settlePayable(payableId, { amount: amount }).pipe(
           mergeMap((response) => {
             if (!response.isSuccess || !response.result) {
               const error = response.error ?? new Error('Failed to settle the payable.');

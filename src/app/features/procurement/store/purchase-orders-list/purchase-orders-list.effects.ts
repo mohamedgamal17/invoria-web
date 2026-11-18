@@ -59,12 +59,12 @@ export class PurchaseOrdersListEffects {
 
   private executeFetch(state: PurchaseOrdersListState) {
     const request: ListPurchaseOrderRequest = {
-      Skip: state.pageIndex * state.pageSize,
-      Length: state.pageSize,
-      Number: state.numberFilter || null,
-      IncludePurchaseItems: false,
-      IncludeSupplier: true,
-      ...(state.statusFilter != null ? { Status: state.statusFilter } : {}),
+      skip: state.pageIndex * state.pageSize,
+      length: state.pageSize,
+      number: state.numberFilter || null,
+      includePurchaseItems: false,
+      includeSupplier: true,
+      ...(state.statusFilter != null ? { status: state.statusFilter } : {}),
     };
 
     return this.purchaseOrdersApi.listPurchaseOrders(request).pipe(

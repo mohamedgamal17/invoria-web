@@ -35,9 +35,9 @@ interface OverviewSourceResult<PeriodEntityType> {
 
 /** Per-page fetch identity for both metrics endpoints on the dashboard. */
 interface ListDashboardMetricsRequest {
-  Period: ReportPeriod;
-  Skip: number;
-  Length: number;
+  period: ReportPeriod;
+  skip: number;
+  length: number;
 }
 
 /** Metrics window shown by the dashboard chart cards ("Last 14 periods"). */
@@ -165,9 +165,9 @@ export class DashboardEffects {
 
   private fetchSalesProfitMetrics(period: ReportPeriod): Observable<Action> {
     const request: ListDashboardMetricsRequest = {
-      Period: period,
-      Skip: 0,
-      Length: METRICS_PAGE_LENGTH,
+      period: period,
+      skip: 0,
+      length: METRICS_PAGE_LENGTH,
     };
     return this.ordersApi.listOrderSalesProfitReportMetrics(request).pipe(
       mergeMap((response) => {
@@ -193,9 +193,9 @@ export class DashboardEffects {
 
   private fetchSalesMetrics(period: ReportPeriod): Observable<Action> {
     const request: ListDashboardMetricsRequest = {
-      Period: period,
-      Skip: 0,
-      Length: METRICS_PAGE_LENGTH,
+      period: period,
+      skip: 0,
+      length: METRICS_PAGE_LENGTH,
     };
     return this.ordersApi.listOrderSalesReportMetrics(request).pipe(
       mergeMap((response) => {

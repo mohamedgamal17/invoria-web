@@ -57,9 +57,9 @@ export class ProductsListEffects {
 
   private executeFetch(state: ProductsListState) {
     const request: ListProductRequest = {
-      Skip: state.pageIndex * state.pageSize,
-      Length: state.pageSize,
-      ...(state.nameFilter ? { Name: state.nameFilter } : {}),
+      skip: state.pageIndex * state.pageSize,
+      length: state.pageSize,
+      ...(state.nameFilter ? { name: state.nameFilter } : {}),
     };
 
     return this.productsApi.listProducts(request).pipe(

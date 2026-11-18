@@ -57,11 +57,11 @@ export class ReceivablesListEffects {
 
   private executeFetch(state: ReceivablesListState) {
     const request: ListReceivableRequest = {
-      Skip: state.pageIndex * state.pageSize,
-      Length: state.pageSize,
-      ...(state.partyIdFilter ? { PartyId: state.partyIdFilter } : {}),
-      ...(state.sourceIdFilter ? { SourceId: state.sourceIdFilter } : {}),
-      ...(state.isPaidFilter !== null ? { IsPaid: state.isPaidFilter } : {}),
+      skip: state.pageIndex * state.pageSize,
+      length: state.pageSize,
+      ...(state.partyIdFilter ? { partyId: state.partyIdFilter } : {}),
+      ...(state.sourceIdFilter ? { sourceId: state.sourceIdFilter } : {}),
+      ...(state.isPaidFilter !== null ? { isPaid: state.isPaidFilter } : {}),
     };
 
     return this.receivablesApi.listReceivables(request).pipe(

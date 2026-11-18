@@ -41,9 +41,9 @@ export const productsListSelectors = {
     productsListFeature.selectPageSize,
     productsListFeature.selectNameFilter,
     (pageIndex, pageSize, nameFilter): ListProductRequest => ({
-      Skip: pageIndex * pageSize,
-      Length: pageSize,
-      ...(nameFilter ? { Name: nameFilter } : {}),
+      skip: pageIndex * pageSize,
+      length: pageSize,
+      ...(nameFilter ? { name: nameFilter } : {}),
     }),
   ),
 } as const;

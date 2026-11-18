@@ -8,8 +8,8 @@ import {
   productsMutationsReducer,
 } from './products-mutations.reducer';
 
-const CREATE_REQUEST = { Name: 'Alpha Widget', Price: 100 };
-const UPDATE_REQUEST = { Name: 'Alpha Widget Pro', Price: 150 };
+const CREATE_REQUEST = { name: 'Alpha Widget', price: 100 };
+const UPDATE_REQUEST = { name: 'Alpha Widget Pro', price: 150 };
 const PRODUCT: Product = {
   id: 'prd_1',
   name: 'Alpha Widget',

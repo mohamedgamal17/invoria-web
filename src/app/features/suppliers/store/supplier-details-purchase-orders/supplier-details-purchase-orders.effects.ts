@@ -95,15 +95,15 @@ export class SupplierPurchaseOrdersEffects {
   private executeFetch(state: SupplierPurchaseOrdersState, supplierId: string) {
     const filters = state.filters;
     const request: ListPurchaseOrderRequest = {
-      Skip: state.pageIndex * state.pageSize,
-      Length: state.pageSize,
-      SupplierId: supplierId,
-      IncludePurchaseItems: false,
-      IncludeSupplier: true,
-      Number: filters.purchaseNumber.trim() || null,
+      skip: state.pageIndex * state.pageSize,
+      length: state.pageSize,
+      supplierId: supplierId,
+      includePurchaseItems: false,
+      includeSupplier: true,
+      number: filters.purchaseNumber.trim() || null,
     };
     if (filters.status != null) {
-      request.Status = filters.status;
+      request.status = filters.status;
     }
 
     return this.purchaseOrdersApi.listPurchaseOrders(request).pipe(

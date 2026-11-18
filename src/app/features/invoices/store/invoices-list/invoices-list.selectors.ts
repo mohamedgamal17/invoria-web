@@ -43,10 +43,10 @@ export const invoicesListSelectors = {
     invoicesListFeature.selectCustomerIdFilter,
     invoicesListFeature.selectOrderIdFilter,
     (pageIndex, pageSize, customerIdFilter, orderIdFilter): ListInvoiceRequest => ({
-      Skip: pageIndex * pageSize,
-      Length: pageSize,
-      ...(customerIdFilter ? { CustomerId: customerIdFilter } : {}),
-      ...(orderIdFilter ? { OrderId: orderIdFilter } : {}),
+      skip: pageIndex * pageSize,
+      length: pageSize,
+      ...(customerIdFilter ? { customerId: customerIdFilter } : {}),
+      ...(orderIdFilter ? { orderId: orderIdFilter } : {}),
     }),
   ),
 } as const;

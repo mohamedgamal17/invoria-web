@@ -45,11 +45,11 @@ export const payablesListSelectors = {
     payablesListFeature.selectSourceIdFilter,
     payablesListFeature.selectIsPaidFilter,
     (pageIndex, pageSize, supplierIdFilter, sourceIdFilter, isPaidFilter): ListPayableRequest => ({
-      Skip: pageIndex * pageSize,
-      Length: pageSize,
-      PartyId: supplierIdFilter || null,
-      SourceId: sourceIdFilter || null,
-      IsPaid: isPaidFilter,
+      skip: pageIndex * pageSize,
+      length: pageSize,
+      partyId: supplierIdFilter || null,
+      sourceId: sourceIdFilter || null,
+      isPaid: isPaidFilter,
     }),
   ),
 } as const;

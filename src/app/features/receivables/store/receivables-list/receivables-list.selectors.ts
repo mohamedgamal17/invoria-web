@@ -45,11 +45,11 @@ export const receivablesListSelectors = {
     receivablesListFeature.selectSourceIdFilter,
     receivablesListFeature.selectIsPaidFilter,
     (pageIndex, pageSize, partyIdFilter, sourceIdFilter, isPaidFilter): ListReceivableRequest => ({
-      Skip: pageIndex * pageSize,
-      Length: pageSize,
-      PartyId: partyIdFilter || null,
-      SourceId: sourceIdFilter || null,
-      IsPaid: isPaidFilter,
+      skip: pageIndex * pageSize,
+      length: pageSize,
+      partyId: partyIdFilter || null,
+      sourceId: sourceIdFilter || null,
+      isPaid: isPaidFilter,
     }),
   ),
 } as const;

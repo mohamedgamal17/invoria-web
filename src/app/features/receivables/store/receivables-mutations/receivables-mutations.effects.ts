@@ -25,7 +25,7 @@ export class ReceivablesMutationsEffects {
     this.actions$.pipe(
       ofType(RECEIVABLES_MUTATIONS_ACTIONS.settleReceivable),
       exhaustMap(({ receivableId, amount }) =>
-        this.receivablesApi.settleReceivable(receivableId, { Amount: amount }).pipe(
+        this.receivablesApi.settleReceivable(receivableId, { amount: amount }).pipe(
           mergeMap((response) => {
             if (!response.isSuccess || !response.result) {
               const error = response.error ?? new Error('Failed to settle the receivable.');

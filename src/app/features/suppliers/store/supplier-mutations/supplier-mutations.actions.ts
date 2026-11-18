@@ -1,8 +1,7 @@
 ﻿import { createAction, props } from '@ngrx/store';
 
 import type { Supplier } from '../../models/supplier.entity';
-import type { CreateSupplierRequest } from '../../models/create-supplier.request';
-import type { UpdateSupplierRequest } from '../../models/update-supplier.request';
+import type { SupplierRequest } from '../../models/supplier-request';
 
 /**
  * State module for the supplier form page: store-owned create/update mutations.
@@ -14,7 +13,7 @@ export const SUPPLIER_MUTATIONS_ACTIONS = {
   /** Form submit: start a create request; the body is already validated by the form. */
   createSupplier: createAction(
     '[Suppliers] Create Supplier',
-    props<{ request: CreateSupplierRequest }>(),
+    props<{ request: SupplierRequest }>(),
   ),
 
   createSupplierSuccess: createAction(
@@ -30,7 +29,7 @@ export const SUPPLIER_MUTATIONS_ACTIONS = {
   /** Form submit: start an update request for the edited supplier. */
   updateSupplier: createAction(
     '[Suppliers] Update Supplier',
-    props<{ id: string; request: UpdateSupplierRequest }>(),
+    props<{ id: string; request: SupplierRequest }>(),
   ),
 
   updateSupplierSuccess: createAction(

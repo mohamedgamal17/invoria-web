@@ -62,11 +62,11 @@ export class PayablesListEffects {
 
   private executeFetch(state: PayablesListState) {
     const request: ListPayableRequest = {
-      Skip: state.pageIndex * state.pageSize,
-      Length: state.pageSize,
-      ...(state.supplierIdFilter ? { PartyId: state.supplierIdFilter } : {}),
-      ...(state.sourceIdFilter ? { SourceId: state.sourceIdFilter } : {}),
-      ...(state.isPaidFilter !== null ? { IsPaid: state.isPaidFilter } : {}),
+      skip: state.pageIndex * state.pageSize,
+      length: state.pageSize,
+      ...(state.supplierIdFilter ? { partyId: state.supplierIdFilter } : {}),
+      ...(state.sourceIdFilter ? { sourceId: state.sourceIdFilter } : {}),
+      ...(state.isPaidFilter !== null ? { isPaid: state.isPaidFilter } : {}),
     };
 
     return this.payablesApi.listPayables(request).pipe(

@@ -48,9 +48,9 @@ export class CustomersListEffects {
 
   private executeFetch(state: CustomersListState) {
     const request: ListCustomerRequest = {
-      Skip: state.pageIndex * state.pageSize,
-      Length: state.pageSize,
-      Name: state.nameFilter || null,
+      skip: state.pageIndex * state.pageSize,
+      length: state.pageSize,
+      name: state.nameFilter || null,
     };
 
     return this.customersApi.listCustomers(request).pipe(

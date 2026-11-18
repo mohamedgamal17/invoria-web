@@ -8,7 +8,7 @@ import {
   customerMutationsReducer,
 } from './customer-mutations.reducer';
 
-const REQUEST = { Name: 'Alpha Customer' };
+const REQUEST = { name: 'Alpha Customer' };
 const CUSTOMER: Customer = {
   id: 'cus_1',
   name: 'Alpha Customer',

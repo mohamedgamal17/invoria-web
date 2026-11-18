@@ -86,20 +86,20 @@ export class CustomerOrdersEffects {
   private executeFetch(state: CustomerOrdersState, customerId: string) {
     const filters = state.filters;
     const request: ListOrderRequest = {
-      Skip: state.pageIndex * state.pageSize,
-      Length: state.pageSize,
-      IncludeOrderItems: true,
-      CustomerId: customerId,
-      OrderNumber: filters.orderNumber.trim() || null,
+      skip: state.pageIndex * state.pageSize,
+      length: state.pageSize,
+      includeOrderItems: true,
+      customerId: customerId,
+      orderNumber: filters.orderNumber.trim() || null,
     };
     if (filters.status != null) {
-      request.Status = filters.status;
+      request.status = filters.status;
     }
     if (filters.paymentStatus != null) {
-      request.PaymentStatus = filters.paymentStatus;
+      request.paymentStatus = filters.paymentStatus;
     }
     if (filters.paymentType != null) {
-      request.PaymentType = filters.paymentType;
+      request.paymentType = filters.paymentType;
     }
 
     return this.listCustomerOrdersApi.listOrders(request).pipe(

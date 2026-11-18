@@ -8,7 +8,7 @@ import {
   supplierMutationsReducer,
 } from './supplier-mutations.reducer';
 
-const REQUEST = { Name: 'Alpha Supplier' };
+const REQUEST = { name: 'Alpha Supplier' };
 const SUPPLIER: Supplier = {
   id: 'sup_1',
   name: 'Alpha Supplier',

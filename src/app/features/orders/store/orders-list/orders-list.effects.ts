@@ -54,15 +54,15 @@ export class OrdersListEffects {
 
   private executeFetch(state: OrdersListState) {
     const request = {
-      Skip: state.pageIndex * state.pageSize,
-      Length: state.pageSize,
-      IncludeOrderItems: true,
-      OrderNumber: state.orderNumberFilter || null,
-      ...(state.statusFilter !== null ? { Status: state.statusFilter } : {}),
+      skip: state.pageIndex * state.pageSize,
+      length: state.pageSize,
+      includeOrderItems: true,
+      orderNumber: state.orderNumberFilter || null,
+      ...(state.statusFilter !== null ? { status: state.statusFilter } : {}),
       ...(state.paymentStatusFilter !== null
-        ? { PaymentStatus: state.paymentStatusFilter }
+        ? { paymentStatus: state.paymentStatusFilter }
         : {}),
-      ...(state.paymentTypeFilter !== null ? { PaymentType: state.paymentTypeFilter } : {}),
+      ...(state.paymentTypeFilter !== null ? { paymentType: state.paymentTypeFilter } : {}),
     };
 
     return this.ordersApi.listOrders(request).pipe(

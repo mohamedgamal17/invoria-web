@@ -57,10 +57,10 @@ export class InvoicesListEffects {
 
   private executeFetch(state: InvoicesListState) {
     const request: ListInvoiceRequest = {
-      Skip: state.pageIndex * state.pageSize,
-      Length: state.pageSize,
-      ...(state.customerIdFilter ? { CustomerId: state.customerIdFilter } : {}),
-      ...(state.orderIdFilter ? { OrderId: state.orderIdFilter } : {}),
+      skip: state.pageIndex * state.pageSize,
+      length: state.pageSize,
+      ...(state.customerIdFilter ? { customerId: state.customerIdFilter } : {}),
+      ...(state.orderIdFilter ? { orderId: state.orderIdFilter } : {}),
     };
 
     return this.invoicesApi.listInvoices(request).pipe(

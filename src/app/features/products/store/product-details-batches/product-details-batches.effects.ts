@@ -94,9 +94,9 @@ export class ProductBatchesEffects {
       filter(([, product]) => Boolean(product)),
       exhaustMap(([{ payload }, product]) => {
         const request: CreateBatchRequest = {
-          ProductId: product!.id,
-          Quantity: payload.quantity,
-          PurchasePrice: payload.purchasePrice,
+          productId: product!.id,
+          quantity: payload.quantity,
+          purchasePrice: payload.purchasePrice,
         };
         return this.batchesApi.createBatch(request).pipe(
           mergeMap((response) => {
@@ -125,8 +125,8 @@ export class ProductBatchesEffects {
       ofType(PRODUCT_BATCHES_ACTIONS.updateBatch),
       exhaustMap(({ id, payload }) => {
         const request: UpdateBatchRequest = {
-          Quantity: payload.quantity,
-          PurchasePrice: payload.purchasePrice,
+          quantity: payload.quantity,
+          purchasePrice: payload.purchasePrice,
         };
         return this.batchesApi.updateBatch(id, request).pipe(
           mergeMap((response) => {
@@ -167,9 +167,9 @@ export class ProductBatchesEffects {
 
   private executeFetch(state: ProductBatchesState, productId: string) {
     const request: ListBatchRequest = {
-      ProductId: productId,
-      Skip: state.pageIndex * state.pageSize,
-      Length: state.pageSize,
+      productId: productId,
+      skip: state.pageIndex * state.pageSize,
+      length: state.pageSize,
     };
     return this.batchesApi.listBatches(request).pipe(
       mergeMap((response) => {

@@ -46,12 +46,12 @@ export const purchaseOrdersListSelectors = {
     purchaseOrdersListFeature.selectNumberFilter,
     purchaseOrdersListFeature.selectStatusFilter,
     (pageIndex, pageSize, numberFilter, statusFilter): ListPurchaseOrderRequest => ({
-      Skip: pageIndex * pageSize,
-      Length: pageSize,
-      Number: numberFilter || null,
-      IncludePurchaseItems: false,
-      IncludeSupplier: true,
-      ...(statusFilter != null ? { Status: statusFilter } : {}),
+      skip: pageIndex * pageSize,
+      length: pageSize,
+      number: numberFilter || null,
+      includePurchaseItems: false,
+      includeSupplier: true,
+      ...(statusFilter != null ? { status: statusFilter } : {}),
     }),
   ),
 } as const;

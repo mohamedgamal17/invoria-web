@@ -165,7 +165,7 @@ describe('orderDetailsReducer', () => {
       const next = orderDetailsReducer(LOADED, {
         ...ORDER_DETAILS_ACTIONS.recordPayment({
           orderId: 'ord_1',
-          body: { PaidAmount: 100, PaymentMethod: OrderPaymentMethod.BankTransfer, PaidAt: null },
+          body: { paidAmount: 100, paymentMethod: OrderPaymentMethod.BankTransfer, paidAt: null },
         }),
       });
       expect(next.paymentRequest.status).toBe(LOAD_STATUS.Loading);
@@ -183,7 +183,7 @@ describe('orderDetailsReducer', () => {
       const saving = orderDetailsReducer(LOADED, {
         ...ORDER_DETAILS_ACTIONS.recordPayment({
           orderId: 'ord_1',
-          body: { PaidAmount: 100, PaymentMethod: OrderPaymentMethod.BankTransfer, PaidAt: null },
+          body: { paidAmount: 100, paymentMethod: OrderPaymentMethod.BankTransfer, paidAt: null },
         }),
       });
       const next = orderDetailsReducer(saving, {
@@ -199,7 +199,7 @@ describe('orderDetailsReducer', () => {
       const saving = orderDetailsReducer(LOADED, {
         ...ORDER_DETAILS_ACTIONS.recordPayment({
           orderId: 'ord_1',
-          body: { PaidAmount: 100, PaymentMethod: OrderPaymentMethod.BankTransfer, PaidAt: null },
+          body: { paidAmount: 100, paymentMethod: OrderPaymentMethod.BankTransfer, paidAt: null },
         }),
       });
       const next = orderDetailsReducer(saving, {

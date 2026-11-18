@@ -39,10 +39,10 @@ export const suppliersListSelectors = {
     suppliersListFeature.selectPageIndex,
     suppliersListFeature.selectPageSize,
     suppliersListFeature.selectNameFilter,
-    (pageIndex, pageSize, nameFilter): { Skip: number; Length: number; Name: string | null } => ({
-      Skip: pageIndex * pageSize,
-      Length: pageSize,
-      Name: nameFilter || null,
+    (pageIndex, pageSize, nameFilter): { skip: number; length: number; name: string | null } => ({
+      skip: pageIndex * pageSize,
+      length: pageSize,
+      name: nameFilter || null,
     }),
   ),
 } as const;
