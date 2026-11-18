@@ -1,8 +1,7 @@
 ﻿import { createAction, props } from '@ngrx/store';
 
 import type { Customer } from '../../models/customer.entity';
-import type { CreateCustomerRequest } from '../../models/create-customer.request';
-import type { UpdateCustomerRequest } from '../../models/update-customer.request';
+import type { CustomerRequest } from '../../models/customer-request';
 
 /**
  * State module for the customer form page: store-owned create/update mutations.
@@ -14,7 +13,7 @@ export const CUSTOMER_MUTATIONS_ACTIONS = {
   /** Form submit: start a create request; the body is already validated by the form. */
   createCustomer: createAction(
     '[Customers] Create Customer',
-    props<{ request: CreateCustomerRequest }>(),
+    props<{ request: CustomerRequest }>(),
   ),
 
   createCustomerSuccess: createAction(
@@ -30,7 +29,7 @@ export const CUSTOMER_MUTATIONS_ACTIONS = {
   /** Form submit: start an update request for the edited customer. */
   updateCustomer: createAction(
     '[Customers] Update Customer',
-    props<{ id: string; request: UpdateCustomerRequest }>(),
+    props<{ id: string; request: CustomerRequest }>(),
   ),
 
   updateCustomerSuccess: createAction(
