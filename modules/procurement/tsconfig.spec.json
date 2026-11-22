@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/procurement-spec",
+    "types": []
+  },
+  "include": ["src/**/*.ts"]
+}

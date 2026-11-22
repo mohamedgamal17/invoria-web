@@ -1,0 +1,121 @@
+import { DatePipe } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  untracked,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
+import { map } from 'rxjs';
+
+import { Store } from '@ngrx/store';
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
+
+import { PageHeaderComponent } from '@invoria/ui';
+import { DetailsToolbarComponent } from '@invoria/ui';
+import { DetailsSkeletonComponent } from '@invoria/ui';
+import { ErrorCardComponent } from '@invoria/ui';
+import { DEFAULT_CURRENCY_CODE } from '@invoria/utils';
+import { UrlStateService } from '@invoria/utils';
+import { parseStringEnumTab } from '@invoria/utils';
+import { InvoiceDetailsOverviewCardComponent } from '@invoria/sales/invoices/components/invoice-details-overview-card/invoice-details-overview-card.component';
+import { InvoiceDetailsItemsTabComponent } from '@invoria/sales/invoices/components/invoice-details-items-tab/invoice-details-items-tab.component';
+import { INVOICE_DETAILS_ACTIONS } from '@invoria/sales/invoices/store/invoice-details/invoice-details.actions';
+import { InvoiceDetailsTab } from '@invoria/sales/invoices/store/invoice-details/invoice-details.reducer';
+import { invoiceDetailsSelectors } from '@invoria/sales/invoices/store/invoice-details/invoice-details.selectors';
+
+/**
+ * Smart page (container) for invoice details. It owns only:
+ * - the NgRx state mapping (selectors ? signals),
+ * - the trigger effect for the `:id` route param,
+ * - the URL write adapter (`tab` query param via `replaceUrl`),
+ * - presentation glue (back navigation, retry).
+ * The URL *read* side lives in the `store/invoice-details-url` effects
+ * (NgRx Router Store); all API calls live in the `store/invoice-details`
+ * slice, and error presentation is owned by the global `AppErrorEffects`.
+ */
+@Component({
+  selector: 'app-invoice-details-page',
+  standalone: true,
+  imports: [
+    DatePipe,
+    DetailsSkeletonComponent,
+    ErrorCardComponent,
+    DetailsToolbarComponent,
+    Tabs,
+    TabList,
+    Tab,
+    TabPanels,
+    TabPanel,
+    PageHeaderComponent,
+    InvoiceDetailsOverviewCardComponent,
+    InvoiceDetailsItemsTabComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './invoice-details-page.component.html',
+})
+export class InvoiceDetailsPageComponent {
+  readonly currencyCode = DEFAULT_CURRENCY_CODE;
+  readonly tabs = InvoiceDetailsTab;
+
+  private readonly store = inject(Store);
+  private readonly urlState = inject(UrlStateService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+
+  private readonly invoiceId = toSignal(
+    this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
+    { initialValue: this.route.snapshot.paramMap.get('id') ?? '' },
+  );
+
+  // --- Details store (invoice + activeTab + load request) ---
+  readonly displayInvoice = this.store.selectSignal(invoiceDetailsSelectors.selectInvoice);
+  readonly loading = this.store.selectSignal(invoiceDetailsSelectors.selectIsLoading);
+  readonly errorDetail = this.store.selectSignal(invoiceDetailsSelectors.selectError);
+  readonly activeTab = this.store.selectSignal(invoiceDetailsSelectors.selectActiveTab);
+
+  readonly error = computed<string>(() => {
+    if (!this.invoiceId()) return 'Missing invoice id.';
+    if (this.loading()) return '';
+    if (!this.displayInvoice()) return this.errorDetail() || 'Failed to load invoice.';
+    return '';
+  });
+
+  constructor() {
+    // Trigger the details state module whenever the `:id` param changes.
+    effect(() => {
+      const id = this.invoiceId();
+      if (!id) {
+        return;
+      }
+      untracked(() => this.store.dispatch(INVOICE_DETAILS_ACTIONS.loadInvoice({ invoiceId: id })));
+    });
+  }
+
+  backToList(): void {
+    void this.router.navigate(['/invoices']);
+  }
+
+  retry(): void {
+    const id = this.invoiceId();
+    if (!id) {
+      return;
+    }
+    this.store.dispatch(INVOICE_DETAILS_ACTIONS.refreshInvoice({ invoiceId: id }));
+  }
+
+  onTabChange(value: string | number | undefined): void {
+    if (value === undefined || value === null) {
+      return;
+    }
+    const next =
+      parseStringEnumTab(InvoiceDetailsTab, value, {
+        '': InvoiceDetailsTab.Overview,
+      }) ?? InvoiceDetailsTab.Overview;
+    this.store.dispatch(INVOICE_DETAILS_ACTIONS.setActiveTab({ activeTab: next }));
+    void this.urlState.replaceQueryParams(this.route, { tab: next });
+  }
+}

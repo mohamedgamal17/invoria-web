@@ -16,7 +16,7 @@ if (!apiUrl) {
 
 const environmentFilePath = resolve(
   workspaceRoot,
-  'src/environments/environment.production.ts',
+  'modules/shell/src/environments/environment.production.ts',
 );
 
 mkdirSync(dirname(environmentFilePath), { recursive: true });

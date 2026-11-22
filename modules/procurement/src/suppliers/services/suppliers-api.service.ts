@@ -1,0 +1,116 @@
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { map, Observable, throwError } from 'rxjs';
+
+import { ApiResponse , API_BASE_URL, normalizeApiBaseUrl } from '@invoria/core';
+import { Paging } from '@invoria/core';
+import { httpParamsFromRequest } from '@invoria/utils';
+import type { Supplier } from '../models/supplier.entity';
+import type { ListSupplierRequest } from '../models/list-supplier.request';
+import type { SupplierRequest } from '../models/supplier-request';
+import type { SupplierCreationReportPeriod } from '../models/supplier-report.entity';
+import type { ListSupplierCreationReportRequest } from '../models/list-supplier-report.request';
+import type { ReportOverview } from '@invoria/utils';
+
+/** Client-side name filter helper (retained for unit tests). */
+export function filterSuppliersByName(suppliers: Supplier[], nameFilter: string | undefined): Supplier[] {
+  const query = (nameFilter ?? '').trim().toLowerCase();
+  if (!query) {
+    return suppliers;
+  }
+  return suppliers.filter((supplier) => (supplier.name || '').toLowerCase().includes(query));
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class SuppliersApiService {
+  private readonly http = inject(HttpClient);
+  private readonly apiBaseUrl = inject(API_BASE_URL);
+  private readonly baseUrl = normalizeApiBaseUrl(this.apiBaseUrl);
+
+  listSuppliers(request: ListSupplierRequest): Observable<ApiResponse<Paging<Supplier>>> {
+    if (request.skip < 0) {
+      return throwError(() => new Error('Invalid Skip.'));
+    }
+    if (request.length <= 0) {
+      return throwError(() => new Error('Invalid Length.'));
+    }
+
+    return this.http.get<ApiResponse<Paging<Supplier>>>(`${this.baseUrl}suppliers`, {
+      params: httpParamsFromRequest(request)
+    });
+  }
+
+  getSupplier(id: string): Observable<ApiResponse<Supplier>> {
+    return this.http.get<ApiResponse<Supplier>>(
+      `${this.baseUrl}suppliers/${encodeURIComponent(id)}`
+    );
+  }
+
+  createSupplier(request: SupplierRequest): Observable<ApiResponse<Supplier>> {
+    this.assertSupplierName(request.name);
+    return this.http.post<ApiResponse<Supplier>>(`${this.baseUrl}suppliers`, request);
+  }
+
+  updateSupplier(id: string, request: SupplierRequest): Observable<ApiResponse<Supplier>> {
+    this.assertSupplierName(request.name);
+    return this.http.put<ApiResponse<Supplier>>(
+      `${this.baseUrl}suppliers/${encodeURIComponent(id)}`,
+      request
+    );
+  }
+
+  /**
+   * Loads suppliers for autocomplete from GET /suppliers.
+   * Optional `nameFilter` is sent as the `name` query param when non-empty.
+   */
+  searchSuppliers(listRequest: ListSupplierRequest, nameFilter?: string): Observable<Supplier[]> {
+    const trimmed = (nameFilter ?? '').trim();
+    const request: ListSupplierRequest = {
+      ...listRequest,
+      name: trimmed ? trimmed : undefined
+    };
+    return this.http
+      .get<ApiResponse<Paging<Supplier>>>(`${this.baseUrl}suppliers`, {
+        params: httpParamsFromRequest(request)
+      })
+      .pipe(
+        map((body) => {
+          if (!body.isSuccess || !body.result) {
+            return [];
+          }
+          return body.result.data;
+        })
+      );
+  }
+
+  getSupplierCreationReportOverview(): Observable<
+    ApiResponse<ReportOverview<SupplierCreationReportPeriod>>
+  > {
+    return this.http.get<ApiResponse<ReportOverview<SupplierCreationReportPeriod>>>(
+      `${this.baseUrl}report/suppliers/creation/overview`
+    );
+  }
+
+  listSupplierCreationReportMetrics(
+    request: ListSupplierCreationReportRequest
+  ): Observable<ApiResponse<Paging<SupplierCreationReportPeriod>>> {
+    if (request.skip < 0) {
+      return throwError(() => new Error('Invalid Skip.'));
+    }
+    if (request.length <= 0) {
+      return throwError(() => new Error('Invalid Length.'));
+    }
+    return this.http.get<ApiResponse<Paging<SupplierCreationReportPeriod>>>(
+      `${this.baseUrl}report/suppliers/creation/metrics`,
+      { params: httpParamsFromRequest(request) }
+    );
+  }
+
+  private assertSupplierName(name: string | undefined): void {
+    if (!(name ?? '').trim()) {
+      throw new Error('Name is required.');
+    }
+  }
+}

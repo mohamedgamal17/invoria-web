@@ -1,0 +1,20 @@
+{
+  "name": "@invoria/core",
+  "version": "0.0.1",
+  "private": true,
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*"
+  },
+  "peerDependencies": {
+    "@angular/core": "^21.2.0",
+    "@angular/common": "^21.2.0",
+    "@angular/router": "^21.2.0",
+    "lucide-angular": "^0.577.0",
+    "rxjs": "~7.8.0"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  }
+}

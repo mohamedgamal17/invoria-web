@@ -1,0 +1,54 @@
+import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import type { PagingInfo } from '@invoria/core';
+import {
+  DEFAULT_PAGE_SIZE_OPTIONS,
+  type PaginatorPageEvent,
+} from '@invoria/utils';
+import { PurchaseOrderListComponent } from '@invoria/procurement/purchase-orders/components/purchase-order-list/purchase-order-list.component';
+import { PurchaseOrdersFilterPanelComponent } from '@invoria/procurement/purchase-orders/components/purchase-orders-filter-panel/purchase-orders-filter-panel.component';
+import type { PurchaseOrdersListFilters } from '@invoria/procurement/purchase-orders/models/purchase-orders-list.filters';
+import type { PurchaseOrder } from '@invoria/procurement/purchase-orders/models/purchase-order.entity';
+
+@Component({
+  selector: 'app-supplier-details-purchase-orders-tab',
+  standalone: true,
+  imports: [CommonModule, PurchaseOrdersFilterPanelComponent, PurchaseOrderListComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './supplier-details-purchase-orders-tab.component.html',
+})
+export class SupplierDetailsPurchaseOrdersTabComponent {
+  readonly pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS;
+
+  /** Current filter values, mirrored from the owning page. */
+  readonly purchaseNumber = input<string>('');
+  readonly statusFilter = input<number | null>(null);
+
+  /** Data inputs provided by the owning page (supplier-details-purchase-orders store). */
+  readonly purchaseOrders = input<PurchaseOrder[]>([]);
+  readonly paging = input<PagingInfo>({ length: 0, skip: 0, totalCount: 0 });
+  readonly first = input(0);
+  readonly pageSize = input(25);
+  readonly loading = input(false);
+
+  readonly pageChange = output<PaginatorPageEvent>();
+  readonly filtersChange = output<PurchaseOrdersListFilters>();
+  readonly clearFilters = output<void>();
+  readonly view = output<PurchaseOrder>();
+
+  onPageChange(event: PaginatorPageEvent): void {
+    this.pageChange.emit(event);
+  }
+
+  onFiltersChange(filters: PurchaseOrdersListFilters): void {
+    this.filtersChange.emit(filters);
+  }
+
+  onClearFilters(): void {
+    this.clearFilters.emit();
+  }
+
+  goToDetails(purchaseOrder: PurchaseOrder): void {
+    this.view.emit(purchaseOrder);
+  }
+}

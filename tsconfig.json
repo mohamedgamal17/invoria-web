@@ -1,5 +1,3 @@
-/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
-/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
 {
   "compileOnSave": false,
   "compilerOptions": {
@@ -13,7 +11,32 @@
     "experimentalDecorators": true,
     "importHelpers": true,
     "target": "ES2022",
-    "module": "preserve"
+    "module": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "@invoria/core": ["modules/core/src/index.ts"],
+      "@invoria/core/*": ["modules/core/src/*"],
+      "@invoria/utils": ["modules/utils/src/index.ts"],
+      "@invoria/utils/*": ["modules/utils/src/*"],
+      "@invoria/ui": ["modules/ui/src/index.ts"],
+      "@invoria/ui/*": ["modules/ui/src/*"],
+      "@invoria/event-bus": ["modules/event-bus/src/index.ts"],
+      "@invoria/event-bus/*": ["modules/event-bus/src/*"],
+      "@invoria/customers": ["modules/customers/src/index.ts"],
+      "@invoria/customers/*": ["modules/customers/src/*"],
+      "@invoria/sales": ["modules/sales/src/index.ts"],
+      "@invoria/sales/*": ["modules/sales/src/*"],
+      "@invoria/inventory": ["modules/inventory/src/index.ts"],
+      "@invoria/inventory/*": ["modules/inventory/src/*"],
+      "@invoria/catalog": ["modules/catalog/src/index.ts"],
+      "@invoria/catalog/*": ["modules/catalog/src/*"],
+      "@invoria/financial": ["modules/financial/src/index.ts"],
+      "@invoria/financial/*": ["modules/financial/src/*"],
+      "@invoria/procurement": ["modules/procurement/src/index.ts"],
+      "@invoria/procurement/*": ["modules/procurement/src/*"],
+      "@invoria/shell": ["modules/shell/src/main.ts"],
+      "@invoria/shell/*": ["modules/shell/src/*"]
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
@@ -23,11 +46,7 @@
   },
   "files": [],
   "references": [
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.spec.json"
-    }
+    { "path": "./modules/shell/tsconfig.app.json" },
+    { "path": "./modules/shell/tsconfig.spec.json" }
   ]
 }

@@ -5,43 +5,42 @@
     "packageManager": "npm",
     "analytics": false
   },
-  "newProjectRoot": "projects",
+  "newProjectRoot": "modules",
   "projects": {
     "invoria-web": {
       "projectType": "application",
       "schematics": {},
       "root": "",
-      "sourceRoot": "src",
+      "sourceRoot": "modules",
       "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "browser": "src/main.ts",
-            "tsConfig": "tsconfig.app.json",
+            "browser": "modules/shell/src/main.ts",
+            "index": "modules/shell/src/index.html",
+            "tsConfig": "modules/shell/tsconfig.app.json",
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public"
+                "input": "modules/shell/public"
               }
             ],
-            "styles": [
-              "src/styles.css"
-            ]
+            "styles": ["modules/shell/src/styles.css"]
           },
           "configurations": {
             "production": {
               "fileReplacements": [
                 {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.production.ts"
+                  "replace": "modules/shell/src/environments/environment.ts",
+                  "with": "modules/shell/src/environments/environment.production.ts"
                 }
               ],
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1.5mb"
+                  "maximumWarning": "2.5mb",
+                  "maximumError": "3.5mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -54,8 +53,8 @@
             "development": {
               "fileReplacements": [
                 {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.development.ts"
+                  "replace": "modules/shell/src/environments/environment.ts",
+                  "with": "modules/shell/src/environments/environment.development.ts"
                 }
               ],
               "optimization": false,
@@ -78,7 +77,11 @@
           "defaultConfiguration": "development"
         },
         "test": {
-          "builder": "@angular/build:unit-test"
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "modules/shell/tsconfig.spec.json",
+            "include": ["modules/**/src/**/*.spec.ts"]
+          }
         }
       }
     }

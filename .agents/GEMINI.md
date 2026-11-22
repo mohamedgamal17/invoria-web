@@ -11,8 +11,8 @@ This document serves as the persistent project-level rules and entry point for G
 | Layer          | Technology                  | Details                                                                                                |
 | -------------- | --------------------------- | ------------------------------------------------------------------------------------------------------ |
 | **Framework**  | Angular 21.2                | Standalone components exclusively, Signals-first, Reactive Forms, strict TypeScript 5.9                |
-| **UI Library** | PrimeNG 21.1.3              | Styled via custom `AuraInvoria` preset (`src/styles/primeng/aura.preset.ts`)                           |
-| **CSS System** | Tailwind CSS 4              | CSS-first `@theme` in `src/styles.css` using semantic tokens from `src/styles/tokens.css`              |
+| **UI Library** | PrimeNG 21.1.3              | Styled via custom `AuraInvoria` preset (`modules/shell/src/styles/primeng/aura.preset.ts`)             |
+| **CSS System** | Tailwind CSS 4              | CSS-first `@theme` in `modules/shell/src/styles.css` using semantic tokens from `tokens.css`           |
 | **Icons**      | Lucide Angular & PrimeIcons | `lucide-angular` (^0.577.0) and `primeicons` (^7.0.0)                                                  |
 | **Data Viz**   | ECharts 6 & ngx-echarts 21  | One-time tree-shaken setup in `app.config.ts`, wrapped in `app-chart-card`                             |
 | **State**      | Signals & NgRx 22           | Component-local signals for simple pages; NgRx (`store`, `effects`, `router-store`) for complex slices |
@@ -26,8 +26,8 @@ This document serves as the persistent project-level rules and entry point for G
 - **Development server**: `ng serve` (runs on `http://localhost:4200`)
 - **Build production**: `npm run build` (requires `API_URL` environment variable to generate `environment.production.ts`)
 - **Unit testing**: `ng test` (Vitest full run)
-- **Focused test**: `npx ng test --watch=false --include="src/app/features/<feature>/**/*.spec.ts"`
-- **Type checking**: `npx tsc --noEmit -p tsconfig.app.json` and `npx tsc --noEmit -p tsconfig.spec.json`
+- **Focused test**: `npx ng test --watch=false --include="modules/<module>/src/**/*.spec.ts"`
+- **Type checking**: `npm run typecheck` and `npm run typecheck:workspaces`
 - **Code formatting**: `npx prettier --write <touched-file>` (never run tree-wide; the repository is intentionally not globally formatted)
 
 ---
@@ -48,7 +48,7 @@ This document serves as the persistent project-level rules and entry point for G
    - **PrimeNG First**: Always use PrimeNG components (`p-table`, `p-dialog`, `p-drawer`, `p-button`, `p-tag`, `p-toast`, etc.) before considering custom markup.
    - **Semantic Tokens Only**: Use semantic Tailwind classes (`bg-surface`, `text-foreground`, `border-border`, `text-success`, `text-warning`, `text-danger`). **Never use hardcoded hex/rgb colors or Tailwind raw color palette hues** (`text-emerald-600`, `bg-red-500`, etc.).
    - **Shared UI Primitives**: Reuse `app-chart-card`, `app-kpi-card`, `app-list-skeleton`, `app-details-toolbar`, `app-details-skeleton`, `app-empty-state`, `app-financial-obligation-list`, `app-financial-obligation-overview-card`, `app-report-period-filter-panel`, `app-name-filter-panel`, `app-status-steps`, `app-settle-modal`, `app-autosearch`, and `app-confirm-dialog`. Do not implement local variants.
-   - **Currency & Formatting**: Always use `formatCurrency` / `formatNumber` from `src/app/shared/utils/format.ts` and `DEFAULT_CURRENCY_CODE` (`'EGP'`) from `src/app/shared/models/currency.ts`. Never hardcode `'USD'` or `'EGP'`.
+   - **Currency & Formatting**: Always use `formatCurrency` / `formatNumber` from `@invoria/utils` and `DEFAULT_CURRENCY_CODE` (`'EGP'`) from `@invoria/utils`. Never hardcode `'USD'` or `'EGP'`.
 5. **TypeScript Identifier Naming Standards**:
    - **Ban on single-character identifiers**: All variable, parameter, arrow callback (`.map()`, `.filter()`, `.reduce()`, `subscribe({ next, error })`), function, and method names must be **at least 2 characters** and describe their **role** (e.g. `customer`, `itemIndex`, `query`, `error`).
    - **Exemptions**: `_` for unused parameters, TypeScript generic parameters (`T`, `E`), and query string keys matching API/URL contracts (`'q'`).
@@ -93,11 +93,11 @@ Detailed, specialized guidelines and procedural runbooks are organized under `.a
 
 When designing new features or components, always inspect existing canonical implementations first:
 
-- **NgRx CRUD Feature Reference**: `src/app/features/customers/` (pages, store slices, URL adapter, list sync)
-- **Signals-Based Feature Reference**: `src/app/features/orders/` and `src/app/features/suppliers/`
-- **Shared Primitives**: `src/app/shared/ui/` (`chart-card`, `kpi-card`, `list-skeleton`, `details-toolbar`, `details-skeleton`, `empty-state`, `financial-obligation-list`, `financial-obligation-overview-card`, `report-period-filter-panel`, `name-filter-panel`, `confirm-dialog`)
-- **API Services & Request Models**: `src/app/features/customers/services/customers-api.service.ts` and `src/app/features/customers/models/`
-- **Testing Specifications**: `src/app/features/orders/pages/orders-page/orders-page.component.spec.ts`
+- **NgRx CRUD Feature Reference**: `modules/customers/src/` (pages, store slices, URL adapter, list sync)
+- **Signals-Based Feature Reference**: `modules/sales/src/orders/` and `modules/procurement/src/suppliers/`
+- **Shared Primitives**: `modules/ui/src/ui/` (`chart-card`, `kpi-card`, `list-skeleton`, `details-toolbar`, `details-skeleton`, `empty-state`, `report-period-filter-panel`, `name-filter-panel`, `confirm-dialog`)
+- **API Services & Request Models**: `modules/customers/src/services/customers-api.service.ts` and `modules/customers/src/models/`
+- **Testing Specifications**: `modules/sales/src/orders/pages/orders-page/orders-page.component.spec.ts`
 
 ---
 
