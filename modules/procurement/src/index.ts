@@ -1,8 +1,3 @@
-// Routes
-export { PROCUREMENT_ROUTES } from './purchase-orders/procurement.routes';
-export { SUPPLIERS_ROUTES } from './suppliers/suppliers.routes';
-export { PROCUREMENT_MANIFEST } from './procurement.manifest';
-
 // Services
 export { SuppliersApiService } from './suppliers/services/suppliers-api.service';
 export { PurchaseOrdersApiService } from './purchase-orders/services/purchase-orders-api.service';

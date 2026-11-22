@@ -1,5 +1,3 @@
-export { PRODUCTS_ROUTES } from './products.routes';
-export { CATALOG_MANIFEST } from './catalog.manifest';
 export { ProductsApiService } from './services/products-api.service';
 export type { Product } from './models/product.entity';
 export type { CreateProductRequest } from './models/create-product.request';

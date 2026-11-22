@@ -1,9 +1,3 @@
-// Routes
-export { ORDERS_ROUTES } from './orders/orders.routes';
-export { INVOICES_ROUTES } from './invoices/invoices.routes';
-export { RETURNS_ROUTES } from './returns/returns.routes';
-export { SALES_MANIFEST } from './sales.manifest';
-
 // Orders contracts & components shared with customer/product detail tabs
 export { OrderListComponent } from './orders/components/order-list/order-list.component';
 export { OrdersFilterPanelComponent } from './orders/components/orders-filter-panel/orders-filter-panel.component';

@@ -1,8 +1,3 @@
-// Routes
-export { RECEIVABLES_ROUTES } from './receivables/receivables.routes';
-export { PAYABLES_ROUTES } from './payables/payables.routes';
-export { FINANCIAL_MANIFEST } from './financial.manifest';
-
 // Services
 export { ReceivablesApiService } from './receivables/services/receivables-api.service';
 export { PayablesApiService } from './payables/services/payables-api.service';
