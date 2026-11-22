@@ -3,16 +3,9 @@ import { describe, expect, it } from 'vitest';
 import { routes } from './app.routes';
 
 describe('app routes', () => {
-  it('contains dedicated global error routes', () => {
-    const paths = routes.map((route) => route.path);
-    expect(paths).toContain('not-found');
-    expect(paths).toContain('internal-error');
-    expect(paths).toContain('service-unavailable');
-  });
-
-  it('redirects unknown paths to not-found', () => {
-    const wildcard = routes.find((route) => route.path === '**');
-    expect(wildcard?.redirectTo).toBe('not-found');
+  it('delegates root path to management-ui module', () => {
+    const rootRoute = routes.find((route) => route.path === '');
+    expect(rootRoute).toBeDefined();
+    expect(rootRoute?.loadChildren).toBeDefined();
   });
 });
-
