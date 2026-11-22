@@ -34,6 +34,8 @@
       "@invoria/financial/*": ["modules/financial/src/*"],
       "@invoria/procurement": ["modules/procurement/src/index.ts"],
       "@invoria/procurement/*": ["modules/procurement/src/*"],
+      "@invoria/management-ui": ["modules/management-ui/src/index.ts"],
+      "@invoria/management-ui/*": ["modules/management-ui/src/*"],
       "@invoria/shell": ["modules/shell/src/main.ts"],
       "@invoria/shell/*": ["modules/shell/src/*"]
     }

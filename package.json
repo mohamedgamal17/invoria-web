@@ -12,6 +12,7 @@
     "modules/catalog",
     "modules/financial",
     "modules/procurement",
+    "modules/management-ui",
     "modules/shell"
   ],
   "scripts": {
@@ -32,6 +33,7 @@
     "test:catalog": "npx ng test --watch=false --include=\"modules/catalog/src/**/*.spec.ts\"",
     "test:financial": "npx ng test --watch=false --include=\"modules/financial/src/**/*.spec.ts\"",
     "test:procurement": "npx ng test --watch=false --include=\"modules/procurement/src/**/*.spec.ts\"",
+    "test:management-ui": "npx ng test --watch=false --include=\"modules/management-ui/src/**/*.spec.ts\"",
     "test:shell": "npx ng test --watch=false --include=\"modules/shell/src/**/*.spec.ts\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "typecheck:workspaces": "npm run typecheck --workspaces --if-present",

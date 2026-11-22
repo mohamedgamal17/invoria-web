@@ -16,7 +16,8 @@
     "@invoria/inventory": "*",
     "@invoria/catalog": "*",
     "@invoria/financial": "*",
-    "@invoria/procurement": "*"
+    "@invoria/procurement": "*",
+    "@invoria/management-ui": "*"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.app.json"
