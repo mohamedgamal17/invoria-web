@@ -17,11 +17,11 @@ import {
   type IsActiveMatchOptions,
 } from '@angular/router';
 import { filter } from 'rxjs';
-import { ChevronDown, LayoutDashboard, LucideAngularModule } from 'lucide-angular';
+import { ChevronDown, LucideAngularModule } from 'lucide-angular';
 import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
 import type { ModuleNavEntry, ModuleNavItem, ModuleNavGroup } from '@invoria/core';
-import { APP_MODULE_MANIFESTS } from '@invoria/shell/app/modules.config';
+import { MANAGEMENT_NAV_ENTRIES } from '../navigation.config';
 
 type NavItem = ModuleNavItem;
 type NavGroup = ModuleNavGroup;
@@ -56,10 +56,7 @@ export class DashboardSidebarComponent {
     initials: 'MG',
   };
 
-  protected readonly navSections: readonly SidebarEntry[] = [
-    { label: 'Dashboard', path: '/', icon: LayoutDashboard },
-    ...APP_MODULE_MANIFESTS.flatMap((manifest) => manifest.navigation),
-  ];
+  protected readonly navSections: readonly SidebarEntry[] = MANAGEMENT_NAV_ENTRIES;
 
   protected readonly chevronDownIcon = ChevronDown;
 
