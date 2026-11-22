@@ -15,8 +15,8 @@ import {
   ReportPeriod,
 } from '@invoria/utils';
 
-import { DASHBOARD_ACTIONS } from '@invoria/shell/app/dashboard/store/dashboard/dashboard.actions';
-import { dashboardSelectors } from '@invoria/shell/app/dashboard/store/dashboard/dashboard.selectors';
+import { DASHBOARD_ACTIONS } from '../../store/dashboard/dashboard.actions';
+import { dashboardSelectors } from '../../store/dashboard/dashboard.selectors';
 
 import type { EChartsCoreOption } from 'echarts/core';
 
