@@ -21,9 +21,4 @@ export { NavigationLoadingService } from './router/navigation-loading.service';
 export { ThemeService } from './theme/theme.service';
 
 // Module registration
-export type {
-  ModuleManifest,
-  ModuleNavItem,
-  ModuleNavGroup,
-  ModuleNavEntry,
-} from './module-manifest';
+export type { ModuleNavItem, ModuleNavGroup, ModuleNavEntry } from './module-manifest';
