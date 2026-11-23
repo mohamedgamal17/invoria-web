@@ -1,0 +1,30 @@
+import { Meta, Story } from '@storybook/addon-docs/blocks';
+import * as BatchForm from '../../../../modules/inventory/src/components/batch-form.component.stories';
+import * as BatchList from '../../../../modules/inventory/src/components/batch-list.component.stories';
+import * as ProductBatchesPanel from '../../../../modules/inventory/src/components/product-batches-panel.component.stories';
+
+<Meta title="Gallery/Overview" />
+
+# Component Gallery — Inventory
+
+Isolated view of every presentational component in the `Inventory` module. Each card shows the component's primary story.
+
+## Inventory
+
+<div className="sb-gallery-grid">
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Batch Form</div>
+    <Story of={BatchForm.CreateMode} meta={BatchForm} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Batch List</div>
+    <Story of={BatchList.WithBatches} meta={BatchList} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Product Batches Panel</div>
+    <Story of={ProductBatchesPanel.Default} meta={ProductBatchesPanel} />
+  </div>
+</div>
+
+
+<p className="sb-hint">Total components rendered: 3.</p>

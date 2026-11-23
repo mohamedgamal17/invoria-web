@@ -1,0 +1,21 @@
+import { Meta, Story } from '@storybook/addon-docs/blocks';
+import * as OrderReturnItemsDialog from '../../../../modules/sales/src/orders/components/order-return-items-dialog/order-return-items-dialog.component.stories';
+import * as RecordPaymentDialog from '../../../../modules/sales/src/orders/components/record-payment-dialog/record-payment-dialog.component.stories';
+
+<Meta title="Gallery/Overlays" />
+
+# Gallery / Overlays — Sales
+
+Dialog and modal components render with `appendTo="body"`, so an open modal would cover
+the whole page. Each overlay story below is rendered in its own iframe
+(`inline={false}`) to keep the modal contained.
+
+<div className="sb-overlay-row">
+  <div className="sb-overlay-title">Order Return Items Dialog</div>
+  <Story of={OrderReturnItemsDialog.Open} meta={OrderReturnItemsDialog} inline={false} height="320px" />
+</div>
+
+<div className="sb-overlay-row">
+  <div className="sb-overlay-title">Record Payment Dialog</div>
+  <Story of={RecordPaymentDialog.Open} meta={RecordPaymentDialog} inline={false} height="320px" />
+</div>

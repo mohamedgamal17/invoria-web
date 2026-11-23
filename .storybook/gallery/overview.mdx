@@ -1,0 +1,397 @@
+import { Meta, Story } from '@storybook/addon-docs/blocks';
+import * as Autosearch from '../../modules/ui/src/ui/autosearch/autosearch.component.stories';
+import * as ChartCard from '../../modules/ui/src/ui/chart-card/chart-card.component.stories';
+import * as DetailsSkeleton from '../../modules/ui/src/ui/details-skeleton/details-skeleton.component.stories';
+import * as DetailsToolbar from '../../modules/ui/src/ui/details-toolbar/details-toolbar.component.stories';
+import * as EmptyState from '../../modules/ui/src/ui/empty-state/empty-state.component.stories';
+import * as ErrorCard from '../../modules/ui/src/ui/error-card/error-card.component.stories';
+import * as FinancialObligationList from '../../modules/ui/src/ui/financial-obligation-list/financial-obligation-list.component.stories';
+import * as FinancialObligationOverviewCard from '../../modules/ui/src/ui/financial-obligation-overview-card/financial-obligation-overview-card.component.stories';
+import * as KpiCard from '../../modules/ui/src/ui/kpi-card/kpi-card.component.stories';
+import * as ListSkeleton from '../../modules/ui/src/ui/list-skeleton/list-skeleton.component.stories';
+import * as NameFilterPanel from '../../modules/ui/src/ui/name-filter-panel/name-filter-panel.component.stories';
+import * as PageHeader from '../../modules/ui/src/ui/page-header/page-header.component.stories';
+import * as ReportPeriodFilterPanel from '../../modules/ui/src/ui/report-period-filter-panel/report-period-filter-panel.component.stories';
+import * as SettlementsTab from '../../modules/ui/src/ui/settlements-tab/settlements-tab.component.stories';
+import * as StatusSteps from '../../modules/ui/src/ui/status-steps/status-steps.component.stories';
+import * as SurfaceCard from '../../modules/ui/src/ui/surface-card/surface-card.component.stories';
+import * as ProductDetailsInfoPanel from '../../modules/catalog/src/components/product-details-info-panel/product-details-info-panel.component.stories';
+import * as ProductDetailsOrdersPanel from '../../modules/catalog/src/components/product-details-orders-panel/product-details-orders-panel.component.stories';
+import * as ProductHeader from '../../modules/catalog/src/components/product-header/product-header.component.stories';
+import * as ProductList from '../../modules/catalog/src/components/product-list/product-list.component.stories';
+import * as ProductsBreadcrumb from '../../modules/catalog/src/components/products-breadcrumb/products-breadcrumb.component.stories';
+import * as CustomerDetailsOrdersTab from '../../modules/customers/src/components/customer-details-orders-tab/customer-details-orders-tab.component.stories';
+import * as CustomerDetailsProfile from '../../modules/customers/src/components/customer-details-profile/customer-details-profile.component.stories';
+import * as CustomerHeader from '../../modules/customers/src/components/customer-header/customer-header.component.stories';
+import * as CustomerList from '../../modules/customers/src/components/customer-list/customer-list.component.stories';
+import * as PayableHeader from '../../modules/financial/src/payables/components/payable-header/payable-header.component.stories';
+import * as PayablesFilterPanel from '../../modules/financial/src/payables/components/payables-filter-panel/payables-filter-panel.component.stories';
+import * as ReceivableHeader from '../../modules/financial/src/receivables/components/receivable-header/receivable-header.component.stories';
+import * as ReceivablesFilterPanel from '../../modules/financial/src/receivables/components/receivables-filter-panel/receivables-filter-panel.component.stories';
+import * as BatchForm from '../../modules/inventory/src/components/batch-form.component.stories';
+import * as BatchList from '../../modules/inventory/src/components/batch-list.component.stories';
+import * as ProductBatchesPanel from '../../modules/inventory/src/components/product-batches-panel.component.stories';
+import * as PurchaseCompletionMetricsList from '../../modules/procurement/src/purchase-orders/components/purchase-completion-metrics-list/purchase-completion-metrics-list.component.stories';
+import * as PurchaseOrderDetailsHistoryTab from '../../modules/procurement/src/purchase-orders/components/purchase-order-details-history-tab/purchase-order-details-history-tab.component.stories';
+import * as PurchaseOrderDetailsLinesTab from '../../modules/procurement/src/purchase-orders/components/purchase-order-details-lines-tab/purchase-order-details-lines-tab.component.stories';
+import * as PurchaseOrderDetailsOverviewTab from '../../modules/procurement/src/purchase-orders/components/purchase-order-details-overview-tab/purchase-order-details-overview-tab.component.stories';
+import * as PurchaseOrderForm from '../../modules/procurement/src/purchase-orders/components/purchase-order-form/purchase-order-form.component.stories';
+import * as PurchaseOrderHeader from '../../modules/procurement/src/purchase-orders/components/purchase-order-header/purchase-order-header.component.stories';
+import * as PurchaseOrderList from '../../modules/procurement/src/purchase-orders/components/purchase-order-list/purchase-order-list.component.stories';
+import * as PurchaseOrdersFilterPanel from '../../modules/procurement/src/purchase-orders/components/purchase-orders-filter-panel/purchase-orders-filter-panel.component.stories';
+import * as PurchaseSalesMetricsList from '../../modules/procurement/src/purchase-orders/components/purchase-sales-metrics-list/purchase-sales-metrics-list.component.stories';
+import * as SupplierDetailsProfile from '../../modules/procurement/src/suppliers/components/supplier-details-profile/supplier-details-profile.component.stories';
+import * as SupplierDetailsPurchaseOrdersTab from '../../modules/procurement/src/suppliers/components/supplier-details-purchase-orders-tab/supplier-details-purchase-orders-tab.component.stories';
+import * as SupplierHeader from '../../modules/procurement/src/suppliers/components/supplier-header/supplier-header.component.stories';
+import * as SupplierList from '../../modules/procurement/src/suppliers/components/supplier-list/supplier-list.component.stories';
+import * as InvoiceDetailsItemsTab from '../../modules/sales/src/invoices/components/invoice-details-items-tab/invoice-details-items-tab.component.stories';
+import * as InvoiceDetailsOverviewCard from '../../modules/sales/src/invoices/components/invoice-details-overview-card/invoice-details-overview-card.component.stories';
+import * as InvoiceHeader from '../../modules/sales/src/invoices/components/invoice-header/invoice-header.component.stories';
+import * as InvoiceList from '../../modules/sales/src/invoices/components/invoice-list/invoice-list.component.stories';
+import * as InvoicesFilterPanel from '../../modules/sales/src/invoices/components/invoices-filter-panel/invoices-filter-panel.component.stories';
+import * as OrderDetailsLineItemsTab from '../../modules/sales/src/orders/components/order-details-line-items-tab/order-details-line-items-tab.component.stories';
+import * as OrderDetailsPaymentTab from '../../modules/sales/src/orders/components/order-details-payment-tab/order-details-payment-tab.component.stories';
+import * as OrderDetailsReturnItemsTab from '../../modules/sales/src/orders/components/order-details-return-items-tab/order-details-return-items-tab.component.stories';
+import * as OrderForm from '../../modules/sales/src/orders/components/order-form/order-form.component.stories';
+import * as OrderHeader from '../../modules/sales/src/orders/components/order-header/order-header.component.stories';
+import * as OrderList from '../../modules/sales/src/orders/components/order-list/order-list.component.stories';
+import * as OrderProfitMetricsList from '../../modules/sales/src/orders/components/order-profit-metrics-list/order-profit-metrics-list.component.stories';
+import * as OrderProgress from '../../modules/sales/src/orders/components/order-progress/order-progress.component.stories';
+import * as OrderSalesMetricsList from '../../modules/sales/src/orders/components/order-sales-metrics-list/order-sales-metrics-list.component.stories';
+import * as OrderSummaryCard from '../../modules/sales/src/orders/components/order-summary-card/order-summary-card.component.stories';
+import * as OrderSummaryPayment from '../../modules/sales/src/orders/components/order-summary-card/order-summary-payment.component.stories';
+import * as OrderSummaryPrices from '../../modules/sales/src/orders/components/order-summary-card/order-summary-prices.component.stories';
+import * as OrderSummaryReferences from '../../modules/sales/src/orders/components/order-summary-card/order-summary-references.component.stories';
+import * as OrdersFilterPanel from '../../modules/sales/src/orders/components/orders-filter-panel/orders-filter-panel.component.stories';
+import * as ReturnDetailsInfo from '../../modules/sales/src/returns/components/return-details-info/return-details-info.component.stories';
+import * as ReturnDetailsLines from '../../modules/sales/src/returns/components/return-details-lines/return-details-lines.component.stories';
+import * as ReturnHeader from '../../modules/sales/src/returns/components/return-header/return-header.component.stories';
+import * as ReturnList from '../../modules/sales/src/returns/components/return-list/return-list.component.stories';
+import * as ReturnProgress from '../../modules/sales/src/returns/components/return-progress/return-progress.component.stories';
+import * as ReturnsFilterPanel from '../../modules/sales/src/returns/components/returns-filter-panel/returns-filter-panel.component.stories';
+
+<Meta title="Gallery/Overview" />
+
+# Component Gallery
+
+A visual index of every presentational component in Invoria Web. Each card shows the component's primary story, so reviewers can scan all components at a glance.
+
+Use the Storybook sidebar to open any component's docs page (e.g. `UI/KpiCard › Docs`) and see every variant (Loading, Empty, etc.).
+
+## Ui
+
+<div className="sb-gallery-grid">
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Autosearch</div>
+    <Story of={Autosearch.DefaultEmpty} meta={Autosearch} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Chart Card</div>
+    <Story of={ChartCard.WithData} meta={ChartCard} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Details Skeleton</div>
+    <Story of={DetailsSkeleton.Default} meta={DetailsSkeleton} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Details Toolbar</div>
+    <Story of={DetailsToolbar.WithTitleAndDescription} meta={DetailsToolbar} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Empty State</div>
+    <Story of={EmptyState.Default} meta={EmptyState} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Error Card</div>
+    <Story of={ErrorCard.Default} meta={ErrorCard} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Financial Obligation List</div>
+    <Story of={FinancialObligationList.WithObligations} meta={FinancialObligationList} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Financial Obligation Overview Card</div>
+    <Story of={FinancialObligationOverviewCard.PartialPayable} meta={FinancialObligationOverviewCard} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Kpi Card</div>
+    <Story of={KpiCard.Default} meta={KpiCard} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">List Skeleton</div>
+    <Story of={ListSkeleton.MobileCardsVariant} meta={ListSkeleton} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Name Filter Panel</div>
+    <Story of={NameFilterPanel.DefaultEmpty} meta={NameFilterPanel} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Page Header</div>
+    <Story of={PageHeader.Default} meta={PageHeader} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Report Period Filter Panel</div>
+    <Story of={ReportPeriodFilterPanel.DailyPeriod} meta={ReportPeriodFilterPanel} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Settlements Tab</div>
+    <Story of={SettlementsTab.WithSettlements} meta={SettlementsTab} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Status Steps</div>
+    <Story of={StatusSteps.InitialStep} meta={StatusSteps} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Surface Card</div>
+    <Story of={SurfaceCard.Default} meta={SurfaceCard} />
+  </div>
+</div>
+
+## Catalog
+
+<div className="sb-gallery-grid">
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Product Details Info Panel</div>
+    <Story of={ProductDetailsInfoPanel.Default} meta={ProductDetailsInfoPanel} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Product Details Orders Panel</div>
+    <Story of={ProductDetailsOrdersPanel.WithOrders} meta={ProductDetailsOrdersPanel} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Product Header</div>
+    <Story of={ProductHeader.Default} meta={ProductHeader} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Product List</div>
+    <Story of={ProductList.WithProducts} meta={ProductList} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Products Breadcrumb</div>
+    <Story of={ProductsBreadcrumb.Default} meta={ProductsBreadcrumb} />
+  </div>
+</div>
+
+## Customers
+
+<div className="sb-gallery-grid">
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Customer Details Orders Tab</div>
+    <Story of={CustomerDetailsOrdersTab.WithOrders} meta={CustomerDetailsOrdersTab} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Customer Details Profile</div>
+    <Story of={CustomerDetailsProfile.Default} meta={CustomerDetailsProfile} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Customer Header</div>
+    <Story of={CustomerHeader.Default} meta={CustomerHeader} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Customer List</div>
+    <Story of={CustomerList.WithCustomers} meta={CustomerList} />
+  </div>
+</div>
+
+## Financial
+
+<div className="sb-gallery-grid">
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Payable Header</div>
+    <Story of={PayableHeader.Default} meta={PayableHeader} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Payables Filter Panel</div>
+    <Story of={PayablesFilterPanel.DefaultEmpty} meta={PayablesFilterPanel} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Receivable Header</div>
+    <Story of={ReceivableHeader.Default} meta={ReceivableHeader} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Receivables Filter Panel</div>
+    <Story of={ReceivablesFilterPanel.DefaultEmpty} meta={ReceivablesFilterPanel} />
+  </div>
+</div>
+
+## Inventory
+
+<div className="sb-gallery-grid">
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Batch Form</div>
+    <Story of={BatchForm.CreateMode} meta={BatchForm} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Batch List</div>
+    <Story of={BatchList.WithBatches} meta={BatchList} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Product Batches Panel</div>
+    <Story of={ProductBatchesPanel.Default} meta={ProductBatchesPanel} />
+  </div>
+</div>
+
+## Procurement
+
+<div className="sb-gallery-grid">
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Purchase Completion Metrics List</div>
+    <Story of={PurchaseCompletionMetricsList.Default} meta={PurchaseCompletionMetricsList} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Purchase Order Details History Tab</div>
+    <Story of={PurchaseOrderDetailsHistoryTab.Default} meta={PurchaseOrderDetailsHistoryTab} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Purchase Order Details Lines Tab</div>
+    <Story of={PurchaseOrderDetailsLinesTab.Default} meta={PurchaseOrderDetailsLinesTab} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Purchase Order Details Overview Tab</div>
+    <Story of={PurchaseOrderDetailsOverviewTab.Default} meta={PurchaseOrderDetailsOverviewTab} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Purchase Order Form</div>
+    <Story of={PurchaseOrderForm.CreateMode} meta={PurchaseOrderForm} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Purchase Order Header</div>
+    <Story of={PurchaseOrderHeader.Default} meta={PurchaseOrderHeader} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Purchase Order List</div>
+    <Story of={PurchaseOrderList.WithOrders} meta={PurchaseOrderList} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Purchase Orders Filter Panel</div>
+    <Story of={PurchaseOrdersFilterPanel.Default} meta={PurchaseOrdersFilterPanel} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Purchase Sales Metrics List</div>
+    <Story of={PurchaseSalesMetricsList.Default} meta={PurchaseSalesMetricsList} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Supplier Details Profile</div>
+    <Story of={SupplierDetailsProfile.Default} meta={SupplierDetailsProfile} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Supplier Details Purchase Orders Tab</div>
+    <Story of={SupplierDetailsPurchaseOrdersTab.Default} meta={SupplierDetailsPurchaseOrdersTab} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Supplier Header</div>
+    <Story of={SupplierHeader.Default} meta={SupplierHeader} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Supplier List</div>
+    <Story of={SupplierList.WithSuppliers} meta={SupplierList} />
+  </div>
+</div>
+
+## Sales
+
+<div className="sb-gallery-grid">
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Invoice Details Items Tab</div>
+    <Story of={InvoiceDetailsItemsTab.Default} meta={InvoiceDetailsItemsTab} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Invoice Details Overview Card</div>
+    <Story of={InvoiceDetailsOverviewCard.Default} meta={InvoiceDetailsOverviewCard} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Invoice Header</div>
+    <Story of={InvoiceHeader.Default} meta={InvoiceHeader} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Invoice List</div>
+    <Story of={InvoiceList.WithInvoices} meta={InvoiceList} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Invoices Filter Panel</div>
+    <Story of={InvoicesFilterPanel.DefaultEmpty} meta={InvoicesFilterPanel} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Details Line Items Tab</div>
+    <Story of={OrderDetailsLineItemsTab.Default} meta={OrderDetailsLineItemsTab} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Details Payment Tab</div>
+    <Story of={OrderDetailsPaymentTab.PartialPayment} meta={OrderDetailsPaymentTab} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Details Return Items Tab</div>
+    <Story of={OrderDetailsReturnItemsTab.WithReturns} meta={OrderDetailsReturnItemsTab} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Form</div>
+    <Story of={OrderForm.CreateMode} meta={OrderForm} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Header</div>
+    <Story of={OrderHeader.Default} meta={OrderHeader} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order List</div>
+    <Story of={OrderList.WithOrders} meta={OrderList} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Profit Metrics List</div>
+    <Story of={OrderProfitMetricsList.Default} meta={OrderProfitMetricsList} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Progress</div>
+    <Story of={OrderProgress.PendingOrder} meta={OrderProgress} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Sales Metrics List</div>
+    <Story of={OrderSalesMetricsList.Default} meta={OrderSalesMetricsList} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Summary Card</div>
+    <Story of={OrderSummaryCard.Default} meta={OrderSummaryCard} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Summary Payment</div>
+    <Story of={OrderSummaryPayment.PartialPayment} meta={OrderSummaryPayment} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Summary Prices</div>
+    <Story of={OrderSummaryPrices.Default} meta={OrderSummaryPrices} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Summary References</div>
+    <Story of={OrderSummaryReferences.Default} meta={OrderSummaryReferences} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Orders Filter Panel</div>
+    <Story of={OrdersFilterPanel.DefaultEmpty} meta={OrdersFilterPanel} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Return Details Info</div>
+    <Story of={ReturnDetailsInfo.Completed} meta={ReturnDetailsInfo} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Return Details Lines</div>
+    <Story of={ReturnDetailsLines.Default} meta={ReturnDetailsLines} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Return Header</div>
+    <Story of={ReturnHeader.Default} meta={ReturnHeader} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Return List</div>
+    <Story of={ReturnList.WithReturns} meta={ReturnList} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Return Progress</div>
+    <Story of={ReturnProgress.Pending} meta={ReturnProgress} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Returns Filter Panel</div>
+    <Story of={ReturnsFilterPanel.Default} meta={ReturnsFilterPanel} />
+  </div>
+</div>
+
+
+<p className="sb-hint">Total components rendered: 70.</p>

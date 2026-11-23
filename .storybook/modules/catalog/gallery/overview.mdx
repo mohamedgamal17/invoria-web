@@ -1,0 +1,40 @@
+import { Meta, Story } from '@storybook/addon-docs/blocks';
+import * as ProductDetailsInfoPanel from '../../../../modules/catalog/src/components/product-details-info-panel/product-details-info-panel.component.stories';
+import * as ProductDetailsOrdersPanel from '../../../../modules/catalog/src/components/product-details-orders-panel/product-details-orders-panel.component.stories';
+import * as ProductHeader from '../../../../modules/catalog/src/components/product-header/product-header.component.stories';
+import * as ProductList from '../../../../modules/catalog/src/components/product-list/product-list.component.stories';
+import * as ProductsBreadcrumb from '../../../../modules/catalog/src/components/products-breadcrumb/products-breadcrumb.component.stories';
+
+<Meta title="Gallery/Overview" />
+
+# Component Gallery — Catalog
+
+Isolated view of every presentational component in the `Catalog` module. Each card shows the component's primary story.
+
+## Catalog
+
+<div className="sb-gallery-grid">
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Product Details Info Panel</div>
+    <Story of={ProductDetailsInfoPanel.Default} meta={ProductDetailsInfoPanel} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Product Details Orders Panel</div>
+    <Story of={ProductDetailsOrdersPanel.WithOrders} meta={ProductDetailsOrdersPanel} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Product Header</div>
+    <Story of={ProductHeader.Default} meta={ProductHeader} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Product List</div>
+    <Story of={ProductList.WithProducts} meta={ProductList} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Products Breadcrumb</div>
+    <Story of={ProductsBreadcrumb.Default} meta={ProductsBreadcrumb} />
+  </div>
+</div>
+
+
+<p className="sb-hint">Total components rendered: 5.</p>

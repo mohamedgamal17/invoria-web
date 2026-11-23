@@ -1,0 +1,35 @@
+import { Meta, Story } from '@storybook/addon-docs/blocks';
+import * as CustomerDetailsOrdersTab from '../../../../modules/customers/src/components/customer-details-orders-tab/customer-details-orders-tab.component.stories';
+import * as CustomerDetailsProfile from '../../../../modules/customers/src/components/customer-details-profile/customer-details-profile.component.stories';
+import * as CustomerHeader from '../../../../modules/customers/src/components/customer-header/customer-header.component.stories';
+import * as CustomerList from '../../../../modules/customers/src/components/customer-list/customer-list.component.stories';
+
+<Meta title="Gallery/Overview" />
+
+# Component Gallery — Customers
+
+Isolated view of every presentational component in the `Customers` module. Each card shows the component's primary story.
+
+## Customers
+
+<div className="sb-gallery-grid">
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Customer Details Orders Tab</div>
+    <Story of={CustomerDetailsOrdersTab.WithOrders} meta={CustomerDetailsOrdersTab} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Customer Details Profile</div>
+    <Story of={CustomerDetailsProfile.Default} meta={CustomerDetailsProfile} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Customer Header</div>
+    <Story of={CustomerHeader.Default} meta={CustomerHeader} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Customer List</div>
+    <Story of={CustomerList.WithCustomers} meta={CustomerList} />
+  </div>
+</div>
+
+
+<p className="sb-hint">Total components rendered: 4.</p>

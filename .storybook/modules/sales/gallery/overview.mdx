@@ -1,0 +1,140 @@
+import { Meta, Story } from '@storybook/addon-docs/blocks';
+import * as InvoiceDetailsItemsTab from '../../../../modules/sales/src/invoices/components/invoice-details-items-tab/invoice-details-items-tab.component.stories';
+import * as InvoiceDetailsOverviewCard from '../../../../modules/sales/src/invoices/components/invoice-details-overview-card/invoice-details-overview-card.component.stories';
+import * as InvoiceHeader from '../../../../modules/sales/src/invoices/components/invoice-header/invoice-header.component.stories';
+import * as InvoiceList from '../../../../modules/sales/src/invoices/components/invoice-list/invoice-list.component.stories';
+import * as InvoicesFilterPanel from '../../../../modules/sales/src/invoices/components/invoices-filter-panel/invoices-filter-panel.component.stories';
+import * as OrderDetailsLineItemsTab from '../../../../modules/sales/src/orders/components/order-details-line-items-tab/order-details-line-items-tab.component.stories';
+import * as OrderDetailsPaymentTab from '../../../../modules/sales/src/orders/components/order-details-payment-tab/order-details-payment-tab.component.stories';
+import * as OrderDetailsReturnItemsTab from '../../../../modules/sales/src/orders/components/order-details-return-items-tab/order-details-return-items-tab.component.stories';
+import * as OrderForm from '../../../../modules/sales/src/orders/components/order-form/order-form.component.stories';
+import * as OrderHeader from '../../../../modules/sales/src/orders/components/order-header/order-header.component.stories';
+import * as OrderList from '../../../../modules/sales/src/orders/components/order-list/order-list.component.stories';
+import * as OrderProfitMetricsList from '../../../../modules/sales/src/orders/components/order-profit-metrics-list/order-profit-metrics-list.component.stories';
+import * as OrderProgress from '../../../../modules/sales/src/orders/components/order-progress/order-progress.component.stories';
+import * as OrderSalesMetricsList from '../../../../modules/sales/src/orders/components/order-sales-metrics-list/order-sales-metrics-list.component.stories';
+import * as OrderSummaryCard from '../../../../modules/sales/src/orders/components/order-summary-card/order-summary-card.component.stories';
+import * as OrderSummaryPayment from '../../../../modules/sales/src/orders/components/order-summary-card/order-summary-payment.component.stories';
+import * as OrderSummaryPrices from '../../../../modules/sales/src/orders/components/order-summary-card/order-summary-prices.component.stories';
+import * as OrderSummaryReferences from '../../../../modules/sales/src/orders/components/order-summary-card/order-summary-references.component.stories';
+import * as OrdersFilterPanel from '../../../../modules/sales/src/orders/components/orders-filter-panel/orders-filter-panel.component.stories';
+import * as ReturnDetailsInfo from '../../../../modules/sales/src/returns/components/return-details-info/return-details-info.component.stories';
+import * as ReturnDetailsLines from '../../../../modules/sales/src/returns/components/return-details-lines/return-details-lines.component.stories';
+import * as ReturnHeader from '../../../../modules/sales/src/returns/components/return-header/return-header.component.stories';
+import * as ReturnList from '../../../../modules/sales/src/returns/components/return-list/return-list.component.stories';
+import * as ReturnProgress from '../../../../modules/sales/src/returns/components/return-progress/return-progress.component.stories';
+import * as ReturnsFilterPanel from '../../../../modules/sales/src/returns/components/returns-filter-panel/returns-filter-panel.component.stories';
+
+<Meta title="Gallery/Overview" />
+
+# Component Gallery — Sales
+
+Isolated view of every presentational component in the `Sales` module. Each card shows the component's primary story.
+
+## Sales
+
+<div className="sb-gallery-grid">
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Invoice Details Items Tab</div>
+    <Story of={InvoiceDetailsItemsTab.Default} meta={InvoiceDetailsItemsTab} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Invoice Details Overview Card</div>
+    <Story of={InvoiceDetailsOverviewCard.Default} meta={InvoiceDetailsOverviewCard} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Invoice Header</div>
+    <Story of={InvoiceHeader.Default} meta={InvoiceHeader} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Invoice List</div>
+    <Story of={InvoiceList.WithInvoices} meta={InvoiceList} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Invoices Filter Panel</div>
+    <Story of={InvoicesFilterPanel.DefaultEmpty} meta={InvoicesFilterPanel} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Details Line Items Tab</div>
+    <Story of={OrderDetailsLineItemsTab.Default} meta={OrderDetailsLineItemsTab} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Details Payment Tab</div>
+    <Story of={OrderDetailsPaymentTab.PartialPayment} meta={OrderDetailsPaymentTab} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Details Return Items Tab</div>
+    <Story of={OrderDetailsReturnItemsTab.WithReturns} meta={OrderDetailsReturnItemsTab} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Form</div>
+    <Story of={OrderForm.CreateMode} meta={OrderForm} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Header</div>
+    <Story of={OrderHeader.Default} meta={OrderHeader} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order List</div>
+    <Story of={OrderList.WithOrders} meta={OrderList} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Profit Metrics List</div>
+    <Story of={OrderProfitMetricsList.Default} meta={OrderProfitMetricsList} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Progress</div>
+    <Story of={OrderProgress.PendingOrder} meta={OrderProgress} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Sales Metrics List</div>
+    <Story of={OrderSalesMetricsList.Default} meta={OrderSalesMetricsList} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Summary Card</div>
+    <Story of={OrderSummaryCard.Default} meta={OrderSummaryCard} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Summary Payment</div>
+    <Story of={OrderSummaryPayment.PartialPayment} meta={OrderSummaryPayment} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Summary Prices</div>
+    <Story of={OrderSummaryPrices.Default} meta={OrderSummaryPrices} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Order Summary References</div>
+    <Story of={OrderSummaryReferences.Default} meta={OrderSummaryReferences} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Orders Filter Panel</div>
+    <Story of={OrdersFilterPanel.DefaultEmpty} meta={OrdersFilterPanel} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Return Details Info</div>
+    <Story of={ReturnDetailsInfo.Completed} meta={ReturnDetailsInfo} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Return Details Lines</div>
+    <Story of={ReturnDetailsLines.Default} meta={ReturnDetailsLines} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Return Header</div>
+    <Story of={ReturnHeader.Default} meta={ReturnHeader} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Return List</div>
+    <Story of={ReturnList.WithReturns} meta={ReturnList} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Return Progress</div>
+    <Story of={ReturnProgress.Pending} meta={ReturnProgress} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Returns Filter Panel</div>
+    <Story of={ReturnsFilterPanel.Default} meta={ReturnsFilterPanel} />
+  </div>
+</div>
+
+
+<p className="sb-hint">Total components rendered: 25.</p>

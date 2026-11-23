@@ -1,0 +1,21 @@
+import { Meta, Story } from '@storybook/addon-docs/blocks';
+import * as ConfirmDialog from '../../../../modules/ui/src/ui/confirm-dialog/confirm-dialog.component.stories';
+import * as SettleModal from '../../../../modules/ui/src/ui/settle-modal/settle-modal.component.stories';
+
+<Meta title="Gallery/Overlays" />
+
+# Gallery / Overlays — Ui
+
+Dialog and modal components render with `appendTo="body"`, so an open modal would cover
+the whole page. Each overlay story below is rendered in its own iframe
+(`inline={false}`) to keep the modal contained.
+
+<div className="sb-overlay-row">
+  <div className="sb-overlay-title">Confirm Dialog</div>
+  <Story of={ConfirmDialog.Default} meta={ConfirmDialog} inline={false} height="320px" />
+</div>
+
+<div className="sb-overlay-row">
+  <div className="sb-overlay-title">Settle Modal</div>
+  <Story of={SettleModal.OpenModal} meta={SettleModal} inline={false} height="320px" />
+</div>

@@ -1,0 +1,35 @@
+import { Meta, Story } from '@storybook/addon-docs/blocks';
+import * as PayableHeader from '../../../../modules/financial/src/payables/components/payable-header/payable-header.component.stories';
+import * as PayablesFilterPanel from '../../../../modules/financial/src/payables/components/payables-filter-panel/payables-filter-panel.component.stories';
+import * as ReceivableHeader from '../../../../modules/financial/src/receivables/components/receivable-header/receivable-header.component.stories';
+import * as ReceivablesFilterPanel from '../../../../modules/financial/src/receivables/components/receivables-filter-panel/receivables-filter-panel.component.stories';
+
+<Meta title="Gallery/Overview" />
+
+# Component Gallery — Financial
+
+Isolated view of every presentational component in the `Financial` module. Each card shows the component's primary story.
+
+## Financial
+
+<div className="sb-gallery-grid">
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Payable Header</div>
+    <Story of={PayableHeader.Default} meta={PayableHeader} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Payables Filter Panel</div>
+    <Story of={PayablesFilterPanel.DefaultEmpty} meta={PayablesFilterPanel} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Receivable Header</div>
+    <Story of={ReceivableHeader.Default} meta={ReceivableHeader} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Receivables Filter Panel</div>
+    <Story of={ReceivablesFilterPanel.DefaultEmpty} meta={ReceivablesFilterPanel} />
+  </div>
+</div>
+
+
+<p className="sb-hint">Total components rendered: 4.</p>

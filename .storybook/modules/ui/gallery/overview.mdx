@@ -1,0 +1,95 @@
+import { Meta, Story } from '@storybook/addon-docs/blocks';
+import * as Autosearch from '../../../../modules/ui/src/ui/autosearch/autosearch.component.stories';
+import * as ChartCard from '../../../../modules/ui/src/ui/chart-card/chart-card.component.stories';
+import * as DetailsSkeleton from '../../../../modules/ui/src/ui/details-skeleton/details-skeleton.component.stories';
+import * as DetailsToolbar from '../../../../modules/ui/src/ui/details-toolbar/details-toolbar.component.stories';
+import * as EmptyState from '../../../../modules/ui/src/ui/empty-state/empty-state.component.stories';
+import * as ErrorCard from '../../../../modules/ui/src/ui/error-card/error-card.component.stories';
+import * as FinancialObligationList from '../../../../modules/ui/src/ui/financial-obligation-list/financial-obligation-list.component.stories';
+import * as FinancialObligationOverviewCard from '../../../../modules/ui/src/ui/financial-obligation-overview-card/financial-obligation-overview-card.component.stories';
+import * as KpiCard from '../../../../modules/ui/src/ui/kpi-card/kpi-card.component.stories';
+import * as ListSkeleton from '../../../../modules/ui/src/ui/list-skeleton/list-skeleton.component.stories';
+import * as NameFilterPanel from '../../../../modules/ui/src/ui/name-filter-panel/name-filter-panel.component.stories';
+import * as PageHeader from '../../../../modules/ui/src/ui/page-header/page-header.component.stories';
+import * as ReportPeriodFilterPanel from '../../../../modules/ui/src/ui/report-period-filter-panel/report-period-filter-panel.component.stories';
+import * as SettlementsTab from '../../../../modules/ui/src/ui/settlements-tab/settlements-tab.component.stories';
+import * as StatusSteps from '../../../../modules/ui/src/ui/status-steps/status-steps.component.stories';
+import * as SurfaceCard from '../../../../modules/ui/src/ui/surface-card/surface-card.component.stories';
+
+<Meta title="Gallery/Overview" />
+
+# Component Gallery — Ui
+
+Isolated view of every presentational component in the `Ui` module. Each card shows the component's primary story.
+
+## Ui
+
+<div className="sb-gallery-grid">
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Autosearch</div>
+    <Story of={Autosearch.DefaultEmpty} meta={Autosearch} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Chart Card</div>
+    <Story of={ChartCard.WithData} meta={ChartCard} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Details Skeleton</div>
+    <Story of={DetailsSkeleton.Default} meta={DetailsSkeleton} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Details Toolbar</div>
+    <Story of={DetailsToolbar.WithTitleAndDescription} meta={DetailsToolbar} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Empty State</div>
+    <Story of={EmptyState.Default} meta={EmptyState} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Error Card</div>
+    <Story of={ErrorCard.Default} meta={ErrorCard} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Financial Obligation List</div>
+    <Story of={FinancialObligationList.WithObligations} meta={FinancialObligationList} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Financial Obligation Overview Card</div>
+    <Story of={FinancialObligationOverviewCard.PartialPayable} meta={FinancialObligationOverviewCard} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Kpi Card</div>
+    <Story of={KpiCard.Default} meta={KpiCard} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">List Skeleton</div>
+    <Story of={ListSkeleton.MobileCardsVariant} meta={ListSkeleton} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Name Filter Panel</div>
+    <Story of={NameFilterPanel.DefaultEmpty} meta={NameFilterPanel} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Page Header</div>
+    <Story of={PageHeader.Default} meta={PageHeader} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Report Period Filter Panel</div>
+    <Story of={ReportPeriodFilterPanel.DailyPeriod} meta={ReportPeriodFilterPanel} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Settlements Tab</div>
+    <Story of={SettlementsTab.WithSettlements} meta={SettlementsTab} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Status Steps</div>
+    <Story of={StatusSteps.InitialStep} meta={StatusSteps} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Surface Card</div>
+    <Story of={SurfaceCard.Default} meta={SurfaceCard} />
+  </div>
+</div>
+
+
+<p className="sb-hint">Total components rendered: 16.</p>

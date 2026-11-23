@@ -1,0 +1,80 @@
+import { Meta, Story } from '@storybook/addon-docs/blocks';
+import * as PurchaseCompletionMetricsList from '../../../../modules/procurement/src/purchase-orders/components/purchase-completion-metrics-list/purchase-completion-metrics-list.component.stories';
+import * as PurchaseOrderDetailsHistoryTab from '../../../../modules/procurement/src/purchase-orders/components/purchase-order-details-history-tab/purchase-order-details-history-tab.component.stories';
+import * as PurchaseOrderDetailsLinesTab from '../../../../modules/procurement/src/purchase-orders/components/purchase-order-details-lines-tab/purchase-order-details-lines-tab.component.stories';
+import * as PurchaseOrderDetailsOverviewTab from '../../../../modules/procurement/src/purchase-orders/components/purchase-order-details-overview-tab/purchase-order-details-overview-tab.component.stories';
+import * as PurchaseOrderForm from '../../../../modules/procurement/src/purchase-orders/components/purchase-order-form/purchase-order-form.component.stories';
+import * as PurchaseOrderHeader from '../../../../modules/procurement/src/purchase-orders/components/purchase-order-header/purchase-order-header.component.stories';
+import * as PurchaseOrderList from '../../../../modules/procurement/src/purchase-orders/components/purchase-order-list/purchase-order-list.component.stories';
+import * as PurchaseOrdersFilterPanel from '../../../../modules/procurement/src/purchase-orders/components/purchase-orders-filter-panel/purchase-orders-filter-panel.component.stories';
+import * as PurchaseSalesMetricsList from '../../../../modules/procurement/src/purchase-orders/components/purchase-sales-metrics-list/purchase-sales-metrics-list.component.stories';
+import * as SupplierDetailsProfile from '../../../../modules/procurement/src/suppliers/components/supplier-details-profile/supplier-details-profile.component.stories';
+import * as SupplierDetailsPurchaseOrdersTab from '../../../../modules/procurement/src/suppliers/components/supplier-details-purchase-orders-tab/supplier-details-purchase-orders-tab.component.stories';
+import * as SupplierHeader from '../../../../modules/procurement/src/suppliers/components/supplier-header/supplier-header.component.stories';
+import * as SupplierList from '../../../../modules/procurement/src/suppliers/components/supplier-list/supplier-list.component.stories';
+
+<Meta title="Gallery/Overview" />
+
+# Component Gallery — Procurement
+
+Isolated view of every presentational component in the `Procurement` module. Each card shows the component's primary story.
+
+## Procurement
+
+<div className="sb-gallery-grid">
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Purchase Completion Metrics List</div>
+    <Story of={PurchaseCompletionMetricsList.Default} meta={PurchaseCompletionMetricsList} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Purchase Order Details History Tab</div>
+    <Story of={PurchaseOrderDetailsHistoryTab.Default} meta={PurchaseOrderDetailsHistoryTab} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Purchase Order Details Lines Tab</div>
+    <Story of={PurchaseOrderDetailsLinesTab.Default} meta={PurchaseOrderDetailsLinesTab} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Purchase Order Details Overview Tab</div>
+    <Story of={PurchaseOrderDetailsOverviewTab.Default} meta={PurchaseOrderDetailsOverviewTab} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Purchase Order Form</div>
+    <Story of={PurchaseOrderForm.CreateMode} meta={PurchaseOrderForm} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Purchase Order Header</div>
+    <Story of={PurchaseOrderHeader.Default} meta={PurchaseOrderHeader} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Purchase Order List</div>
+    <Story of={PurchaseOrderList.WithOrders} meta={PurchaseOrderList} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Purchase Orders Filter Panel</div>
+    <Story of={PurchaseOrdersFilterPanel.Default} meta={PurchaseOrdersFilterPanel} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Purchase Sales Metrics List</div>
+    <Story of={PurchaseSalesMetricsList.Default} meta={PurchaseSalesMetricsList} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Supplier Details Profile</div>
+    <Story of={SupplierDetailsProfile.Default} meta={SupplierDetailsProfile} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Supplier Details Purchase Orders Tab</div>
+    <Story of={SupplierDetailsPurchaseOrdersTab.Default} meta={SupplierDetailsPurchaseOrdersTab} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Supplier Header</div>
+    <Story of={SupplierHeader.Default} meta={SupplierHeader} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Supplier List</div>
+    <Story of={SupplierList.WithSuppliers} meta={SupplierList} />
+  </div>
+</div>
+
+
+<p className="sb-hint">Total components rendered: 13.</p>
