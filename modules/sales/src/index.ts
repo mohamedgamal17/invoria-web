@@ -7,7 +7,11 @@ export type { UiOrder } from './orders/models/order-ui.model';
 export type { OrdersListFilters } from './orders/models/orders-list.filters';
 export type { ListOrderRequest } from './orders/models/list-order.request';
 export { OrderStatus, type Order } from './orders/models/order.entity';
-export { PaymentType, OrderPaymentMethod } from './orders/models/order-payment.enums';
+export {
+  PaymentStatus,
+  PaymentType,
+  OrderPaymentMethod,
+} from './orders/models/order-payment.enums';
 export type {
   OrderCompletionReportPeriod,
   OrderSalesProfitReportPeriod,

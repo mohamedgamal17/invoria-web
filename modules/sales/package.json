@@ -31,6 +31,13 @@
     "rxjs": "~7.8.0"
   },
   "scripts": {
+    "test": "npx ng test --watch=false --include=\"modules/sales/src/**/*.spec.ts\"",
+    "test:orders": "npx ng test --watch=false --include=\"modules/sales/src/orders/**/*.spec.ts\"",
+    "test:invoices": "npx ng test --watch=false --include=\"modules/sales/src/invoices/**/*.spec.ts\"",
+    "test:returns": "npx ng test --watch=false --include=\"modules/sales/src/returns/**/*.spec.ts\"",
+    "check:stories": "node ../../scripts/check-story-coverage.mjs --module=sales",
+    "storybook": "node ../../scripts/generate-storybook-gallery.mjs && ng run invoria-web:storybook --config-dir=../../.storybook/modules/sales --port=6107",
+    "build-storybook": "node ../../scripts/generate-storybook-gallery.mjs && ng run invoria-web:build-storybook --config-dir=../../.storybook/modules/sales --output-dir=../../dist/storybook/sales",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   }
 }
