@@ -1,88 +1,103 @@
-# InvoriaWeb
+# Invoria Web
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.0.
+Invoria Web is the Angular management dashboard for the Invoria ERP. It covers the daily
+operations of a retail/wholesale business: products and stock batches, sales orders and
+invoices, returns, purchase orders and suppliers, receivables/payables, customers, plus
+sales, profit, and procurement reports with KPI charts.
 
-## Documentation
+## Tech stack
 
-The docs map starts at [docs/README.md](docs/README.md): it links per-folder indexes
-(`docs/architecture/README.md`, `docs/guides/README.md`), which list every doc with
-per-section anchors. Agent-facing rules and configuration live in [`.agents/GEMINI.md`](.agents/GEMINI.md) and
-[`.agents/README.md`](.agents/README.md).
+- **Angular 21** — standalone components, signals, lazy-loaded routes
+- **NgRx** — store, effects, router-store for complex paged/detail state
+- **PrimeNG + Tailwind CSS 4** — UI components and semantic design tokens
+- **ECharts (`ngx-echarts`)** — dashboard and report charts
+- **Vitest** — unit tests, **Storybook** — isolated UI stories
+- **npm workspaces monorepo** — domain code under `modules/`
 
-## Design tokens (Tailwind v4)
+## Project structure
 
-Tokens live in:
-
-- `src/styles/tokens.css` (CSS variables for light + dark)
-- `src/styles.css` (Tailwind `@theme` mapping)
-
-### Dark mode
-
-Add/remove the `.dark` class on `html` or `body`.
-
-### Token usage in templates
-
-- **Surfaces**: `bg-surface text-foreground`
-- **Muted areas**: `bg-muted text-muted-foreground`
-- **Borders**: `border border-border`
-- **Cards**: `bg-surface-2 rounded-lg shadow-sm border border-border`
-- **Primary button**: `bg-primary text-primary-foreground hover:bg-primary/90`
-- **Status**:
-  - Success: `bg-success text-success-foreground`
-  - Warning: `bg-warning text-warning-foreground`
-  - Danger: `bg-danger text-danger-foreground`
-- **Focus ring**: `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus`
-
-## Development server
-
-To start a local development server, run:
-
-```bash
-ng serve
+```text
+modules/
+├── shell/            # Bootstrap, app config, environments, global styles
+├── management-ui/    # Dashboard layout, sidebar, routes, feature pages
+├── core/             # HTTP interceptors, API base URL, base models
+├── utils/            # Shared helpers, formatting, pagination, error effects
+├── ui/               # Shared presentational components
+├── event-bus/        # Cross-module domain events and queries
+├── catalog/          # Products feature
+├── customers/        # Customers CRM feature
+├── sales/            # Orders, invoices, returns feature
+├── procurement/      # Purchase orders, suppliers feature
+├── financial/        # Receivables, payables feature
+└── inventory/        # Product batches and shared batch UI
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+`scripts/` holds build/deployment scripts and `docs/` holds the architecture and guides.
+See [docs/README.md](docs/README.md) for the full documentation index.
 
-## Code scaffolding
+## Prerequisites
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+- Node.js `^20.19.0`, `^22.12.0`, or `>=24`
+- npm 8 or newer
 
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Run locally
 
 ```bash
-ng generate --help
+npm install
+npm start
 ```
 
-## Building
+Open <http://localhost:4200>. The app reloads automatically when source files change.
 
-To build the project run:
+The local development API URL is set in
+`modules/shell/src/environments/environment.development.ts` (default
+`https://localhost:7012/`). The base `environment.ts` points to `http://localhost:5000/`.
+Point it at your running Invoria API before starting the app.
 
-```bash
-ng build
-```
+## Useful commands
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+| Command                 | Description                                       |
+| ----------------------- | ------------------------------------------------- |
+| `npm start`             | Start the dev server on port 4200                 |
+| `npm run build`         | Production build (requires `API_URL`)             |
+| `npm test`              | Run unit tests with Vitest                        |
+| `npm run typecheck`     | Type-check the workspace without emitting         |
+| `npm run format`        | Format files with Prettier                        |
+| `npm run storybook`     | Start Storybook on port 6006                      |
+| `npm run check:stories` | Verify every presentational component has stories |
 
-### Vercel production variable
+## Deploy
 
-Production builds require `API_URL` to be set as an environment variable.
-
-Example local production build:
+Production builds need an `API_URL` environment variable. The build runs
+`scripts/generate-production-env.mjs`, which writes
+`modules/shell/src/environments/environment.production.ts`, then compiles the app.
 
 ```bash
 API_URL=https://api.example.com npm run build
 ```
 
-In Vercel, add `API_URL` in your project Environment Variables so the build can generate `src/environments/environment.production.ts` automatically.
+The static output is written to `dist/invoria-web/browser`.
 
-## Running unit tests
+### Vercel (CI)
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+Pushing to `master` runs [.github/workflows/vercel-deployment.yml](.github/workflows/vercel-deployment.yml),
+which builds and deploys the app to Vercel. Required repository secrets:
+
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID`
+- `VERCEL_TOKEN`
+
+Also set `API_URL` in the Vercel project's Environment Variables so the production build
+can generate the environment file.
+
+### Vercel (manual)
 
 ```bash
-ng test
+npm install -g vercel
+vercel pull --yes --environment=production
+vercel build --prod
+vercel deploy --prebuilt --prod
 ```
+
+[.github/workflows/ci.yml](.github/workflows/ci.yml) runs the build and unit tests on
+Node 20 for every push and pull request to `master`.
