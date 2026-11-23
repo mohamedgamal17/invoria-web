@@ -47,6 +47,3 @@ API_URL=https://api.example.com npm run build
 ```
 
 The static output is written to `dist/invoria-web/browser`.
-
-[.github/workflows/ci.yml](.github/workflows/ci.yml) runs the build and unit tests on
-Node 20 for every push and pull request to `master`.
