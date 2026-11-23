@@ -5,36 +5,6 @@ operations of a retail/wholesale business: products and stock batches, sales ord
 invoices, returns, purchase orders and suppliers, receivables/payables, customers, plus
 sales, profit, and procurement reports with KPI charts.
 
-## Tech stack
-
-- **Angular 21** — standalone components, signals, lazy-loaded routes
-- **NgRx** — store, effects, router-store for complex paged/detail state
-- **PrimeNG + Tailwind CSS 4** — UI components and semantic design tokens
-- **ECharts (`ngx-echarts`)** — dashboard and report charts
-- **Vitest** — unit tests, **Storybook** — isolated UI stories
-- **npm workspaces monorepo** — domain code under `modules/`
-
-## Project structure
-
-```text
-modules/
-├── shell/            # Bootstrap, app config, environments, global styles
-├── management-ui/    # Dashboard layout, sidebar, routes, feature pages
-├── core/             # HTTP interceptors, API base URL, base models
-├── utils/            # Shared helpers, formatting, pagination, error effects
-├── ui/               # Shared presentational components
-├── event-bus/        # Cross-module domain events and queries
-├── catalog/          # Products feature
-├── customers/        # Customers CRM feature
-├── sales/            # Orders, invoices, returns feature
-├── procurement/      # Purchase orders, suppliers feature
-├── financial/        # Receivables, payables feature
-└── inventory/        # Product batches and shared batch UI
-```
-
-`scripts/` holds build/deployment scripts and `docs/` holds the architecture and guides.
-See [docs/README.md](docs/README.md) for the full documentation index.
-
 ## Prerequisites
 
 - Node.js `^20.19.0`, `^22.12.0`, or `>=24`
@@ -77,18 +47,6 @@ API_URL=https://api.example.com npm run build
 ```
 
 The static output is written to `dist/invoria-web/browser`.
-
-### Vercel (CI)
-
-Pushing to `master` runs [.github/workflows/vercel-deployment.yml](.github/workflows/vercel-deployment.yml),
-which builds and deploys the app to Vercel. Required repository secrets:
-
-- `VERCEL_ORG_ID`
-- `VERCEL_PROJECT_ID`
-- `VERCEL_TOKEN`
-
-Also set `API_URL` in the Vercel project's Environment Variables so the production build
-can generate the environment file.
 
 ### Vercel (manual)
 
