@@ -26,7 +26,7 @@
                 "input": "modules/shell/public"
               }
             ],
-            "styles": ["modules/shell/src/styles.css"]
+            "styles": ["node_modules/primeicons/primeicons.css", "modules/shell/src/styles.css"]
           },
           "configurations": {
             "production": {
@@ -81,6 +81,24 @@
           "options": {
             "tsConfig": "modules/shell/tsconfig.spec.json",
             "include": ["modules/**/src/**/*.spec.ts"]
+          }
+        },
+        "storybook": {
+          "builder": "@storybook/angular:start-storybook",
+          "options": {
+            "configDir": ".storybook",
+            "browserTarget": "invoria-web:build",
+            "compodoc": false,
+            "port": 6006
+          }
+        },
+        "build-storybook": {
+          "builder": "@storybook/angular:build-storybook",
+          "options": {
+            "configDir": ".storybook",
+            "browserTarget": "invoria-web:build",
+            "compodoc": false,
+            "outputDir": "dist/storybook"
           }
         }
       }

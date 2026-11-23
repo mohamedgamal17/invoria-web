@@ -10,11 +10,11 @@ Always-on agent rules (stack, commands, hard constraints, skills index) live in
 [`.agents/GEMINI.md`](../.agents/GEMINI.md), which points here for navigation; enforced,
 task-triggered workflows are skills under [`.agents/skills/`](../.agents/skills/).
 
-| Folder index                                     | What's inside                                                                                                                                                                         |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [monorepo/README.md](monorepo/README.md)         | Monorepo workspace structure (`modules/`), module registration, and `ModuleManifest` contracts                                                                                       |
-| [architecture/README.md](architecture/README.md) | Reference: overview (structure/dependency rules/state patterns), component design (NgRx + signals pages), API services & models, design consistency (PrimeNG/Tailwind + PR checklist) |
-| [guides/README.md](guides/README.md)             | Task guides: frontend list conventions (tables/paging/URL state), order workflow (statuses/stepper/gating), testing conventions (Vitest patterns)                                     |
+| Folder index                                     | What's inside                                                                                                                                                                              |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [monorepo/README.md](monorepo/README.md)         | Monorepo workspace structure (`modules/`), module registration, and `ModuleManifest` contracts                                                                                             |
+| [architecture/README.md](architecture/README.md) | Reference: overview (structure/dependency rules/state patterns), component design (NgRx + signals pages), API services & models, design consistency (PrimeNG/Tailwind + PR checklist)      |
+| [guides/README.md](guides/README.md)             | Task guides: frontend list conventions (tables/paging/URL state), order workflow (statuses/stepper/gating), storybook testing (isolated UI stories), testing conventions (Vitest patterns) |
 
 ## Maintenance
 

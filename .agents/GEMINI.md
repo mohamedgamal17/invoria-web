@@ -24,6 +24,8 @@ This document serves as the persistent project-level rules and entry point for G
 ## 2. Essential Commands
 
 - **Development server**: `ng serve` (runs on `http://localhost:4200`)
+- **Storybook (all modules)**: `npm run storybook` (runs on `http://localhost:6006`)
+- **Storybook (one module)**: `npm run storybook:workspace -- @invoria/<module>` (native: `npm run storybook -w @invoria/<module>`) — e.g. `npm run storybook:workspace -- @invoria/sales` → `http://localhost:6107`. Ports per module are documented in `docs/guides/storybook-testing.md §6`
 - **Build production**: `npm run build` (requires `API_URL` environment variable to generate `environment.production.ts`)
 - **Unit testing**: `ng test` (Vitest full run)
 - **Focused test**: `npx ng test --watch=false --include="modules/<module>/src/**/*.spec.ts"`
@@ -60,6 +62,10 @@ This document serves as the persistent project-level rules and entry point for G
    - Never render `<p-confirmDialog>` or inject `ConfirmationService` directly in feature components. Inject `ConfirmDialogService` and subscribe to the returned `Observable<boolean>`.
 8. **Documentation Maintenance**:
    - Update architecture docs and index files in the **same PR** whenever introducing or altering cross-cutting patterns (refer to the `update-docs` workflow and `maintaining-docs` skill).
+9. **Presentational Component Storybook Coverage**:
+   - Every presentational component in `components/` (and shared UI components in `@invoria/ui`) must have a colocated `.stories.ts` file (`<name>.component.stories.ts`). Smart container pages (`pages/`) and layout shells (`layout/`) are exempt.
+   - Stories must include `tags: ['autodocs']` and provide realistic default, loading, and empty/edge state variants.
+   - Enforced in CI via `npm run check:stories` and `npm run build-storybook`.
 
 ---
 
@@ -105,28 +111,22 @@ When designing new features or components, always inspect existing canonical imp
 
 Navigate docs through one chain: [docs/README.md](../docs/README.md) -> per-folder indexes ([architecture](../docs/architecture/README.md), [guides](../docs/guides/README.md)) -> the canonical doc. Do not index individual docs here.
 
-| Skill | Use when |
-| ----- | -------- |
-
-|
-grx-page-state | Adding/tuning pagination or page state in NgRx slices |
-|
-grx-details-store | Building/reviewing a details page (entity load, tabs, child paged panels) |
-|
-grx-list-mutations | Syncing create/update mutations into a paged-list slice |
-| s-naming-conventions | Writing/editing any TypeScript file (identifier naming) |
-| charts | Adding or modifying any chart |
-|
-eport-page-scaffold | Creating/modifying
-eports/<feat> pages |
-| orders-testing | Writing/changing specs under eatures/orders/ |
-| products-list-layout | Working on the products list page/filter panel |
-| maintaining-docs | Introducing cross-cutting patterns or touching docs/skills |
-| implement-feature | Implementing a new feature or page |
-|
-efactor-code | Refactoring existing code |
-| debug-issue | Diagnosing and fixing bugs/failing tests |
-| write-tests | Authoring or improving unit tests |
-| pre-commit-review | Pre-commit/pre-PR checklist |
-| eliminate-redundancy | Consolidating duplicated code/UI/constants |
-| update-docs | Maintaining the docs index |
+| Skill                 | Use when                                                                  |
+| --------------------- | ------------------------------------------------------------------------- |
+| ngrx-page-state       | Adding/tuning pagination or page state in NgRx slices                     |
+| ngrx-details-store    | Building/reviewing a details page (entity load, tabs, child paged panels) |
+| ngrx-list-mutations   | Syncing create/update mutations into a paged-list slice                   |
+| ts-naming-conventions | Writing/editing any TypeScript file (identifier naming)                   |
+| charts                | Adding or modifying any chart                                             |
+| report-page-scaffold  | Creating/modifying reports/<feat> pages                                   |
+| orders-testing        | Writing/changing specs under features/orders/                             |
+| products-list-layout  | Working on the products list page/filter panel                            |
+| component-stories     | Authoring, maintaining, or verifying Storybook UI stories                 |
+| maintaining-docs      | Introducing cross-cutting patterns or touching docs/skills                |
+| implement-feature     | Implementing a new feature or page                                        |
+| refactor-code         | Refactoring existing code                                                 |
+| debug-issue           | Diagnosing and fixing bugs/failing tests                                  |
+| write-tests           | Authoring or improving unit tests                                         |
+| pre-commit-review     | Pre-commit/pre-PR checklist                                               |
+| eliminate-redundancy  | Consolidating duplicated code/UI/constants                                |
+| update-docs           | Maintaining the docs index                                                |

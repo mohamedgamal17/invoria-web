@@ -37,18 +37,51 @@
     "test:shell": "npx ng test --watch=false --include=\"modules/shell/src/**/*.spec.ts\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "typecheck:workspaces": "npm run typecheck --workspaces --if-present",
-    "format": "npx prettier --write"
+    "format": "npx prettier --write",
+    "gallery": "node scripts/generate-storybook-gallery.mjs",
+    "storybook": "npm run gallery && ng run invoria-web:storybook",
+    "build-storybook": "npm run gallery && ng run invoria-web:build-storybook",
+    "storybook:workspace": "npm run storybook --workspace",
+    "build-storybook:workspace": "npm run build-storybook --workspace",
+    "check:stories": "node scripts/check-story-coverage.mjs",
+    "check:stories:workspaces": "npm run check:stories --workspaces --if-present"
+  },
+  "dependencies": {
+    "@angular/animations": "^21.2.4",
+    "@angular/common": "^21.2.0",
+    "@angular/compiler": "^21.2.0",
+    "@angular/core": "^21.2.0",
+    "@angular/forms": "^21.2.0",
+    "@angular/platform-browser": "^21.2.0",
+    "@angular/router": "^21.2.0",
+    "@ngrx/effects": "^22.0.1",
+    "@ngrx/router-store": "^22.0.1",
+    "@ngrx/store": "^22.0.1",
+    "@primeuix/themes": "^2.0.3",
+    "echarts": "^6.1.0",
+    "lucide-angular": "^0.577.0",
+    "ngx-echarts": "^21.0.0",
+    "primeicons": "^7.0.0",
+    "primeng": "^21.1.3",
+    "rxjs": "~7.8.0",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
+    "@angular-devkit/build-angular": "^21.2.30",
     "@angular/build": "^21.2.0",
     "@angular/cli": "^21.2.0",
     "@angular/compiler-cli": "^21.2.0",
     "@primeng/mcp": "^21.1.3",
+    "@storybook/addon-a11y": "^10.6.8",
+    "@storybook/addon-docs": "^10.6.8",
+    "@storybook/angular": "^10.6.8",
     "@tailwindcss/postcss": "^4.1.12",
+    "@types/react": "^19.3.0",
     "@vitest/ui": "^4.1.0",
     "jsdom": "^28.0.0",
     "postcss": "^8.5.3",
     "prettier": "^3.8.1",
+    "storybook": "^10.6.8",
     "tailwindcss": "^4.1.12",
     "typescript": "~5.9.2",
     "vitest": "^4.0.8"
@@ -56,6 +89,7 @@
   "overrides": {
     "@primeng/mcp": {
       "@modelcontextprotocol/sdk": "1.27.0"
-    }
+    },
+    "zod": "^4.0.0"
   }
 }
