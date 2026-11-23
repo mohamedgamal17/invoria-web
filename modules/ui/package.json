@@ -26,6 +26,10 @@
     "rxjs": "~7.8.0"
   },
   "scripts": {
+    "test": "npx ng test --watch=false --include=\"modules/ui/src/**/*.spec.ts\"",
+    "check:stories": "node ../../scripts/check-story-coverage.mjs --module=ui",
+    "storybook": "node ../../scripts/generate-storybook-gallery.mjs && ng run invoria-web:storybook --config-dir=../../.storybook/modules/ui --port=6101",
+    "build-storybook": "node ../../scripts/generate-storybook-gallery.mjs && ng run invoria-web:build-storybook --config-dir=../../.storybook/modules/ui --output-dir=../../dist/storybook/ui",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   }
 }
