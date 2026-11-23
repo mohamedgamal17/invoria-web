@@ -22,6 +22,7 @@
     "rxjs": "~7.8.0"
   },
   "scripts": {
+    "test": "npx ng test --watch=false --include=\"modules/utils/src/**/*.spec.ts\"",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   }
 }
