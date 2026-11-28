@@ -1,5 +1,6 @@
 import { Meta, Story } from '@storybook/addon-docs/blocks';
 import * as Autosearch from '../../../../modules/ui/src/ui/autosearch/autosearch.component.stories';
+import * as Button from '../../../../modules/ui/src/ui/button/button.component.stories';
 import * as ChartCard from '../../../../modules/ui/src/ui/chart-card/chart-card.component.stories';
 import * as DetailsSkeleton from '../../../../modules/ui/src/ui/details-skeleton/details-skeleton.component.stories';
 import * as DetailsToolbar from '../../../../modules/ui/src/ui/details-toolbar/details-toolbar.component.stories';
@@ -28,6 +29,10 @@ Isolated view of every presentational component in the `Ui` module. Each card sh
   <div className="sb-gallery-card">
     <div className="sb-gallery-title">Autosearch</div>
     <Story of={Autosearch.DefaultEmpty} meta={Autosearch} />
+  </div>
+  <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Button</div>
+    <Story of={Button.Default} meta={Button} />
   </div>
   <div className="sb-gallery-card">
     <div className="sb-gallery-title">Chart Card</div>
@@ -92,4 +97,4 @@ Isolated view of every presentational component in the `Ui` module. Each card sh
 </div>
 
 
-<p className="sb-hint">Total components rendered: 16.</p>
+<p className="sb-hint">Total components rendered: 17.</p>
