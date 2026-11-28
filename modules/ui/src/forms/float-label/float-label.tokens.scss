@@ -1,0 +1,25 @@
+/* FloatLabel component custom tokens — derived from global @invoria/ui design tokens.
+   Scoped to :host so every iv-float-label instance inherits and can override them. */
+
+:host {
+  --iv-float-label-color: var(--iv-color-muted-foreground);
+  --iv-float-label-focus-color: var(--iv-color-primary);
+  --iv-float-label-active-color: var(--iv-color-muted-foreground);
+  --iv-float-label-on-active-bg: var(--iv-color-surface);
+
+  --iv-float-label-position-x: var(--iv-space-3);
+  --iv-float-label-on-active-padding-x: var(--iv-space-1);
+
+  --iv-float-label-over-active-top: -1.125rem;
+  --iv-float-label-on-active-top: 0;
+  --iv-float-label-in-top: 0.375rem;
+  --iv-float-label-in-input-padding-top: var(--iv-space-6);
+  --iv-float-label-in-input-padding-bottom: var(--iv-space-2);
+
+  --iv-float-label-font-size: var(--iv-font-size-md);
+  --iv-float-label-active-font-size: var(--iv-font-size-xs);
+  --iv-float-label-active-font-weight: var(--iv-font-weight-medium);
+
+  --iv-float-label-transition-duration: var(--m-duration-200, 200ms);
+  --iv-float-label-transition-ease: var(--iv-ease-standard);
+}

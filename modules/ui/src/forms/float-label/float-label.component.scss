@@ -1,0 +1,177 @@
+@use './float-label.tokens' as *;
+
+:host {
+  display: block;
+  caret-color: transparent;
+}
+
+:host ::ng-deep .iv-float-label {
+  display: block;
+  position: relative;
+  cursor: default;
+  caret-color: transparent;
+
+  input,
+  textarea,
+  select,
+  [contenteditable]:not([contenteditable='false']) {
+    caret-color: auto;
+  }
+
+  > label,
+  > iv-label {
+    position: absolute;
+    pointer-events: none;
+    user-select: none;
+    top: 50%;
+    transform: translateY(-50%);
+    inset-inline-start: var(--iv-float-label-position-x);
+    color: var(--iv-float-label-color);
+    font-size: var(--iv-float-label-font-size);
+    line-height: 1;
+    z-index: 1;
+    transition-property:
+      top, transform, font-size, color, background-color, padding, inset-inline-start;
+    transition-duration: var(--iv-float-label-transition-duration);
+    transition-timing-function: var(--iv-float-label-transition-ease);
+  }
+
+  > iv-label .iv-label {
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: transparent;
+    transition: color var(--iv-float-label-transition-duration)
+      var(--iv-float-label-transition-ease);
+  }
+
+  &:has(:focus-within) {
+    input::placeholder,
+    textarea::placeholder {
+      color: var(--iv-float-label-color);
+    }
+
+    > label,
+    > iv-label {
+      color: var(--iv-float-label-focus-color);
+    }
+  }
+
+  &:has(textarea) {
+    > label,
+    > iv-label {
+      top: 0.875rem;
+      transform: translateY(0);
+    }
+  }
+
+  /* Variant: over (default) — floats above the input border */
+  &.iv-float-label--over {
+    &:has(:focus-within),
+    &.iv-float-label--filled,
+    &:has(input[placeholder]:not(:placeholder-shown)),
+    &:has(textarea[placeholder]:not(:placeholder-shown)),
+    &:has(.p-filled),
+    &:has(.p-inputwrapper-filled) {
+      > label,
+      > iv-label {
+        top: var(--iv-float-label-over-active-top);
+        transform: translateY(0);
+        font-size: var(--iv-float-label-active-font-size);
+        font-weight: var(--iv-float-label-active-font-weight);
+      }
+    }
+
+    &:not(:has(:focus-within)) {
+      &.iv-float-label--filled,
+      &:has(input[placeholder]:not(:placeholder-shown)),
+      &:has(textarea[placeholder]:not(:placeholder-shown)),
+      &:has(.p-filled),
+      &:has(.p-inputwrapper-filled) {
+        > label,
+        > iv-label {
+          color: var(--iv-float-label-active-color);
+        }
+      }
+    }
+  }
+
+  /* Variant: on — floats onto the top border with surface background */
+  &.iv-float-label--on {
+    &:has(:focus-within),
+    &.iv-float-label--filled,
+    &:has(input[placeholder]:not(:placeholder-shown)),
+    &:has(textarea[placeholder]:not(:placeholder-shown)),
+    &:has(.p-filled),
+    &:has(.p-inputwrapper-filled) {
+      > label,
+      > iv-label {
+        top: var(--iv-float-label-on-active-top);
+        transform: translateY(-50%);
+        inset-inline-start: calc(
+          var(--iv-float-label-position-x) - var(--iv-float-label-on-active-padding-x)
+        );
+        font-size: var(--iv-float-label-active-font-size);
+        font-weight: var(--iv-float-label-active-font-weight);
+        background-color: var(--iv-float-label-on-active-bg);
+        padding-inline: var(--iv-float-label-on-active-padding-x);
+      }
+    }
+
+    &:not(:has(:focus-within)) {
+      &.iv-float-label--filled,
+      &:has(input[placeholder]:not(:placeholder-shown)),
+      &:has(textarea[placeholder]:not(:placeholder-shown)),
+      &:has(.p-filled),
+      &:has(.p-inputwrapper-filled) {
+        > label,
+        > iv-label {
+          color: var(--iv-float-label-active-color);
+        }
+      }
+    }
+  }
+
+  /* Variant: in — floats inside the top of the input */
+  &.iv-float-label--in {
+    input,
+    textarea,
+    .p-inputtext {
+      padding-top: var(--iv-float-label-in-input-padding-top);
+      padding-bottom: var(--iv-float-label-in-input-padding-bottom);
+    }
+
+    &:has(:focus-within),
+    &.iv-float-label--filled,
+    &:has(input[placeholder]:not(:placeholder-shown)),
+    &:has(textarea[placeholder]:not(:placeholder-shown)),
+    &:has(.p-filled),
+    &:has(.p-inputwrapper-filled) {
+      > label,
+      > iv-label {
+        top: var(--iv-float-label-in-top);
+        transform: translateY(0);
+        font-size: var(--iv-float-label-active-font-size);
+        font-weight: var(--iv-float-label-active-font-weight);
+      }
+    }
+
+    &:not(:has(:focus-within)) {
+      &.iv-float-label--filled,
+      &:has(input[placeholder]:not(:placeholder-shown)),
+      &:has(textarea[placeholder]:not(:placeholder-shown)),
+      &:has(.p-filled),
+      &:has(.p-inputwrapper-filled) {
+        > label,
+        > iv-label {
+          color: var(--iv-float-label-active-color);
+        }
+      }
+    }
+  }
+}

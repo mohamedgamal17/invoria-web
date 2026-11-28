@@ -8,6 +8,7 @@ import * as EmptyState from '../../../../modules/ui/src/ui/empty-state/empty-sta
 import * as ErrorCard from '../../../../modules/ui/src/ui/error-card/error-card.component.stories';
 import * as FinancialObligationList from '../../../../modules/ui/src/ui/financial-obligation-list/financial-obligation-list.component.stories';
 import * as FinancialObligationOverviewCard from '../../../../modules/ui/src/ui/financial-obligation-overview-card/financial-obligation-overview-card.component.stories';
+import * as FloatLabel from '../../../../modules/ui/src/forms/float-label/float-label.component.stories';
 import * as KpiCard from '../../../../modules/ui/src/ui/kpi-card/kpi-card.component.stories';
 import * as Label from '../../../../modules/ui/src/forms/label/label.component.stories';
 import * as ListSkeleton from '../../../../modules/ui/src/ui/list-skeleton/list-skeleton.component.stories';
@@ -64,6 +65,10 @@ Isolated view of every presentational component in the `Ui` module. Each card sh
     <Story of={FinancialObligationOverviewCard.PartialPayable} meta={FinancialObligationOverviewCard} />
   </div>
   <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Float Label</div>
+    <Story of={FloatLabel.Default} meta={FloatLabel} />
+  </div>
+  <div className="sb-gallery-card">
     <div className="sb-gallery-title">Kpi Card</div>
     <Story of={KpiCard.Default} meta={KpiCard} />
   </div>
@@ -102,4 +107,4 @@ Isolated view of every presentational component in the `Ui` module. Each card sh
 </div>
 
 
-<p className="sb-hint">Total components rendered: 18.</p>
+<p className="sb-hint">Total components rendered: 19.</p>
