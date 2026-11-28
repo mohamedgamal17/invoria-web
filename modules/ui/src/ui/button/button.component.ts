@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { LoaderCircle, LucideAngularModule, type LucideIconData } from 'lucide-angular';
+import { LoaderCircle, LucideAngularModule } from 'lucide-angular';
+import type { IvIcon } from '../../common/common.types';
 import {
   ICON_SIZES,
   type IvButtonAppearance,
@@ -30,7 +31,7 @@ export class IvButtonComponent {
   shape = input<IvButtonShape>('default');
   loading = input<boolean>(false);
   loadingText = input<string>('');
-  icon = input<LucideIconData | null>(null);
+  icon = input<IvIcon | null>(null);
   iconPosition = input<IvButtonIconPosition>('start');
   text = input<string>('');
 
