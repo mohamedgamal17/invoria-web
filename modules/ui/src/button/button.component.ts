@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { LoaderCircle, LucideAngularModule } from 'lucide-angular';
-import type { IvIcon } from '../../common/common.types';
+import type { IvIcon } from '../common/common.types';
 import {
   ICON_SIZES,
   type IvButtonAppearance,

@@ -9,7 +9,7 @@ export {
   type IvButtonSize,
   type IvButtonType,
   type IvButtonVariant,
-} from './ui/button';
+} from './button';
 export { ChartCardComponent } from './ui/chart-card/chart-card.component';
 export { ConfirmDialogComponent } from './ui/confirm-dialog/confirm-dialog.component';
 export {

@@ -1,4 +1,4 @@
-import { IV_ICON_SIZES, type IvIconPosition, type IvSize } from '../../common/common.types';
+import { IV_ICON_SIZES, type IvIconPosition, type IvSize } from '../common/common.types';
 
 export type IvButtonSize = IvSize;
 export type IvButtonVariant = 'primary' | 'secondary';
