@@ -1,0 +1,23 @@
+/* Label component custom tokens — derived from global @invoria/ui design tokens.
+   Scoped to :host so every iv-label instance inherits and can override them. */
+
+:host {
+  --iv-label-font-xs: var(--iv-font-size-xs);
+  --iv-label-font-sm: var(--iv-font-size-sm);
+  --iv-label-font-md: var(--iv-font-size-md);
+  --iv-label-font-lg: var(--iv-font-size-lg);
+  --iv-label-font-xl: var(--iv-font-size-xl);
+
+  --iv-label-gap-xs: var(--iv-space-1);
+  --iv-label-gap-sm: var(--iv-space-1-5);
+  --iv-label-gap-md: var(--iv-space-1-5);
+  --iv-label-gap-lg: var(--iv-space-2);
+  --iv-label-gap-xl: var(--iv-space-2);
+
+  --iv-label-color: var(--iv-color-foreground);
+  --iv-label-required-color: var(--iv-color-danger);
+  --iv-label-font-weight: var(--iv-font-weight-medium);
+  --iv-label-disabled-opacity: var(--iv-opacity-disabled);
+  --iv-label-transition-duration: var(--iv-duration-fast);
+  --iv-label-transition-ease: var(--iv-ease-standard);
+}

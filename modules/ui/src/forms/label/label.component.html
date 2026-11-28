@@ -1,0 +1,26 @@
+<label
+  [attr.for]="htmlFor()"
+  [attr.aria-disabled]="disabled() ? 'true' : null"
+  [class]="labelClasses()"
+>
+  @if (iconPos() === 'start') {
+    @if (icon(); as iconData) {
+      <lucide-icon [img]="iconData" [size]="iconSize()" class="iv-label__icon" aria-hidden="true" />
+    }
+  }
+
+  @if (text()) {
+    <span class="iv-label__text">{{ text() }}</span>
+  }
+  <ng-content />
+
+  @if (required()) {
+    <span class="iv-label__required" aria-hidden="true">*</span>
+  }
+
+  @if (iconPos() === 'end') {
+    @if (icon(); as iconData) {
+      <lucide-icon [img]="iconData" [size]="iconSize()" class="iv-label__icon" aria-hidden="true" />
+    }
+  }
+</label>

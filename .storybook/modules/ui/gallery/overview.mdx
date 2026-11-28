@@ -9,6 +9,7 @@ import * as ErrorCard from '../../../../modules/ui/src/ui/error-card/error-card.
 import * as FinancialObligationList from '../../../../modules/ui/src/ui/financial-obligation-list/financial-obligation-list.component.stories';
 import * as FinancialObligationOverviewCard from '../../../../modules/ui/src/ui/financial-obligation-overview-card/financial-obligation-overview-card.component.stories';
 import * as KpiCard from '../../../../modules/ui/src/ui/kpi-card/kpi-card.component.stories';
+import * as Label from '../../../../modules/ui/src/forms/label/label.component.stories';
 import * as ListSkeleton from '../../../../modules/ui/src/ui/list-skeleton/list-skeleton.component.stories';
 import * as NameFilterPanel from '../../../../modules/ui/src/ui/name-filter-panel/name-filter-panel.component.stories';
 import * as PageHeader from '../../../../modules/ui/src/ui/page-header/page-header.component.stories';
@@ -67,6 +68,10 @@ Isolated view of every presentational component in the `Ui` module. Each card sh
     <Story of={KpiCard.Default} meta={KpiCard} />
   </div>
   <div className="sb-gallery-card">
+    <div className="sb-gallery-title">Label</div>
+    <Story of={Label.Default} meta={Label} />
+  </div>
+  <div className="sb-gallery-card">
     <div className="sb-gallery-title">List Skeleton</div>
     <Story of={ListSkeleton.MobileCardsVariant} meta={ListSkeleton} />
   </div>
@@ -97,4 +102,4 @@ Isolated view of every presentational component in the `Ui` module. Each card sh
 </div>
 
 
-<p className="sb-hint">Total components rendered: 17.</p>
+<p className="sb-hint">Total components rendered: 18.</p>

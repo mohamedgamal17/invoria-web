@@ -1,0 +1,50 @@
+@use './label.tokens' as *;
+
+:host {
+  display: inline-block;
+  caret-color: transparent;
+}
+
+.iv-label {
+  display: inline-flex;
+  align-items: center;
+  font-family: inherit;
+  font-weight: var(--iv-label-font-weight);
+  line-height: 1.25;
+  color: var(--iv-label-color);
+  cursor: pointer;
+  user-select: none;
+  caret-color: transparent;
+  transition:
+    color var(--iv-label-transition-duration) var(--iv-label-transition-ease),
+    opacity var(--iv-label-transition-duration) var(--iv-label-transition-ease);
+
+  @each $size in xs, sm, md, lg, xl {
+    &--#{$size} {
+      font-size: var(--iv-label-font-#{$size});
+      gap: var(--iv-label-gap-#{$size});
+    }
+  }
+
+  &--disabled {
+    cursor: not-allowed;
+    opacity: var(--iv-label-disabled-opacity);
+    pointer-events: none;
+  }
+
+  &__icon {
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+
+  &__text {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  &__required {
+    color: var(--iv-label-required-color);
+    font-weight: 600;
+    line-height: 1;
+  }
+}

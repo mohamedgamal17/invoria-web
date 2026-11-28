@@ -1,0 +1,1 @@
+export { IvLabelComponent } from './label';
