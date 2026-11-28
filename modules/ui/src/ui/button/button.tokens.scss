@@ -1,0 +1,76 @@
+/* Button component custom tokens — derived from global @invoria/ui design tokens.
+   Scoped to :host so every iv-button instance inherits and can override them. */
+
+:host {
+  /* Size scale */
+  --iv-btn-height-xs: var(--iv-size-7);
+  --iv-btn-px-xs: var(--iv-space-2-5);
+  --iv-btn-font-xs: var(--iv-font-size-xs);
+  --iv-btn-gap-xs: var(--iv-space-1-5);
+  --iv-btn-radius-xs: var(--iv-radius-sm);
+  --iv-btn-icon-xs: var(--iv-font-size-xs);
+
+  --iv-btn-height-sm: var(--iv-size-8);
+  --iv-btn-px-sm: var(--iv-space-3);
+  --iv-btn-font-sm: var(--iv-font-size-sm);
+  --iv-btn-gap-sm: var(--iv-space-1-5);
+  --iv-btn-radius-sm: var(--iv-radius-sm);
+  --iv-btn-icon-sm: var(--iv-font-size-md);
+
+  --iv-btn-height-md: var(--iv-size-9-5);
+  --iv-btn-px-md: var(--iv-space-4);
+  --iv-btn-font-md: var(--iv-font-size-md);
+  --iv-btn-gap-md: var(--iv-space-2);
+  --iv-btn-radius-md: var(--iv-radius-md);
+  --iv-btn-icon-md: var(--iv-font-size-xl);
+
+  --iv-btn-height-lg: var(--iv-size-11);
+  --iv-btn-px-lg: var(--iv-space-5);
+  --iv-btn-font-lg: var(--iv-font-size-lg);
+  --iv-btn-gap-lg: var(--iv-space-2);
+  --iv-btn-radius-lg: var(--iv-radius-md);
+  --iv-btn-icon-lg: var(--iv-space-4-5);
+
+  --iv-btn-height-xl: var(--iv-size-12-5);
+  --iv-btn-px-xl: var(--iv-space-6);
+  --iv-btn-font-xl: var(--iv-font-size-xl);
+  --iv-btn-gap-xl: var(--iv-space-2-5);
+  --iv-btn-radius-xl: var(--iv-radius-lg);
+  --iv-btn-icon-xl: var(--iv-space-5);
+
+  /* Shapes & link spacing */
+  --iv-btn-radius-rounded: var(--iv-radius-xl);
+  --iv-btn-radius-pill: var(--iv-radius-pill);
+  --iv-btn-link-py: var(--iv-space-0-5);
+  --iv-btn-link-px: var(--iv-space-1);
+
+  /* Typography, border, motion & state */
+  --iv-btn-font-weight: var(--iv-font-weight-medium);
+  --iv-btn-line-height: var(--iv-line-height-none);
+  --iv-btn-border-width: var(--iv-border-width-thin);
+  --iv-btn-transition-duration: var(--iv-duration-fast);
+  --iv-btn-transition-ease: var(--iv-ease-standard);
+  --iv-btn-focus-ring-width: var(--iv-focus-ring-width);
+  --iv-btn-focus-ring-color: var(--iv-color-focus-ring);
+  --iv-btn-disabled-opacity: var(--iv-opacity-disabled);
+  --iv-btn-loading-opacity: var(--iv-opacity-loading);
+
+  /* Primary variant tokens */
+  --iv-btn-primary-bg: var(--iv-color-primary);
+  --iv-btn-primary-bg-hover: var(--iv-color-primary-hover);
+  --iv-btn-primary-bg-active: var(--iv-color-primary-active);
+  --iv-btn-primary-fg: var(--iv-color-primary-foreground);
+  --iv-btn-primary-border: var(--iv-color-primary);
+  --iv-btn-primary-subtle-bg-hover: var(--iv-color-primary-subtle);
+  --iv-btn-primary-subtle-bg-active: var(--iv-color-primary-subtle-hover);
+
+  /* Secondary variant tokens */
+  --iv-btn-secondary-bg: var(--iv-color-secondary);
+  --iv-btn-secondary-bg-hover: var(--iv-color-secondary-hover);
+  --iv-btn-secondary-bg-active: var(--iv-color-secondary-active);
+  --iv-btn-secondary-fg: var(--iv-color-secondary-foreground);
+  --iv-btn-secondary-border: var(--iv-color-secondary);
+  --iv-btn-secondary-outline-border: var(--iv-color-border);
+  --iv-btn-secondary-subtle-bg-hover: var(--iv-color-secondary-subtle);
+  --iv-btn-secondary-subtle-bg-active: var(--iv-color-secondary-subtle-hover);
+}

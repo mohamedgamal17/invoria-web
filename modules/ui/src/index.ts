@@ -1,12 +1,19 @@
 export { AutosearchComponent } from './ui/autosearch/autosearch.component';
-export { ChartCardComponent } from './ui/chart-card/chart-card.component';
 export {
-  ConfirmDialogComponent
-} from './ui/confirm-dialog/confirm-dialog.component';
+  IvButtonComponent,
+  type IvButtonAppearance,
+  type IvButtonIconPosition,
+  type IvButtonShape,
+  type IvButtonSize,
+  type IvButtonType,
+  type IvButtonVariant,
+} from './ui/button';
+export { ChartCardComponent } from './ui/chart-card/chart-card.component';
+export { ConfirmDialogComponent } from './ui/confirm-dialog/confirm-dialog.component';
 export {
   ConfirmDialogService,
   type ConfirmDialogSeverity,
-  type ConfirmDialogOptions
+  type ConfirmDialogOptions,
 } from './ui/confirm-dialog/confirm-dialog.service';
 export { DetailsSkeletonComponent } from './ui/details-skeleton/details-skeleton.component';
 export { DetailsToolbarComponent } from './ui/details-toolbar/details-toolbar.component';
@@ -19,11 +26,11 @@ export {
   ListSkeletonComponent,
   DEFAULT_LIST_SKELETON_COLUMNS,
   type ListSkeletonColumn,
-  type ListSkeletonVariant
+  type ListSkeletonVariant,
 } from './ui/list-skeleton/list-skeleton.component';
 export {
   NameFilterPanelComponent,
-  type NameListFilters
+  type NameListFilters,
 } from './ui/name-filter-panel/name-filter-panel.component';
 export { PageHeaderComponent } from './ui/page-header/page-header.component';
 export { ReportPeriodFilterPanelComponent } from './ui/report-period-filter-panel/report-period-filter-panel.component';

@@ -1,0 +1,180 @@
+@use './button.tokens' as *;
+
+:host {
+  display: inline-block;
+}
+
+.iv-btn {
+  --_btn-bg: transparent;
+  --_btn-bg-hover: transparent;
+  --_btn-bg-active: transparent;
+  --_btn-fg: var(--iv-btn-primary-bg);
+  --_btn-border: transparent;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-weight: var(--iv-btn-font-weight);
+  line-height: var(--iv-btn-line-height);
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+  border: var(--iv-btn-border-width) solid var(--_btn-border);
+  background-color: var(--_btn-bg);
+  color: var(--_btn-fg);
+  text-decoration: none;
+  transition:
+    background-color var(--iv-btn-transition-duration) var(--iv-btn-transition-ease),
+    border-color var(--iv-btn-transition-duration) var(--iv-btn-transition-ease),
+    color var(--iv-btn-transition-duration) var(--iv-btn-transition-ease),
+    box-shadow var(--iv-btn-transition-duration) var(--iv-btn-transition-ease),
+    opacity var(--iv-btn-transition-duration) var(--iv-btn-transition-ease);
+
+  &:hover:not(:disabled) {
+    background-color: var(--_btn-bg-hover);
+  }
+
+  &:active:not(:disabled) {
+    background-color: var(--_btn-bg-active);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 var(--iv-btn-focus-ring-width) var(--iv-btn-focus-ring-color);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: var(--iv-btn-disabled-opacity);
+  }
+
+  &--loading:disabled {
+    cursor: progress;
+    opacity: var(--iv-btn-loading-opacity);
+  }
+
+  &--full {
+    width: 100%;
+  }
+
+  /* Sizes */
+  @each $size in xs, sm, md, lg, xl {
+    &--#{$size} {
+      height: var(--iv-btn-height-#{$size});
+      padding: 0 var(--iv-btn-px-#{$size});
+      font-size: var(--iv-btn-font-#{$size});
+      gap: var(--iv-btn-gap-#{$size});
+      border-radius: var(--iv-btn-radius-#{$size});
+    }
+  }
+
+  /* Shapes */
+  &--shape-rounded {
+    border-radius: var(--iv-btn-radius-rounded);
+  }
+
+  &--shape-pill {
+    border-radius: var(--iv-btn-radius-pill);
+  }
+
+  /* Variant: Primary */
+  &--primary {
+    &.iv-btn--solid {
+      --_btn-bg: var(--iv-btn-primary-bg);
+      --_btn-bg-hover: var(--iv-btn-primary-bg-hover);
+      --_btn-bg-active: var(--iv-btn-primary-bg-active);
+      --_btn-fg: var(--iv-btn-primary-fg);
+      --_btn-border: var(--iv-btn-primary-border);
+    }
+
+    &.iv-btn--outline {
+      --_btn-bg: transparent;
+      --_btn-bg-hover: var(--iv-btn-primary-subtle-bg-hover);
+      --_btn-bg-active: var(--iv-btn-primary-subtle-bg-active);
+      --_btn-fg: var(--iv-btn-primary-bg);
+      --_btn-border: var(--iv-btn-primary-border);
+    }
+
+    &.iv-btn--ghost {
+      --_btn-bg: transparent;
+      --_btn-bg-hover: var(--iv-btn-primary-subtle-bg-hover);
+      --_btn-bg-active: var(--iv-btn-primary-subtle-bg-active);
+      --_btn-fg: var(--iv-btn-primary-bg);
+      --_btn-border: transparent;
+    }
+
+    &.iv-btn--link {
+      --_btn-bg: transparent;
+      --_btn-bg-hover: transparent;
+      --_btn-bg-active: transparent;
+      --_btn-fg: var(--iv-btn-primary-bg);
+      --_btn-border: transparent;
+      height: auto;
+      padding: var(--iv-btn-link-py) var(--iv-btn-link-px);
+
+      &:hover:not(:disabled) {
+        text-decoration: underline;
+        text-underline-offset: 4px;
+      }
+    }
+  }
+
+  /* Variant: Secondary */
+  &--secondary {
+    &.iv-btn--solid {
+      --_btn-bg: var(--iv-btn-secondary-bg);
+      --_btn-bg-hover: var(--iv-btn-secondary-bg-hover);
+      --_btn-bg-active: var(--iv-btn-secondary-bg-active);
+      --_btn-fg: var(--iv-btn-secondary-fg);
+      --_btn-border: var(--iv-btn-secondary-border);
+    }
+
+    &.iv-btn--outline {
+      --_btn-bg: transparent;
+      --_btn-bg-hover: var(--iv-btn-secondary-subtle-bg-hover);
+      --_btn-bg-active: var(--iv-btn-secondary-subtle-bg-active);
+      --_btn-fg: var(--iv-btn-secondary-bg);
+      --_btn-border: var(--iv-btn-secondary-outline-border);
+    }
+
+    &.iv-btn--ghost {
+      --_btn-bg: transparent;
+      --_btn-bg-hover: var(--iv-btn-secondary-subtle-bg-hover);
+      --_btn-bg-active: var(--iv-btn-secondary-subtle-bg-active);
+      --_btn-fg: var(--iv-btn-secondary-bg);
+      --_btn-border: transparent;
+    }
+
+    &.iv-btn--link {
+      --_btn-bg: transparent;
+      --_btn-bg-hover: transparent;
+      --_btn-bg-active: transparent;
+      --_btn-fg: var(--iv-btn-secondary-bg);
+      --_btn-border: transparent;
+      height: auto;
+      padding: var(--iv-btn-link-py) var(--iv-btn-link-px);
+
+      &:hover:not(:disabled) {
+        text-decoration: underline;
+        text-underline-offset: 4px;
+      }
+    }
+  }
+
+  &__icon,
+  &__spinner {
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+
+  &__spinner {
+    animation: iv-btn-spin 1s linear infinite;
+  }
+}
+
+@keyframes iv-btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

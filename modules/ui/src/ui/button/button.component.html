@@ -1,0 +1,47 @@
+<button
+  [attr.type]="type()"
+  [disabled]="isDisabled()"
+  [attr.aria-busy]="loading()"
+  [attr.aria-label]="ariaLabel() || null"
+  [class]="buttonClasses()"
+  (click)="onButtonClick($event)"
+>
+  @if (loading()) {
+    @if (iconPosition() === 'start') {
+      <lucide-icon
+        [img]="loaderIcon"
+        [size]="iconSize()"
+        class="iv-btn__spinner"
+        aria-hidden="true"
+      />
+    }
+    @if (loadingText()) {
+      <span class="iv-btn__label">{{ loadingText() }}</span>
+    }
+    @if (iconPosition() === 'end') {
+      <lucide-icon
+        [img]="loaderIcon"
+        [size]="iconSize()"
+        class="iv-btn__spinner"
+        aria-hidden="true"
+      />
+    }
+  } @else {
+    @if (iconPosition() === 'start') {
+      @if (icon(); as iconData) {
+        <lucide-icon [img]="iconData" [size]="iconSize()" class="iv-btn__icon" aria-hidden="true" />
+      }
+    }
+
+    @if (text()) {
+      <span class="iv-btn__label">{{ text() }}</span>
+    }
+    <ng-content />
+
+    @if (iconPosition() === 'end') {
+      @if (icon(); as iconData) {
+        <lucide-icon [img]="iconData" [size]="iconSize()" class="iv-btn__icon" aria-hidden="true" />
+      }
+    }
+  }
+</button>
