@@ -8,6 +8,8 @@
 */
 
 :root {
+  color-scheme: light;
+
   /* Base measures — owned by app (not palette) */
   --t-radius-sm: 0.375rem; /* 6px */
   --t-radius-md: 0.5rem; /* 8px */
@@ -35,9 +37,11 @@
   --c-border: var(--p-content-border-color);
 
   --c-primary: var(--p-primary-color);
+  --c-primary-hover: var(--p-primary-hover-color);
+  --c-primary-active: var(--p-primary-active-color);
   --c-primary-foreground: var(--p-primary-contrast-color);
-  --c-secondary: var(--p-surface-900);
-  --c-secondary-foreground: var(--p-surface-0);
+  --c-secondary: light-dark(var(--p-surface-900), var(--p-surface-100));
+  --c-secondary-foreground: light-dark(var(--p-surface-0), var(--p-surface-950));
 
   /* Status — map to PrimeNG primitive palettes */
   --c-success: var(--p-emerald-500);
@@ -66,9 +70,11 @@
   --sh-md: var(--t-shadow-md);
   --sh-lg: var(--t-shadow-lg);
   /* Glow effects now use PrimeNG accents (sky-aligned) */
-  --sh-glow-sm: 0 0 0 1px color-mix(in srgb, var(--p-sky-500), transparent 65%),
+  --sh-glow-sm:
+    0 0 0 1px color-mix(in srgb, var(--p-sky-500), transparent 65%),
     0 8px 24px -14px color-mix(in srgb, var(--p-sky-500), transparent 40%);
-  --sh-glow-md: 0 0 0 1px color-mix(in srgb, var(--p-sky-400), transparent 60%),
+  --sh-glow-md:
+    0 0 0 1px color-mix(in srgb, var(--p-sky-400), transparent 60%),
     0 18px 36px -18px color-mix(in srgb, var(--p-sky-400), transparent 35%);
 
   /* Semantic motion */
@@ -78,7 +84,11 @@
   --m-ease-standard: var(--t-ease-standard);
 }
 
-/* NOTE: No `.dark` block — PrimeNG generates dark scheme variables under `.dark`
+.dark {
+  color-scheme: dark;
+}
+
+/* NOTE: No `.dark` color overrides — PrimeNG generates dark scheme variables under `.dark`
    via darkModeSelector. The --c-* aliases above automatically resolve to dark values
    because they proxy to --p-* which PrimeNG redefines in dark mode. */
 
@@ -91,7 +101,7 @@
   --t-tracking-wide: 0.025em;
   --t-tracking-wider: 0.05em;
   --t-tracking-widest: 0.1em;
-  --t-tracking-caps: 0.16em;    /* for uppercase labels */
+  --t-tracking-caps: 0.16em; /* for uppercase labels */
 
   /* NEW: Subtle border — normalized from /40, /50, /60 variants */
   --c-border-subtle: color-mix(in srgb, var(--p-content-border-color), transparent 50%);

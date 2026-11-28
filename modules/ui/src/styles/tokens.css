@@ -1,0 +1,111 @@
+/* Invoria UI (@invoria/ui) Design Tokens
+   - Owns shared `--iv-*` semantic tokens (colors, radii, motion) for custom `iv-*` primitives.
+   - Component-specific `--iv-*` tokens live in each component's `.component.scss`.
+   - Proxies to the active app tokens (`--c-*`, `--r-*`, `--m-*`) with standalone
+     fallbacks so components match the current theme today and remain decoupled
+     when external UI libraries are phased out.
+*/
+
+:root {
+  /* Brand & semantic colors */
+  --iv-color-primary: var(--c-primary, #0ea5e9);
+  --iv-color-primary-hover: var(
+    --c-primary-hover,
+    color-mix(in srgb, var(--iv-color-primary) 88%, #000000)
+  );
+  --iv-color-primary-active: var(
+    --c-primary-active,
+    color-mix(in srgb, var(--iv-color-primary) 78%, #000000)
+  );
+  --iv-color-primary-foreground: var(--c-primary-foreground, #ffffff);
+  --iv-color-primary-subtle: color-mix(in srgb, var(--iv-color-primary) 12%, transparent);
+  --iv-color-primary-subtle-hover: color-mix(in srgb, var(--iv-color-primary) 20%, transparent);
+
+  --iv-color-secondary: var(--c-secondary, #0f172a);
+  --iv-color-secondary-hover: color-mix(
+    in srgb,
+    var(--iv-color-secondary) 86%,
+    var(--c-surface, #ffffff)
+  );
+  --iv-color-secondary-active: color-mix(
+    in srgb,
+    var(--iv-color-secondary) 76%,
+    var(--c-surface, #ffffff)
+  );
+  --iv-color-secondary-foreground: var(--c-secondary-foreground, #ffffff);
+  --iv-color-secondary-subtle: color-mix(in srgb, var(--iv-color-secondary) 10%, transparent);
+  --iv-color-secondary-subtle-hover: color-mix(in srgb, var(--iv-color-secondary) 18%, transparent);
+
+  --iv-color-border: var(--c-border, #e2e8f0);
+  --iv-color-focus-ring: color-mix(in srgb, var(--c-focus, #0ea5e9) 45%, transparent);
+
+  /* Radii & motion */
+  --iv-radius-sm: var(--r-sm, 0.375rem);
+  --iv-radius-md: var(--r-md, 0.5rem);
+  --iv-radius-lg: var(--r-lg, 0.75rem);
+  --iv-radius-xl: var(--r-xl, 1rem);
+  --iv-radius-pill: 9999px;
+  --iv-duration-fast: var(--m-duration-150, 150ms);
+  --iv-ease-standard: var(--m-ease-standard, cubic-bezier(0.2, 0.8, 0.2, 1));
+
+  /* Spacing & sizing primitives */
+  --iv-space-0-5: 0.125rem;
+  --iv-space-1: 0.25rem;
+  --iv-space-1-5: 0.375rem;
+  --iv-space-2: 0.5rem;
+  --iv-space-2-5: 0.625rem;
+  --iv-space-3: 0.75rem;
+  --iv-space-4: 1rem;
+  --iv-space-4-5: 1.125rem;
+  --iv-space-5: 1.25rem;
+  --iv-space-6: 1.5rem;
+
+  --iv-size-7: 1.75rem;
+  --iv-size-8: 2rem;
+  --iv-size-9-5: 2.375rem;
+  --iv-size-11: 2.75rem;
+  --iv-size-12-5: 3.125rem;
+
+  /* Typography & border primitives */
+  --iv-font-size-xs: var(--ty-xs, 0.75rem);
+  --iv-font-size-sm: 0.8125rem;
+  --iv-font-size-md: var(--ty-sm, 0.875rem);
+  --iv-font-size-lg: 0.9375rem;
+  --iv-font-size-xl: var(--ty-md, 1rem);
+  --iv-font-weight-medium: 500;
+  --iv-line-height-none: 1;
+
+  --iv-border-width-thin: 1px;
+  --iv-focus-ring-width: 3px;
+  --iv-opacity-disabled: 0.55;
+  --iv-opacity-loading: 0.8;
+}
+
+.dark {
+  --iv-color-primary: var(--c-primary, #38bdf8);
+  --iv-color-primary-hover: var(
+    --c-primary-hover,
+    color-mix(in srgb, var(--iv-color-primary) 82%, #ffffff)
+  );
+  --iv-color-primary-active: var(
+    --c-primary-active,
+    color-mix(in srgb, var(--iv-color-primary) 68%, #ffffff)
+  );
+  --iv-color-primary-foreground: var(--c-primary-foreground, #09090b);
+
+  --iv-color-secondary: var(--c-secondary, #f4f4f5);
+  --iv-color-secondary-foreground: var(--c-secondary-foreground, #09090b);
+  --iv-color-secondary-hover: color-mix(
+    in srgb,
+    var(--iv-color-secondary) 86%,
+    var(--c-surface, #18181b)
+  );
+  --iv-color-secondary-active: color-mix(
+    in srgb,
+    var(--iv-color-secondary) 76%,
+    var(--c-surface, #18181b)
+  );
+
+  --iv-color-border: var(--c-border, #3f3f46);
+  --iv-color-focus-ring: color-mix(in srgb, var(--c-focus, #38bdf8) 45%, transparent);
+}
