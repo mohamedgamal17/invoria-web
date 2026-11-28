@@ -1,3 +1,4 @@
+export { IV_ICON_SIZES, type IvIcon, type IvIconPosition, type IvSize } from './common';
 export { AutosearchComponent } from './ui/autosearch/autosearch.component';
 export {
   IvButtonComponent,

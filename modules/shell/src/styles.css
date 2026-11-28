@@ -6,6 +6,19 @@
 @import './styles/typography.css';
 @import './styles/labels.css';
 
+@layer base {
+  html {
+    caret-color: transparent;
+  }
+
+  input,
+  textarea,
+  select,
+  [contenteditable]:not([contenteditable='false']) {
+    caret-color: auto;
+  }
+}
+
 /* Tailwind v4 CSS-first theming
     Color utilities (bg-surface, text-foreground, border-border, etc.) now
     proxy to PrimeNG Aura tokens via --c-* aliases (tokens.css: --c-* -> --p-*).

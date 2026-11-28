@@ -37,6 +37,10 @@
   --iv-color-secondary-subtle-hover: color-mix(in srgb, var(--iv-color-secondary) 18%, transparent);
 
   --iv-color-border: var(--c-border, #e2e8f0);
+  --iv-color-foreground: var(--c-foreground, #0f172a);
+  --iv-color-muted-foreground: var(--c-muted-foreground, #64748b);
+  --iv-color-surface: var(--c-surface, #ffffff);
+  --iv-color-danger: var(--c-danger, #ef4444);
   --iv-color-focus-ring: color-mix(in srgb, var(--c-focus, #0ea5e9) 45%, transparent);
 
   /* Radii & motion */
@@ -107,5 +111,9 @@
   );
 
   --iv-color-border: var(--c-border, #3f3f46);
+  --iv-color-foreground: var(--c-foreground, #f4f4f5);
+  --iv-color-muted-foreground: var(--c-muted-foreground, #a1a1aa);
+  --iv-color-surface: var(--c-surface, #18181b);
+  --iv-color-danger: var(--c-danger, #f87171);
   --iv-color-focus-ring: color-mix(in srgb, var(--c-focus, #38bdf8) 45%, transparent);
 }
